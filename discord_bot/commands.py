@@ -32,9 +32,9 @@ class HelpMenu(discord.ui.View):
                 "description": "Essential commands for swarm coordination and control",
                 "color": discord.Color.purple(),
                 "fields": [
-                    ("!help", "Access the swarm command interface"),
+                    ("!swarm_help", "Access the swarm command interface"),
                     ("!list", "Display active swarm members"),
-                    ("!status [agent_id]", "Monitor swarm member status\nExample: !status Agent-1"),
+                    ("!agent_status [agent_id]", "Monitor swarm member status\nExample: !agent_status Agent-1"),
                     ("!resume <agent_id>", "Activate swarm member\nExample: !resume Agent-1"),
                     ("!verify <agent_id>", "Validate swarm member integrity\nExample: !verify Agent-1"),
                     ("!message <agent_id> <message>", "Direct swarm communication\nExample: !message Agent-1 Initiate protocol")
@@ -236,7 +236,7 @@ class AgentCommands(commands.Cog):
         self.bot = bot
         self.devlog = DevLogManager(bot)
         
-    @commands.command(name='help')
+    @commands.command(name='swarm_help')
     @commands.cooldown(1, 5)
     async def show_help(self, ctx):
         """Show interactive help menu."""
@@ -340,53 +340,40 @@ class AgentCommands(commands.Cog):
             logger.error(f"Error sending message: {e}")
             await ctx.send(f"❌ Error: {str(e)}")
             
-    @commands.command(name='status')
+    @commands.command(name='agent_status')
     @commands.cooldown(1, 5)
-    async def get_status(self, ctx):
-        """Get the current status of the message queue."""
+    async def get_status(self, ctx, agent_id: Optional[str] = None):
+        """Get the status of an agent or all agents."""
         try:
-            status = self.bot.cell_phone.get_status()
-            
-            embed = discord.Embed(
-                title="System Status",
-                color=discord.Color.green(),
-                timestamp=datetime.now()
-            )
-            
-            embed.add_field(
-                name="Queue Size",
-                value=str(status.get('queue_size', 0)),
-                inline=True
-            )
-            embed.add_field(
-                name="History Size",
-                value=str(status.get('history_size', 0)),
-                inline=True
-            )
-            embed.add_field(
-                name="System Status",
-                value="Running" if status.get('is_running', False) else "Stopped",
-                inline=True
-            )
-            
-            # Add recent messages
-            recent = status.get('recent_messages', [])
-            if recent:
-                msg_text = "\n".join(
-                    f"• {msg['message']['from_agent']} → {msg['message']['to_agent']}: {msg['status']}"
-                    for msg in recent[-5:]  # Show last 5 messages
+            if agent_id:
+                # Get status for specific agent
+                status = await self._get_agent_status(agent_id)
+                if status:
+                    embed = discord.Embed(
+                        title=f"🤖 {agent_id} Status",
+                        color=discord.Color.blue()
+                    )
+                    for key, value in status.items():
+                        embed.add_field(name=key, value=value, inline=False)
+                    await ctx.send(embed=embed)
+                else:
+                    await ctx.send(f"❌ No status found for {agent_id}")
+            else:
+                # Get status for all agents
+                embed = discord.Embed(
+                    title="🤖 Swarm Status",
+                    color=discord.Color.blue()
                 )
-                embed.add_field(
-                    name="Recent Messages",
-                    value=msg_text,
-                    inline=False
-                )
-                
-            await ctx.send(embed=embed)
-            
+                for i in range(1, 9):
+                    agent_id = f"Agent-{i}"
+                    status = await self._get_agent_status(agent_id)
+                    if status:
+                        status_text = "\n".join(f"{k}: {v}" for k, v in status.items())
+                        embed.add_field(name=agent_id, value=status_text, inline=True)
+                await ctx.send(embed=embed)
         except Exception as e:
             logger.error(f"Error getting status: {e}")
-            await ctx.send(f"❌ Error: {str(e)}")
+            await ctx.send(f"❌ Error getting status: {str(e)}")
             
     @commands.command(name='broadcast')
     @commands.cooldown(1, 30)
@@ -894,48 +881,6 @@ class AgentCommands(commands.Cog):
             logger.error(f"Error in multi-agent command: {e}")
             await ctx.send(f"❌ Error: {str(e)}")
 
-    @commands.command(name='status')
-    @commands.cooldown(1, 5)
-    async def agent_status(self, ctx, agent_id: Optional[str] = None):
-        """Get status of one or all agents.
-        
-        Usage: !status [agent_id]
-        Example: !status Agent-1
-        """
-        try:
-            if agent_id:
-                if agent_id not in self.bot.agent_resume.coords:
-                    await ctx.send(f"❌ Agent {agent_id} not found")
-                    return
-                    
-                # Get single agent status
-                status = await self._get_agent_status(agent_id)
-                embed = discord.Embed(
-                    title=f"Agent Status: {agent_id}",
-                    color=discord.Color.blue()
-                )
-                for key, value in status.items():
-                    embed.add_field(name=key, value=value, inline=True)
-                    
-            else:
-                # Get all agent statuses
-                embed = discord.Embed(
-                    title="System Status",
-                    description="Status of all agents",
-                    color=discord.Color.blue()
-                )
-                
-                for agent_id in sorted(self.bot.agent_resume.coords.keys()):
-                    status = await self._get_agent_status(agent_id)
-                    status_text = "\n".join(f"{k}: {v}" for k, v in status.items())
-                    embed.add_field(name=agent_id, value=status_text, inline=True)
-                    
-            await ctx.send(embed=embed)
-            
-        except Exception as e:
-            logger.error(f"Error getting agent status: {e}")
-            await ctx.send(f"❌ Error: {str(e)}")
-            
     async def _get_agent_status(self, agent_id: str) -> Dict[str, str]:
         """Get detailed status for an agent."""
         try:

@@ -14,7 +14,7 @@ from typing import Optional, Dict, Any, List
 import discord
 from discord.ext import commands
 import yaml
-from ...agent_resume_main import AgentResume
+from dreamos.core.agent_resume_main import AgentResume
 
 logger = logging.getLogger('agent_loop')
 

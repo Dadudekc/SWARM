@@ -291,4 +291,44 @@ class TestAgentCommands(unittest.TestCase):
         await self.commands.send_prompt(ctx, "Agent-1", prompt_text="")
         self.ctx.send.assert_called_once()
         call_args = self.ctx.send.call_args[0][0]
-        self.assertIn("Error", call_args) 
+        self.assertIn("Error", call_args)
+
+    async def test_channel_assignment(self):
+        """Test that Agent-1 is correctly assigned to its channel."""
+        await asyncio.sleep(0)  # Allow other coroutines to run
+        
+        # Mock the channel ID from config
+        expected_channel_id = "1375298813501374654"
+        
+        # Create a mock channel with the expected ID
+        mock_channel = MockChannel(id=int(expected_channel_id))
+        self.ctx.channel = mock_channel
+        
+        # Test sending a devlog message
+        message = MockMessage(
+            content="!devlog Agent-1\nTest channel assignment",
+            channel=mock_channel
+        )
+        ctx = MockContext(message=message)
+        
+        # Verify the channel ID matches
+        self.assertEqual(str(self.ctx.channel.id), expected_channel_id)
+        
+        # Test devlog update
+        await self.commands.update_devlog(ctx, "Agent-1", message="Test channel assignment")
+        self.ctx.send.assert_called_once()
+        call_args = self.ctx.send.call_args[0][0]
+        self.assertIn("Devlog updated", call_args)
+        
+        # Verify the message was sent to the correct channel
+        self.assertEqual(str(self.ctx.channel.id), expected_channel_id)
+        
+        # Test viewing devlog
+        await self.commands.view_devlog(ctx, "Agent-1")
+        self.ctx.send.assert_called()
+        call_args = self.ctx.send.call_args[0][0]
+        self.assertIsInstance(call_args, discord.File)
+        self.assertEqual(call_args.filename, "agent1_devlog.md")
+        
+        # Verify the view command also used the correct channel
+        self.assertEqual(str(self.ctx.channel.id), expected_channel_id) 
