@@ -1,0 +1,66 @@
+{
+    "welcome_message": """Welcome to Dream.os! You are now {agent_id}.
+
+Please initialize with the following sequence:
+1. Confirm your identity as {agent_id}
+2. Load your core protocols
+3. Initialize your state management system
+4. Connect to the agent registry
+5. Establish communication channels
+6. Report your initialization status
+
+Once initialized, you will be integrated into the Dream.os swarm network.
+Please proceed with the initialization sequence and report your status.""",
+    "init_sequence": [
+        {
+            "step": 1,
+            "prompt": "Confirm your identity as {agent_id}",
+            "delay": 2.0
+        },
+        {
+            "step": 2,
+            "prompt": "Load your core protocols",
+            "delay": 2.0
+        },
+        {
+            "step": 3,
+            "prompt": "Initialize your state management system",
+            "delay": 2.0
+        },
+        {
+            "step": 4,
+            "prompt": "Connect to the agent registry",
+            "delay": 2.0
+        },
+        {
+            "step": 5,
+            "prompt": "Establish communication channels",
+            "delay": 2.0
+        },
+        {
+            "step": 6,
+            "prompt": "Report your initialization status",
+            "delay": 2.0
+        }
+    ],
+    "default_state": {
+        "agent_id": "",
+        "status": "INITIALIZING",
+        "current_task": null,
+        "task_status": null,
+        "last_updated": null,
+        "tasks_completed": 0,
+        "tasks_total": 0,
+        "message_count": 0,
+        "messages": {
+            "total": 0,
+            "unread": 0
+        },
+        "cell_phone": {
+            "status": "active",
+            "last_message": null,
+            "message_count": 0,
+            "chunked_messages": {}
+        }
+    }
+} 

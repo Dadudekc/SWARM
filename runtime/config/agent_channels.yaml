@@ -1,0 +1,41 @@
+# Agent to Discord Channel Mapping
+# Format: agent_id: channel_id
+
+# Top row agents (1-4)
+Agent-1: "1375298813501374654"  # Top left
+Agent-2: "1375298856127955084"  # Top right
+Agent-3: "1375298965704282154"  # Second row left
+Agent-4: "1375298989028544552"  # Second row right
+
+# Bottom row agents (5-8)
+Agent-5: "1375299027897159811"  # Third row left
+Agent-6: "1375299060344557589"  # Third row right
+Agent-7: "1375299077918429374"  # Bottom left
+Agent-8: "1375299094167162910"  # Bottom right
+
+# Channel metadata
+channels:
+  Agent-1:
+    name: "agent-1-channel"
+    position: "top-left"
+  Agent-2:
+    name: "agent-2-channel"
+    position: "top-right"
+  Agent-3:
+    name: "agent-3-channel"
+    position: "second-row-left"
+  Agent-4:
+    name: "agent-4-channel"
+    position: "second-row-right"
+  Agent-5:
+    name: "agent-5-channel"
+    position: "third-row-left"
+  Agent-6:
+    name: "agent-6-channel"
+    position: "third-row-right"
+  Agent-7:
+    name: "agent-7-channel"
+    position: "bottom-left"
+  Agent-8:
+    name: "agent-8-channel"
+    position: "bottom-right" 

@@ -1,0 +1,6 @@
+{
+  "type": "INIT",
+  "content": "Welcome to your operational loop. Begin by syncing protocols.",
+  "from": "bootstrap",
+  "timestamp": null
+} 

@@ -1,0 +1,108 @@
+# Environment variables
+.env
+.env.*
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual Environment
+venv/
+env/
+ENV/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+.DS_Store
+
+# Logs
+*.log
+logs/
+log/
+
+# Discord Bot specific
+discord_bot/config.json
+discord_bot/*.log
+
+# Project specific
+runtime/config/cursor_agent_coords.json
+
+# Logs and databases
+*.sqlite
+*.db
+
+# Runtime files
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Environment variables
+.env.local
+
+# System files
+Thumbs.db
+
+# Exclude Chrome profile logs, cache, and databases
+Trading_/basicbot/chrome_profile/Default/Extension Rules/LOG*
+Trading_/basicbot/chrome_profile/Default/Extension Scripts/LOG*
+Trading_/basicbot/chrome_profile/Default/Extension State/LOG*
+Trading_/basicbot/chrome_profile/Default/Extension State/LOG.old*
+Trading_/basicbot/chrome_profile/Default/File System/000/t/Paths/LOG*
+Trading_/basicbot/chrome_profile/Default/File System/Origins/LOG*
+Trading_/basicbot/chrome_profile/Default/File System/Origins/LOG.old*
+Trading_/basicbot/chrome_profile/Default/IndexedDB/*/LOG*
+Trading_/basicbot/chrome_profile/Default/IndexedDB/*/LOG.old*
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG*
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
+Trading_/basicbot/chrome_profile/Default/Service Worker/CacheStorage/*
+Trading_/basicbot/chrome_profile/Default/Service Worker/ScriptCache/*
+Trading_/basicbot/chrome_profile/Default/Cache/*
+Trading_/basicbot/chrome_profile/Default/Code Cache/*
+Trading_/basicbot/chrome_profile/Default/Network/Network Persistent State
+Trading_/basicbot/chrome_profile/Default/Network/Network Data
+Trading_/basicbot/chrome_profile/Default/QuotaManager*
+Trading_/basicbot/chrome_profile/Default/Visited Links
+Trading_/basicbot/chrome_profile/Default/History
+Trading_/basicbot/chrome_profile/Default/Favicons
+Trading_/basicbot/chrome_profile/Default/Top Sites
+Trading_/basicbot/chrome_profile/Default/Shortcuts
+Trading_/basicbot/chrome_profile/Default/Preferences
+Trading_/basicbot/chrome_profile/Default/Secure Preferences
+Trading_/basicbot/chrome_profile/Default/Web Data
+Trading_/basicbot/chrome_profile/Default/Login Data
+Trading_/basicbot/chrome_profile/Default/Bookmarks
+Trading_/basicbot/chrome_profile/Default/Cookies
+Trading_/basicbot/chrome_profile/Default/TransportSecurity
+Trading_/basicbot/chrome_profile/Default/Network Action Predictor
+Trading_/basicbot/chrome_profile/Default/Network Persistent State
+Trading_/basicbot/chrome_profile/Default/Extension Cookies
+Trading_/basicbot/chrome_profile/Default/Extension State
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/MANIFEST-*
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG*
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOCK
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/CURRENT
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/000*
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old* 

@@ -1,0 +1,1130 @@
+[
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-2",
+    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:41.604804",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-3",
+    "content": "Test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:42.909512",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-6",
+    "content": "[RESUME] Test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:45.912919",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-8",
+    "content": "Test 8",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:46.854813",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-9",
+    "content": "Test 9",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:46.949952",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-7",
+    "content": "Test 7",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:47.065567",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Hello from test script!",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:47.199688",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 0 test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:24:47.239723",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 1 test message",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:47.259741",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 2 test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.277757",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 3 test message",
+    "priority": 3,
+    "timestamp": "2025-05-23T04:24:47.294772",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 4 test message",
+    "priority": 4,
+    "timestamp": "2025-05-23T04:24:47.309786",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 5 test message",
+    "priority": 5,
+    "timestamp": "2025-05-23T04:24:47.327802",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESUME] Initiating autonomous protocol",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.373844",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[SYNC] Requesting status update",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.391861",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[VERIFY] Please verify current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.411879",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[TASK] New task assignment",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.431897",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[INTEGRATE] Begin system integration",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.452918",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CLEANUP] Initiating system cleanup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.468931",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[BACKUP] Please backup current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.487949",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESTORE] Restore from backup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.503963",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CAPTAIN] Captain mode activated",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.521979",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": " Normal message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:47.540996",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:47.575027",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:47.709656",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.057479",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 4",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.196605",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 5",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.411314",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-7",
+    "content": "Status tracking test",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:24:48.691615",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Concurrent test message to Agent-1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.731650",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Concurrent test message to Agent-2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.760676",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "Concurrent test message to Agent-3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.780694",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.823242",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.852776",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:24:48.879801",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-2",
+    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:21.912464",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-3",
+    "content": "Test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:23.303708",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-6",
+    "content": "[RESUME] Test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:26.125890",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-7",
+    "content": "Test 7",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:27.335390",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-9",
+    "content": "Test 9",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:27.360414",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-8",
+    "content": "Test 8",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:27.453006",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Hello from test script!",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:27.598647",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 0 test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:25:27.633676",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 1 test message",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:27.657699",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 2 test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.680719",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 3 test message",
+    "priority": 3,
+    "timestamp": "2025-05-23T04:25:27.701741",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 4 test message",
+    "priority": 4,
+    "timestamp": "2025-05-23T04:25:27.719768",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 5 test message",
+    "priority": 5,
+    "timestamp": "2025-05-23T04:25:27.743182",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESUME] Initiating autonomous protocol",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.782825",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[SYNC] Requesting status update",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.800841",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[VERIFY] Please verify current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.825865",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[TASK] New task assignment",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.846883",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[INTEGRATE] Begin system integration",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.865900",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CLEANUP] Initiating system cleanup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.883916",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[BACKUP] Please backup current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.905938",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESTORE] Restore from backup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.925955",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CAPTAIN] Captain mode activated",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.948976",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": " Normal message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:27.982544",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.041121",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.165740",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.285921",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 4",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.406569",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 5",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.529720",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-7",
+    "content": "Status tracking test",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:25:28.755924",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Concurrent test message to Agent-1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.794959",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Concurrent test message to Agent-2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.811974",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "Concurrent test message to Agent-3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.831992",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.876111",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.897053",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:25:28.917070",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-2",
+    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:49.044355",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-3",
+    "content": "Test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:50.180402",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-6",
+    "content": "[RESUME] Test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:53.493163",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-9",
+    "content": "Test 9",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:54.530747",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-8",
+    "content": "Test 8",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:54.613362",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-7",
+    "content": "Test 7",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:54.727487",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Hello from test script!",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:54.909208",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 0 test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:27:54.952248",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 1 test message",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:54.979271",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 2 test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.002293",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 3 test message",
+    "priority": 3,
+    "timestamp": "2025-05-23T04:27:55.022820",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 4 test message",
+    "priority": 4,
+    "timestamp": "2025-05-23T04:27:55.044838",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 5 test message",
+    "priority": 5,
+    "timestamp": "2025-05-23T04:27:55.073867",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESUME] Initiating autonomous protocol",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.144929",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[SYNC] Requesting status update",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.267663",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[VERIFY] Please verify current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.331722",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[TASK] New task assignment",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.449851",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[INTEGRATE] Begin system integration",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.516913",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CLEANUP] Initiating system cleanup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.564956",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[BACKUP] Please backup current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.613000",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESTORE] Restore from backup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.647030",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CAPTAIN] Captain mode activated",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.685066",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": " Normal message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:55.716095",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:55.796166",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:55.952038",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.082301",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 4",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.213421",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 5",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.349544",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-7",
+    "content": "Status tracking test",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:27:56.539224",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Concurrent test message to Agent-1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.587267",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Concurrent test message to Agent-2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.614292",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "Concurrent test message to Agent-3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.641317",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.687359",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.716385",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:27:56.787449",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-2",
+    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:14.739502",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-3",
+    "content": "Test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:15.865688",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-6",
+    "content": "[RESUME] Test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:20.754597",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-7",
+    "content": "Test 7",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:21.732108",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-8",
+    "content": "Test 8",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:21.795165",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-9",
+    "content": "Test 9",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:21.844209",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Hello from test script!",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:21.973343",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 0 test message",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:28:22.025391",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 1 test message",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:22.047410",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 2 test message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.072433",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 3 test message",
+    "priority": 3,
+    "timestamp": "2025-05-23T04:28:22.092451",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 4 test message",
+    "priority": 4,
+    "timestamp": "2025-05-23T04:28:22.113470",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Priority 5 test message",
+    "priority": 5,
+    "timestamp": "2025-05-23T04:28:22.139495",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESUME] Initiating autonomous protocol",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.183535",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[SYNC] Requesting status update",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.212560",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[VERIFY] Please verify current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.238584",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[TASK] New task assignment",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.258601",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[INTEGRATE] Begin system integration",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.281622",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CLEANUP] Initiating system cleanup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.306645",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[BACKUP] Please backup current state",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.330667",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[RESTORE] Restore from backup",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.360695",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "[CAPTAIN] Captain mode activated",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.384717",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": " Normal message",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:22.414743",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:22.498820",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:22.636454",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:22.764591",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 4",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:22.896712",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-4",
+    "content": "Rate limit test message 5",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.037347",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-7",
+    "content": "Status tracking test",
+    "priority": 2,
+    "timestamp": "2025-05-23T04:28:23.227518",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-1",
+    "content": "Concurrent test message to Agent-1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.268557",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-2",
+    "content": "Concurrent test message to Agent-2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.292578",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-3",
+    "content": "Concurrent test message to Agent-3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.313597",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 1",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.354635",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 2",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.372651",
+    "status": "queued"
+  },
+  {
+    "from_agent": "test",
+    "to_agent": "Agent-8",
+    "content": "History test message 3",
+    "priority": 1,
+    "timestamp": "2025-05-23T04:28:23.392669",
+    "status": "queued"
+  },
+  {
+    "from_agent": "CLI",
+    "to_agent": "Agent-1",
+    "content": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "priority": 0,
+    "timestamp": "2025-05-23T04:30:01.017148",
+    "status": "queued"
+  }
+]

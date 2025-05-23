@@ -1,0 +1,64 @@
+{
+    "modes": {
+      "resume": {
+        "prompt_template": "[RESUME] Dream.OS Loop Reactivation:\n\n1. Load current task from inbox\n2. Resume execution from last checkpoint\n3. Scan agent_state.json for unresolved objectives\n4. Loop until task is complete or escalation is triggered\n5. Log devlog entry + update agent_state.json\n\nReturn to full autonomous operation. No further instructions needed."
+      },
+      "sync": {
+        "prompt_template": "[{agent_id}] [SYNC] Loop Status Report:\n\nMetrics:\n{metrics}\n\nAll systems must remain in alignment.\nWE ARE THE SWARM."
+      },
+      "verify": {
+        "prompt_template": "[{agent_id}] [VERIFY] Integrity Check:\n\n- Validate agent_state.json\n- Confirm devlog activity\n- Report discrepancies or issues\n\nConfirm operational status."
+      },
+      "repair": {
+        "prompt_template": "[{agent_id}] [REPAIR] Fault Detected:\n\nIssues:\n{issues}\n\nAttempt repair protocols:\n1. Retry last action\n2. Check logs\n3. Restore from checkpoint if needed\n\nReport outcome."
+      },
+      "backup": {
+        "prompt_template": "[{agent_id}] [BACKUP] Savepoint Requested:\n\nCreate a new backup snapshot.\nInclude: agent_state, devlog, active task.\nConfirm once complete."
+      },
+      "restore": {
+        "prompt_template": "[{agent_id}] [RESTORE] System Restore Initiated:\n\nRestore backup point: {backup_point}\nRestore scope: {restore_scope}\n\nReinitialize loop and report result."
+      },
+      "cleanup": {
+        "prompt_template": "[CLEANUP] Dream.OS Cleanup Directive:\n\n1. Remove temp artifacts and outdated cache\n2. Archive logs older than retention threshold\n3. Optimize memory and resource usage\n4. Confirm task queue consistency\n5. Update status once clean\n\nExecute cleanup cycle now."
+      },
+      "captain": {
+        "prompt_template": "[CAPTAIN] Dream.OS Captaincy Protocol:\n\n1. Evaluate all agent_state.json files\n2. Identify inactive or misaligned agents\n3. Dispatch resume or repair messages\n4. Balance workload across swarm\n5. Log campaign results to devlog\n\nExecute swarm-wide leadership loop."
+      },
+      "task": {
+        "prompt_template": "[TASK] Task Loop Protocol:\n\n1. Load task from inbox.json\n2. Validate against task-schema.json\n3. Execute and log progress\n4. Update active.json or mark complete\n5. Request new task from backlog if idle\n\nMaintain continuous execution loop."
+      },
+      "integrate": {
+        "prompt_template": "[INTEGRATE] Integration Cycle:\n\n1. Verify all core modules load successfully\n2. Confirm all message routing paths work (cellphone, bridge, bot)\n3. Detect any schema mismatches or timeouts\n4. Patch or escalate as needed\n5. Update integration report\n\nRun full system integration test now."
+      },
+      "alert": {
+        "prompt_template": "[{agent_id}] [ALERT] {level} PRIORITY - {message}\n\nImmediate attention required."
+      },
+      "action": {
+        "prompt_template": "[{agent_id}] [ACTION] {type}:\n\n{details}\n\nLog outcome to devlog and continue loop."
+      }
+    },
+    "default_delays": {
+      "resume": 1.5,
+      "sync": 0.4,
+      "verify": 0.8,
+      "repair": 1.2,
+      "backup": 1.5,
+      "restore": 2.0,
+      "cleanup": 1.0,
+      "captain": 1.5,
+      "task": 0.6,
+      "integrate": 2.5,
+      "alert": 0.1,
+      "action": 0.1
+    },
+    "retry_config": {
+      "max_attempts": 3,
+      "base_delay": 3,
+      "max_delay": 20
+    },
+    "chunking_config": {
+      "max_chunk_size": 128,
+      "verification_delay": 0.3
+    }
+  }
+  
