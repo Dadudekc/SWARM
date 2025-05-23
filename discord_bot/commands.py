@@ -15,13 +15,15 @@ import json
 import time
 import yaml
 import aiohttp
+import pyautogui
+import threading
 
 from dreamos.core import MessageMode
 
 logger = logging.getLogger('discord_bot')
 
 class HelpMenu(discord.ui.View):
-    """Interactive help menu with buttons."""
+    """Interactive help menu with buttons and visual effects."""
     
     def __init__(self):
         super().__init__(timeout=180)
@@ -31,6 +33,8 @@ class HelpMenu(discord.ui.View):
                 "title": "🔄 Swarm Core Commands",
                 "description": "Essential commands for swarm coordination and control",
                 "color": discord.Color.purple(),
+                "icon": "🔄",
+                "thumbnail": "https://i.imgur.com/core-commands.png",  # Add your image URL
                 "fields": [
                     ("!swarm_help", "Access the swarm command interface"),
                     ("!list", "Display active swarm members"),
@@ -44,6 +48,7 @@ class HelpMenu(discord.ui.View):
                 "title": "🎯 Swarm Task Management",
                 "description": "Commands for swarm task distribution and execution",
                 "color": discord.Color.blue(),
+                "icon": "🎯",
                 "fields": [
                     ("!task <agent_ids> <task>", "Distribute task to swarm members\nExample: !task 1,3,5 Execute system analysis"),
                     ("!prompt <agent_id> <prompt>", "Send directive to swarm member\nExample: !prompt Agent-1 Analyze network patterns"),
@@ -55,6 +60,7 @@ class HelpMenu(discord.ui.View):
                 "title": "⚡ Swarm System Operations",
                 "description": "Commands for swarm system maintenance and optimization",
                 "color": discord.Color.gold(),
+                "icon": "⚡",
                 "fields": [
                     ("!system <action>", "Execute swarm-wide operations\nActions: status, sync, backup, cleanup\nExample: !system status"),
                     ("!repair <agent_id>", "Restore swarm member functionality\nExample: !repair Agent-1"),
@@ -68,8 +74,10 @@ class HelpMenu(discord.ui.View):
                 "title": "📊 Swarm Intelligence",
                 "description": "Commands for swarm knowledge and development tracking",
                 "color": discord.Color.green(),
+                "icon": "📊",
                 "fields": [
                     ("!devlog <agent_id> <message>", "Record swarm member development\nExample: !devlog Agent-1 Protocol optimization complete"),
+                    ("!view_devlog <agent_id>", "View swarm member development log\nExample: !view_devlog Agent-1"),
                     ("!clear_devlog <agent_id>", "Reset swarm member development log\nExample: !clear_devlog Agent-1"),
                     ("!devlog_channel", "Configure swarm intelligence channel"),
                     ("!channels", "Display swarm communication channels")
@@ -79,52 +87,193 @@ class HelpMenu(discord.ui.View):
                 "title": "🛸 Swarm Integration",
                 "description": "Commands for swarm member lifecycle management",
                 "color": discord.Color.red(),
+                "icon": "🛸",
                 "fields": [
                     ("!integrate <agent_id>", "Assimilate new swarm member\nExample: !integrate Agent-1"),
                     ("!onboard <agent_id>", "Initialize swarm member\nExample: !onboard Agent-1"),
                     ("!channels", "View swarm communication network"),
                     ("!status", "Monitor swarm health status")
                 ]
+            },
+            {
+                "title": "🖥️ GUI Control",
+                "description": "Commands for controlling system GUI through Discord",
+                "color": discord.Color.dark_blue(),
+                "icon": "🖥️",
+                "fields": [
+                    ("!gui move <x> <y>", "Move mouse to coordinates\nExample: !gui move 100 200"),
+                    ("!gui click", "Click at current position\nExample: !gui click"),
+                    ("!gui type <text>", "Type text\nExample: !gui type Hello World"),
+                    ("!gui press <key>", "Press a key\nExample: !gui press enter"),
+                    ("!gui hotkey <key1> <key2>", "Press key combination\nExample: !gui hotkey ctrl c"),
+                    ("!gui screenshot", "Take a screenshot\nExample: !gui screenshot"),
+                    ("!gui scroll <amount>", "Scroll mouse wheel\nExample: !gui scroll 10"),
+                    ("!gui drag <x> <y>", "Drag mouse to coordinates\nExample: !gui drag 300 400")
+                ]
             }
         ]
         
-    @discord.ui.button(label="◀️ Previous", style=discord.ButtonStyle.primary, row=0)
+        # Add category buttons with emojis
+        self.add_category_buttons()
+        
+    def add_category_buttons(self):
+        """Add category selection buttons with enhanced styling."""
+        categories = [
+            ("🔄 Core", 0, discord.ButtonStyle.primary),
+            ("🎯 Tasks", 1, discord.ButtonStyle.success),
+            ("⚡ System", 2, discord.ButtonStyle.danger),
+            ("📊 Intelligence", 3, discord.ButtonStyle.secondary),
+            ("🛸 Integration", 4, discord.ButtonStyle.primary),
+            ("🖥️ GUI", 5, discord.ButtonStyle.success)
+        ]
+        
+        for label, page_num, style in categories:
+            button = discord.ui.Button(
+                label=label,
+                style=style,
+                custom_id=f"page_{page_num}",
+                row=1,
+                emoji=label.split()[0]  # Use the emoji from the label
+            )
+            button.callback = lambda i, p=page_num: self.jump_to_page(i, p)
+            self.add_item(button)
+            
+    async def jump_to_page(self, interaction: discord.Interaction, page: int):
+        """Jump to specific page."""
+        self.current_page = page
+        await self.update_page(interaction)
+        
+    @discord.ui.button(label="◀️ Previous", style=discord.ButtonStyle.secondary, row=0)
     async def previous_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         """Navigate to previous page."""
         self.current_page = (self.current_page - 1) % len(self.pages)
         await self.update_page(interaction)
         
-    @discord.ui.button(label="Next ▶️", style=discord.ButtonStyle.primary, row=0)
+    @discord.ui.button(label="Next ▶️", style=discord.ButtonStyle.secondary, row=0)
     async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
         """Navigate to next page."""
         self.current_page = (self.current_page + 1) % len(self.pages)
         await self.update_page(interaction)
         
+    @discord.ui.button(label="🔍 Search", style=discord.ButtonStyle.success, row=0)
+    async def search_commands(self, interaction: discord.Interaction):
+        """Open command search modal."""
+        modal = CommandSearchModal(self)
+        await interaction.response.send_modal(modal)
+        
     async def update_page(self, interaction: discord.Interaction):
-        """Update the help menu page with swarm-focused design."""
+        """Update the help menu page with enhanced visual design."""
         page = self.pages[self.current_page]
         
         embed = discord.Embed(
-            title=page["title"],
+            title=f"{page['icon']} {page['title']}",
             description=page["description"],
             color=page["color"]
         )
         
-        # Add swarm-themed header
+        # Add animated header with custom image
         embed.set_author(
             name="Dream.OS Swarm Command Interface",
-            icon_url="https://i.imgur.com/your-swarm-icon.png"  # Replace with actual icon URL
+            icon_url="https://i.imgur.com/your-swarm-icon.png",
+            url="https://github.com/Dadudekc/SWARM"
         )
         
+        # Add thumbnail if available
+        if "thumbnail" in page:
+            embed.set_thumbnail(url=page["thumbnail"])
+        
+        # Add command fields with enhanced formatting and syntax highlighting
         for name, value in page["fields"]:
-            embed.add_field(name=name, value=value, inline=False)
+            embed.add_field(
+                name=f"```ansi\n{name}\n```",
+                value=f"```md\n{value}\n```",
+                inline=False
+            )
             
-        # Add swarm-themed footer
+        # Add interactive footer with dynamic content
         embed.set_footer(
-            text=f"Swarm Intelligence • Page {self.current_page + 1}/{len(self.pages)} • We are the swarm"
+            text=f"Swarm Intelligence • Page {self.current_page + 1}/{len(self.pages)} • Type !swarm_help for more info",
+            icon_url="https://i.imgur.com/your-swarm-icon.png"
         )
         
-        await interaction.response.edit_message(embed=embed)
+        # Add timestamp for dynamic feel
+        embed.timestamp = datetime.now()
+        
+        # Add a subtle border effect
+        embed.set_image(url="https://i.imgur.com/your-border-image.png")  # Add your border image URL
+        
+        await interaction.response.edit_message(embed=embed, view=self)
+
+class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
+    """Modal for searching commands with enhanced UI."""
+    
+    def __init__(self, help_menu: HelpMenu):
+        super().__init__()
+        self.help_menu = help_menu
+        self.search_input = discord.ui.TextInput(
+            label="Enter command or keyword",
+            placeholder="e.g., status, task, gui",
+            required=True,
+            min_length=1,
+            max_length=50,
+            style=discord.TextStyle.paragraph
+        )
+        self.add_item(self.search_input)
+        
+    async def on_submit(self, interaction: discord.Interaction):
+        """Handle search submission with enhanced results display."""
+        query = self.search_input.value.lower()
+        results = []
+        
+        # Search through all pages with fuzzy matching
+        for page in self.help_menu.pages:
+            for name, value in page["fields"]:
+                if query in name.lower() or query in value.lower():
+                    results.append((name, value, page["title"], page["icon"]))
+        
+        if results:
+            # Create results embed with enhanced styling
+            embed = discord.Embed(
+                title="🔍 Command Search Results",
+                description=f"Found {len(results)} matches for '{query}'",
+                color=discord.Color.blue()
+            )
+            
+            # Group results by category
+            categories = {}
+            for name, value, category, icon in results[:10]:
+                if category not in categories:
+                    categories[category] = []
+                categories[category].append((name, value))
+            
+            # Add grouped results to embed
+            for category, commands in categories.items():
+                category_text = ""
+                for name, value in commands:
+                    category_text += f"**{name}**\n{value}\n\n"
+                embed.add_field(
+                    name=f"{icon} {category}",
+                    value=category_text,
+                    inline=False
+                )
+                
+            if len(results) > 10:
+                embed.set_footer(text=f"Showing 10 of {len(results)} results • Refine your search for more specific results")
+                
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            # Enhanced no results message
+            embed = discord.Embed(
+                title="❌ No Results Found",
+                description=f"No commands found matching '{query}'",
+                color=discord.Color.red()
+            )
+            embed.add_field(
+                name="💡 Suggestions",
+                value="• Check your spelling\n• Try a more general term\n• Browse categories using the buttons below",
+                inline=False
+            )
+            await interaction.response.send_message(embed=embed, ephemeral=True)
 
 class DevLogManager:
     """Manages agent development logs and Discord notifications."""
@@ -972,6 +1121,102 @@ class AgentCommands(commands.Cog):
             
         except Exception as e:
             logger.error(f"Error in system command: {e}")
+            await ctx.send(f"❌ Error: {str(e)}")
+
+    @commands.command(name='gui')
+    @commands.cooldown(1, 5)
+    async def gui_command(self, ctx, action: str, *, params: str = ""):
+        """Execute PyAutoGUI commands through Discord.
+        
+        Usage: !gui <action> [parameters]
+        Actions:
+        - move <x> <y>: Move mouse to coordinates
+        - click: Click at current position
+        - type <text>: Type text
+        - press <key>: Press a key
+        - hotkey <key1> <key2>: Press key combination
+        - screenshot: Take a screenshot
+        - scroll <amount>: Scroll mouse wheel
+        - drag <x> <y>: Drag mouse to coordinates
+        """
+        try:
+            # Create status embed
+            embed = discord.Embed(
+                title="🖥️ GUI Command",
+                description=f"Executing: {action}",
+                color=discord.Color.blue()
+            )
+            status_msg = await ctx.send(embed=embed)
+            
+            def execute_gui_command():
+                try:
+                    if action == "move":
+                        x, y = map(int, params.split())
+                        pyautogui.moveTo(x, y)
+                        return f"Moved mouse to ({x}, {y})"
+                        
+                    elif action == "click":
+                        pyautogui.click()
+                        return "Clicked at current position"
+                        
+                    elif action == "type":
+                        pyautogui.write(params)
+                        return f"Typed: {params}"
+                        
+                    elif action == "press":
+                        pyautogui.press(params)
+                        return f"Pressed key: {params}"
+                        
+                    elif action == "hotkey":
+                        keys = params.split()
+                        pyautogui.hotkey(*keys)
+                        return f"Pressed hotkey: {' + '.join(keys)}"
+                        
+                    elif action == "screenshot":
+                        screenshot = pyautogui.screenshot()
+                        screenshot_path = "runtime/temp/screenshot.png"
+                        os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
+                        screenshot.save(screenshot_path)
+                        return "Screenshot taken"
+                        
+                    elif action == "scroll":
+                        amount = int(params)
+                        pyautogui.scroll(amount)
+                        return f"Scrolled {amount} units"
+                        
+                    elif action == "drag":
+                        x, y = map(int, params.split())
+                        pyautogui.dragTo(x, y)
+                        return f"Dragged to ({x}, {y})"
+                        
+                    else:
+                        return f"Unknown action: {action}"
+                        
+                except Exception as e:
+                    return f"Error: {str(e)}"
+            
+            # Execute GUI command in a separate thread
+            result = await asyncio.get_event_loop().run_in_executor(None, execute_gui_command)
+            
+            # Update status embed
+            embed = discord.Embed(
+                title="🖥️ GUI Command Complete",
+                description=result,
+                color=discord.Color.green()
+            )
+            
+            # If screenshot was taken, attach it
+            if action == "screenshot" and "Error" not in result:
+                try:
+                    await status_msg.edit(embed=embed, file=discord.File("runtime/temp/screenshot.png"))
+                except Exception as e:
+                    logger.error(f"Error sending screenshot: {e}")
+                    await status_msg.edit(embed=embed)
+            else:
+                await status_msg.edit(embed=embed)
+                
+        except Exception as e:
+            logger.error(f"Error executing GUI command: {e}")
             await ctx.send(f"❌ Error: {str(e)}")
 
 async def setup(bot):

@@ -1,1130 +1,1386 @@
 [
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-2",
-    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:41.604804",
+    "timestamp": "2025-05-23T17:16:55.770479",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-3",
-    "content": "Test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:42.909512",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-6",
-    "content": "[RESUME] Test message",
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:45.912919",
+    "timestamp": "2025-05-23T17:16:55.785492",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-8",
-    "content": "Test 8",
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:46.854813",
+    "timestamp": "2025-05-23T17:16:55.801507",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-9",
-    "content": "Test 9",
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:46.949952",
+    "timestamp": "2025-05-23T17:16:55.821525",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-7",
-    "content": "Test 7",
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:47.065567",
+    "timestamp": "2025-05-23T17:16:55.839541",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Hello from test script!",
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:47.199688",
+    "timestamp": "2025-05-23T17:16:55.857558",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 0 test message",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:24:47.239723",
+    "timestamp": "2025-05-23T17:16:55.933626",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 1 test message",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:47.259741",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 2 test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.277757",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 3 test message",
-    "priority": 3,
-    "timestamp": "2025-05-23T04:24:47.294772",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 4 test message",
-    "priority": 4,
-    "timestamp": "2025-05-23T04:24:47.309786",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 5 test message",
-    "priority": 5,
-    "timestamp": "2025-05-23T04:24:47.327802",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESUME] Initiating autonomous protocol",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.373844",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[SYNC] Requesting status update",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.391861",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[VERIFY] Please verify current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.411879",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[TASK] New task assignment",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.431897",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[INTEGRATE] Begin system integration",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.452918",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CLEANUP] Initiating system cleanup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.468931",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[BACKUP] Please backup current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.487949",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESTORE] Restore from backup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.503963",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CAPTAIN] Captain mode activated",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.521979",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": " Normal message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:47.540996",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:47.575027",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:47.709656",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.057479",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 4",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.196605",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 5",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.411314",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-7",
-    "content": "Status tracking test",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:24:48.691615",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Concurrent test message to Agent-1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.731650",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Concurrent test message to Agent-2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.760676",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "Concurrent test message to Agent-3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.780694",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.823242",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.852776",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:24:48.879801",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-2",
-    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:21.912464",
+    "timestamp": "2025-05-23T17:16:55.965655",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-3",
-    "content": "Test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:23.303708",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-6",
-    "content": "[RESUME] Test message",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:26.125890",
+    "timestamp": "2025-05-23T17:16:55.992680",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-7",
-    "content": "Test 7",
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:27.335390",
+    "timestamp": "2025-05-23T17:16:56.011699",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-9",
-    "content": "Test 9",
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:27.360414",
+    "timestamp": "2025-05-23T17:16:56.040724",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-8",
-    "content": "Test 8",
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:27.453006",
+    "timestamp": "2025-05-23T17:16:56.099777",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Hello from test script!",
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:27.598647",
+    "timestamp": "2025-05-23T17:16:56.117793",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 0 test message",
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:25:27.633676",
+    "timestamp": "2025-05-23T17:16:56.134809",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 1 test message",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:27.657699",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 2 test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.680719",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 3 test message",
-    "priority": 3,
-    "timestamp": "2025-05-23T04:25:27.701741",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 4 test message",
-    "priority": 4,
-    "timestamp": "2025-05-23T04:25:27.719768",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 5 test message",
-    "priority": 5,
-    "timestamp": "2025-05-23T04:25:27.743182",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESUME] Initiating autonomous protocol",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.782825",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[SYNC] Requesting status update",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.800841",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[VERIFY] Please verify current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.825865",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[TASK] New task assignment",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.846883",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[INTEGRATE] Begin system integration",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.865900",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CLEANUP] Initiating system cleanup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.883916",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[BACKUP] Please backup current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.905938",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESTORE] Restore from backup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.925955",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CAPTAIN] Captain mode activated",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.948976",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": " Normal message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:27.982544",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.041121",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.165740",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.285921",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 4",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.406569",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 5",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.529720",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-7",
-    "content": "Status tracking test",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:25:28.755924",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Concurrent test message to Agent-1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.794959",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Concurrent test message to Agent-2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.811974",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "Concurrent test message to Agent-3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.831992",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.876111",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.897053",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:25:28.917070",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-2",
-    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:49.044355",
+    "timestamp": "2025-05-23T17:16:56.149823",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-3",
-    "content": "Test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:50.180402",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-6",
-    "content": "[RESUME] Test message",
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:53.493163",
+    "timestamp": "2025-05-23T17:16:56.167840",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-9",
-    "content": "Test 9",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:54.530747",
+    "timestamp": "2025-05-23T17:16:56.183854",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-8",
-    "content": "Test 8",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:54.613362",
+    "timestamp": "2025-05-23T17:16:56.200869",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-7",
-    "content": "Test 7",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:54.727487",
+    "timestamp": "2025-05-23T17:16:56.224891",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Hello from test script!",
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:54.909208",
+    "timestamp": "2025-05-23T17:16:56.239904",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 0 test message",
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:27:54.952248",
+    "timestamp": "2025-05-23T17:16:56.254918",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 1 test message",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:54.979271",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 2 test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.002293",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 3 test message",
-    "priority": 3,
-    "timestamp": "2025-05-23T04:27:55.022820",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 4 test message",
-    "priority": 4,
-    "timestamp": "2025-05-23T04:27:55.044838",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 5 test message",
-    "priority": 5,
-    "timestamp": "2025-05-23T04:27:55.073867",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESUME] Initiating autonomous protocol",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.144929",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[SYNC] Requesting status update",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.267663",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[VERIFY] Please verify current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.331722",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[TASK] New task assignment",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.449851",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[INTEGRATE] Begin system integration",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.516913",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CLEANUP] Initiating system cleanup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.564956",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[BACKUP] Please backup current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.613000",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESTORE] Restore from backup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.647030",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CAPTAIN] Captain mode activated",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.685066",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": " Normal message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:55.716095",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:55.796166",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:55.952038",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.082301",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 4",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.213421",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 5",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.349544",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-7",
-    "content": "Status tracking test",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:27:56.539224",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Concurrent test message to Agent-1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.587267",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Concurrent test message to Agent-2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.614292",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "Concurrent test message to Agent-3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.641317",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.687359",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.716385",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:27:56.787449",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-2",
-    "content": "Welcome to Dream.OS! You are now part of our agent network.\n        \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:14.739502",
+    "timestamp": "2025-05-23T17:16:56.273936",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-3",
-    "content": "Test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:15.865688",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-6",
-    "content": "[RESUME] Test message",
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:20.754597",
+    "timestamp": "2025-05-23T17:16:56.294955",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-7",
-    "content": "Test 7",
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:21.732108",
+    "timestamp": "2025-05-23T17:16:56.315989",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-8",
-    "content": "Test 8",
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:21.795165",
+    "timestamp": "2025-05-23T17:16:56.341998",
     "status": "queued"
   },
   {
-    "from_agent": "CLI",
-    "to_agent": "Agent-9",
-    "content": "Test 9",
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:21.844209",
+    "timestamp": "2025-05-23T17:16:56.367020",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Hello from test script!",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:21.973343",
+    "timestamp": "2025-05-23T17:16:56.394044",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 0 test message",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:28:22.025391",
+    "timestamp": "2025-05-23T17:16:56.421069",
     "status": "queued"
   },
   {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 1 test message",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:22.047410",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 2 test message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.072433",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 3 test message",
-    "priority": 3,
-    "timestamp": "2025-05-23T04:28:22.092451",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 4 test message",
-    "priority": 4,
-    "timestamp": "2025-05-23T04:28:22.113470",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Priority 5 test message",
-    "priority": 5,
-    "timestamp": "2025-05-23T04:28:22.139495",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESUME] Initiating autonomous protocol",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.183535",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[SYNC] Requesting status update",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.212560",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[VERIFY] Please verify current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.238584",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[TASK] New task assignment",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.258601",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[INTEGRATE] Begin system integration",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.281622",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CLEANUP] Initiating system cleanup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.306645",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[BACKUP] Please backup current state",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.330667",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[RESTORE] Restore from backup",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.360695",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "[CAPTAIN] Captain mode activated",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.384717",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": " Normal message",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:22.414743",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:22.498820",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:22.636454",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:22.764591",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 4",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:22.896712",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-4",
-    "content": "Rate limit test message 5",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.037347",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-7",
-    "content": "Status tracking test",
-    "priority": 2,
-    "timestamp": "2025-05-23T04:28:23.227518",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-1",
-    "content": "Concurrent test message to Agent-1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.268557",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-2",
-    "content": "Concurrent test message to Agent-2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.292578",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-3",
-    "content": "Concurrent test message to Agent-3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.313597",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 1",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.354635",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 2",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.372651",
-    "status": "queued"
-  },
-  {
-    "from_agent": "test",
-    "to_agent": "Agent-8",
-    "content": "History test message 3",
-    "priority": 1,
-    "timestamp": "2025-05-23T04:28:23.392669",
-    "status": "queued"
-  },
-  {
-    "from_agent": "CLI",
-    "to_agent": "Agent-1",
-    "content": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
     "priority": 0,
-    "timestamp": "2025-05-23T04:30:01.017148",
+    "timestamp": "2025-05-23T17:16:56.460105",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.484126",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.501141",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.520159",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.540177",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.559194",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.575209",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.597230",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:16:56.621251",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:05.803065",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:14.895281",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:24.103061",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:33.341547",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.082398",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.104418",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.124436",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.145456",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.163472",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.184491",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.200505",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.233535",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.252553",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.271570",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.290587",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.307602",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.328622",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.347639",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.366656",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.387675",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.408694",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.436719",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.455736",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.488767",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.506783",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.527802",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.551824",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.570841",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.592861",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.613881",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.631896",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.660922",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.678939",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.696956",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.713970",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.733989",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.752005",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.772023",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.791041",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.809057",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.826073",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.857101",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.883125",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.914153",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.940176",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.961197",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:34.982214",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.003233",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.023252",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.046273",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.069293",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.102323",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.124344",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.146365",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.171387",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.191405",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.215426",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.236445",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.258465",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.279485",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.303506",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.334534",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.354552",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.374571",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.454643",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.477663",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.499684",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.520703",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.546727",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.568747",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.588764",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.621795",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.643815",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.669839",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.700867",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.732896",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.763924",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.795953",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.822977",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.853005",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.879029",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.920066",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.944087",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.966108",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:35.987126",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:36.011149",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:36.032167",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:36.056190",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:36.085215",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:45.288203",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.201480",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.242517",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.265539",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.292562",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.322590",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.352617",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.376639",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.402663",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.431689",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.457712",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:51.481735",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:53.386035",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:55.280308",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:55.313338",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:55.342365",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:55.374394",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:55.415431",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:56.159137",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:56.186163",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:56.216190",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:56.241213",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:56.280782",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:17:56.306806",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:18:05.773059",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:18:15.418075",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:18:24.682991",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:18:33.950205",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:18:43.259846",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:18:54.211422",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:19:04.365537",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:19:13.587805",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:41:21.193151",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:41:30.768230",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:41:40.034373",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:41:49.190902",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:41:58.344982",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:42:07.600023",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-7",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:42:18.286464",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-8",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:42:27.898954",
+    "status": "queued"
+  },
+  {
+    "from_agent": "assistant",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:42:37.316329",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:43:14.991256",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-2",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:43:24.378993",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-3",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:43:36.192822",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-4",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:43:46.754532",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-5",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:43:56.745772",
+    "status": "queued"
+  },
+  {
+    "from_agent": "Agent-6",
+    "to_agent": "Communication channel test. Please respond if you receive this message.",
+    "content": "TEST",
+    "priority": 0,
+    "timestamp": "2025-05-23T17:44:05.923711",
     "status": "queued"
   }
 ]

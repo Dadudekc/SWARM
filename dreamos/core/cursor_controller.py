@@ -7,7 +7,7 @@ Provides cursor control functionality for agent interaction.
 import logging
 import time
 import pyautogui
-from typing import Optional
+from typing import Optional, Tuple
 
 logger = logging.getLogger('cursor_controller')
 
@@ -16,12 +16,20 @@ class CursorController:
     
     def __init__(self):
         # Set up PyAutoGUI settings
-        pyautogui.FAILSAFE = True  # Move mouse to corner to abort
+        pyautogui.FAILSAFE = False  # Disable fail-safe for automated operation
         pyautogui.PAUSE = 0.1  # Add small delay between actions
         
     def move_to(self, x: int, y: int):
         """Move cursor to specified coordinates"""
         try:
+            # Get screen size
+            screen_width, screen_height = pyautogui.size()
+            
+            # Ensure coordinates are within screen bounds
+            x = max(0, min(x, screen_width - 1))
+            y = max(0, min(y, screen_height - 1))
+            
+            # Move cursor with bounds checking
             pyautogui.moveTo(x, y)
             logger.debug(f"Moved cursor to ({x}, {y})")
         except Exception as e:
