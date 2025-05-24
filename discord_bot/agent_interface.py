@@ -1,0 +1,142 @@
+"""
+Discord Bot Agent Interface
+
+Provides an interface between Discord commands and the Dream.OS Cell Phone system.
+"""
+
+import logging
+from typing import Dict, List, Optional, Any
+from dreamos.core import CellPhone, MessageMode
+
+logger = logging.getLogger('discord_bot.agent_interface')
+
+class AgentInterface:
+    """Interface between Discord commands and Dream.OS Cell Phone system."""
+    
+    def __init__(self):
+        """Initialize the agent interface."""
+        self.cell_phone = CellPhone()
+        
+    def send_command(self, command: str, agent_id: str, content: str, priority: int = 0) -> bool:
+        """Send a command to an agent via the Cell Phone interface.
+        
+        Args:
+            command: The command type (resume, verify, etc.)
+            agent_id: The target agent ID
+            content: The command content
+            priority: Message priority (0-5)
+            
+        Returns:
+            bool: True if command was sent successfully
+        """
+        try:
+            # Map command to MessageMode
+            mode_map = {
+                'resume': MessageMode.RESUME,
+                'verify': MessageMode.VERIFY,
+                'repair': MessageMode.REPAIR,
+                'backup': MessageMode.BACKUP,
+                'restore': MessageMode.RESTORE,
+                'sync': MessageMode.SYNC,
+                'cleanup': MessageMode.CLEANUP,
+                'task': MessageMode.TASK,
+                'integrate': MessageMode.INTEGRATE,
+                'normal': MessageMode.NORMAL
+            }
+            
+            mode = mode_map.get(command.lower(), MessageMode.NORMAL)
+            
+            # Send message via Cell Phone
+            success = self.cell_phone.send_message(
+                from_agent="DISCORD",
+                to_agent=agent_id,
+                message=content,
+                priority=priority,
+                mode=mode
+            )
+            
+            if success:
+                logger.info(f"Command '{command}' sent to {agent_id}")
+            else:
+                logger.error(f"Failed to send command '{command}' to {agent_id}")
+                
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error sending command: {e}")
+            return False
+            
+    def broadcast_command(self, command: str, content: str, priority: int = 0) -> Dict[str, bool]:
+        """Broadcast a command to all agents.
+        
+        Args:
+            command: The command type
+            content: The command content
+            priority: Message priority (0-5)
+            
+        Returns:
+            Dict mapping agent IDs to success status
+        """
+        try:
+            # Get list of all agents
+            status = self.cell_phone.get_status()
+            agents = [msg['to_agent'] for msg in status.get('messages', [])]
+            agents = list(set(agents))  # Remove duplicates
+            
+            # Send command to each agent
+            results = {}
+            for agent_id in agents:
+                results[agent_id] = self.send_command(command, agent_id, content, priority)
+                
+            return results
+            
+        except Exception as e:
+            logger.error(f"Error broadcasting command: {e}")
+            return {}
+            
+    def get_agent_status(self, agent_id: Optional[str] = None) -> Dict[str, Any]:
+        """Get status of agent(s).
+        
+        Args:
+            agent_id: Optional specific agent ID to check
+            
+        Returns:
+            Dict containing agent status information
+        """
+        try:
+            status = self.cell_phone.get_status()
+            
+            if agent_id:
+                # Filter for specific agent
+                agent_messages = [
+                    msg for msg in status.get('messages', [])
+                    if msg['to_agent'] == agent_id
+                ]
+                return {
+                    'agent_id': agent_id,
+                    'message_count': len(agent_messages),
+                    'last_message': agent_messages[-1] if agent_messages else None
+                }
+            else:
+                # Return status for all agents
+                return status
+                
+        except Exception as e:
+            logger.error(f"Error getting agent status: {e}")
+            return {}
+            
+    def clear_agent_messages(self, agent_id: Optional[str] = None) -> bool:
+        """Clear messages for an agent or all agents.
+        
+        Args:
+            agent_id: Optional specific agent ID to clear
+            
+        Returns:
+            bool: True if messages were cleared successfully
+        """
+        try:
+            self.cell_phone.clear_messages(agent_id)
+            return True
+        except Exception as e:
+            logger.error(f"Error clearing messages: {e}")
+            return False 

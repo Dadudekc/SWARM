@@ -195,7 +195,7 @@ class MenuFooter(QFrame):
 
 class MenuSignals(QObject):
     """Signal handler for menu events."""
-    item_selected = pyqtSignal(object)  # Emits MenuItem when selected
+    item_selected = pyqtSignal(object, object)  # Emits (item_id, data) when selected
     menu_closed = pyqtSignal()  # Emits when menu is closed
     log_message = pyqtSignal(str, str)  # Emits (message, level) for logging
 
@@ -219,6 +219,7 @@ class Menu(QMainWindow):
             cls._instance._status_panel = None
             cls._instance._log_console = None
             cls._instance._theme = None  # Will be initialized in __init__
+            cls._instance.controller = None  # Will store the controller reference
         return cls._instance
     
     def __init__(self, title: str = "Dream.OS Menu"):
@@ -334,6 +335,23 @@ class Menu(QMainWindow):
         # Connect log signal
         self.signals.log_message.connect(self._log_console.log)
         
+        # Add exit button
+        exit_button = QPushButton("Exit")
+        exit_button.setStyleSheet("""
+            QPushButton {
+                background-color: #d32f2f;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 4px;
+            }
+            QPushButton:hover {
+                background-color: #b71c1c;
+            }
+        """)
+        exit_button.clicked.connect(self.close)
+        left_layout.addWidget(exit_button)
+        
     def add_item(self, item: MenuItem) -> None:
         """Add a menu item."""
         if item.id in self.items:
@@ -371,6 +389,31 @@ class Menu(QMainWindow):
         elif item.type == MenuItemType.AGENT_SELECTION:
             self._handle_agent_selection(item)
             
+    def _handle_agent_selection(self, item: MenuItem):
+        """Handle agent selection menu items.
+        
+        Args:
+            item: The menu item that triggered the selection
+        """
+        if hasattr(self, 'controller') and self.controller:
+            # Get list of available agents from the controller
+            agents = self.controller.list_agents()
+            
+            # Create submenu for agent selection
+            submenu = Menu("Select Agent")
+            for agent in agents:
+                submenu.add_item(MenuItem(
+                    id=f"{item.id}_{agent}",
+                    label=agent,
+                    type=MenuItemType.COMMAND,
+                    action=lambda a=agent: self.signals.item_selected.emit(item.id, a)
+                ))
+                
+            # Show submenu
+            submenu.show()
+        else:
+            logger.error("Controller not available for agent selection")
+            
     def show(self):
         """Show the menu window."""
         if not self.isVisible():
@@ -388,20 +431,62 @@ class Menu(QMainWindow):
             # Start the event loop
             Menu._app.exec_()
             
-    def closeEvent(self, event):
-        """Handle window close event."""
-        if self.signals:
-            self.signals.menu_closed.emit()
-        self.hide()
-        event.ignore()
-        
-    def __del__(self):
+    def _cleanup(self):
         """Clean up resources."""
         try:
+            # Clean up status panel
+            if self._status_panel:
+                try:
+                    self._status_panel.cleanup()
+                except AttributeError:
+                    pass  # Ignore if cleanup method doesn't exist
+                
+            # Clean up log console
+            if self._log_console:
+                try:
+                    self._log_console.cleanup()
+                except AttributeError:
+                    pass  # Ignore if cleanup method doesn't exist
+                
+            # Clean up signals
             if self.signals:
                 self.signals.deleteLater()
-        except:
-            pass
+                
+        except Exception as e:
+            logger.error(f"Error during resource cleanup: {e}")
+            
+    def closeEvent(self, event):
+        """Handle window close event."""
+        try:
+            # Emit menu closed signal
+            if self.signals:
+                self.signals.menu_closed.emit()
+            
+            # Clean up controller if exists
+            if self.controller:
+                self.controller.cleanup()
+            
+            # Clean up resources
+            self._cleanup()
+            
+            # Accept the close event
+            event.accept()
+            
+            # Quit the application
+            if Menu._app:
+                Menu._app.quit()
+                
+        except Exception as e:
+            logger.error(f"Error during cleanup: {e}")
+            event.accept()
+            
+    def __del__(self):
+        """Clean up resources."""
+        self._cleanup()
+
+    def set_controller(self, controller):
+        """Set the controller reference."""
+        self.controller = controller
 
 class MenuBuilder:
     """Builds and manages menu instances."""

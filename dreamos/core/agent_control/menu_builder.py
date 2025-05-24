@@ -30,7 +30,7 @@ class MenuBuilder(BaseMenuBuilder):
             id='list',
             label='List Agents',
             type=MenuItemType.COMMAND,
-            action=lambda: self.menu.signals.item_selected.emit('list', None)
+            action=lambda: self._handle_list_agents()
         ))
         
         # Add items for each action
@@ -51,29 +51,41 @@ class MenuBuilder(BaseMenuBuilder):
                 type=MenuItemType.AGENT_SELECTION,
                 action=lambda a=action_id: self.menu.signals.item_selected.emit(a, None)
             ))
-        
+            
+    def _handle_list_agents(self):
+        """Handle list agents action."""
+        if hasattr(self.menu, 'controller') and self.menu.controller:
+            agents = self.menu.controller.list_agents()
+            # Just emit the signal with the agents list
+            self.menu.signals.item_selected.emit('list', agents)
+        else:
+            logger.error("Controller not available for listing agents")
+            
     def _handle_agent_selection(self, item: MenuItem):
         """Handle agent selection for menu items.
         
         Args:
             item: The menu item that triggered the selection
         """
-        # Get list of available agents
-        agents = self.menu.coordinate_manager.list_agents()
-        
-        # Create submenu for agent selection
-        submenu = MenuBuilder()
-        for agent in agents:
-            submenu.add_item(MenuItem(
-                id=f"{item.id}_{agent}",
-                label=agent,
-                type=MenuItemType.COMMAND,
-                action=lambda a=agent: item.action(a)
-            ))
+        # Get list of available agents from the controller
+        if hasattr(self.menu, 'controller') and self.menu.controller:
+            agents = self.menu.controller.list_agents()
             
-        # Show submenu
-        submenu.display_menu()
-        
+            # Create submenu for agent selection
+            submenu = MenuBuilder()
+            for agent in agents:
+                submenu.add_item(MenuItem(
+                    id=f"{item.id}_{agent}",
+                    label=agent,
+                    type=MenuItemType.COMMAND,
+                    action=lambda a=agent: self.menu.signals.item_selected.emit(item.id, a)
+                ))
+                
+            # Show submenu
+            submenu.display_menu()
+        else:
+            logger.error("Controller not available for agent selection")
+            
     def display_menu(self) -> None:
         """Display the menu."""
         if self.menu:
@@ -93,6 +105,10 @@ class MenuBuilder(BaseMenuBuilder):
             self.menu.signals.menu_closed.connect(lambda: logger.debug("Menu closed"))
             
     def disconnect_signals(self) -> None:
-        """Disconnect all menu signals."""
+        """Disconnect menu signals."""
         if self.menu:
-            self.menu.signals.item_selected.disconnect() 
+            try:
+                self.menu.signals.item_selected.disconnect()
+                self.menu.signals.menu_closed.disconnect()
+            except (TypeError, RuntimeError):
+                pass  # Ignore if already disconnected 

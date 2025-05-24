@@ -1382,5 +1382,13 @@
     "priority": 0,
     "timestamp": "2025-05-23T17:44:05.923711",
     "status": "queued"
+  },
+  {
+    "from_agent": "Agent-1",
+    "to_agent": "Welcome to Dream.OS! You are now part of our agent network.\n                \nYour initial tasks:\n1. Initialize your core systems\n2. Establish communication channels\n3. Begin monitoring your assigned domain\n4. Report your status when ready\n\nLet's begin your integration into the Dream.OS ecosystem.",
+    "content": "ONBOARD",
+    "priority": 0,
+    "timestamp": "2025-05-23T18:44:09.432756",
+    "status": "queued"
   }
 ]
