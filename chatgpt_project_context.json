@@ -1,211 +1,78 @@
 {
     "project_root": "D:\\SWARM\\Dream.OS",
-    "num_files_analyzed": 25,
+    "num_files_analyzed": 19,
     "analysis_details": {
-        "setup.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\utils\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\agent_cellphone.py": {
+        "dreamos\\core\\__init__.py": {
             "language": ".py",
             "functions": [
-                "get_welcome_message",
-                "send_message",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
-        },
-        "agent_tools\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "discord_bot\\bot.py": {
-            "language": ".py",
-            "functions": [
-                "run_bot"
+                "initialize_system"
             ],
             "classes": {},
             "routes": [],
             "complexity": 1
         },
-        "dreamos\\core\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\utils\\init_mailbox.py": {
-            "language": ".py",
-            "functions": [
-                "main",
-                "__init__",
-                "_get_initial_state",
-                "_write_mailbox_files",
-                "reset",
-                "initialize"
-            ],
-            "classes": {
-                "AgentMailbox": {
-                    "methods": [
-                        "__init__",
-                        "_get_initial_state",
-                        "_write_mailbox_files",
-                        "reset",
-                        "initialize"
-                    ],
-                    "docstring": "A class to manage agent mailboxes, including initialization and reset operations.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 11
-        },
-        "dreamos\\core\\agent_controller.py": {
+        "dreamos\\core\\agent_control\\controller.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "_load_coordinates",
-                "_create_menu",
+                "set_menu_builder",
+                "_handle_menu_action",
+                "_handle_list_agents",
+                "cleanup",
+                "run",
                 "list_agents",
                 "onboard_agent",
-                "_onboard_single_agent",
-                "_split_message",
                 "resume_agent",
-                "_resume_single_agent",
-                "_send_message_with_ui",
                 "verify_agent",
-                "_verify_single_agent",
                 "repair_agent",
-                "_repair_single_agent",
                 "backup_agent",
-                "_backup_single_agent",
                 "restore_agent",
-                "_restore_single_agent",
-                "send_message",
-                "_send_single_message",
-                "run"
+                "send_message"
             ],
             "classes": {
                 "AgentController": {
                     "methods": [
                         "__init__",
-                        "_load_coordinates",
-                        "_create_menu",
+                        "set_menu_builder",
+                        "_handle_menu_action",
+                        "_handle_list_agents",
+                        "cleanup",
+                        "run",
                         "list_agents",
                         "onboard_agent",
-                        "_onboard_single_agent",
-                        "_split_message",
                         "resume_agent",
-                        "_resume_single_agent",
-                        "_send_message_with_ui",
                         "verify_agent",
-                        "_verify_single_agent",
                         "repair_agent",
-                        "_repair_single_agent",
                         "backup_agent",
-                        "_backup_single_agent",
                         "restore_agent",
-                        "_restore_single_agent",
-                        "send_message",
-                        "_send_single_message",
-                        "run"
+                        "send_message"
                     ],
-                    "docstring": "Main interface for controlling agents with both menu and UI automation capabilities.",
+                    "docstring": "Main controller for agent operations.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 42
+            "complexity": 28
         },
-        "discord_bot\\commands.py": {
+        "discord_bot\\agent_interface.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "add_category_buttons",
-                "__init__",
-                "__init__",
-                "get_devlog",
-                "clear_devlog",
-                "__init__",
-                "execute_gui_command"
+                "send_command",
+                "broadcast_command",
+                "get_agent_status",
+                "clear_agent_messages"
             ],
             "classes": {
-                "HelpMenu": {
+                "AgentInterface": {
                     "methods": [
                         "__init__",
-                        "add_category_buttons"
+                        "send_command",
+                        "broadcast_command",
+                        "get_agent_status",
+                        "clear_agent_messages"
                     ],
-                    "docstring": "Interactive help menu with buttons and visual effects.",
-                    "base_classes": [
-                        "discord.ui.View"
-                    ]
-                },
-                "CommandSearchModal": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Modal for searching commands.",
-                    "base_classes": [
-                        "discord.ui.Modal"
-                    ]
-                },
-                "DevLogManager": {
-                    "methods": [
-                        "__init__",
-                        "get_devlog",
-                        "clear_devlog"
-                    ],
-                    "docstring": "Manages agent development logs and Discord notifications.",
-                    "base_classes": []
-                },
-                "AgentCommands": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Commands for controlling agents.",
-                    "base_classes": [
-                        "commands.Cog"
-                    ]
-                }
-            },
-            "routes": [],
-            "complexity": 15
-        },
-        "dreamos\\core\\agent_logger.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "log",
-                "_create_inbox_message",
-                "get_log",
-                "clear_log"
-            ],
-            "classes": {
-                "AgentLogger": {
-                    "methods": [
-                        "__init__",
-                        "log",
-                        "_create_inbox_message",
-                        "get_log",
-                        "clear_log"
-                    ],
-                    "docstring": "Handles agent development logging and Discord notifications.",
+                    "docstring": "Interface between Discord commands and Dream.OS Cell Phone system.",
                     "base_classes": []
                 }
             },
@@ -236,48 +103,90 @@
             "routes": [],
             "complexity": 9
         },
-        "dreamos\\core\\cell_phone.py": {
+        "discord_bot\\commands.py": {
             "language": ".py",
             "functions": [
-                "send_message",
-                "parse_args",
-                "validate_priority",
-                "cli_main",
-                "__new__",
                 "__init__",
-                "send_message",
-                "get_status",
-                "clear_messages",
-                "shutdown"
+                "add_category_buttons",
+                "__init__",
+                "__init__",
+                "get_devlog",
+                "clear_devlog",
+                "__init__",
+                "execute_gui_command"
             ],
             "classes": {
-                "MessageMode": {
-                    "methods": [],
-                    "docstring": "Message modes for different types of communication.",
+                "HelpMenu": {
+                    "methods": [
+                        "__init__",
+                        "add_category_buttons"
+                    ],
+                    "docstring": "Interactive help menu with buttons and visual effects.",
                     "base_classes": [
-                        "Enum"
+                        "discord.ui.View"
                     ]
                 },
-                "Message": {
-                    "methods": [],
-                    "docstring": "Represents a cell phone message with metadata.",
+                "CommandSearchModal": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Modal for searching commands with enhanced UI.",
+                    "base_classes": [
+                        "discord.ui.Modal"
+                    ]
+                },
+                "DevLogManager": {
+                    "methods": [
+                        "__init__",
+                        "get_devlog",
+                        "clear_devlog"
+                    ],
+                    "docstring": "Manages agent development logs and Discord notifications.",
                     "base_classes": []
                 },
-                "CellPhone": {
+                "AgentCommands": {
                     "methods": [
-                        "__new__",
-                        "__init__",
-                        "send_message",
-                        "get_status",
-                        "clear_messages",
-                        "shutdown"
+                        "__init__"
                     ],
-                    "docstring": "Singleton class managing cell phone communication between agents.",
-                    "base_classes": []
+                    "docstring": "Commands for controlling agents via Discord.",
+                    "base_classes": [
+                        "commands.Cog"
+                    ]
                 }
             },
             "routes": [],
-            "complexity": 16
+            "complexity": 15
+        },
+        "dreamos\\core\\agent_control\\menu_builder.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_build_menu",
+                "_handle_list_agents",
+                "_handle_agent_selection",
+                "display_menu",
+                "connect_signals",
+                "disconnect_signals"
+            ],
+            "classes": {
+                "MenuBuilder": {
+                    "methods": [
+                        "__init__",
+                        "_build_menu",
+                        "_handle_list_agents",
+                        "_handle_agent_selection",
+                        "display_menu",
+                        "connect_signals",
+                        "disconnect_signals"
+                    ],
+                    "docstring": "Builds the agent control menu.",
+                    "base_classes": [
+                        "BaseMenuBuilder"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 14
         },
         "dreamos\\core\\coordinate_manager.py": {
             "language": ".py",
@@ -335,49 +244,52 @@
             "routes": [],
             "complexity": 18
         },
-        "dreamos\\core\\menu.py": {
+        "dreamos\\core\\agent_control\\agent_operations.py": {
             "language": ".py",
             "functions": [
-                "create_agent_menu",
                 "__init__",
-                "add_item",
-                "remove_item",
-                "get_item",
-                "display",
-                "handle_input",
-                "_handle_agent_selection",
-                "run"
+                "list_agents",
+                "onboard_agent",
+                "_onboard_single_agent",
+                "resume_agent",
+                "_resume_single_agent",
+                "verify_agent",
+                "_verify_single_agent",
+                "repair_agent",
+                "_repair_single_agent",
+                "backup_agent",
+                "_backup_single_agent",
+                "restore_agent",
+                "_restore_single_agent",
+                "send_message",
+                "_send_single_message"
             ],
             "classes": {
-                "MenuItemType": {
-                    "methods": [],
-                    "docstring": "Types of menu items.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "MenuItem": {
-                    "methods": [],
-                    "docstring": "Represents a menu item with its properties.",
-                    "base_classes": []
-                },
-                "Menu": {
+                "AgentOperations": {
                     "methods": [
                         "__init__",
-                        "add_item",
-                        "remove_item",
-                        "get_item",
-                        "display",
-                        "handle_input",
-                        "_handle_agent_selection",
-                        "run"
+                        "list_agents",
+                        "onboard_agent",
+                        "_onboard_single_agent",
+                        "resume_agent",
+                        "_resume_single_agent",
+                        "verify_agent",
+                        "_verify_single_agent",
+                        "repair_agent",
+                        "_repair_single_agent",
+                        "backup_agent",
+                        "_backup_single_agent",
+                        "restore_agent",
+                        "_restore_single_agent",
+                        "send_message",
+                        "_send_single_message"
                     ],
-                    "docstring": "Main menu interface class.\n\nProvides methods for creating and managing menu items, handling user input,\nand displaying the menu interface.",
+                    "docstring": "Handles agent-specific operations.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 17
+            "complexity": 32
         },
         "dreamos\\core\\message_processor.py": {
             "language": ".py",
@@ -405,213 +317,321 @@
             "routes": [],
             "complexity": 11
         },
-        "tests\\conftest.py": {
+        "dreamos\\core\\menu.py": {
             "language": ".py",
             "functions": [
-                "setup_logging",
-                "mock_pyautogui",
-                "test_data_dir",
-                "mock_agent_registry",
-                "test_messages",
-                "test_config",
-                "bot",
-                "pytest_configure"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 8
-        },
-        "dreamos\\core\\persistent_queue.py": {
-            "language": ".py",
-            "functions": [
+                "main",
                 "__init__",
-                "_acquire_lock",
-                "_release_lock",
-                "_read_queue",
-                "_write_queue",
-                "enqueue",
-                "dequeue",
-                "get_status",
-                "clear",
-                "shutdown"
+                "_get_theme_colors",
+                "_get_theme_fonts",
+                "__init__",
+                "setup_ui",
+                "__init__",
+                "setup_ui",
+                "__init__",
+                "setup_ui",
+                "__new__",
+                "__init__",
+                "setup_ui",
+                "add_item",
+                "handle_item_click",
+                "_handle_agent_selection",
+                "show",
+                "run",
+                "_cleanup",
+                "closeEvent",
+                "__del__",
+                "set_controller",
+                "__init__",
+                "add_item",
+                "add_items",
+                "build",
+                "display_menu",
+                "close_menu"
             ],
             "classes": {
-                "PersistentQueue": {
+                "MenuStyle": {
+                    "methods": [],
+                    "docstring": "Available menu styles.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "MenuItemType": {
+                    "methods": [],
+                    "docstring": "Types of menu items.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "MenuItem": {
+                    "methods": [],
+                    "docstring": "Represents a menu item with its properties.",
+                    "base_classes": []
+                },
+                "MenuTheme": {
                     "methods": [
                         "__init__",
-                        "_acquire_lock",
-                        "_release_lock",
-                        "_read_queue",
-                        "_write_queue",
-                        "enqueue",
-                        "dequeue",
-                        "get_status",
-                        "clear",
-                        "shutdown"
+                        "_get_theme_colors",
+                        "_get_theme_fonts"
                     ],
-                    "docstring": "A file-based persistent queue with file locking.",
+                    "docstring": "Handles menu theming and styling.",
+                    "base_classes": []
+                },
+                "MenuButton": {
+                    "methods": [
+                        "__init__",
+                        "setup_ui"
+                    ],
+                    "docstring": "Custom button widget for menu items.",
+                    "base_classes": [
+                        "QPushButton"
+                    ]
+                },
+                "MenuHeader": {
+                    "methods": [
+                        "__init__",
+                        "setup_ui"
+                    ],
+                    "docstring": "Header widget for the menu.",
+                    "base_classes": [
+                        "QFrame"
+                    ]
+                },
+                "MenuFooter": {
+                    "methods": [
+                        "__init__",
+                        "setup_ui"
+                    ],
+                    "docstring": "Footer widget for the menu.",
+                    "base_classes": [
+                        "QFrame"
+                    ]
+                },
+                "MenuSignals": {
+                    "methods": [],
+                    "docstring": "Signal handler for menu events.",
+                    "base_classes": [
+                        "QObject"
+                    ]
+                },
+                "Menu": {
+                    "methods": [
+                        "__new__",
+                        "__init__",
+                        "setup_ui",
+                        "add_item",
+                        "handle_item_click",
+                        "_handle_agent_selection",
+                        "show",
+                        "run",
+                        "_cleanup",
+                        "closeEvent",
+                        "__del__",
+                        "set_controller"
+                    ],
+                    "docstring": "Main menu window class.",
+                    "base_classes": [
+                        "QMainWindow"
+                    ]
+                },
+                "MenuBuilder": {
+                    "methods": [
+                        "__init__",
+                        "add_item",
+                        "add_items",
+                        "build",
+                        "display_menu",
+                        "close_menu"
+                    ],
+                    "docstring": "Builds and manages menu instances.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 20
+            "complexity": 55
         },
-        "tests\\test_agent_captain.py": {
+        "dreamos\\core\\system_init.py": {
             "language": ".py",
             "functions": [
-                "test_agent_controller_initialization",
-                "test_agent_controller_onboarding",
-                "test_agent_controller_message_sending"
+                "main",
+                "__init__",
+                "initialize_core_systems",
+                "establish_communication_channels",
+                "begin_monitoring",
+                "report_status"
             ],
-            "classes": {},
+            "classes": {
+                "SystemInitializer": {
+                    "methods": [
+                        "__init__",
+                        "initialize_core_systems",
+                        "establish_communication_channels",
+                        "begin_monitoring",
+                        "report_status"
+                    ],
+                    "docstring": "Handles system initialization and communication setup.",
+                    "base_classes": []
+                }
+            },
             "routes": [],
-            "complexity": 3
+            "complexity": 11
         },
-        "tests\\test_agent_cellphone_cli.py": {
+        "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
             "language": ".py",
             "functions": [
-                "run_cli_command",
-                "test_cli_help",
-                "test_cli_required_args",
-                "test_cli_welcome_message",
-                "test_cli_custom_message",
-                "test_cli_invalid_priority",
-                "test_cli_invalid_mode",
-                "test_cli_message_with_mode",
-                "test_cli_concurrent_messages",
-                "send_message"
+                "__init__",
+                "_setup_ui",
+                "_handle_selection"
             ],
-            "classes": {},
+            "classes": {
+                "AgentSelectionDialog": {
+                    "methods": [
+                        "__init__",
+                        "_setup_ui",
+                        "_handle_selection"
+                    ],
+                    "docstring": "Dialog for selecting one or more agents.",
+                    "base_classes": [
+                        "QDialog"
+                    ]
+                }
+            },
             "routes": [],
-            "complexity": 10
+            "complexity": 6
         },
-        "tests\\test_config.py": {
+        "dreamos\\core\\agent_control\\ui_automation.py": {
             "language": ".py",
             "functions": [
-                "setup_test_environment",
-                "cleanup_test_environment"
+                "__init__",
+                "_setup_signal_handlers",
+                "_handle_interrupt",
+                "_load_coordinates",
+                "_get_default_coordinates",
+                "send_message",
+                "_load_onboarding_prompt",
+                "perform_onboarding_sequence",
+                "_split_message",
+                "get_agent_coordinates",
+                "cleanup",
+                "move_to",
+                "click",
+                "type_text",
+                "press_key",
+                "hotkey",
+                "screenshot"
+            ],
+            "classes": {
+                "UIAutomation": {
+                    "methods": [
+                        "__init__",
+                        "_setup_signal_handlers",
+                        "_handle_interrupt",
+                        "_load_coordinates",
+                        "_get_default_coordinates",
+                        "send_message",
+                        "_load_onboarding_prompt",
+                        "perform_onboarding_sequence",
+                        "_split_message",
+                        "get_agent_coordinates",
+                        "cleanup",
+                        "move_to",
+                        "click",
+                        "type_text",
+                        "press_key",
+                        "hotkey",
+                        "screenshot"
+                    ],
+                    "docstring": "Handles UI automation for agent control.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 34
+        },
+        "dreamos\\core\\agent_control\\__init__.py": {
+            "language": ".py",
+            "functions": [
+                "create_agent_control",
+                "main"
             ],
             "classes": {},
             "routes": [],
             "complexity": 2
         },
-        "tests\\test_discord_commands.py": {
-            "language": ".py",
-            "functions": [
-                "event_loop",
-                "mock_bot",
-                "mock_ctx"
-            ],
-            "classes": {
-                "TestHelpMenu": {
-                    "methods": [],
-                    "docstring": "Test the HelpMenu class functionality.",
-                    "base_classes": [
-                        "unittest.TestCase"
-                    ]
-                },
-                "TestAgentCommands": {
-                    "methods": [],
-                    "docstring": "Test the agent command functionality.",
-                    "base_classes": [
-                        "unittest.TestCase"
-                    ]
-                }
-            },
-            "routes": [],
-            "complexity": 3
-        },
-        "tests\\test_init_mailbox.py": {
-            "language": ".py",
-            "functions": [
-                "test_imports",
-                "temp_mailbox_dir",
-                "test_agent_id",
-                "mailbox",
-                "test_get_initial_state",
-                "test_init_mailbox_creates_files",
-                "test_init_mailbox_file_contents",
-                "test_init_mailbox_duplicate",
-                "test_reset_mailbox_creates_backup",
-                "test_reset_mailbox_restores_state",
-                "test_reset_nonexistent_mailbox",
-                "test_init_mailbox_invalid_agent_id",
-                "test_init_mailbox_invalid_directory",
-                "test_reset_mailbox_permission_error",
-                "test_concurrent_mailbox_operations",
-                "mock_copytree",
-                "init_operation",
-                "reset_operation"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 18
-        },
-        "tests\\test_utils.py": {
-            "language": ".py",
-            "functions": [
-                "create_mock_embed",
-                "mock_discord_file",
-                "__init__",
-                "__init__",
-                "__init__",
-                "__init__",
-                "__init__",
-                "__init__"
-            ],
-            "classes": {
-                "MockGuild": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Mock Discord guild for testing.",
-                    "base_classes": []
-                },
-                "MockChannel": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Mock Discord channel for testing.",
-                    "base_classes": []
-                },
-                "MockMember": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Mock Discord member for testing.",
-                    "base_classes": []
-                },
-                "MockMessage": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Mock Discord message for testing.",
-                    "base_classes": []
-                },
-                "MockContext": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Mock Discord context for testing.",
-                    "base_classes": []
-                },
-                "MockBot": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Mock Discord bot for testing.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 14
-        },
-        "tests\\__init__.py": {
+        "dreamos\\core\\agent_control\\__main__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "dreamos\\core\\ui\\log_console.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "setup_ui",
+                "log"
+            ],
+            "classes": {
+                "LogConsole": {
+                    "methods": [
+                        "__init__",
+                        "setup_ui",
+                        "log"
+                    ],
+                    "docstring": "Console widget for displaying log messages.",
+                    "base_classes": [
+                        "QFrame"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "dreamos\\core\\ui\\agent_status_panel.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "setup_ui",
+                "update_status"
+            ],
+            "classes": {
+                "AgentStatusPanel": {
+                    "methods": [
+                        "__init__",
+                        "setup_ui",
+                        "update_status"
+                    ],
+                    "docstring": "Panel for displaying agent status information.",
+                    "base_classes": [
+                        "QFrame"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "dreamos\\core\\ui\\theme_manager.py": {
+            "language": ".py",
+            "functions": [
+                "get_dialog_stylesheet",
+                "apply_dialog_theme",
+                "is_dark_theme"
+            ],
+            "classes": {
+                "ThemeManager": {
+                    "methods": [
+                        "get_dialog_stylesheet",
+                        "apply_dialog_theme",
+                        "is_dark_theme"
+                    ],
+                    "docstring": "Manages application-wide UI theming.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
         }
     }
 }

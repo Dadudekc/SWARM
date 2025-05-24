@@ -130,10 +130,12 @@
     },
     "dreamos\\core\\__init__.py": {
         "language": ".py",
-        "functions": [],
+        "functions": [
+            "initialize_system"
+        ],
         "classes": {},
         "routes": [],
-        "complexity": 0
+        "complexity": 1
     },
     "tests\\conftest.py": {
         "language": ".py",
@@ -232,7 +234,7 @@
                 "methods": [
                     "__init__"
                 ],
-                "docstring": "Modal for searching commands.",
+                "docstring": "Modal for searching commands with enhanced UI.",
                 "base_classes": [
                     "discord.ui.Modal"
                 ]
@@ -250,7 +252,7 @@
                 "methods": [
                     "__init__"
                 ],
-                "docstring": "Commands for controlling agents.",
+                "docstring": "Commands for controlling agents via Discord.",
                 "base_classes": [
                     "commands.Cog"
                 ]
@@ -500,17 +502,43 @@
     "dreamos\\core\\menu.py": {
         "language": ".py",
         "functions": [
-            "create_agent_menu",
+            "main",
+            "__init__",
+            "_get_theme_colors",
+            "_get_theme_fonts",
+            "__init__",
+            "setup_ui",
+            "__init__",
+            "setup_ui",
+            "__init__",
+            "setup_ui",
+            "__new__",
+            "__init__",
+            "setup_ui",
+            "add_item",
+            "handle_item_click",
+            "_handle_agent_selection",
+            "show",
+            "run",
+            "_cleanup",
+            "closeEvent",
+            "__del__",
+            "set_controller",
             "__init__",
             "add_item",
-            "remove_item",
-            "get_item",
-            "display",
-            "handle_input",
-            "_handle_agent_selection",
-            "run"
+            "add_items",
+            "build",
+            "display_menu",
+            "close_menu"
         ],
         "classes": {
+            "MenuStyle": {
+                "methods": [],
+                "docstring": "Available menu styles.",
+                "base_classes": [
+                    "Enum"
+                ]
+            },
             "MenuItemType": {
                 "methods": [],
                 "docstring": "Types of menu items.",
@@ -523,23 +551,87 @@
                 "docstring": "Represents a menu item with its properties.",
                 "base_classes": []
             },
+            "MenuTheme": {
+                "methods": [
+                    "__init__",
+                    "_get_theme_colors",
+                    "_get_theme_fonts"
+                ],
+                "docstring": "Handles menu theming and styling.",
+                "base_classes": []
+            },
+            "MenuButton": {
+                "methods": [
+                    "__init__",
+                    "setup_ui"
+                ],
+                "docstring": "Custom button widget for menu items.",
+                "base_classes": [
+                    "QPushButton"
+                ]
+            },
+            "MenuHeader": {
+                "methods": [
+                    "__init__",
+                    "setup_ui"
+                ],
+                "docstring": "Header widget for the menu.",
+                "base_classes": [
+                    "QFrame"
+                ]
+            },
+            "MenuFooter": {
+                "methods": [
+                    "__init__",
+                    "setup_ui"
+                ],
+                "docstring": "Footer widget for the menu.",
+                "base_classes": [
+                    "QFrame"
+                ]
+            },
+            "MenuSignals": {
+                "methods": [],
+                "docstring": "Signal handler for menu events.",
+                "base_classes": [
+                    "QObject"
+                ]
+            },
             "Menu": {
+                "methods": [
+                    "__new__",
+                    "__init__",
+                    "setup_ui",
+                    "add_item",
+                    "handle_item_click",
+                    "_handle_agent_selection",
+                    "show",
+                    "run",
+                    "_cleanup",
+                    "closeEvent",
+                    "__del__",
+                    "set_controller"
+                ],
+                "docstring": "Main menu window class.",
+                "base_classes": [
+                    "QMainWindow"
+                ]
+            },
+            "MenuBuilder": {
                 "methods": [
                     "__init__",
                     "add_item",
-                    "remove_item",
-                    "get_item",
-                    "display",
-                    "handle_input",
-                    "_handle_agent_selection",
-                    "run"
+                    "add_items",
+                    "build",
+                    "display_menu",
+                    "close_menu"
                 ],
-                "docstring": "Main menu interface class.\n\nProvides methods for creating and managing menu items, handling user input,\nand displaying the menu interface.",
+                "docstring": "Builds and manages menu instances.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 17
+        "complexity": 55
     },
     "dreamos\\core\\message_processor.py": {
         "language": ".py",
@@ -2133,5 +2225,333 @@
         "classes": {},
         "routes": [],
         "complexity": 0
+    },
+    "dreamos\\core\\agent_control\\controller.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "set_menu_builder",
+            "_handle_menu_action",
+            "_handle_list_agents",
+            "cleanup",
+            "run",
+            "list_agents",
+            "onboard_agent",
+            "resume_agent",
+            "verify_agent",
+            "repair_agent",
+            "backup_agent",
+            "restore_agent",
+            "send_message"
+        ],
+        "classes": {
+            "AgentController": {
+                "methods": [
+                    "__init__",
+                    "set_menu_builder",
+                    "_handle_menu_action",
+                    "_handle_list_agents",
+                    "cleanup",
+                    "run",
+                    "list_agents",
+                    "onboard_agent",
+                    "resume_agent",
+                    "verify_agent",
+                    "repair_agent",
+                    "backup_agent",
+                    "restore_agent",
+                    "send_message"
+                ],
+                "docstring": "Main controller for agent operations.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 28
+    },
+    "discord_bot\\agent_interface.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "send_command",
+            "broadcast_command",
+            "get_agent_status",
+            "clear_agent_messages"
+        ],
+        "classes": {
+            "AgentInterface": {
+                "methods": [
+                    "__init__",
+                    "send_command",
+                    "broadcast_command",
+                    "get_agent_status",
+                    "clear_agent_messages"
+                ],
+                "docstring": "Interface between Discord commands and Dream.OS Cell Phone system.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 10
+    },
+    "dreamos\\core\\agent_control\\menu_builder.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_build_menu",
+            "_handle_list_agents",
+            "_handle_agent_selection",
+            "display_menu",
+            "connect_signals",
+            "disconnect_signals"
+        ],
+        "classes": {
+            "MenuBuilder": {
+                "methods": [
+                    "__init__",
+                    "_build_menu",
+                    "_handle_list_agents",
+                    "_handle_agent_selection",
+                    "display_menu",
+                    "connect_signals",
+                    "disconnect_signals"
+                ],
+                "docstring": "Builds the agent control menu.",
+                "base_classes": [
+                    "BaseMenuBuilder"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "dreamos\\core\\agent_control\\agent_operations.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "list_agents",
+            "onboard_agent",
+            "_onboard_single_agent",
+            "resume_agent",
+            "_resume_single_agent",
+            "verify_agent",
+            "_verify_single_agent",
+            "repair_agent",
+            "_repair_single_agent",
+            "backup_agent",
+            "_backup_single_agent",
+            "restore_agent",
+            "_restore_single_agent",
+            "send_message",
+            "_send_single_message"
+        ],
+        "classes": {
+            "AgentOperations": {
+                "methods": [
+                    "__init__",
+                    "list_agents",
+                    "onboard_agent",
+                    "_onboard_single_agent",
+                    "resume_agent",
+                    "_resume_single_agent",
+                    "verify_agent",
+                    "_verify_single_agent",
+                    "repair_agent",
+                    "_repair_single_agent",
+                    "backup_agent",
+                    "_backup_single_agent",
+                    "restore_agent",
+                    "_restore_single_agent",
+                    "send_message",
+                    "_send_single_message"
+                ],
+                "docstring": "Handles agent-specific operations.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 32
+    },
+    "dreamos\\core\\system_init.py": {
+        "language": ".py",
+        "functions": [
+            "main",
+            "__init__",
+            "initialize_core_systems",
+            "establish_communication_channels",
+            "begin_monitoring",
+            "report_status"
+        ],
+        "classes": {
+            "SystemInitializer": {
+                "methods": [
+                    "__init__",
+                    "initialize_core_systems",
+                    "establish_communication_channels",
+                    "begin_monitoring",
+                    "report_status"
+                ],
+                "docstring": "Handles system initialization and communication setup.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 11
+    },
+    "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_setup_ui",
+            "_handle_selection"
+        ],
+        "classes": {
+            "AgentSelectionDialog": {
+                "methods": [
+                    "__init__",
+                    "_setup_ui",
+                    "_handle_selection"
+                ],
+                "docstring": "Dialog for selecting one or more agents.",
+                "base_classes": [
+                    "QDialog"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\core\\agent_control\\ui_automation.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_setup_signal_handlers",
+            "_handle_interrupt",
+            "_load_coordinates",
+            "_get_default_coordinates",
+            "send_message",
+            "_load_onboarding_prompt",
+            "perform_onboarding_sequence",
+            "_split_message",
+            "get_agent_coordinates",
+            "cleanup",
+            "move_to",
+            "click",
+            "type_text",
+            "press_key",
+            "hotkey",
+            "screenshot"
+        ],
+        "classes": {
+            "UIAutomation": {
+                "methods": [
+                    "__init__",
+                    "_setup_signal_handlers",
+                    "_handle_interrupt",
+                    "_load_coordinates",
+                    "_get_default_coordinates",
+                    "send_message",
+                    "_load_onboarding_prompt",
+                    "perform_onboarding_sequence",
+                    "_split_message",
+                    "get_agent_coordinates",
+                    "cleanup",
+                    "move_to",
+                    "click",
+                    "type_text",
+                    "press_key",
+                    "hotkey",
+                    "screenshot"
+                ],
+                "docstring": "Handles UI automation for agent control.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 34
+    },
+    "dreamos\\core\\agent_control\\__init__.py": {
+        "language": ".py",
+        "functions": [
+            "create_agent_control",
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "dreamos\\core\\agent_control\\__main__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\ui\\log_console.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "setup_ui",
+            "log"
+        ],
+        "classes": {
+            "LogConsole": {
+                "methods": [
+                    "__init__",
+                    "setup_ui",
+                    "log"
+                ],
+                "docstring": "Console widget for displaying log messages.",
+                "base_classes": [
+                    "QFrame"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\core\\ui\\agent_status_panel.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "setup_ui",
+            "update_status"
+        ],
+        "classes": {
+            "AgentStatusPanel": {
+                "methods": [
+                    "__init__",
+                    "setup_ui",
+                    "update_status"
+                ],
+                "docstring": "Panel for displaying agent status information.",
+                "base_classes": [
+                    "QFrame"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\core\\ui\\theme_manager.py": {
+        "language": ".py",
+        "functions": [
+            "get_dialog_stylesheet",
+            "apply_dialog_theme",
+            "is_dark_theme"
+        ],
+        "classes": {
+            "ThemeManager": {
+                "methods": [
+                    "get_dialog_stylesheet",
+                    "apply_dialog_theme",
+                    "is_dark_theme"
+                ],
+                "docstring": "Manages application-wide UI theming.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 6
     }
 }
