@@ -18,8 +18,8 @@ import aiohttp
 import pyautogui
 import threading
 
-from dreamos.core import MessageMode
-from dreamos.interfaces import AgentInterface
+from dreamos.core.messaging import Message, MessageMode, MessageProcessor
+from dreamos.core import CellPhone
 
 logger = logging.getLogger('discord_bot')
 
@@ -383,11 +383,20 @@ class AgentCommands(commands.Cog):
     """Commands for controlling agents via Discord."""
     
     def __init__(self, bot):
-        """Initialize the commands cog."""
         self.bot = bot
-        self.interface = AgentInterface()
+        self.processor = MessageProcessor()
         self.devlog = DevLogManager(bot)
         
+    async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
+        """Send a command to an agent using the new messaging system."""
+        message = Message(
+            from_agent="Discord",
+            to_agent=agent_id,
+            content=content,
+            mode=mode
+        )
+        return self.processor.send_message(message)
+
     @commands.command(name='swarm_help')
     @commands.cooldown(1, 5)
     async def show_help(self, ctx):
@@ -423,7 +432,7 @@ class AgentCommands(commands.Cog):
     @commands.cooldown(1, 10)
     async def resume_agent(self, ctx, agent_id: str):
         """Resume an agent's operations."""
-        success = self.interface.send_command('resume', agent_id, "Resume operations")
+        success = await self.send_command(MessageMode.RESUME, agent_id, "Resume operations")
         if success:
             await ctx.send(f"✅ Resumed agent {agent_id}")
         else:
@@ -432,8 +441,8 @@ class AgentCommands(commands.Cog):
     @commands.command(name='verify')
     @commands.cooldown(1, 10)
     async def verify_agent(self, ctx, agent_id: str):
-        """Verify an agent's state."""
-        success = self.interface.send_command('verify', agent_id, "Verify system state")
+        """Verify an agent's integrity."""
+        success = await self.send_command(MessageMode.VERIFY, agent_id, "Verify integrity")
         if success:
             await ctx.send(f"✅ Verification request sent to {agent_id}")
         else:
@@ -443,7 +452,7 @@ class AgentCommands(commands.Cog):
     @commands.cooldown(1, 5)
     async def send_message(self, ctx, agent_id: str, *, message: str):
         """Send a message to an agent."""
-        success = self.interface.send_command('normal', agent_id, message)
+        success = await self.send_command(MessageMode.NORMAL, agent_id, message)
         if success:
             await ctx.send(f"✅ Message sent to {agent_id}")
         else:
@@ -453,164 +462,140 @@ class AgentCommands(commands.Cog):
     @commands.cooldown(1, 30)
     async def broadcast_message(self, ctx, *, message: str):
         """Broadcast a message to all agents."""
-        results = self.interface.broadcast_command('normal', message)
-        success_count = sum(1 for success in results.values() if success)
-        await ctx.send(f"✅ Message broadcast to {success_count}/{len(results)} agents")
+        success = await self.send_command(MessageMode.BROADCAST, "ALL", message)
+        if success:
+            await ctx.send("✅ Message broadcasted to all agents")
+        else:
+            await ctx.send("❌ Failed to broadcast message")
         
     @commands.command(name='agent_status')
     @commands.cooldown(1, 5)
     async def get_status(self, ctx, agent_id: Optional[str] = None):
-        """Get status of agent(s)."""
-        status = self.interface.get_agent_status(agent_id)
-        
+        """Get status of an agent or all agents."""
         if agent_id:
-            embed = discord.Embed(
-                title=f"Agent Status: {agent_id}",
-                color=discord.Color.blue()
-            )
-            embed.add_field(
-                name="Message Count",
-                value=str(status.get('message_count', 0)),
-                inline=True
-            )
-            last_msg = status.get('last_message', {})
-            if last_msg:
-                embed.add_field(
-                    name="Last Message",
-                    value=f"```{last_msg.get('content', 'No content')}```",
-                    inline=False
-                )
+            success = await self.send_command(MessageMode.STATUS, agent_id, "Get status")
+            if success:
+                await ctx.send(f"✅ Status request sent to {agent_id}")
+            else:
+                await ctx.send(f"❌ Failed to get status for {agent_id}")
         else:
-            embed = discord.Embed(
-                title="System Status",
-                color=discord.Color.blue()
-            )
-            embed.add_field(
-                name="Queue Size",
-                value=str(status.get('queue_size', 0)),
-                inline=True
-            )
-            
-        await ctx.send(embed=embed)
+            success = await self.send_command(MessageMode.STATUS, "ALL", "Get all status")
+            if success:
+                await ctx.send("✅ Status request sent to all agents")
+            else:
+                await ctx.send("❌ Failed to get status for all agents")
         
     @commands.command(name='repair')
     @commands.cooldown(1, 30)
     async def repair_agent(self, ctx, agent_id: str):
-        """Repair an agent's systems."""
-        success = self.interface.send_command('repair', agent_id, "Initiate system repair")
+        """Repair an agent."""
+        success = await self.send_command(MessageMode.REPAIR, agent_id, "Repair agent")
         if success:
             await ctx.send(f"✅ Repair request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send repair request to {agent_id}")
+            await ctx.send(f"❌ Failed to repair agent {agent_id}")
             
     @commands.command(name='backup')
     @commands.cooldown(1, 30)
     async def backup_agent(self, ctx, agent_id: str):
         """Backup an agent's state."""
-        success = self.interface.send_command('backup', agent_id, "Create system backup")
+        success = await self.send_command(MessageMode.BACKUP, agent_id, "Backup state")
         if success:
             await ctx.send(f"✅ Backup request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send backup request to {agent_id}")
+            await ctx.send(f"❌ Failed to backup agent {agent_id}")
             
     @commands.command(name='restore')
     @commands.cooldown(1, 30)
     async def restore_agent(self, ctx, agent_id: str):
         """Restore an agent from backup."""
-        success = self.interface.send_command('restore', agent_id, "Restore from backup")
+        success = await self.send_command(MessageMode.RESTORE, agent_id, "Restore from backup")
         if success:
             await ctx.send(f"✅ Restore request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send restore request to {agent_id}")
+            await ctx.send(f"❌ Failed to restore agent {agent_id}")
             
     @commands.command(name='sync')
     @commands.cooldown(1, 30)
     async def sync_agent(self, ctx, agent_id: str):
-        """Synchronize an agent's state."""
-        success = self.interface.send_command('sync', agent_id, "Synchronize system state")
+        """Synchronize an agent."""
+        success = await self.send_command(MessageMode.SYNC, agent_id, "Sync agent")
         if success:
             await ctx.send(f"✅ Sync request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send sync request to {agent_id}")
+            await ctx.send(f"❌ Failed to sync agent {agent_id}")
             
     @commands.command(name='cleanup')
     @commands.cooldown(1, 30)
     async def cleanup_agent(self, ctx, agent_id: str):
         """Clean up an agent's resources."""
-        success = self.interface.send_command('cleanup', agent_id, "Clean up system resources")
+        success = await self.send_command(MessageMode.CLEANUP, agent_id, "Cleanup resources")
         if success:
             await ctx.send(f"✅ Cleanup request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send cleanup request to {agent_id}")
+            await ctx.send(f"❌ Failed to cleanup agent {agent_id}")
             
     @commands.command(name='task')
     @commands.cooldown(1, 5)
     async def send_task(self, ctx, agent_ids: str, *, task: str):
         """Send a task to multiple agents."""
-        agent_list = [id.strip() for id in agent_ids.split(',')]
-        results = {}
-        
+        agent_list = [aid.strip() for aid in agent_ids.split(',')]
+        success = True
         for agent_id in agent_list:
-            success = self.interface.send_command('task', agent_id, task)
-            results[agent_id] = success
-            
-        success_count = sum(1 for success in results.values() if success)
-        await ctx.send(f"✅ Task sent to {success_count}/{len(agent_list)} agents")
+            if not await self.send_command(MessageMode.TASK, agent_id, task):
+                success = False
+                break
+        if success:
+            await ctx.send(f"✅ Task sent to agents: {agent_ids}")
+        else:
+            await ctx.send(f"❌ Failed to send task to some agents")
         
     @commands.command(name='integrate')
     @commands.cooldown(1, 30)
     async def integrate_agent(self, ctx, agent_id: str):
-        """Integrate a new agent into the system."""
-        success = self.interface.send_command('integrate', agent_id, "Begin system integration")
+        """Integrate a new agent."""
+        success = await self.send_command(MessageMode.INTEGRATE, agent_id, "Integrate agent")
         if success:
             await ctx.send(f"✅ Integration request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send integration request to {agent_id}")
+            await ctx.send(f"❌ Failed to integrate agent {agent_id}")
             
     @commands.command(name='onboard')
     @commands.cooldown(1, 30)
     async def onboard_agent(self, ctx, agent_id: str):
         """Onboard a new agent."""
-        success = self.interface.send_command('normal', agent_id, "Begin onboarding process")
+        success = await self.send_command(MessageMode.ONBOARD, agent_id, "Onboard agent")
         if success:
             await ctx.send(f"✅ Onboarding request sent to {agent_id}")
         else:
-            await ctx.send(f"❌ Failed to send onboarding request to {agent_id}")
+            await ctx.send(f"❌ Failed to onboard agent {agent_id}")
             
     @commands.command(name='multi')
     @commands.cooldown(1, 10)
     async def multi_agent_command(self, ctx, command: str, *, agent_ids: str):
         """Send a command to multiple agents."""
-        agent_list = [id.strip() for id in agent_ids.split(',')]
-        results = {}
-        
+        agent_list = [aid.strip() for aid in agent_ids.split(',')]
+        mode = MessageMode[command.upper()]
+        success = True
         for agent_id in agent_list:
-            success = self.interface.send_command(command, agent_id, f"Execute {command}")
-            results[agent_id] = success
-            
-        success_count = sum(1 for success in results.values() if success)
-        await ctx.send(f"✅ Command sent to {success_count}/{len(agent_list)} agents")
+            if not await self.send_command(mode, agent_id, f"Execute {command}"):
+                success = False
+                break
+        if success:
+            await ctx.send(f"✅ {command} command sent to agents: {agent_ids}")
+        else:
+            await ctx.send(f"❌ Failed to send {command} command to some agents")
         
     @commands.command(name='system')
     @commands.cooldown(1, 30)
     async def system_command(self, ctx, action: str):
         """Execute a system-wide command."""
-        if action == 'status':
-            status = self.interface.get_agent_status()
-            embed = discord.Embed(
-                title="System Status",
-                color=discord.Color.blue()
-            )
-            embed.add_field(
-                name="Queue Size",
-                value=str(status.get('queue_size', 0)),
-                inline=True
-            )
-            await ctx.send(embed=embed)
+        mode = MessageMode[action.upper()]
+        success = await self.send_command(mode, "ALL", f"Execute system {action}")
+        if success:
+            await ctx.send(f"✅ System {action} command sent")
         else:
-            results = self.interface.broadcast_command(action, f"Execute {action}")
-            success_count = sum(1 for success in results.values() if success)
-            await ctx.send(f"✅ System command sent to {success_count}/{len(results)} agents")
+            await ctx.send(f"❌ Failed to execute system {action} command")
 
     @commands.command(name='gui')
     @commands.cooldown(1, 5)

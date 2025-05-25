@@ -12,6 +12,9 @@ import time
 from .menu_builder import MenuBuilder
 from .agent_operations import AgentOperations
 from .ui_automation import UIAutomation
+from dreamos.core.messaging import MessageProcessor
+from dreamos.core import CellPhone
+from dreamos.core.shared import CoordinateManager
 
 logger = logging.getLogger('agent_control.controller')
 
@@ -21,9 +24,12 @@ class AgentController:
     def __init__(self):
         """Initialize the controller."""
         self.agent_operations = AgentOperations()
-        self.ui_automation = UIAutomation()
-        self.menu_builder = None  # Will be set by set_menu_builder
+        self.message_processor = MessageProcessor()
+        self.cell_phone = CellPhone()
+        self.ui_automation = UIAutomation()  # Keep for visual feedback only
+        self.menu_builder = None
         self._running = False
+        self.coordinate_manager = CoordinateManager()
         
         # Initialize PyAutoGUI settings
         pyautogui.FAILSAFE = True
@@ -37,7 +43,7 @@ class AgentController:
         """
         self.menu_builder = menu_builder
         if self.menu_builder:
-            self.menu_builder.menu.set_controller(self)  # Set controller reference
+            self.menu_builder.menu.set_controller(self)
             self.menu_builder.connect_signals(self._handle_menu_action)
         
     def _handle_menu_action(self, item_id: str, data: Any) -> None:
@@ -150,42 +156,26 @@ class AgentController:
             List of agent IDs
         """
         try:
-            # Get agent coordinates from UI automation
-            coords = self.ui_automation.get_agent_coordinates()
-            return sorted(coords.keys()) if coords else []
+            return self.agent_operations.list_agents()
         except Exception as e:
             logger.error(f"Error listing agents: {e}")
             return []
         
-    def onboard_agent(self, agent_id: str) -> None:
-        """Onboard a new agent using PyAutoGUI.
+    def onboard_agent(self, agent_id: str, use_ui: bool = True) -> None:
+        """Onboard a new agent using messaging system.
         
         Args:
             agent_id: The ID of the agent to onboard
+            use_ui: Whether to use UI automation
         """
+        if not agent_id:
+            if self.menu_builder and self.menu_builder.menu:
+                self.menu_builder.menu._status_panel.update_status("Error resuming : Invalid agent ID")
+            return
+            
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
-                
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)  # Wait for movement
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)  # Wait for selection
-            
-            # Move to onboard button
-            pyautogui.moveTo(agent_coords['onboard_x'], agent_coords['onboard_y'])
-            time.sleep(0.5)  # Wait for movement
-            
-            # Click onboard button
-            pyautogui.click()
+            # Use agent operations for onboarding
+            self.agent_operations.onboard_agent(agent_id)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -198,35 +188,21 @@ class AgentController:
             if self.menu_builder and self.menu_builder.menu:
                 self.menu_builder.menu._status_panel.update_status(f"Error onboarding {agent_id}: {str(e)}")
         
-    def resume_agent(self, agent_id: str) -> None:
-        """Resume an agent's operation using PyAutoGUI.
+    def resume_agent(self, agent_id: str, use_ui: bool = True) -> None:
+        """Resume an agent's operation using messaging system.
         
         Args:
             agent_id: The ID of the agent to resume
+            use_ui: Whether to use UI automation
         """
+        if not agent_id:
+            if self.menu_builder and self.menu_builder.menu:
+                self.menu_builder.menu._status_panel.update_status("Error resuming : Invalid agent ID")
+            return
+            
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
-                
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Move to resume button
-            pyautogui.moveTo(agent_coords['resume_x'], agent_coords['resume_y'])
-            time.sleep(0.5)
-            
-            # Click resume button
-            pyautogui.click()
+            # Use agent operations for resuming
+            self.agent_operations.resume_agent(agent_id)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -240,34 +216,14 @@ class AgentController:
                 self.menu_builder.menu._status_panel.update_status(f"Error resuming {agent_id}: {str(e)}")
         
     def verify_agent(self, agent_id: str) -> None:
-        """Verify an agent's state using PyAutoGUI.
+        """Verify an agent's state using messaging system.
         
         Args:
             agent_id: The ID of the agent to verify
         """
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
-                
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Move to verify button
-            pyautogui.moveTo(agent_coords['verify_x'], agent_coords['verify_y'])
-            time.sleep(0.5)
-            
-            # Click verify button
-            pyautogui.click()
+            # Use agent operations for verification
+            self.agent_operations.verify_agent(agent_id)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -281,34 +237,14 @@ class AgentController:
                 self.menu_builder.menu._status_panel.update_status(f"Error verifying {agent_id}: {str(e)}")
         
     def repair_agent(self, agent_id: str) -> None:
-        """Repair an agent's issues using PyAutoGUI.
+        """Repair an agent using messaging system.
         
         Args:
             agent_id: The ID of the agent to repair
         """
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
-                
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Move to repair button
-            pyautogui.moveTo(agent_coords['repair_x'], agent_coords['repair_y'])
-            time.sleep(0.5)
-            
-            # Click repair button
-            pyautogui.click()
+            # Use agent operations for repair
+            self.agent_operations.repair_agent(agent_id)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -322,34 +258,14 @@ class AgentController:
                 self.menu_builder.menu._status_panel.update_status(f"Error repairing {agent_id}: {str(e)}")
         
     def backup_agent(self, agent_id: str) -> None:
-        """Backup an agent's data using PyAutoGUI.
+        """Backup an agent using messaging system.
         
         Args:
             agent_id: The ID of the agent to backup
         """
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
-                
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Move to backup button
-            pyautogui.moveTo(agent_coords['backup_x'], agent_coords['backup_y'])
-            time.sleep(0.5)
-            
-            # Click backup button
-            pyautogui.click()
+            # Use agent operations for backup
+            self.agent_operations.backup_agent(agent_id)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -363,34 +279,14 @@ class AgentController:
                 self.menu_builder.menu._status_panel.update_status(f"Error backing up {agent_id}: {str(e)}")
         
     def restore_agent(self, agent_id: str) -> None:
-        """Restore an agent from backup using PyAutoGUI.
+        """Restore an agent using messaging system.
         
         Args:
             agent_id: The ID of the agent to restore
         """
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
-                
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Move to restore button
-            pyautogui.moveTo(agent_coords['restore_x'], agent_coords['restore_y'])
-            time.sleep(0.5)
-            
-            # Click restore button
-            pyautogui.click()
+            # Use agent operations for restore
+            self.agent_operations.restore_agent(agent_id)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -404,42 +300,20 @@ class AgentController:
                 self.menu_builder.menu._status_panel.update_status(f"Error restoring {agent_id}: {str(e)}")
         
     def send_message(self, agent_id: str) -> None:
-        """Send a message to an agent using PyAutoGUI.
+        """Send a message to an agent using messaging system.
         
         Args:
             agent_id: The ID of the agent to message
         """
         try:
-            # Get agent coordinates
-            coords = self.ui_automation.get_agent_coordinates()
-            if agent_id not in coords:
-                raise ValueError(f"Agent {agent_id} not found")
+            # Get message from user
+            message = input("\nEnter message: ").strip()
+            if not message:
+                logger.warning("Empty message, aborting")
+                return
                 
-            # Get coordinates for the agent
-            agent_coords = coords[agent_id]
-            
-            # Move to agent position
-            pyautogui.moveTo(agent_coords['x'], agent_coords['y'])
-            time.sleep(0.5)
-            
-            # Click to select agent
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Move to message input
-            pyautogui.moveTo(agent_coords['message_x'], agent_coords['message_y'])
-            time.sleep(0.5)
-            
-            # Click to focus input
-            pyautogui.click()
-            time.sleep(0.5)
-            
-            # Type message
-            pyautogui.write("Test message")
-            time.sleep(0.5)
-            
-            # Press enter to send
-            pyautogui.press('enter')
+            # Use agent operations for sending message
+            self.agent_operations.send_message(agent_id, message)
             
             # Update status
             if self.menu_builder and self.menu_builder.menu:
@@ -448,6 +322,6 @@ class AgentController:
             logger.info(f"Message sent to {agent_id}")
             
         except Exception as e:
-            logger.error(f"Error sending message to agent {agent_id}: {e}")
+            logger.error(f"Error sending message to {agent_id}: {e}")
             if self.menu_builder and self.menu_builder.menu:
                 self.menu_builder.menu._status_panel.update_status(f"Error sending message to {agent_id}: {str(e)}") 

@@ -1,0 +1,126 @@
+episode:
+  id: content_loop_behavior
+  version: 1.0
+  type: behavior_pattern
+  description: >
+    Defines the core content loop behavior pattern for Dream.OS agents.
+    This pattern guides how agents process tasks and generate content within the system.
+
+  behavior:
+    primary_loop:
+      description: >
+        The main operational loop that agents follow for task processing and content generation.
+        Each step represents a core behavior that agents must execute.
+      steps:
+        - check_mailbox:
+            description: "Check for new tasks and messages in the agent's mailbox"
+            priority: highest
+            expected_outcome: "List of new tasks and messages to process"
+            
+        - pull_from_task_list:
+            description: "Retrieve next task from the agent's task list"
+            priority: high
+            expected_outcome: "Next task to execute"
+            
+        - execute_task:
+            description: "Process and complete the current task"
+            priority: high
+            expected_outcome: "Task completion status and results"
+            
+        - finish_task:
+            description: "Finalize task execution and prepare outputs"
+            priority: high
+            expected_outcome: "Task outputs and completion metadata"
+            
+        - update_task_list:
+            description: "Update task list with completion status and new tasks"
+            priority: medium
+            expected_outcome: "Updated task list"
+            
+        - generate_future_tasks:
+            description: "Create new tasks based on current execution context"
+            priority: medium
+            expected_outcome: "New tasks added to task list"
+            
+        - loop_back_to_mailbox:
+            description: "Return to mailbox check to maintain continuous operation"
+            priority: highest
+            expected_outcome: "Loop continuation"
+
+    secondary_loop:
+      name: masterpiece_track
+      description: >
+        Specialized loop for handling high-value content that emerges from task execution.
+        This loop focuses on content refinement and distribution.
+      flow:
+        - pull_from_task_list:
+            description: "Identify potential masterpiece candidates from task outputs"
+            priority: high
+            expected_outcome: "Candidate content for masterpiece track"
+            
+        - generate_future_task:
+            description: "Create specialized tasks for content refinement"
+            priority: high
+            expected_outcome: "Refinement tasks"
+            
+        - promote_to_masterpiece_candidate:
+            description: "Elevate content to masterpiece candidate status"
+            priority: high
+            expected_outcome: "Promoted content with candidate status"
+            
+        - refinement_cycles:
+            description: "Iterative content improvement process"
+            priority: medium
+            expected_outcome: "Refined content"
+            
+        - publish_masterpiece:
+            description: "Distribute finalized masterpiece content"
+            priority: high
+            expected_outcome: "Published masterpiece"
+            
+        - recycle_as_conversation_or_entertainment:
+            description: "Repurpose content for other output streams"
+            priority: low
+            expected_outcome: "Recycled content in new format"
+
+  core_outputs:
+    conversation_highlights:
+      description: "Key insights and notable exchanges from task execution"
+      format: "Structured conversation summaries"
+      
+    devlogs:
+      description: "Technical documentation and development progress"
+      format: "Technical documentation"
+      
+    self_improvement_reports:
+      description: "Agent performance and learning insights"
+      format: "Structured reports"
+      
+    entertainment_content:
+      description: "Polished content derived from task execution"
+      format: "Various entertainment formats"
+
+  emergence_protocol:
+    description: >
+      Agents surface insights through task completion.
+      Strong signals escalate to higher-value content (masterpieces, entertainment).
+      Weaker signals reloop for distillation.
+    key_principles:
+      - "Task completion drives insight generation"
+      - "Content value determines processing path"
+      - "Continuous refinement improves quality"
+      - "Feedback loops enhance content value"
+
+  strategic_takeaways:
+    - "Every task is a story seed"
+    - "Every mailbox is a content incubator"
+    - "Entertainment = polished devlogs"
+    - "Self-Improvement = task retrospectives"
+    - "Masterpieces emerge from recursive loops"
+
+  implementation_notes:
+    - "Agents should maintain awareness of their current loop position"
+    - "Content quality should be evaluated at each step"
+    - "Task execution should consider potential content value"
+    - "Feedback should be incorporated into future task generation"
+    - "Masterpiece candidates should be identified early in the process" 

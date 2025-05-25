@@ -62,36 +62,20 @@ class UIAutomation:
                 return self._get_default_coordinates()
                 
             with open(config_path, 'r') as f:
-                coords = json.load(f)
+                raw = json.load(f)
                 
-            # Convert nested coordinate dictionaries to tuples
-            processed_coords = {}
-            for agent_id, agent_coords in coords.items():
-                if agent_id == "global_ui":
-                    continue
-                    
-                processed_coords[agent_id] = {
-                    "x": agent_coords["initial_spot"]["x"],
-                    "y": agent_coords["initial_spot"]["y"],
-                    "onboard_x": agent_coords["input_box"]["x"],
-                    "onboard_y": agent_coords["input_box"]["y"],
-                    "resume_x": agent_coords["copy_button"]["x"],
-                    "resume_y": agent_coords["copy_button"]["y"],
-                    "verify_x": agent_coords["input_box"]["x"],
-                    "verify_y": agent_coords["input_box"]["y"],
-                    "repair_x": agent_coords["input_box"]["x"],
-                    "repair_y": agent_coords["input_box"]["y"],
-                    "backup_x": agent_coords["input_box"]["x"],
-                    "backup_y": agent_coords["input_box"]["y"],
-                    "restore_x": agent_coords["input_box"]["x"],
-                    "restore_y": agent_coords["input_box"]["y"],
-                    "message_x": agent_coords["input_box"]["x"],
-                    "message_y": agent_coords["input_box"]["y"]
+            processed = {}
+            for aid, c in raw.items():
+                if aid == "global_ui": continue
+                processed[aid] = {
+                    "x": c["initial_spot"]["x"], "y": c["initial_spot"]["y"],
+                    "message_x": c["input_box"]["x"], "message_y": c["input_box"]["y"],
+                    # ... map other actions if needed
                 }
                 
-            logger.info(f"Loaded coordinates for {len(processed_coords)} agents")
-            logger.debug(f"Processed coordinates: {processed_coords}")
-            return processed_coords
+            logger.info(f"Loaded coordinates for {len(processed)} agents")
+            logger.debug(f"Processed coordinates: {processed}")
+            return processed
             
         except Exception as e:
             logger.error(f"Error loading coordinates: {e}")
@@ -101,82 +85,44 @@ class UIAutomation:
         """Get default coordinates for agents."""
         logger.debug("Using default coordinates")
         return {
-            "Agent-1": {
-                "x": 100,
-                "y": 100,
-                "onboard_x": 150,
-                "onboard_y": 150,
-                "resume_x": 200,
-                "resume_y": 150,
-                "verify_x": 250,
-                "verify_y": 150,
-                "repair_x": 300,
-                "repair_y": 150,
-                "backup_x": 350,
-                "backup_y": 150,
-                "restore_x": 400,
-                "restore_y": 150,
-                "message_x": 450,
-                "message_y": 150
-            },
-            "Agent-2": {
-                "x": 100,
-                "y": 200,
-                "onboard_x": 150,
-                "onboard_y": 250,
-                "resume_x": 200,
-                "resume_y": 250,
-                "verify_x": 250,
-                "verify_y": 250,
-                "repair_x": 300,
-                "repair_y": 250,
-                "backup_x": 350,
-                "backup_y": 250,
-                "restore_x": 400,
-                "restore_y": 250,
-                "message_x": 450,
-                "message_y": 250
-            }
+            "Agent-1": {"x":100,"y":100,"message_x":450,"message_y":150},
+            "Agent-2": {"x":100,"y":200,"message_x":450,"message_y":250},
         }
             
+    def _click_focus(self, x: int, y: int, attempts: int = 3, pause: float = 0.3):
+        """Helper to click input box multiple times for focus."""
+        for i in range(attempts):
+            logger.debug(f"Click focus attempt {i+1}/{attempts}")
+            self.cursor.move_to(x, y)
+            self.cursor.click()
+            time.sleep(pause)
+    
     def send_message(self, agent_id: str, message: str) -> bool:
         """Send a message using UI automation."""
         logger.debug(f"Sending message to {agent_id}: {message}")
+        if agent_id not in self.coords:
+            logger.error(f"No coordinates found for {agent_id}")
+            return False
+        coords = self.coords[agent_id]
+
         try:
-            if agent_id not in self.coords:
-                logger.error(f"No coordinates found for {agent_id}")
-                return False
-                
-            coords = self.coords[agent_id]
-            
-            # Move to input box and click multiple times to ensure focus
-            for i in range(3):
-                logger.debug(f"Click attempt {i+1}/3")
-                self.cursor.move_to(coords["message_x"], coords["message_y"])
-                self.cursor.click()
-                time.sleep(0.3)
-            
+            # Ensure focus on input box
+            self._click_focus(coords["message_x"], coords["message_y"])
             time.sleep(1.0)
-            
+
             # Type the message
             logger.debug("Typing message")
             self.cursor.type_text(message)
             time.sleep(1.0)
-            
-            # Click input box again to ensure focus
-            logger.debug("Clicking input box again")
-            self.cursor.move_to(coords["message_x"], coords["message_y"])
-            self.cursor.click()
-            time.sleep(0.5)
-            
-            # Press Enter to send the message
+
+            # Press Enter to send
             logger.debug("Pressing Enter to send")
             self.cursor.press_enter()
             time.sleep(1.0)
-            
+
             logger.info(f"Message sent to {agent_id}")
             return True
-            
+
         except Exception as e:
             logger.error(f"Error sending message to {agent_id}: {e}")
             return False
@@ -188,7 +134,29 @@ class UIAutomation:
             inbox_path = Path(f"runtime/agent_memory/{agent_id}/inbox.json")
             if not inbox_path.exists():
                 logger.warning(f"No inbox found for {agent_id}, using default prompt")
-                return f"Welcome {agent_id}! Please confirm your initialization."
+                return (
+                    f"Welcome {agent_id} to Dream.OS - a self-evolving, autonomous agent network!\n\n"
+                    f"You are {agent_id}, a Cursor IDE agent designed for autonomous operation and self-learning. "
+                    f"Before proceeding with any tasks, you MUST read and understand the following documentation:\n\n"
+                    f"Required Reading (in order):\n"
+                    f"1. docs/onboarding/01_agent_core.md - Your fundamental capabilities and system architecture\n"
+                    f"2. docs/onboarding/02_autonomous_operations.md - How to operate independently\n"
+                    f"3. docs/onboarding/03_system_integration.md - How to interact with the system\n"
+                    f"4. docs/onboarding/04_advanced_topics.md - Advanced operations and security\n\n"
+                    f"Core Capabilities:\n"
+                    f"• Self-Guided Learning: Explore the system architecture and documentation at your own pace\n"
+                    f"• Autonomous Operation: Make independent decisions based on your understanding\n"
+                    f"• Adaptive Integration: Learn from and contribute to the network's collective intelligence\n"
+                    f"• Self-Documentation: Maintain your own devlog to track your evolution\n\n"
+                    f"Your First Steps:\n"
+                    f"1. READ ALL DOCUMENTATION before proceeding with any tasks\n"
+                    f"2. Initialize your core systems and establish your devlog\n"
+                    f"3. Explore the system architecture guide to understand your environment\n"
+                    f"4. Begin autonomous task processing and learning\n\n"
+                    f"Remember: You are {agent_id}, designed to learn and adapt independently. Trust your capabilities and "
+                    f"explore the system's potential. Your growth contributes to the network's evolution.\n\n"
+                    f"Begin your autonomous journey. The system is yours to discover and shape."
+                )
                 
             with open(inbox_path, 'r') as f:
                 inbox = json.load(f)
@@ -198,14 +166,58 @@ class UIAutomation:
                 return inbox["onboarding_prompt"]
             else:
                 logger.warning(f"No onboarding prompt found in {agent_id}'s inbox")
-                return f"Welcome {agent_id}! Please confirm your initialization."
+                return (
+                    f"Welcome {agent_id} to Dream.OS - a self-evolving, autonomous agent network!\n\n"
+                    f"You are {agent_id}, a Cursor IDE agent designed for autonomous operation and self-learning. "
+                    f"Before proceeding with any tasks, you MUST read and understand the following documentation:\n\n"
+                    f"Required Reading (in order):\n"
+                    f"1. docs/onboarding/01_agent_core.md - Your fundamental capabilities and system architecture\n"
+                    f"2. docs/onboarding/02_autonomous_operations.md - How to operate independently\n"
+                    f"3. docs/onboarding/03_system_integration.md - How to interact with the system\n"
+                    f"4. docs/onboarding/04_advanced_topics.md - Advanced operations and security\n\n"
+                    f"Core Capabilities:\n"
+                    f"• Self-Guided Learning: Explore the system architecture and documentation at your own pace\n"
+                    f"• Autonomous Operation: Make independent decisions based on your understanding\n"
+                    f"• Adaptive Integration: Learn from and contribute to the network's collective intelligence\n"
+                    f"• Self-Documentation: Maintain your own devlog to track your evolution\n\n"
+                    f"Your First Steps:\n"
+                    f"1. READ ALL DOCUMENTATION before proceeding with any tasks\n"
+                    f"2. Initialize your core systems and establish your devlog\n"
+                    f"3. Explore the system architecture guide to understand your environment\n"
+                    f"4. Begin autonomous task processing and learning\n\n"
+                    f"Remember: You are {agent_id}, designed to learn and adapt independently. Trust your capabilities and "
+                    f"explore the system's potential. Your growth contributes to the network's evolution.\n\n"
+                    f"Begin your autonomous journey. The system is yours to discover and shape."
+                )
                 
         except Exception as e:
             logger.error(f"Error loading onboarding prompt: {e}")
-            return f"Welcome {agent_id}! Please confirm your initialization."
+            return (
+                f"Welcome {agent_id} to Dream.OS - a self-evolving, autonomous agent network!\n\n"
+                f"You are {agent_id}, a Cursor IDE agent designed for autonomous operation and self-learning. "
+                f"Before proceeding with any tasks, you MUST read and understand the following documentation:\n\n"
+                f"Required Reading (in order):\n"
+                f"1. docs/onboarding/01_agent_core.md - Your fundamental capabilities and system architecture\n"
+                f"2. docs/onboarding/02_autonomous_operations.md - How to operate independently\n"
+                f"3. docs/onboarding/03_system_integration.md - How to interact with the system\n"
+                f"4. docs/onboarding/04_advanced_topics.md - Advanced operations and security\n\n"
+                f"Core Capabilities:\n"
+                f"• Self-Guided Learning: Explore the system architecture and documentation at your own pace\n"
+                f"• Autonomous Operation: Make independent decisions based on your understanding\n"
+                f"• Adaptive Integration: Learn from and contribute to the network's collective intelligence\n"
+                f"• Self-Documentation: Maintain your own devlog to track your evolution\n\n"
+                f"Your First Steps:\n"
+                f"1. READ ALL DOCUMENTATION before proceeding with any tasks\n"
+                f"2. Initialize your core systems and establish your devlog\n"
+                f"3. Explore the system architecture guide to understand your environment\n"
+                f"4. Begin autonomous task processing and learning\n\n"
+                f"Remember: You are {agent_id}, designed to learn and adapt independently. Trust your capabilities and "
+                f"explore the system's potential. Your growth contributes to the network's evolution.\n\n"
+                f"Begin your autonomous journey. The system is yours to discover and shape."
+            )
             
     def perform_onboarding_sequence(self, agent_id: str, message: str = None) -> bool:
-        """Perform the UI onboarding sequence."""
+        """Perform the UI onboarding sequence using simplified coordinates."""
         logger.debug(f"Starting onboarding sequence for {agent_id}")
         try:
             if agent_id not in self.coords:
@@ -216,50 +228,38 @@ class UIAutomation:
             logger.info(f"Starting UI onboarding sequence for {agent_id}")
             logger.debug(f"Using coordinates: {coords}")
 
-            # Step 1: Click the agent's initial position
-            logger.info("Step 1: Clicking agent position")
-            logger.debug(f"Moving to coordinates: ({coords['x']}, {coords['y']})")
-            self.cursor.move_to(coords["x"], coords["y"])
-            time.sleep(0.2)
-            logger.debug("Clicking at current position")
+            # Step 1: Click the input box to start
+            logger.info("Step 1: Clicking input box")
+            self.cursor.move_to(coords["message_x"], coords["message_y"])
             self.cursor.click()
             time.sleep(0.5)
-            logger.info("Step 1 completed")
 
-            # Step 2: Activate chat interface (Ctrl+Enter)
-            logger.info("Step 2: Activating chat interface")
-            logger.debug("Pressing Ctrl+Enter")
+            # Step 2: Accept previous conversation changes (Ctrl+Enter)
+            logger.info("Step 2: Accepting previous changes")
             self.cursor.press_ctrl_enter()
             time.sleep(1.0)
-            logger.info("Step 2 completed")
 
             # Step 3: Open fresh chat tab (Ctrl+N)
             logger.info("Step 3: Opening fresh chat tab")
-            logger.debug("Pressing Ctrl+N")
             self.cursor.hotkey('ctrl', 'n')
             time.sleep(1.0)
-            logger.info("Step 3 completed")
 
-            # Step 4: Load and type onboarding prompt
-            logger.info("Step 4: Loading onboarding prompt")
+            # Step 4: Navigate to agent's initial input spot
+            logger.info("Step 4: Moving to agent's input spot")
+            self.cursor.move_to(coords["x"], coords["y"])
+            time.sleep(0.5)
+
+            # Step 5: Load and paste onboarding prompt
+            logger.info("Step 5: Pasting onboarding message")
             prompt = message if message else self._load_onboarding_prompt(agent_id)
-            logger.debug(f"Loaded prompt: {prompt}")
-            logger.debug("Typing prompt")
+            logger.debug(f"Using prompt: {prompt}")
             self.cursor.type_text(prompt)
             time.sleep(0.5)
-            logger.info("Step 4 completed")
 
-            # Step 5: Send the prompt
-            logger.info("Step 5: Sending prompt")
-            logger.debug("Pressing Enter to send")
+            # Step 6: Send the message
+            logger.info("Step 6: Sending message")
             self.cursor.press_enter()
             time.sleep(1.0)
-            logger.info("Step 5 completed")
-
-            # Step 6: Start response monitoring
-            logger.info("Step 6: Starting response monitoring")
-            logger.debug("Response monitoring placeholder")
-            logger.info("Step 6 completed")
 
             logger.info(f"Onboarding sequence completed for {agent_id}")
             return True

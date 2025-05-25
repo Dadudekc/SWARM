@@ -2,41 +2,44 @@
 Test runner for Discord bot tests.
 """
 
-import asyncio
-import unittest
-import sys
 import os
+import sys
+import pytest
+from datetime import datetime
+from pathlib import Path
 
-# Add parent directory to path for imports
-sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-
-from test_discord_commands import TestHelpMenu, TestAgentCommands
-
-def run_async_test(test_case):
-    """Run an async test case."""
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(test_case)
-
-def main():
-    """Run all tests."""
-    # Create test suite
-    suite = unittest.TestSuite()
+def run_tests():
+    """Run all tests with proper reporting."""
+    # Get test directory
+    test_dir = Path(__file__).parent
     
-    # Add HelpMenu tests
-    suite.addTest(unittest.makeSuite(TestHelpMenu))
+    # Create reports directory
+    reports_dir = test_dir / "reports"
+    reports_dir.mkdir(exist_ok=True)
     
-    # Add AgentCommands tests
-    for test_name in dir(TestAgentCommands):
-        if test_name.startswith('test_'):
-            test_case = TestAgentCommands(test_name)
-            suite.addTest(test_case)
+    # Generate report filename with timestamp
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    report_file = reports_dir / f"test_report_{timestamp}.html"
     
-    # Run tests
-    runner = unittest.TextTestRunner(verbosity=2)
-    result = runner.run(suite)
+    # Run tests with coverage and HTML report
+    args = [
+        "--verbose",
+        "--cov=social",
+        "--cov-report=term-missing",
+        f"--html={report_file}",
+        "--self-contained-html",
+        str(test_dir)
+    ]
     
-    # Return non-zero exit code if tests failed
-    return 0 if result.wasSuccessful() else 1
+    # Run pytest
+    result = pytest.main(args)
+    
+    # Print summary
+    print("\nTest Summary:")
+    print(f"Report saved to: {report_file}")
+    print(f"Exit code: {result}")
+    
+    return result
 
-if __name__ == '__main__':
-    sys.exit(main()) 
+if __name__ == "__main__":
+    sys.exit(run_tests()) 

@@ -147,21 +147,22 @@
             "test_messages",
             "test_config",
             "bot",
-            "pytest_configure"
+            "pytest_configure",
+            "temp_config_dir",
+            "temp_log_dir"
         ],
         "classes": {},
         "routes": [],
-        "complexity": 8
+        "complexity": 10
     },
     "tests\\run_tests.py": {
         "language": ".py",
         "functions": [
-            "run_async_test",
-            "main"
+            "run_tests"
         ],
         "classes": {},
         "routes": [],
-        "complexity": 2
+        "complexity": 1
     },
     "message_processor.py": {
         "language": ".py",
@@ -2298,6 +2299,7 @@
         "language": ".py",
         "functions": [
             "__init__",
+            "set_controller",
             "_build_menu",
             "_handle_list_agents",
             "_handle_agent_selection",
@@ -2309,6 +2311,7 @@
             "MenuBuilder": {
                 "methods": [
                     "__init__",
+                    "set_controller",
                     "_build_menu",
                     "_handle_list_agents",
                     "_handle_agent_selection",
@@ -2323,7 +2326,7 @@
             }
         },
         "routes": [],
-        "complexity": 14
+        "complexity": 16
     },
     "dreamos\\core\\agent_control\\agent_operations.py": {
         "language": ".py",
@@ -2343,7 +2346,8 @@
             "restore_agent",
             "_restore_single_agent",
             "send_message",
-            "_send_single_message"
+            "_send_single_message",
+            "cleanup"
         ],
         "classes": {
             "AgentOperations": {
@@ -2363,14 +2367,15 @@
                     "restore_agent",
                     "_restore_single_agent",
                     "send_message",
-                    "_send_single_message"
+                    "_send_single_message",
+                    "cleanup"
                 ],
                 "docstring": "Handles agent-specific operations.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 32
+        "complexity": 34
     },
     "dreamos\\core\\system_init.py": {
         "language": ".py",
@@ -2429,6 +2434,7 @@
             "_handle_interrupt",
             "_load_coordinates",
             "_get_default_coordinates",
+            "_click_focus",
             "send_message",
             "_load_onboarding_prompt",
             "perform_onboarding_sequence",
@@ -2450,6 +2456,7 @@
                     "_handle_interrupt",
                     "_load_coordinates",
                     "_get_default_coordinates",
+                    "_click_focus",
                     "send_message",
                     "_load_onboarding_prompt",
                     "perform_onboarding_sequence",
@@ -2468,7 +2475,7 @@
             }
         },
         "routes": [],
-        "complexity": 34
+        "complexity": 36
     },
     "dreamos\\core\\agent_control\\__init__.py": {
         "language": ".py",
@@ -2553,5 +2560,1948 @@
         },
         "routes": [],
         "complexity": 6
+    },
+    "dreamos\\core\\messaging.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {
+            "MessageMode": {
+                "methods": [],
+                "docstring": "Message modes for different types of communication.",
+                "base_classes": [
+                    "Enum"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\agent_control\\tests\\test_controller_integration.py": {
+        "language": ".py",
+        "functions": [
+            "tmp_runtime_dir",
+            "mock_menu_builder",
+            "controller",
+            "test_onboard_agent_flow",
+            "test_resume_agent_flow",
+            "test_verify_agent_flow",
+            "test_repair_agent_flow",
+            "test_backup_agent_flow",
+            "test_restore_agent_flow",
+            "test_send_message_flow",
+            "test_cleanup_flow"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "dreamos\\core\\agent_control\\tests\\test_agent_operations.py": {
+        "language": ".py",
+        "functions": [
+            "tmp_runtime_dir",
+            "agent_ops",
+            "test_list_agents",
+            "test_onboard_agent",
+            "test_resume_agent",
+            "test_verify_agent",
+            "test_repair_agent",
+            "test_backup_agent",
+            "test_restore_agent",
+            "test_send_message",
+            "test_cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "dreamos\\core\\agent_control\\tests\\test_error_handling.py": {
+        "language": ".py",
+        "functions": [
+            "tmp_runtime_dir",
+            "mock_menu_builder",
+            "controller",
+            "agent_ops",
+            "test_handles_missing_message_mode",
+            "test_handles_missing_message_content",
+            "test_handles_corrupt_inbox_file",
+            "test_handles_missing_agent_directory",
+            "test_handles_permission_error",
+            "test_handles_disk_full_error",
+            "test_handles_network_error",
+            "test_handles_message_retry",
+            "test_handles_ui_timeout",
+            "test_handles_ui_coordinate_error",
+            "test_handles_queue_overflow",
+            "test_handles_state_transitions",
+            "test_handles_concurrent_operations",
+            "test_handles_cleanup_sequence",
+            "test_handles_both_failures"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 19
+    },
+    "dreamos\\core\\messaging\\cli.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "run",
+            "_create_parser",
+            "_handle_send",
+            "_handle_status",
+            "_handle_clear",
+            "_parse_metadata"
+        ],
+        "classes": {
+            "MessageCLI": {
+                "methods": [
+                    "__init__",
+                    "run",
+                    "_create_parser",
+                    "_handle_send",
+                    "_handle_status",
+                    "_handle_clear",
+                    "_parse_metadata"
+                ],
+                "docstring": "Command-line interface for messaging.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "dreamos\\core\\messaging\\message_processor.py": {
+        "language": ".py",
+        "functions": [
+            "send_message"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "dreamos\\core\\messaging\\message.py": {
+        "language": ".py",
+        "functions": [
+            "__post_init__",
+            "format_content",
+            "to_dict",
+            "from_dict",
+            "validate"
+        ],
+        "classes": {
+            "MessageMode": {
+                "methods": [],
+                "docstring": "Message delivery modes.",
+                "base_classes": [
+                    "Enum"
+                ]
+            },
+            "Message": {
+                "methods": [
+                    "__post_init__",
+                    "format_content",
+                    "to_dict",
+                    "from_dict",
+                    "validate"
+                ],
+                "docstring": "Represents a message in the Dream.OS system.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 10
+    },
+    "dreamos\\core\\messaging\\processor.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "start",
+            "stop",
+            "register_handler",
+            "register_default_handler",
+            "send_message",
+            "send_to_all",
+            "get_status",
+            "_process_messages",
+            "_handle_message",
+            "_get_all_agents"
+        ],
+        "classes": {
+            "MessageProcessor": {
+                "methods": [
+                    "__init__",
+                    "start",
+                    "stop",
+                    "register_handler",
+                    "register_default_handler",
+                    "send_message",
+                    "send_to_all",
+                    "get_status",
+                    "_process_messages",
+                    "_handle_message",
+                    "_get_all_agents"
+                ],
+                "docstring": "Handles message processing and delivery.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 22
+    },
+    "dreamos\\core\\messaging\\queue.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "enqueue",
+            "dequeue",
+            "get_status",
+            "clear",
+            "_save_queue",
+            "_load_queue",
+            "shutdown"
+        ],
+        "classes": {
+            "MessageQueue": {
+                "methods": [
+                    "__init__",
+                    "enqueue",
+                    "dequeue",
+                    "get_status",
+                    "clear",
+                    "_save_queue",
+                    "_load_queue",
+                    "shutdown"
+                ],
+                "docstring": "Manages message queuing and persistence.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 16
+    },
+    "dreamos\\core\\shared\\config_manager.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "set_config"
+        ],
+        "classes": {
+            "ConfigManager": {
+                "methods": [
+                    "__init__",
+                    "set_config"
+                ],
+                "docstring": "Stubbed config manager for test unblocking.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "dreamos\\core\\messaging\\ui.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "initialize",
+            "shutdown",
+            "send_message",
+            "get_status",
+            "_handle_resume",
+            "_handle_sync",
+            "_handle_verify",
+            "_handle_repair",
+            "_handle_backup",
+            "_handle_restore",
+            "_handle_cleanup",
+            "_handle_captain",
+            "_handle_task",
+            "_handle_integrate"
+        ],
+        "classes": {
+            "MessageUI": {
+                "methods": [
+                    "__init__",
+                    "initialize",
+                    "shutdown",
+                    "send_message",
+                    "get_status",
+                    "_handle_resume",
+                    "_handle_sync",
+                    "_handle_verify",
+                    "_handle_repair",
+                    "_handle_backup",
+                    "_handle_restore",
+                    "_handle_cleanup",
+                    "_handle_captain",
+                    "_handle_task",
+                    "_handle_integrate"
+                ],
+                "docstring": "Handles message display and interaction.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 30
+    },
+    "dreamos\\core\\messaging\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\shared\\coordinate_manager.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_coordinates",
+            "get_coordinates",
+            "set_coordinates",
+            "_save_coordinates",
+            "get_message_coordinates",
+            "get_agent_coordinates"
+        ],
+        "classes": {
+            "CoordinateManager": {
+                "methods": [
+                    "__init__",
+                    "_load_coordinates",
+                    "get_coordinates",
+                    "set_coordinates",
+                    "_save_coordinates",
+                    "get_message_coordinates",
+                    "get_agent_coordinates"
+                ],
+                "docstring": "Manages agent coordinates and positions.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "dreamos\\core\\shared\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\social\\log_writer.py": {
+        "language": ".py",
+        "functions": [
+            "setup_logging",
+            "set_log_level",
+            "get_logger",
+            "rotate_logs",
+            "write_json_log",
+            "read_logs"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\social\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "social\\dispatcher.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_update_memory",
+            "load_tasks",
+            "add_task",
+            "dispatch_task",
+            "get_next_task",
+            "get_memory_updates"
+        ],
+        "classes": {
+            "TaskDispatcher": {
+                "methods": [
+                    "__init__",
+                    "_update_memory",
+                    "load_tasks",
+                    "add_task",
+                    "dispatch_task",
+                    "get_next_task",
+                    "get_memory_updates"
+                ],
+                "docstring": "Manages and dispatches social media tasks with enhanced error handling and memory integration.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "social\\social_config.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "get"
+        ],
+        "classes": {
+            "SocialConfig": {
+                "methods": [
+                    "__init__",
+                    "get"
+                ],
+                "docstring": null,
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "social\\driver_manager.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_update_memory",
+            "_configure_chrome_options",
+            "initialize_driver",
+            "quit_driver",
+            "get_driver",
+            "get_memory_updates"
+        ],
+        "classes": {
+            "DriverManager": {
+                "methods": [
+                    "__init__",
+                    "_update_memory",
+                    "_configure_chrome_options",
+                    "initialize_driver",
+                    "quit_driver",
+                    "get_driver",
+                    "get_memory_updates"
+                ],
+                "docstring": "Manages WebDriver instances with enhanced error handling and memory integration.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "social\\community\\audience_analytics.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_create_default_config",
+            "track_growth",
+            "analyze_demographics",
+            "generate_insights",
+            "export_report",
+            "get_audience_metrics",
+            "_get_audience_metrics"
+        ],
+        "classes": {
+            "AudienceAnalytics": {
+                "methods": [
+                    "__init__",
+                    "_create_default_config",
+                    "track_growth",
+                    "analyze_demographics",
+                    "generate_insights",
+                    "export_report",
+                    "get_audience_metrics",
+                    "_get_audience_metrics"
+                ],
+                "docstring": "Analyzes audience engagement and demographics across platforms.",
+                "base_classes": [
+                    "CommunityBase"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 16
+    },
+    "social\\community\\base.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_setup_logging",
+            "_create_default_config",
+            "_save_config",
+            "_load_config",
+            "_update_metrics"
+        ],
+        "classes": {
+            "CommunityBase": {
+                "methods": [
+                    "__init__",
+                    "_setup_logging",
+                    "_create_default_config",
+                    "_save_config",
+                    "_load_config",
+                    "_update_metrics"
+                ],
+                "docstring": "Base class for community management modules.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 12
+    },
+    "social\\community\\content_scheduler.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_create_default_config",
+            "schedule_post",
+            "get_schedule",
+            "optimize_timing",
+            "analyze_performance",
+            "_get_optimal_time"
+        ],
+        "classes": {
+            "ContentScheduler": {
+                "methods": [
+                    "__init__",
+                    "_create_default_config",
+                    "schedule_post",
+                    "get_schedule",
+                    "optimize_timing",
+                    "analyze_performance",
+                    "_get_optimal_time"
+                ],
+                "docstring": "Manages content scheduling and optimization across platforms.",
+                "base_classes": [
+                    "CommunityBase"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "social\\config\\social_config.py": {
+        "language": ".py",
+        "functions": [
+            "get_platform_config",
+            "get_global_config"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "social\\constants\\platform_constants.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "social\\core\\dispatcher.py": {
+        "language": ".py",
+        "functions": [
+            "main",
+            "__init__",
+            "dispatch_all",
+            "_process_platform",
+            "_shutdown_all_drivers"
+        ],
+        "classes": {
+            "SocialPlatformDispatcher": {
+                "methods": [
+                    "__init__",
+                    "dispatch_all",
+                    "_process_platform",
+                    "_shutdown_all_drivers"
+                ],
+                "docstring": "Main dispatcher for handling social media operations.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 9
+    },
+    "social\\core\\driver_manager.py": {
+        "language": ".py",
+        "functions": [
+            "get_multi_driver_sessions",
+            "__init__",
+            "add_proxy",
+            "validate_proxy",
+            "get_next_proxy",
+            "__init__",
+            "_load_state",
+            "save_state",
+            "update_platform_state",
+            "get_platform_state",
+            "save_cookies",
+            "load_cookies",
+            "__init__",
+            "start_driver",
+            "save_session",
+            "wait_for_element",
+            "is_element_present",
+            "execute_js",
+            "take_screenshot",
+            "recover_session",
+            "shutdown_driver",
+            "cleanup_profile"
+        ],
+        "classes": {
+            "ProxyManager": {
+                "methods": [
+                    "__init__",
+                    "add_proxy",
+                    "validate_proxy",
+                    "get_next_proxy"
+                ],
+                "docstring": "Manages proxy rotation and validation.",
+                "base_classes": []
+            },
+            "SessionState": {
+                "methods": [
+                    "__init__",
+                    "_load_state",
+                    "save_state",
+                    "update_platform_state",
+                    "get_platform_state",
+                    "save_cookies",
+                    "load_cookies"
+                ],
+                "docstring": "Manages session state and persistence.",
+                "base_classes": []
+            },
+            "DriverSession": {
+                "methods": [
+                    "__init__",
+                    "start_driver",
+                    "save_session",
+                    "wait_for_element",
+                    "is_element_present",
+                    "execute_js",
+                    "take_screenshot",
+                    "recover_session",
+                    "shutdown_driver",
+                    "cleanup_profile"
+                ],
+                "docstring": "Manages a single Chrome driver session with profile persistence.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 43
+    },
+    "social\\driver\\driver_utils.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "wait_for_element",
+            "is_element_present",
+            "execute_js",
+            "take_screenshot"
+        ],
+        "classes": {
+            "DriverUtils": {
+                "methods": [
+                    "__init__",
+                    "wait_for_element",
+                    "is_element_present",
+                    "execute_js",
+                    "take_screenshot"
+                ],
+                "docstring": "Utility methods for driver operations.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 10
+    },
+    "social\\driver\\performance_metrics.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "update_page_load",
+            "update_element_wait",
+            "update_javascript_execution",
+            "update_memory",
+            "record_error",
+            "_update_success_rate",
+            "get_summary",
+            "_get_average",
+            "reset"
+        ],
+        "classes": {
+            "PerformanceMetrics": {
+                "methods": [
+                    "__init__",
+                    "update_page_load",
+                    "update_element_wait",
+                    "update_javascript_execution",
+                    "update_memory",
+                    "record_error",
+                    "_update_success_rate",
+                    "get_summary",
+                    "_get_average",
+                    "reset"
+                ],
+                "docstring": "Tracks and manages performance metrics for driver sessions.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "social\\driver\\proxy_manager.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "add_proxy",
+            "validate_proxy",
+            "get_next_proxy"
+        ],
+        "classes": {
+            "ProxyManager": {
+                "methods": [
+                    "__init__",
+                    "add_proxy",
+                    "validate_proxy",
+                    "get_next_proxy"
+                ],
+                "docstring": "Manages proxy rotation and validation.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 8
+    },
+    "social\\driver\\session_state.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_state",
+            "save_state",
+            "update_platform_state",
+            "get_platform_state",
+            "save_cookies",
+            "load_cookies"
+        ],
+        "classes": {
+            "SessionState": {
+                "methods": [
+                    "__init__",
+                    "_load_state",
+                    "save_state",
+                    "update_platform_state",
+                    "get_platform_state",
+                    "save_cookies",
+                    "load_cookies"
+                ],
+                "docstring": "Manages session state and persistence.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "social\\strategies\\facebook_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "is_logged_in",
+            "login",
+            "post"
+        ],
+        "classes": {
+            "FacebookStrategy": {
+                "methods": [
+                    "is_logged_in",
+                    "login",
+                    "post"
+                ],
+                "docstring": "Facebook platform strategy implementation.",
+                "base_classes": [
+                    "PlatformStrategy"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "social\\strategies\\platform_strategy_base.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_update_memory",
+            "_log_action",
+            "_handle_media_upload",
+            "_validate_media",
+            "get_memory_updates",
+            "is_logged_in",
+            "login",
+            "post",
+            "create_post"
+        ],
+        "classes": {
+            "PlatformStrategy": {
+                "methods": [
+                    "__init__",
+                    "_update_memory",
+                    "_log_action",
+                    "_handle_media_upload",
+                    "_validate_media",
+                    "get_memory_updates",
+                    "is_logged_in",
+                    "login",
+                    "post",
+                    "create_post"
+                ],
+                "docstring": "Base class for all social media platform strategies.",
+                "base_classes": [
+                    "ABC"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "social\\strategies\\reddit_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_take_screenshot",
+            "_create_media_dir",
+            "_validate_media_file",
+            "_wait_for_element",
+            "_wait_for_clickable",
+            "_retry_click",
+            "_format_post_content",
+            "_create_media_post_content",
+            "_handle_upload_error",
+            "_verify_post_success",
+            "_extract_comment_data",
+            "_validate_twitter_media",
+            "_upload_twitter_media",
+            "_validate_media",
+            "_upload_media",
+            "is_logged_in",
+            "login",
+            "post",
+            "comment",
+            "get_post_comments"
+        ],
+        "classes": {
+            "RedditStrategy": {
+                "methods": [
+                    "__init__",
+                    "_take_screenshot",
+                    "_create_media_dir",
+                    "_validate_media_file",
+                    "_wait_for_element",
+                    "_wait_for_clickable",
+                    "_retry_click",
+                    "_format_post_content",
+                    "_create_media_post_content",
+                    "_handle_upload_error",
+                    "_verify_post_success",
+                    "_extract_comment_data",
+                    "_validate_twitter_media",
+                    "_upload_twitter_media",
+                    "_validate_media",
+                    "_upload_media",
+                    "is_logged_in",
+                    "login",
+                    "post",
+                    "comment",
+                    "get_post_comments"
+                ],
+                "docstring": "Reddit platform strategy implementation.",
+                "base_classes": [
+                    "PlatformStrategy"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 42
+    },
+    "social\\strategies\\twitter_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_update_memory",
+            "is_logged_in",
+            "login",
+            "post",
+            "get_memory_updates"
+        ],
+        "classes": {
+            "TwitterStrategy": {
+                "methods": [
+                    "__init__",
+                    "_update_memory",
+                    "is_logged_in",
+                    "login",
+                    "post",
+                    "get_memory_updates"
+                ],
+                "docstring": "Twitter platform strategy with enhanced error handling and memory integration.",
+                "base_classes": [
+                    "PlatformStrategy"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 12
+    },
+    "social\\utils\\log_manager.py": {
+        "language": ".py",
+        "functions": [
+            "get_file_lock",
+            "__init__",
+            "should_rotate",
+            "should_compress",
+            "rotate",
+            "compress",
+            "cleanup_old_logs",
+            "__init__",
+            "read_logs",
+            "_read_log_file",
+            "_filter_logs",
+            "__init__",
+            "start",
+            "stop",
+            "add_observer",
+            "remove_observer",
+            "_monitor_loop",
+            "notify",
+            "__init__",
+            "record_write",
+            "record_read",
+            "record_rotation",
+            "record_compression",
+            "get_metrics",
+            "reset_singleton",
+            "__new__",
+            "_initialize",
+            "_start_metrics_collection",
+            "_update_metrics",
+            "write_log",
+            "read_logs",
+            "cleanup",
+            "get_metrics",
+            "shutdown",
+            "collect_metrics",
+            "_write"
+        ],
+        "classes": {
+            "LogLevel": {
+                "methods": [],
+                "docstring": "Standardized log levels with numeric values.",
+                "base_classes": [
+                    "Enum"
+                ]
+            },
+            "LogMetrics": {
+                "methods": [],
+                "docstring": "Tracks logging system metrics.",
+                "base_classes": []
+            },
+            "LogConfig": {
+                "methods": [],
+                "docstring": "Configuration for the logging system.",
+                "base_classes": []
+            },
+            "LogRotator": {
+                "methods": [
+                    "__init__",
+                    "should_rotate",
+                    "should_compress",
+                    "rotate",
+                    "compress",
+                    "cleanup_old_logs"
+                ],
+                "docstring": "Handles log rotation and compression.",
+                "base_classes": []
+            },
+            "LogReader": {
+                "methods": [
+                    "__init__",
+                    "read_logs",
+                    "_read_log_file",
+                    "_filter_logs"
+                ],
+                "docstring": "Manages log reading and filtering.",
+                "base_classes": []
+            },
+            "LogMonitor": {
+                "methods": [
+                    "__init__",
+                    "start",
+                    "stop",
+                    "add_observer",
+                    "remove_observer",
+                    "_monitor_loop",
+                    "notify"
+                ],
+                "docstring": "Real-time log monitoring and alerts.",
+                "base_classes": []
+            },
+            "PerformanceMetrics": {
+                "methods": [
+                    "__init__",
+                    "record_write",
+                    "record_read",
+                    "record_rotation",
+                    "record_compression",
+                    "get_metrics"
+                ],
+                "docstring": "Tracks performance metrics for logging operations.",
+                "base_classes": []
+            },
+            "LogManager": {
+                "methods": [
+                    "reset_singleton",
+                    "__new__",
+                    "_initialize",
+                    "_start_metrics_collection",
+                    "_update_metrics",
+                    "write_log",
+                    "read_logs",
+                    "cleanup",
+                    "get_metrics",
+                    "shutdown"
+                ],
+                "docstring": "Core logging system manager.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 69
+    },
+    "social\\utils\\social_common.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "take_screenshot",
+            "retry_click",
+            "validate_media_file",
+            "wait_for_element",
+            "wait_for_clickable",
+            "format_post_content",
+            "create_media_post_content",
+            "handle_upload_error",
+            "verify_post_success",
+            "extract_comment_data",
+            "validate_media",
+            "upload_media",
+            "_upload_video",
+            "_upload_images_parallel",
+            "_upload_single_image",
+            "_wait_for_upload_completion",
+            "_get_upload_progress",
+            "_get_max_images",
+            "_get_max_video_size",
+            "_get_supported_image_formats",
+            "_get_supported_video_formats",
+            "_log_error"
+        ],
+        "classes": {
+            "SocialMediaUtils": {
+                "methods": [
+                    "__init__",
+                    "take_screenshot",
+                    "retry_click",
+                    "validate_media_file",
+                    "wait_for_element",
+                    "wait_for_clickable",
+                    "format_post_content",
+                    "create_media_post_content",
+                    "handle_upload_error",
+                    "verify_post_success",
+                    "extract_comment_data",
+                    "validate_media",
+                    "upload_media",
+                    "_upload_video",
+                    "_upload_images_parallel",
+                    "_upload_single_image",
+                    "_wait_for_upload_completion",
+                    "_get_upload_progress",
+                    "_get_max_images",
+                    "_get_max_video_size",
+                    "_get_supported_image_formats",
+                    "_get_supported_video_formats",
+                    "_log_error"
+                ],
+                "docstring": "Common utilities for social media platform strategies.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 46
+    },
+    "tests\\test_audience_analytics.py": {
+        "language": ".py",
+        "functions": [
+            "analytics_instance",
+            "test_init",
+            "test_create_default_config",
+            "test_track_growth",
+            "test_analyze_demographics",
+            "test_generate_insights",
+            "test_export_report",
+            "test_get_audience_metrics"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\test_community.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config_dir",
+            "temp_log_dir"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\test_community_base.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config_dir",
+            "temp_log_dir",
+            "base_instance",
+            "test_init",
+            "test_create_default_config",
+            "test_save_config",
+            "test_load_config",
+            "test_load_nonexistent_config",
+            "test_update_metrics"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "tests\\test_content_scheduler.py": {
+        "language": ".py",
+        "functions": [
+            "scheduler_instance",
+            "test_init",
+            "test_create_default_config",
+            "test_schedule_post",
+            "test_get_schedule",
+            "test_optimize_timing",
+            "test_analyze_performance",
+            "test_get_optimal_time"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\test_log_manager.py": {
+        "language": ".py",
+        "functions": [
+            "perf_monitor",
+            "test_config",
+            "reset_singleton",
+            "temp_log_dir",
+            "log_manager",
+            "wait_for_file",
+            "verify_log_content",
+            "test_log_manager_singleton",
+            "test_write_log",
+            "test_write_log_with_error",
+            "test_log_rotation",
+            "test_log_compression",
+            "test_read_logs",
+            "test_log_monitoring",
+            "test_log_metrics",
+            "test_error_handling",
+            "test_concurrent_writes",
+            "pytest_runtest_setup",
+            "pytest_terminal_summary",
+            "__init__",
+            "record_metric",
+            "get_metrics",
+            "log_observer",
+            "write_logs"
+        ],
+        "classes": {
+            "PerformanceMonitor": {
+                "methods": [
+                    "__init__",
+                    "record_metric",
+                    "get_metrics"
+                ],
+                "docstring": "Monitor test performance metrics.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 27
+    },
+    "tests\\test_log_writer.py": {
+        "language": ".py",
+        "functions": [
+            "mock_logs_dir",
+            "test_setup_logging",
+            "test_write_json_log",
+            "test_write_json_log_with_error",
+            "test_log_rotation",
+            "test_log_compression",
+            "test_read_logs",
+            "test_read_logs_with_compressed_files",
+            "test_error_handling"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "tests\\agent_control\\test_agent_controller.py": {
+        "language": ".py",
+        "functions": [
+            "controller",
+            "mock_menu",
+            "test_controller_initialization",
+            "test_resume_agent",
+            "test_verify_agent",
+            "test_repair_agent",
+            "test_backup_agent",
+            "test_restore_agent",
+            "test_send_message",
+            "test_error_handling",
+            "test_menu_action_handling",
+            "test_cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\agent_control\\test_error_handling.py": {
+        "language": ".py",
+        "functions": [
+            "mock_menu",
+            "controller_with_menu",
+            "test_controller_handles_message_send_failure",
+            "test_controller_handles_resume_failure",
+            "test_controller_handles_verify_failure",
+            "test_controller_handles_repair_failure",
+            "test_controller_handles_backup_failure",
+            "test_controller_handles_restore_failure",
+            "test_controller_handles_menu_action_failure",
+            "test_controller_handles_cleanup_failure",
+            "test_controller_handles_invalid_agent_id",
+            "test_controller_handles_message_processor_failure"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\agent_control\\test_menu_builder.py": {
+        "language": ".py",
+        "functions": [
+            "mock_controller",
+            "menu_builder",
+            "test_menu_action_triggers_controller",
+            "test_menu_list_agents",
+            "test_menu_error_handling",
+            "test_menu_cleanup",
+            "test_menu_builder_initialization",
+            "test_menu_builder_set_controller",
+            "test_menu_builder_connect_signals",
+            "test_menu_builder_disconnect_signals"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 10
+    },
+    "tests\\core\\messaging\\test_message_processor.py": {
+        "language": ".py",
+        "functions": [
+            "temp_runtime_dir",
+            "message_processor",
+            "test_send_message_creates_inbox",
+            "test_send_message_handles_existing_inbox",
+            "test_send_message_creates_agent_directory",
+            "test_send_message_handles_invalid_message",
+            "test_send_message_handles_io_error",
+            "test_message_mode_validation",
+            "test_message_cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "tests\\integration\\test_agent3_verification.py": {
+        "language": ".py",
+        "functions": [
+            "temp_runtime_dir",
+            "message_processor",
+            "agent_operations",
+            "controller",
+            "menu_builder",
+            "test_agent3_verification"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\integration\\test_edge_cases.py": {
+        "language": ".py",
+        "functions": [
+            "temp_runtime_dir",
+            "message_processor",
+            "agent_operations",
+            "controller",
+            "menu_builder",
+            "test_missing_inbox_directory",
+            "test_agent_error_state_recovery",
+            "test_invalid_message_mode",
+            "test_malformed_message_content",
+            "test_concurrent_inbox_access",
+            "test_invalid_agent_id",
+            "test_message_cleanup_edge_cases",
+            "test_agent_directory_permissions",
+            "test_message_ordering",
+            "send_message"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 15
+    },
+    "tests\\integration\\test_agent_control_flow.py": {
+        "language": ".py",
+        "functions": [
+            "temp_runtime_dir",
+            "message_processor",
+            "agent_operations",
+            "controller",
+            "menu_builder",
+            "test_complete_resume_flow",
+            "test_complete_verify_flow",
+            "test_complete_repair_flow",
+            "test_complete_message_flow",
+            "test_error_propagation_flow",
+            "test_concurrent_message_flow",
+            "test_cleanup_flow",
+            "test_menu_controller_binding"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "tests\\integration\\test_performance.py": {
+        "language": ".py",
+        "functions": [
+            "temp_runtime_dir",
+            "message_processor",
+            "agent_operations",
+            "controller",
+            "menu_builder",
+            "test_single_message_latency",
+            "test_message_cleanup_performance",
+            "test_system_under_load",
+            "test_message_ordering_under_load",
+            "__init__",
+            "start",
+            "stop",
+            "add_latency",
+            "record_success",
+            "record_failure",
+            "get_summary"
+        ],
+        "classes": {
+            "PerformanceMetrics": {
+                "methods": [
+                    "__init__",
+                    "start",
+                    "stop",
+                    "add_latency",
+                    "record_success",
+                    "record_failure",
+                    "get_summary"
+                ],
+                "docstring": "Helper class to collect and analyze performance metrics.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 23
+    },
+    "tests\\integration\\test_self_test_protocol.py": {
+        "language": ".py",
+        "functions": [
+            "temp_runtime_dir",
+            "message_processor",
+            "agent_operations",
+            "controller",
+            "menu_builder",
+            "test_self_test_echo",
+            "test_prevent_duplicate_onboarding",
+            "test_agent_state_validation",
+            "test_message_acknowledgment",
+            "test_agent_health_check",
+            "test_message_ordering_validation"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\social\\test_dispatcher.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config",
+            "mock_logger",
+            "task_dispatcher",
+            "test_init",
+            "test_load_tasks_success",
+            "test_load_tasks_file_not_found",
+            "test_add_task_success",
+            "test_dispatch_task_success",
+            "test_dispatch_task_failure",
+            "test_get_next_task",
+            "test_get_memory_updates"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\integration\\test_twitter_workflow.py": {
+        "language": ".py",
+        "functions": [
+            "mock_twitter_api",
+            "twitter_workflow"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\integration\\test_swarm_agents.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__"
+        ],
+        "classes": {
+            "AgentRole": {
+                "methods": [],
+                "docstring": "Roles within the swarm.",
+                "base_classes": [
+                    "Enum"
+                ]
+            },
+            "AgentState": {
+                "methods": [],
+                "docstring": "Possible states for an agent.",
+                "base_classes": [
+                    "Enum"
+                ]
+            },
+            "QuantumState": {
+                "methods": [],
+                "docstring": "Quantum-inspired state representation.",
+                "base_classes": []
+            },
+            "HolographicMemory": {
+                "methods": [],
+                "docstring": "Holographic memory structure.",
+                "base_classes": []
+            },
+            "EmergencePattern": {
+                "methods": [],
+                "docstring": "Pattern of emergent behavior.",
+                "base_classes": []
+            },
+            "CollectiveIntelligence": {
+                "methods": [],
+                "docstring": "Collective intelligence state.",
+                "base_classes": []
+            },
+            "AgentMessage": {
+                "methods": [],
+                "docstring": "Message structure for inter-agent communication.",
+                "base_classes": []
+            },
+            "SwarmAgent": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Base class for swarm agents with advanced coordination capabilities.",
+                "base_classes": []
+            },
+            "ContentStrategyAgent": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Agent responsible for content strategy and adaptation.",
+                "base_classes": [
+                    "SwarmAgent"
+                ]
+            },
+            "PlatformOperatorAgent": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Agent responsible for platform operations and rate limiting.",
+                "base_classes": [
+                    "SwarmAgent"
+                ]
+            },
+            "AnalyticsEngineAgent": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Agent responsible for analytics and optimization.",
+                "base_classes": [
+                    "SwarmAgent"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\social\\test_integration.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config_data",
+            "mock_task_data",
+            "social_config",
+            "task_dispatcher",
+            "test_config_dispatcher_integration",
+            "test_memory_tracking_integration",
+            "test_error_handling_integration",
+            "test_logging_integration",
+            "test_config_reload_integration",
+            "mock_handler",
+            "mock_handler",
+            "mock_handler",
+            "mock_handler"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "tests\\social\\test_social_config.py": {
+        "language": ".py",
+        "functions": [
+            "mock_logger",
+            "social_config",
+            "test_init",
+            "test_load_config_success",
+            "test_load_config_file_not_found",
+            "test_save_config_success",
+            "test_save_config_failure",
+            "test_get_config_value",
+            "test_set_config_value",
+            "test_update_config",
+            "test_get_platform_config",
+            "test_get_memory_updates"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\social\\driver\\conftest.py": {
+        "language": ".py",
+        "functions": [
+            "test_dir",
+            "mock_chrome_options",
+            "mock_webdriver",
+            "session_state",
+            "proxy_manager",
+            "performance_metrics",
+            "driver_utils",
+            "cleanup_test_data"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\social\\driver\\test_performance_metrics.py": {
+        "language": ".py",
+        "functions": [
+            "metrics",
+            "test_init",
+            "test_start_operation",
+            "test_end_operation",
+            "test_end_operation_without_start",
+            "test_record_error",
+            "test_get_metrics",
+            "test_get_metrics_nonexistent",
+            "test_get_all_metrics",
+            "test_reset_metrics",
+            "test_get_error_count",
+            "test_get_error_count_nonexistent"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\social\\driver\\test_driver_utils.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "driver_utils",
+            "test_init",
+            "test_init_custom_timeout",
+            "test_wait_for_element_success",
+            "test_wait_for_element_timeout",
+            "test_is_element_present_true",
+            "test_is_element_present_false",
+            "test_execute_js_success",
+            "test_execute_js_error",
+            "test_take_screenshot",
+            "test_take_screenshot_error"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\social\\driver\\test_session_state.py": {
+        "language": ".py",
+        "functions": [
+            "session_state",
+            "mock_session_data",
+            "test_init_creates_default_state",
+            "test_load_state_file_exists",
+            "test_load_state_file_not_exists",
+            "test_save_state",
+            "test_update_platform_state",
+            "test_get_platform_state_nonexistent",
+            "test_save_cookies",
+            "test_load_cookies",
+            "test_load_cookies_file_not_exists"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\social\\driver\\test_proxy_manager.py": {
+        "language": ".py",
+        "functions": [
+            "proxy_manager",
+            "mock_proxy_list",
+            "test_init_empty_proxy_list",
+            "test_init_with_proxy_list",
+            "test_add_proxy",
+            "test_add_duplicate_proxy",
+            "test_validate_proxy_success",
+            "test_validate_proxy_failure",
+            "test_get_next_proxy_empty_list",
+            "test_get_next_proxy_rotation",
+            "test_get_next_proxy_no_valid_proxies",
+            "test_get_next_proxy_rotation_interval"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\social\\strategies\\test_instagram_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "instagram_strategy",
+            "test_init",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_not_logged_in",
+            "test_post_media_validation_failure",
+            "test_create_post",
+            "test_create_post_no_memory",
+            "test_get_memory_updates"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 17
+    },
+    "tests\\social\\strategies\\test_facebook_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "facebook_strategy",
+            "test_init",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_not_logged_in",
+            "test_post_media_validation_failure",
+            "test_create_post",
+            "test_create_post_no_memory",
+            "test_get_memory_updates"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 17
+    },
+    "tests\\social\\strategies\\test_linkedin_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "linkedin_strategy",
+            "test_init",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_not_logged_in",
+            "test_post_media_validation_failure",
+            "test_create_post",
+            "test_create_post_no_memory",
+            "test_get_memory_updates"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 17
+    },
+    "tests\\social\\strategies\\test_stocktwits_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "stocktwits_strategy",
+            "test_init",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_not_logged_in",
+            "test_post_media_validation_failure",
+            "test_create_post",
+            "test_create_post_no_memory",
+            "test_get_memory_updates"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 17
+    },
+    "tests\\social\\strategies\\test_reddit_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "reddit_strategy",
+            "test_init",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_not_logged_in",
+            "test_post_media_validation_failure",
+            "test_create_post",
+            "test_create_post_no_memory",
+            "test_get_memory_updates",
+            "test_take_screenshot",
+            "test_take_screenshot_error",
+            "test_retry_click_success",
+            "test_retry_click_failure",
+            "test_validate_media_empty",
+            "test_validate_media_single_image",
+            "test_validate_media_too_many_images",
+            "test_validate_media_unsupported_format",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_media_validation_failed",
+            "test_post_failed_verification",
+            "test_post_timeout",
+            "test_comment_timeout",
+            "test_create_post",
+            "strategy",
+            "test_initialization",
+            "test_validate_media_video",
+            "test_validate_media_multiple_videos",
+            "test_upload_media_reddit_specific",
+            "test_comment_success",
+            "test_comment_verification_failed",
+            "test_get_post_comments_success",
+            "test_get_post_comments_error"
+        ],
+        "classes": {
+            "TestRedditStrategy": {
+                "methods": [
+                    "strategy",
+                    "test_initialization",
+                    "test_validate_media_video",
+                    "test_validate_media_multiple_videos",
+                    "test_upload_media_reddit_specific",
+                    "test_comment_success",
+                    "test_comment_verification_failed",
+                    "test_get_post_comments_success",
+                    "test_get_post_comments_error"
+                ],
+                "docstring": "Reddit strategy test suite.",
+                "base_classes": [
+                    "TestStrategyBase"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 50
+    },
+    "tests\\social\\strategies\\test_strategy_base.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "test_init",
+            "test_validate_media_empty",
+            "test_validate_media_single_image",
+            "test_validate_media_unsupported_format",
+            "test_upload_media_success",
+            "test_upload_media_button_not_found",
+            "test_upload_media_click_failed",
+            "test_upload_media_file_input_not_found",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_input_not_found",
+            "test_login_button_click_failed",
+            "test_login_verification_failed",
+            "test_post_success",
+            "test_post_not_logged_in",
+            "test_post_media_validation_failed",
+            "test_post_media_upload_failed",
+            "test_post_button_not_found",
+            "test_post_verification_failed"
+        ],
+        "classes": {
+            "TestStrategyBase": {
+                "methods": [
+                    "mock_driver",
+                    "mock_config",
+                    "test_init",
+                    "test_validate_media_empty",
+                    "test_validate_media_single_image",
+                    "test_validate_media_unsupported_format",
+                    "test_upload_media_success",
+                    "test_upload_media_button_not_found",
+                    "test_upload_media_click_failed",
+                    "test_upload_media_file_input_not_found",
+                    "test_is_logged_in_true",
+                    "test_is_logged_in_false",
+                    "test_login_success",
+                    "test_login_missing_credentials",
+                    "test_login_input_not_found",
+                    "test_login_button_click_failed",
+                    "test_login_verification_failed",
+                    "test_post_success",
+                    "test_post_not_logged_in",
+                    "test_post_media_validation_failed",
+                    "test_post_media_upload_failed",
+                    "test_post_button_not_found",
+                    "test_post_verification_failed"
+                ],
+                "docstring": "Base test class for platform strategies.",
+                "base_classes": []
+            }
+        },
+        "routes": [],
+        "complexity": 46
+    },
+    "tests\\social\\utils\\test_social_common.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "social_utils",
+            "test_take_screenshot",
+            "test_take_screenshot_error",
+            "test_retry_click_success",
+            "test_retry_click_failure",
+            "test_validate_media_file_success",
+            "test_validate_media_file_not_found",
+            "test_validate_media_file_too_large",
+            "test_wait_for_element_success",
+            "test_wait_for_element_timeout",
+            "test_wait_for_clickable_success",
+            "test_wait_for_clickable_timeout",
+            "test_format_post_content_no_limit",
+            "test_format_post_content_with_limit",
+            "test_create_media_post_content",
+            "test_handle_upload_error",
+            "test_verify_post_success",
+            "test_verify_post_failure",
+            "test_extract_comment_data_success",
+            "test_extract_comment_data_error"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 22
+    },
+    "tests\\social\\strategies\\test_twitter_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "twitter_strategy",
+            "test_initialization",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_is_logged_in_error",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failed_attempt",
+            "test_post_text_success",
+            "test_post_media_success",
+            "test_post_media_validation_failure",
+            "test_post_media_upload_failure",
+            "test_post_timeout",
+            "test_post_verification_failure",
+            "test_create_post",
+            "test_create_post_no_memory",
+            "strategy",
+            "test_initialization",
+            "test_validate_media_video",
+            "test_validate_media_multiple_videos",
+            "test_upload_media_twitter_specific",
+            "test_get_memory_updates"
+        ],
+        "classes": {
+            "TestTwitterStrategy": {
+                "methods": [
+                    "strategy",
+                    "test_initialization",
+                    "test_validate_media_video",
+                    "test_validate_media_multiple_videos",
+                    "test_upload_media_twitter_specific",
+                    "test_get_memory_updates"
+                ],
+                "docstring": "Twitter strategy test suite.",
+                "base_classes": [
+                    "TestStrategyBase"
+                ]
+            }
+        },
+        "routes": [],
+        "complexity": 31
+    },
+    "social\\tests\\test_twitter_strategy.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
     }
 }

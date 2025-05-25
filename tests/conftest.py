@@ -13,6 +13,8 @@ import asyncio
 import discord
 from typing import Generator
 from unittest.mock import MagicMock, patch
+import tempfile
+import shutil
 
 # Filter out Discord audioop deprecation warning
 warnings.filterwarnings(
@@ -25,9 +27,9 @@ warnings.filterwarnings(
 # Mock pyautogui to prevent actual key presses during tests
 sys.modules['pyautogui'] = MagicMock()
 
-# Add project root to Python path
-project_root = Path(__file__).resolve().parent.parent
-sys.path.insert(0, str(project_root))
+# Add the project root directory to the Python path
+project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, project_root)
 
 # Configure logging for tests
 @pytest.fixture(autouse=True)
@@ -122,4 +124,18 @@ async def setup_teardown():
 def pytest_configure(config):
     """Configure pytest-asyncio."""
     config.option.asyncio_mode = "strict"
-    config.option.asyncio_default_fixture_loop_scope = "function" 
+    config.option.asyncio_default_fixture_loop_scope = "function"
+
+@pytest.fixture
+def temp_config_dir():
+    """Create a temporary directory for configuration files."""
+    temp_dir = Path(tempfile.mkdtemp())
+    yield temp_dir
+    shutil.rmtree(temp_dir)
+
+@pytest.fixture
+def temp_log_dir():
+    """Create a temporary directory for log files."""
+    temp_dir = Path(tempfile.mkdtemp())
+    yield temp_dir
+    shutil.rmtree(temp_dir) 

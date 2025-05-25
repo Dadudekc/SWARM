@@ -32,7 +32,7 @@ class AgentOperations:
             # Get agents from coordinate manager
             if hasattr(self.message_processor, 'coordinate_manager'):
                 agents = list(self.message_processor.coordinate_manager.coordinates.keys())
-                return agents
+                return sorted(agents)
             else:
                 logger.warning("Coordinate manager not available")
                 return []
@@ -61,20 +61,14 @@ class AgentOperations:
             use_ui: Whether to use UI automation
         """
         try:
-            message = """Welcome to Dream.OS! You are now part of our agent network.
-                
-Your initial tasks:
-1. Initialize your core systems
-2. Establish communication channels
-3. Begin monitoring your assigned domain
-4. Report your status when ready
+            # Load onboarding message
+            message = self.ui_automation._load_onboarding_prompt(agent_id)
 
-Let's begin your integration into the Dream.OS ecosystem."""
-
+            # Send via UI if requested
             if use_ui:
                 self.ui_automation.perform_onboarding_sequence(agent_id, message)
 
-            # Always send via message processor as well
+            # Always send via message processor
             self.message_processor.send_message(agent_id, message, "ONBOARD")
             logger.info(f"Onboarding message sent to agent {agent_id}")
 
@@ -110,14 +104,22 @@ Let's begin your integration into the Dream.OS ecosystem."""
         try:
             message = "Resuming operations. Please confirm your status and continue with assigned tasks."
             
+            # Send via UI if requested
             if use_ui:
                 self.ui_automation.send_message(agent_id, message)
-            else:
-                self.message_processor.send_message(agent_id, message, "RESUME")
-                
+            
+            # Always send via message processor
+            self.message_processor.send_message(agent_id, message, "RESUME")
             logger.info(f"Resume message sent to agent {agent_id}")
+            
         except Exception as e:
             logger.error(f"Error resuming agent {agent_id}: {e}")
+            # Try cell phone as fallback
+            try:
+                self.cell_phone.send_message(agent_id, message)
+                logger.info(f"Fallback message sent via cell phone to {agent_id}")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
 
     def verify_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Verify an agent's status.
@@ -143,6 +145,12 @@ Let's begin your integration into the Dream.OS ecosystem."""
             logger.info(f"Verify message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error verifying agent {agent_id}: {e}")
+            # Try cell phone as fallback
+            try:
+                self.cell_phone.send_message(agent_id, message)
+                logger.info(f"Fallback message sent via cell phone to {agent_id}")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
             
     def repair_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Repair an agent's issues.
@@ -168,6 +176,12 @@ Let's begin your integration into the Dream.OS ecosystem."""
             logger.info(f"Repair message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error repairing agent {agent_id}: {e}")
+            # Try cell phone as fallback
+            try:
+                self.cell_phone.send_message(agent_id, message)
+                logger.info(f"Fallback message sent via cell phone to {agent_id}")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
             
     def backup_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Backup an agent's data.
@@ -193,6 +207,12 @@ Let's begin your integration into the Dream.OS ecosystem."""
             logger.info(f"Backup message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error backing up agent {agent_id}: {e}")
+            # Try cell phone as fallback
+            try:
+                self.cell_phone.send_message(agent_id, message)
+                logger.info(f"Fallback message sent via cell phone to {agent_id}")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
             
     def restore_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Restore an agent from backup.
@@ -213,25 +233,25 @@ Let's begin your integration into the Dream.OS ecosystem."""
             agent_id: The agent ID to restore
         """
         try:
-            message = "Initiating restore sequence. Please prepare to receive backup data."
+            message = "Initiating restore sequence. Please prepare for data restoration."
             self.message_processor.send_message(agent_id, message, "RESTORE")
             logger.info(f"Restore message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error restoring agent {agent_id}: {e}")
+            # Try cell phone as fallback
+            try:
+                self.cell_phone.send_message(agent_id, message)
+                logger.info(f"Fallback message sent via cell phone to {agent_id}")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
             
     def send_message(self, agent_id: Union[str, List[str]], message: Optional[str] = None) -> None:
-        """Send a message to agent(s).
+        """Send a message to an agent.
         
         Args:
             agent_id: Single agent ID or list of agent IDs
-            message: Optional message to send. If None, will prompt for input.
+            message: Optional message to send
         """
-        if message is None:
-            message = input("\nEnter message: ").strip()
-            if not message:
-                logger.warning("Empty message, aborting")
-                return
-            
         if isinstance(agent_id, list):
             for aid in agent_id:
                 self._send_single_message(aid, message)
@@ -242,11 +262,34 @@ Let's begin your integration into the Dream.OS ecosystem."""
         """Send a message to a single agent.
         
         Args:
-            agent_id: The agent ID to send to
-            message: The message content
+            agent_id: The agent ID to message
+            message: The message to send
         """
         try:
-            self.message_processor.send_message(agent_id, message, "NORMAL")
+            if not message:
+                message = "Please check your status and report any issues."
+                
+            # Try message processor first
+            self.message_processor.send_message(agent_id, message, "MESSAGE")
             logger.info(f"Message sent to agent {agent_id}")
+            
         except Exception as e:
-            logger.error(f"Error sending message to agent {agent_id}: {e}") 
+            logger.error(f"Error sending message to agent {agent_id}: {e}")
+            # Try cell phone as fallback
+            try:
+                self.cell_phone.send_message(agent_id, message)
+                logger.info(f"Fallback message sent via cell phone to {agent_id}")
+            except Exception as fallback_error:
+                logger.error(f"Fallback also failed: {fallback_error}")
+                
+    def cleanup(self):
+        """Clean up resources."""
+        try:
+            # Clean up UI automation
+            if hasattr(self.ui_automation, 'cleanup'):
+                self.ui_automation.cleanup()
+                
+            logger.info("Agent operations cleaned up successfully")
+            
+        except Exception as e:
+            logger.error(f"Error during agent operations cleanup: {e}") 

@@ -1,0 +1,19 @@
+{
+  "platforms": {
+    "facebook": {
+      "status": "logged_in",
+      "last_updated": 1748134715.816311,
+      "details": {
+        "user_id": "123"
+      }
+    }
+  },
+  "last_successful_login": null,
+  "failed_attempts": {},
+  "proxy_history": [],
+  "performance_metrics": {
+    "avg_load_time": 0,
+    "success_rate": 0,
+    "total_requests": 0
+  }
+}

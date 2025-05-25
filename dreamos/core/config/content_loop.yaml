@@ -1,0 +1,39 @@
+dreamos_content_loop:
+  version: 1.0
+  core_outputs:
+    - conversation_highlights
+    - devlogs
+    - self_improvement_reports
+    - entertainment_content
+
+  primary_loop:
+    - step: check_mailbox
+    - step: pull_from_task_list
+    - step: execute_task
+    - step: finish_task
+    - step: update_task_list
+    - step: generate_future_tasks
+    - step: loop_back_to_mailbox
+
+  secondary_loop:
+    name: masterpiece_track
+    flow:
+      - step: pull_from_task_list
+      - step: generate_future_task
+      - step: promote_to_masterpiece_candidate
+      - step: refinement_cycles
+      - step: publish_masterpiece
+      - step: recycle_as_conversation_or_entertainment
+
+  emergence_protocol:
+    description: >
+      Agents surface insights through task completion.
+      Strong signals escalate to higher-value content (masterpieces, entertainment).
+      Weaker signals reloop for distillation.
+
+  strategic_takeaways:
+    - "Every task is a story seed"
+    - "Every mailbox is a content incubator"
+    - "Entertainment = polished devlogs"
+    - "Self-Improvement = task retrospectives"
+    - "Masterpieces emerge from recursive loops" 

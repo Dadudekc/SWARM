@@ -6,7 +6,7 @@ Builds the agent control menu interface.
 
 import logging
 from typing import Optional, Dict, List, Any, Callable
-from ..menu import MenuBuilder as BaseMenuBuilder, MenuItem, MenuItemType
+from ..menu import MenuBuilder as BaseMenuBuilder, MenuItem, MenuItemType, Menu
 
 logger = logging.getLogger('agent_control.menu_builder')
 
@@ -21,10 +21,24 @@ class MenuBuilder(BaseMenuBuilder):
         """
         super().__init__()
         self.actions = actions or {}
+        self.menu = None  # Initialize menu as None
         self._build_menu()
+        
+    def set_controller(self, controller: Any) -> None:
+        """Set the controller for the menu.
+        
+        Args:
+            controller: The controller instance to use
+        """
+        if self.menu:
+            self.menu.controller = controller
+            logger.info("Controller set for menu")
         
     def _build_menu(self):
         """Build the menu structure."""
+        # Create new menu instance
+        self.menu = Menu()
+        
         # Main menu items
         self.add_item(MenuItem(
             id='list',

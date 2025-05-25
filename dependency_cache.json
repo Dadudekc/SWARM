@@ -1,78 +1,318 @@
 {
-    "dreamos\\core\\__init__.py": {
-        "hash": "a28d022ee8ce9d8bf0e515fdb3528af1"
+    "tests\\social\\driver\\test_performance_metrics.py": {
+        "hash": "6aaebb521855426d9bad304fc72bc0a5"
     },
-    "discord_bot\\commands.py": {
-        "hash": "9cbee4850ced42303eb5d186cc3844be"
+    "social\\strategies\\twitter_strategy.py": {
+        "hash": "38b31b8deddddbb39868726646b7054b"
     },
-    "dreamos\\core\\agent_loop.py": {
-        "hash": "55a23f48e8a3873938929d87c940702f"
+    "tests\\social\\driver\\test_session_state.py": {
+        "hash": "29996e9f9b0df3e62223cf6491f9e2d6"
     },
-    "dreamos\\core\\menu.py": {
-        "hash": "62798247976cff177e244155fd6fa0eb"
+    "dreamos\\core\\shared\\config_manager.py": {
+        "hash": "49e8e68d53979b0f032e92ec40341b28"
     },
-    "dreamos\\core\\message_processor.py": {
-        "hash": "352f4477123cfa8c640e15cb56347ea6"
+    "Trading_\\basicbot\\backtester.py": {
+        "hash": "8a086cdbb9d0bc97a36482c39974fff8"
     },
-    "dreamos\\core\\coordinate_manager.py": {
-        "hash": "7382803eb8232dea719d14250f7299e7"
+    "dreamos\\core\\agent_control\\tests\\test_controller_integration.py": {
+        "hash": "76d634278a9c8472e23c3ce9b6cd1ef7"
     },
-    "dreamos\\core\\cursor_controller.py": {
-        "hash": "731408c80df3345e69f600963ddc3310"
-    },
-    "Trading_\\basicbot\\tbow_discord.py": {
-        "hash": "4c2ab044030259f76be1f1610dad8dbd"
-    },
-    "dreamos\\__init__.py": {
-        "hash": "d41d8cd98f00b204e9800998ecf8427e"
-    },
-    "Trading_\\basicbot\\archive\\trading_api_robinhood.py": {
-        "hash": "190e8a0f01370da072f0aad284b85b73"
-    },
-    "Trading_\\basicbot\\model_training_utils.py": {
-        "hash": "6a06838b218e7b9d7205dd0c8086929d"
-    },
-    "Trading_\\basicbot\\main_trader.py": {
-        "hash": "816df4f5e86d87c07d721298c624808e"
-    },
-    "tests\\test_utils.py": {
-        "hash": "266f0133d47e40ae9ecf90f115126e2c"
-    },
-    "tests\\run_tests.py": {
-        "hash": "e8b2b68f4c71818173c2314fe6119fec"
+    "dreamos\\core\\messaging\\queue.py": {
+        "hash": "5e9219c687ffefbe3d552e14ccbbd7fd"
     },
     "agent_tools\\utils\\init_mailbox.py": {
         "hash": "5fa3b1bdbb1c8c07f711ca746027bb60"
     },
-    "Trading_\\basicbot\\tbow_replay.py": {
-        "hash": "1ce8959ed9e3e597b3ba41a8e030a98d"
+    "dreamos\\core\\agent_control\\controller.py": {
+        "hash": "085f2336c8beb355331d4073b7732796"
     },
-    "setup.py": {
-        "hash": "fe737c8624438844b1e8899a4c159383"
+    "tests\\test_config.py": {
+        "hash": "2806b605ae47c45361352ad8c147f12e"
     },
-    "send_task.py": {
-        "hash": "7c2e98f39c8b0ee870cbf89a0e75f0d6"
+    "social\\utils\\log_manager.py": {
+        "hash": "17b7d7716655db841859196fa8e8ec35"
     },
-    "tests\\conftest.py": {
-        "hash": "befcabedca13919a2797ec6947e92d69"
+    "tests\\social\\strategies\\test_reddit_strategy.py": {
+        "hash": "e6736a91826768bd3324f92cb161f0c2"
     },
-    "Trading_\\basicbot\\risk_manager.py": {
-        "hash": "4c18dba85d943826770e974a9b7eeea5"
+    "tests\\integration\\test_swarm_agents.py": {
+        "hash": "8bb699ef464b851e4395c78a755a40ac"
     },
-    "Trading_\\basicbot\\trading_api_alpaca.py": {
-        "hash": "9b4d404407dfd6eccabbfff89a3a0753"
+    "Trading_\\basicbot\\tbow_risk.py": {
+        "hash": "a23cb768ef470270f92ef4e5cf96eeab"
+    },
+    "tests\\test_cell_phone.py": {
+        "hash": "683460dca2f094787e639853e00ad292"
+    },
+    "tests\\core\\messaging\\test_message_processor.py": {
+        "hash": "c077faa5f7c0b28c021457fa7757e872"
+    },
+    "Trading_\\basicbot\\ml_models\\trading_ai.py": {
+        "hash": "1998f2ccd09e86b1b21d52e36dd8f4f6"
+    },
+    "dreamos\\core\\ui\\agent_status_panel.py": {
+        "hash": "6714355ea62a124f62c1ab540a75bd3c"
+    },
+    "tests\\test_community.py": {
+        "hash": "3628a845abc39510d0f228dd2c8982ac"
+    },
+    "tests\\social\\strategies\\test_instagram_strategy.py": {
+        "hash": "05a6acab388c056c72806a540b8c5bc7"
     },
     "Trading_\\basicbot\\logger.py": {
         "hash": "dbecd3c084a27f2c08d0bc3f1977c06d"
     },
-    "Trading_\\basicbot\\ml_models\\__init__.py": {
-        "hash": "49aa66637ea629fc845064fd5e16d661"
+    "social\\community\\audience_analytics.py": {
+        "hash": "2568f4ddce53fdd51b960d5cb4221982"
+    },
+    "dreamos\\__init__.py": {
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
+    },
+    "tests\\run_tests.py": {
+        "hash": "6e338b002bc5b6de80a1b1e0754ef2a8"
+    },
+    "run_menu.py": {
+        "hash": "1d17a0a8a6bdc3abbf51fd6e4c58a475"
+    },
+    "social\\core\\dispatcher.py": {
+        "hash": "5e9694a28561b2ed11c9c40699e8ee47"
+    },
+    "tests\\agent_control\\test_error_handling.py": {
+        "hash": "ad53d75163f7c6689bcd6d8314b48526"
+    },
+    "tests\\test_log_writer.py": {
+        "hash": "6d4264740a87678a45d8c9e6579ac8d3"
+    },
+    "Trading_\\basicbot\\tbow_discord.py": {
+        "hash": "4c2ab044030259f76be1f1610dad8dbd"
+    },
+    "dreamos\\core\\persistent_queue.py": {
+        "hash": "8de7291e5a3ec3fefb90651329524ec0"
+    },
+    "tests\\social\\strategies\\test_facebook_strategy.py": {
+        "hash": "1309c676ccb36ad59350c4ebc38a8895"
+    },
+    "dreamos\\core\\messaging.py": {
+        "hash": "abb6e953702267d57764b4ed9f5f0d74"
+    },
+    "tests\\social\\driver\\test_driver_utils.py": {
+        "hash": "f17554f16bcd53da1c426dba841c0baa"
+    },
+    "dreamos\\core\\messaging\\processor.py": {
+        "hash": "babb30e53a898d1fd138c406aaeee0c5"
+    },
+    "tests\\social\\utils\\test_social_common.py": {
+        "hash": "da93ee374df8aaef29f28a7c9042bab9"
+    },
+    "discord_bot\\bot.py": {
+        "hash": "5807e2b0cc6814dafd9b30435e9a5e95"
+    },
+    "Trading_\\basicbot\\dreamos_integration.py": {
+        "hash": "01e444393005a6a99eb732fdc21eee86"
+    },
+    "Trading_\\basicbot\\trading_api_alpaca.py": {
+        "hash": "9b4d404407dfd6eccabbfff89a3a0753"
+    },
+    "Trading_\\basicbot\\analysis\\strategy_performance.py": {
+        "hash": "334c7c2923f62300efb70c6b2a55def4"
+    },
+    "social\\utils\\social_common.py": {
+        "hash": "d8f74122f8c1438ba50ca27f4d15b5d8"
+    },
+    "Trading_\\basicbot\\archive\\test_backtest.py": {
+        "hash": "21d427b374c3234045fe3591b27b2af6"
+    },
+    "tests\\agent_control\\test_agent_controller.py": {
+        "hash": "d279cfb2f02fbde601ad1536f15da42e"
+    },
+    "dreamos\\core\\agent_control\\__main__.py": {
+        "hash": "1064286c31d1e2aa5de30a48722bbec9"
     },
     "Trading_\\basicbot\\tsla_trader\\core.py": {
         "hash": "ca92be92af077b37e720b60aceeadf66"
     },
-    "agent_tools\\__init__.py": {
-        "hash": "955e565d8893789b0a827de9884489f2"
+    "social\\social_config.py": {
+        "hash": "17fa71f200a7f2a5c973ea0c882bd97a"
+    },
+    "Trading_\\basicbot\\config.py": {
+        "hash": "8dd104e7d18250f807c8a2738061072a"
+    },
+    "dreamos\\core\\agent_control\\ui_automation.py": {
+        "hash": "e554a50b0700980950500ad819830901"
+    },
+    "tests\\social\\test_integration.py": {
+        "hash": "7ea37967f001fec45296fe4943df1c77"
+    },
+    "discord_bot\\agent_interface.py": {
+        "hash": "299ec96d8a9e4732a3159d18c30ba971"
+    },
+    "social\\driver\\performance_metrics.py": {
+        "hash": "1586ff888d6625252d63da3e80c642ed"
+    },
+    "agent_tools\\utils\\__init__.py": {
+        "hash": "24a5f4cb794879529b47c54e1f33ee50"
+    },
+    "social\\community\\content_scheduler.py": {
+        "hash": "f58bca60e14f3f6f6910f6ec4b52c1c7"
+    },
+    "dreamos\\core\\agent_control\\tests\\test_agent_operations.py": {
+        "hash": "cac8f7b3ed8287372f55b309a3a434cb"
+    },
+    "setup.py": {
+        "hash": "fe737c8624438844b1e8899a4c159383"
+    },
+    "social\\driver\\proxy_manager.py": {
+        "hash": "ec6e52b55e922902567385126c20d1d1"
+    },
+    "dreamos\\core\\ui\\log_console.py": {
+        "hash": "dd44125953549e828889940d91688da2"
+    },
+    "dreamos\\core\\agent_control\\menu_builder.py": {
+        "hash": "314e1b3acd769edccfb9ba961b0f8260"
+    },
+    "tests\\test_agent_cellphone_cli.py": {
+        "hash": "427f1a53eefbe1a70363c4bfe2bd4b62"
+    },
+    "dreamos\\core\\system_init.py": {
+        "hash": "57d15a5c1951d81250419fc2f07a3434"
+    },
+    "dreamos\\core\\shared\\__init__.py": {
+        "hash": "abcbab1e8a8f2e20f4932b64c9070a19"
+    },
+    "tests\\integration\\test_edge_cases.py": {
+        "hash": "4a6a2464e1d217b56b292195ffd8eada"
+    },
+    "Trading_\\basicbot\\main_trader.py": {
+        "hash": "816df4f5e86d87c07d721298c624808e"
+    },
+    "dreamos\\core\\shared\\coordinate_manager.py": {
+        "hash": "cd2143b0aa442172a640b50f9432022f"
+    },
+    "Trading_\\basicbot\\tbow_replay.py": {
+        "hash": "1ce8959ed9e3e597b3ba41a8e030a98d"
+    },
+    "tests\\integration\\test_self_test_protocol.py": {
+        "hash": "d80e45f151240b9e8537c151c6f72978"
+    },
+    "tests\\integration\\test_agent3_verification.py": {
+        "hash": "152b1d06b71345ba42a16960673d8cde"
+    },
+    "dreamos\\core\\agent_control\\__init__.py": {
+        "hash": "a80a5b270b7ba857dfdcfe6f1eabdd74"
+    },
+    "Trading_\\basicbot\\tbow_dashboard.py": {
+        "hash": "76ca1773fadac469ec9ab7ec8bdfdbb1"
+    },
+    "Trading_\\basicbot\\trade_executor.py": {
+        "hash": "3116be1647b726a7530b433eaf3c60ed"
+    },
+    "dreamos\\core\\cell_phone.py": {
+        "hash": "a35ace9a82c48d8fa044cc22b3a127e0"
+    },
+    "social\\config\\social_config.py": {
+        "hash": "11fe29757fc9ab1aa91d6034554d775b"
+    },
+    "agent_tools\\agent_cellphone.py": {
+        "hash": "3ad160d7f745e06618ab4aa54c08973c"
+    },
+    "tests\\test_community_base.py": {
+        "hash": "717f2325e6316edee968af076f288200"
+    },
+    "tests\\social\\strategies\\test_linkedin_strategy.py": {
+        "hash": "92864ab3111093ddfc4b95c390e51ff2"
+    },
+    "social\\core\\driver_manager.py": {
+        "hash": "eb01d6fac34479472597470c94b7dd84"
+    },
+    "dreamos\\core\\messaging\\message.py": {
+        "hash": "3ac105aa44974f18ca6e4d61ecff48a9"
+    },
+    "Trading_\\basicbot\\ml_models\\model_trainer.py": {
+        "hash": "cb4eb34d531df3d611a33c83d41149a7"
+    },
+    "Trading_\\basicbot\\archive\\test_data_fetcher.py": {
+        "hash": "0999d9a882203f87f18749bedfd93100"
+    },
+    "dreamos\\core\\coordinate_manager.py": {
+        "hash": "7382803eb8232dea719d14250f7299e7"
+    },
+    "Trading_\\basicbot\\tests\\test_trading_api.py": {
+        "hash": "1e604e35eb3d92885777b05a587e534f"
+    },
+    "tests\\integration\\test_twitter_workflow.py": {
+        "hash": "da5fde4dd847c1e6f2ec74a001f27080"
+    },
+    "Trading_\\basicbot\\discord_alerts.py": {
+        "hash": "85fe8feff652fe46b06fcbf698408463"
+    },
+    "Trading_\\basicbot\\strategy.py": {
+        "hash": "94aa0b861ab3d226dc7d3da2c1f2d82c"
+    },
+    "tests\\social\\strategies\\test_twitter_strategy.py": {
+        "hash": "5991299b0d9aac6106b823d5df9bc004"
+    },
+    "dreamos\\social\\log_writer.py": {
+        "hash": "5181266d058dc599db96df9b39b11fe9"
+    },
+    "dreamos\\core\\agent_logger.py": {
+        "hash": "52a233105183c2295943cf749d5cf7ad"
+    },
+    "tests\\social\\strategies\\test_strategy_base.py": {
+        "hash": "88242135fe5a5cea2f3a98413e7e0c53"
+    },
+    "tests\\integration\\test_agent_control_flow.py": {
+        "hash": "2e3c06b2200d6d8f962a3aaf756dfed9"
+    },
+    "Trading_\\basicbot\\risk_manager.py": {
+        "hash": "4c18dba85d943826770e974a9b7eeea5"
+    },
+    "Trading_\\basicbot\\ml_models\\__init__.py": {
+        "hash": "49aa66637ea629fc845064fd5e16d661"
+    },
+    "tests\\social\\strategies\\test_stocktwits_strategy.py": {
+        "hash": "7b826441aa30d6322c1678d02a1bfd3e"
+    },
+    "tests\\test_log_manager.py": {
+        "hash": "3ccfb9bc01ea6b6dc4248df49fd5fb31"
+    },
+    "dreamos\\core\\__init__.py": {
+        "hash": "1154865c66d7a2dc5e539fd67732288c"
+    },
+    "dreamos\\core\\message_processor.py": {
+        "hash": "352f4477123cfa8c640e15cb56347ea6"
+    },
+    "Trading_\\basicbot\\archive\\test_trading_api_alpaca.py": {
+        "hash": "9c0bc4b844c8396defa60ca1f85d0df7"
+    },
+    "social\\driver\\session_state.py": {
+        "hash": "fd80811f0439d440c6689e910a5ee672"
+    },
+    "dreamos\\social\\__init__.py": {
+        "hash": "796d4c267431dc2cd3196f2bca7842d7"
+    },
+    "tests\\test_init_mailbox.py": {
+        "hash": "cf68be6a1cf4e559f9af3b17863d2887"
+    },
+    "tests\\social\\driver\\test_proxy_manager.py": {
+        "hash": "4f5ceca084098d794f0e6fd8e164a8e9"
+    },
+    "send_task.py": {
+        "hash": "7c2e98f39c8b0ee870cbf89a0e75f0d6"
+    },
+    "Trading_\\basicbot\\archive\\trading_api_robinhood.py": {
+        "hash": "190e8a0f01370da072f0aad284b85b73"
+    },
+    "tests\\__init__.py": {
+        "hash": "49e1010f066336cafe1a6e6e202b2265"
+    },
+    "dreamos\\core\\messaging\\__init__.py": {
+        "hash": "7a3f05ea3ad0f9201d688d91c5899bf3"
+    },
+    "Trading_\\basicbot\\tbow_charts.py": {
+        "hash": "a0f27be544de08b15bb812c61eec39b5"
+    },
+    "social\\constants\\platform_constants.py": {
+        "hash": "b3898162cf1f1648fdc1113fc362f1b9"
     },
     "tests\\test_discord_commands.py": {
         "hash": "e08decbdc421c0985910f651598cc513"
@@ -80,151 +320,115 @@
     "Trading_\\basicbot\\tbow_tactics.py": {
         "hash": "0372620a3b23ff7fdef14fcaf7b85cd1"
     },
-    "tests\\test_cell_phone.py": {
-        "hash": "683460dca2f094787e639853e00ad292"
+    "social\\strategies\\reddit_strategy.py": {
+        "hash": "ebfde8466664878aaae0a38d0775adb5"
     },
-    "tests\\__init__.py": {
-        "hash": "49e1010f066336cafe1a6e6e202b2265"
+    "agent_tools\\__init__.py": {
+        "hash": "955e565d8893789b0a827de9884489f2"
     },
-    "Trading_\\basicbot\\db_handler.py": {
-        "hash": "0f000141ff309539b0ff266503124867"
+    "social\\driver\\driver_utils.py": {
+        "hash": "d17e9f5079c6431ab4adcc5c115641b8"
     },
-    "Trading_\\basicbot\\archive\\test_backtest.py": {
-        "hash": "21d427b374c3234045fe3591b27b2af6"
+    "dreamos\\core\\messaging\\message_processor.py": {
+        "hash": "3e69176d751d83867a6205373b6db006"
     },
-    "discord_bot\\bot.py": {
-        "hash": "5807e2b0cc6814dafd9b30435e9a5e95"
+    "tests\\social\\test_social_config.py": {
+        "hash": "9ace83ad3463d087995ef7ed7ba31b14"
     },
-    "dreamos\\core\\cell_phone.py": {
-        "hash": "a35ace9a82c48d8fa044cc22b3a127e0"
+    "dreamos\\core\\agent_control\\tests\\test_error_handling.py": {
+        "hash": "8b7feb63fa0acea4b03bafc9470ab416"
     },
-    "Trading_\\basicbot\\analysis\\strategy_performance.py": {
-        "hash": "334c7c2923f62300efb70c6b2a55def4"
-    },
-    "Trading_\\basicbot\\ml_models\\trading_ai.py": {
-        "hash": "1998f2ccd09e86b1b21d52e36dd8f4f6"
-    },
-    "Trading_\\basicbot\\archive\\test_trading_api_alpaca.py": {
-        "hash": "9c0bc4b844c8396defa60ca1f85d0df7"
-    },
-    "Trading_\\basicbot\\archive\\test_data_fetcher.py": {
-        "hash": "0999d9a882203f87f18749bedfd93100"
-    },
-    "tests\\test_init_mailbox.py": {
-        "hash": "cf68be6a1cf4e559f9af3b17863d2887"
-    },
-    "run_menu.py": {
-        "hash": "1d17a0a8a6bdc3abbf51fd6e4c58a475"
-    },
-    "Trading_\\basicbot\\discord_alerts.py": {
-        "hash": "85fe8feff652fe46b06fcbf698408463"
-    },
-    "Trading_\\basicbot\\ml_models\\model_trainer.py": {
-        "hash": "cb4eb34d531df3d611a33c83d41149a7"
-    },
-    "Trading_\\basicbot\\start_paper_trading.py": {
-        "hash": "f629a926007c16419c923dc80d6c4db0"
-    },
-    "dreamos\\core\\agent_logger.py": {
-        "hash": "52a233105183c2295943cf749d5cf7ad"
-    },
-    "agent_tools\\agent_cellphone.py": {
-        "hash": "3ad160d7f745e06618ab4aa54c08973c"
+    "tests\\test_audience_analytics.py": {
+        "hash": "a5801ad3632fd82063f8cb0aeb6225b0"
     },
     "message_processor.py": {
         "hash": "64e3d0c427b3ef23c909b0be80dc2750"
     },
-    "Trading_\\basicbot\\tbow_dashboard.py": {
-        "hash": "76ca1773fadac469ec9ab7ec8bdfdbb1"
+    "Trading_\\basicbot\\agent_interface.py": {
+        "hash": "57b4ddd7a52469b1b2dd90e49657fd0d"
     },
-    "Trading_\\basicbot\\strategy.py": {
-        "hash": "94aa0b861ab3d226dc7d3da2c1f2d82c"
+    "dreamos\\core\\ui\\theme_manager.py": {
+        "hash": "5ba882d2d61238bfb77f6a6c2d5e07a4"
     },
-    "Trading_\\basicbot\\strategies\\adaptive_momentum.py": {
-        "hash": "615ffcddcb5d6925d11e3dc8d181a088"
+    "social\\strategies\\facebook_strategy.py": {
+        "hash": "bf86e6944413c34de84d3bf136708f94"
     },
-    "Trading_\\basicbot\\backtester.py": {
-        "hash": "8a086cdbb9d0bc97a36482c39974fff8"
+    "Trading_\\basicbot\\model_training_utils.py": {
+        "hash": "6a06838b218e7b9d7205dd0c8086929d"
     },
-    "Trading_\\basicbot\\tbow_charts.py": {
-        "hash": "a0f27be544de08b15bb812c61eec39b5"
+    "tests\\test_utils.py": {
+        "hash": "266f0133d47e40ae9ecf90f115126e2c"
+    },
+    "dreamos\\core\\menu.py": {
+        "hash": "62798247976cff177e244155fd6fa0eb"
+    },
+    "tests\\integration\\test_performance.py": {
+        "hash": "3a9bf6d94bdae1863568e01a6fd8068a"
+    },
+    "tests\\social\\driver\\conftest.py": {
+        "hash": "8cdd297f2ee219da12a114526c56ffd0"
     },
     "Trading_\\basicbot\\ml_models\\regime_detector.py": {
         "hash": "f6572be1c3ff0633ce9f9b27dae95172"
     },
-    "Trading_\\basicbot\\tests\\test_adaptive_momentum.py": {
-        "hash": "d9cd3e0012c369bc03b627fdb53876b1"
+    "discord_bot\\commands.py": {
+        "hash": "f337393f4a9ab321383eef57b1b7b441"
     },
-    "Trading_\\basicbot\\agent_api.py": {
-        "hash": "70a3ea016bfb5417107ad0a587e669bd"
+    "Trading_\\basicbot\\strategies\\adaptive_momentum.py": {
+        "hash": "615ffcddcb5d6925d11e3dc8d181a088"
     },
-    "Trading_\\basicbot\\config.py": {
-        "hash": "8dd104e7d18250f807c8a2738061072a"
-    },
-    "Trading_\\basicbot\\dreamos_integration.py": {
-        "hash": "01e444393005a6a99eb732fdc21eee86"
-    },
-    "tests\\test_agent_captain.py": {
-        "hash": "4b40caea98eda2f58784a25cf17a951e"
-    },
-    "dreamos\\core\\persistent_queue.py": {
-        "hash": "8de7291e5a3ec3fefb90651329524ec0"
-    },
-    "Trading_\\basicbot\\tests\\test_trading_api.py": {
-        "hash": "1e604e35eb3d92885777b05a587e534f"
-    },
-    "Trading_\\basicbot\\trade_executor.py": {
-        "hash": "3116be1647b726a7530b433eaf3c60ed"
-    },
-    "agent_tools\\utils\\__init__.py": {
-        "hash": "24a5f4cb794879529b47c54e1f33ee50"
-    },
-    "tests\\test_agent_cellphone_cli.py": {
-        "hash": "427f1a53eefbe1a70363c4bfe2bd4b62"
-    },
-    "Trading_\\basicbot\\tbow_risk.py": {
-        "hash": "a23cb768ef470270f92ef4e5cf96eeab"
-    },
-    "Trading_\\basicbot\\agent_interface.py": {
-        "hash": "57b4ddd7a52469b1b2dd90e49657fd0d"
-    },
-    "tests\\test_config.py": {
-        "hash": "2806b605ae47c45361352ad8c147f12e"
-    },
-    "dreamos\\core\\agent_control\\controller.py": {
-        "hash": "a6ce38f129dce897042439ceb4fd23a0"
-    },
-    "discord_bot\\agent_interface.py": {
-        "hash": "299ec96d8a9e4732a3159d18c30ba971"
-    },
-    "dreamos\\core\\agent_control\\menu_builder.py": {
-        "hash": "d5370ec8f570ed4c800f17517d2546ff"
-    },
-    "dreamos\\core\\agent_control\\agent_operations.py": {
-        "hash": "858e6bf944ff94c6cb66306715af2298"
-    },
-    "dreamos\\core\\system_init.py": {
-        "hash": "57d15a5c1951d81250419fc2f07a3434"
+    "tests\\agent_control\\test_menu_builder.py": {
+        "hash": "62ce918f76026f9b090e76e99f64ca86"
     },
     "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
         "hash": "79b174fcb38b7c377149fa031ba6eba8"
     },
-    "dreamos\\core\\agent_control\\ui_automation.py": {
-        "hash": "64c8e02eef7cd06fb26f6cb7e9a13442"
+    "tests\\test_agent_captain.py": {
+        "hash": "4b40caea98eda2f58784a25cf17a951e"
     },
-    "dreamos\\core\\agent_control\\__init__.py": {
-        "hash": "a80a5b270b7ba857dfdcfe6f1eabdd74"
+    "tests\\test_content_scheduler.py": {
+        "hash": "304944795f9a537e1c1aac474f333d78"
     },
-    "dreamos\\core\\agent_control\\__main__.py": {
-        "hash": "1064286c31d1e2aa5de30a48722bbec9"
+    "tests\\conftest.py": {
+        "hash": "5273fd5b4498172b27ea36b5eb14aba6"
     },
-    "dreamos\\core\\ui\\log_console.py": {
-        "hash": "dd44125953549e828889940d91688da2"
+    "dreamos\\core\\messaging\\ui.py": {
+        "hash": "29964c10048328a758843c35dcc05eb0"
     },
-    "dreamos\\core\\ui\\agent_status_panel.py": {
-        "hash": "6714355ea62a124f62c1ab540a75bd3c"
+    "social\\community\\base.py": {
+        "hash": "19880e0f4863f3af8ea06744a3c11fc3"
     },
-    "dreamos\\core\\ui\\theme_manager.py": {
-        "hash": "5ba882d2d61238bfb77f6a6c2d5e07a4"
+    "Trading_\\basicbot\\start_paper_trading.py": {
+        "hash": "f629a926007c16419c923dc80d6c4db0"
+    },
+    "Trading_\\basicbot\\tests\\test_adaptive_momentum.py": {
+        "hash": "d9cd3e0012c369bc03b627fdb53876b1"
+    },
+    "Trading_\\basicbot\\db_handler.py": {
+        "hash": "0f000141ff309539b0ff266503124867"
+    },
+    "tests\\social\\test_dispatcher.py": {
+        "hash": "2443555106ebdb7f86783d116b76aff6"
+    },
+    "dreamos\\core\\messaging\\cli.py": {
+        "hash": "aea28345c6ea00ec8bac267fa52d33ba"
+    },
+    "dreamos\\core\\cursor_controller.py": {
+        "hash": "731408c80df3345e69f600963ddc3310"
+    },
+    "social\\strategies\\platform_strategy_base.py": {
+        "hash": "87ee467bbc42191c3f024272df589c7e"
+    },
+    "dreamos\\core\\agent_control\\agent_operations.py": {
+        "hash": "cfaf5457355cba8d7f81a566812ea454"
+    },
+    "Trading_\\basicbot\\agent_api.py": {
+        "hash": "70a3ea016bfb5417107ad0a587e669bd"
+    },
+    "dreamos\\core\\agent_loop.py": {
+        "hash": "55a23f48e8a3873938929d87c940702f"
+    },
+    "social\\tests\\test_twitter_strategy.py": {
+        "hash": "d41d8cd98f00b204e9800998ecf8427e"
     }
 }

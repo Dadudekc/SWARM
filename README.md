@@ -6,51 +6,96 @@ A sophisticated agent control system with Discord bot integration for remote man
 
 ```
 Dream.OS/
-├── discord_bot/                 # Discord bot integration
-│   ├── bot.py                  # Main bot implementation
-│   ├── commands.py             # Bot command handlers
-│   ├── config.json            # Bot configuration
-│   └── env.example            # Environment variables template
 ├── dreamos/                    # Core system modules
-│   └── core/                  # Core functionality
-├── runtime/                    # Runtime files
-│   └── config/                # Configuration files
-├── Trading_/                   # Trading bot system
-│   └── basicbot/              # Main trading bot implementation
-│       ├── analysis/          # Strategy analysis tools
-│       │   └── strategy_performance.py
-│       ├── ml_models/         # Machine learning components
-│       │   ├── model_trainer.py
-│       │   ├── regime_detector.py
-│       │   └── trading_ai.py
-│       ├── strategies/        # Trading strategies
-│       │   └── adaptive_momentum.py
-│       ├── tests/             # Test suite
-│       │   ├── test_adaptive_momentum.py
-│       │   └── test_trading_api.py
-│       ├── tsla_trader/       # Tesla-specific trading module
-│       │   ├── config.yaml
-│       │   ├── core.py
-│       │   └── journal.csv
-│       ├── agent_api.py       # Agent interface
-│       ├── backtester.py      # Strategy backtesting
-│       ├── config.py          # Configuration
-│       ├── db_handler.py      # Database operations
-│       ├── discord_alerts.py  # Discord notifications
-│       ├── dreamos_integration.py  # Dream.OS integration
-│       ├── logger.py          # Logging system
-│       ├── main_trader.py     # Main trading logic
-│       ├── risk_manager.py    # Risk management
-│       ├── trade_executor.py  # Trade execution
-│       └── trading_api_alpaca.py  # Alpaca API integration
-├── agent_resume_main.py       # Main agent control interface
-├── agent_cellphone.py         # Cell phone communication system
-├── message_processor.py       # Message handling system
-├── run_menu.py               # CLI menu interface
-├── setup.py                  # Package setup
-├── test_cell_phone.py        # Cell phone system tests
-└── .gitignore               # Git ignore rules
+│   ├── core/                  # Core functionality
+│   │   ├── agent_control/     # Agent control system
+│   │   ├── messaging/         # Message handling
+│   │   ├── ui/               # User interface
+│   │   └── utils/            # Core utilities
+│   ├── agents/               # Agent implementations
+│   └── dashboard/            # System dashboard
+├── discord_bot/               # Discord bot integration
+│   ├── bot.py                # Main bot implementation
+│   ├── commands.py           # Bot command handlers
+│   └── config.json          # Bot configuration
+├── runtime/                   # Runtime files
+│   ├── agent_comms/          # Agent communications
+│   │   ├── governance/       # System governance
+│   │   └── onboarding/       # Agent onboarding
+│   └── config/               # Configuration files
+├── Trading_/                  # Trading bot system
+│   └── basicbot/             # Main trading bot implementation
+│       ├── analysis/         # Strategy analysis tools
+│       ├── ml_models/        # Machine learning components
+│       ├── strategies/       # Trading strategies
+│       └── tests/            # Test suite
+├── docs/                      # Documentation
+│   ├── onboarding/           # Agent onboarding guides
+│   ├── development/          # Development guides
+│   └── api/                  # API documentation
+├── tests/                     # Test suite
+│   ├── core/                 # Core system tests
+│   ├── agents/               # Agent tests
+│   └── integration/          # Integration tests
+├── agent_resume_main.py      # Main agent control interface
+├── agent_cellphone.py        # Cell phone communication system
+├── message_processor.py      # Message handling system
+├── run_menu.py              # CLI menu interface
+└── setup.py                 # Package setup
 ```
+
+## Core Components
+
+### 1. Agent Control System
+- Remote agent management
+- State verification and repair
+- Message broadcasting
+- System status monitoring
+
+### 2. Messaging System
+- Priority-based message queue
+- Multiple message types
+- Rate limiting
+- Message history tracking
+
+### 3. Trading System
+- Machine learning-based trading strategies
+- Real-time market analysis
+- Risk management
+- Backtesting capabilities
+- Multi-broker support (Alpaca)
+- Discord alerts and notifications
+
+### 4. Content Loop Framework
+- Autonomous content generation
+- Task-based content seeding
+- Masterpiece development track
+- Multi-domain output streams:
+  - Conversation Highlights
+  - DevLogs
+  - Self-Improvement Reports
+  - Entertainment Content
+
+## Documentation
+
+### 1. Onboarding
+- [Agent Core Guide](docs/onboarding/01_agent_core.md)
+- [Autonomous Operations](docs/onboarding/02_autonomous_operations.md)
+- [System Integration](docs/onboarding/03_system_integration.md)
+- [Advanced Topics](docs/onboarding/04_advanced_topics.md)
+- [Content Loop Framework](docs/onboarding/05_content_loop.md)
+
+### 2. Development
+- [Code Style Guide](docs/code_style_guide.md)
+- [Testing Guide](docs/testing_guide.md)
+- [Project Setup](docs/project_setup_guide.md)
+- [Contribution Guide](docs/contribution_guide.md)
+
+### 3. API Reference
+- [Core API](docs/api/core.md)
+- [Agent API](docs/api/agents.md)
+- [Messaging API](docs/api/messaging.md)
+- [Trading API](docs/api/trading.md)
 
 ## Features
 

@@ -13,6 +13,8 @@ from .message_processor import MessageProcessor
 from .coordinate_manager import CoordinateManager
 from .cell_phone import CellPhone
 from .agent_logger import AgentLogger
+from .messaging.message import MessageMode
+from .agent_control.controller import AgentController
 
 # Configure logging
 logging.basicConfig(
@@ -68,5 +70,7 @@ __all__ = [
     'CoordinateManager',
     'CellPhone',
     'AgentLogger',
+    'MessageMode',
+    'AgentController',
     'initialize_system'
 ]
