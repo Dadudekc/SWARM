@@ -1,0 +1,134 @@
+{
+    "test_summary": {
+        "total_tests": 23,
+        "passed": 9,
+        "failed": 14,
+        "pass_rate": "39.13%"
+    },
+    "error_categories": {
+        "media_validation": {
+            "count": 8,
+            "issues": [
+                {
+                    "test": "test_validate_media[files2-True-True]",
+                    "error": "assert False == True",
+                    "root_cause": "Media validation failing for video files. The test expects True but gets False.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:117"
+                },
+                {
+                    "test": "test_validate_media_real_files",
+                    "error": "AssertionError: assert 'Unsupported file format' in 'Unsupported file type: text/plain'",
+                    "root_cause": "Error message mismatch. Code returns 'Unsupported file type' but test expects 'Unsupported file format'",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:187"
+                },
+                {
+                    "test": "test_validate_media_single_image",
+                    "error": "assert False is True",
+                    "root_cause": "Single image validation failing. Test expects True but gets False.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:302"
+                },
+                {
+                    "test": "test_validate_media[files3-True-True]",
+                    "error": "assert False == True",
+                    "root_cause": "Another video file validation failure. Test expects True but gets False.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:117"
+                },
+                {
+                    "test": "test_validate_media_edge_cases[test_case2]",
+                    "error": "AssertionError: assert 'Too many files' in 'File not found: test1.jpg'",
+                    "root_cause": "Validation order issue. Code checks file existence before checking file count.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:168"
+                },
+                {
+                    "test": "test_validate_media[files0-False-True]",
+                    "error": "assert False == True",
+                    "root_cause": "Image validation failing. Test expects True but gets False.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:117"
+                },
+                {
+                    "test": "test_validate_media_too_many_images",
+                    "error": "assert True is False",
+                    "root_cause": "Too many images validation failing. Test expects False but gets True.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:324"
+                },
+                {
+                    "test": "test_validate_media_unsupported_format",
+                    "error": "AssertionError: assert 'Unsupported file format' in 'File not found: test.xyz'",
+                    "root_cause": "Validation order issue. Code checks file existence before checking format.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:316"
+                }
+            ]
+        },
+        "rate_limiting": {
+            "count": 3,
+            "issues": [
+                {
+                    "test": "test_rate_limiting_flow[True-1]",
+                    "error": "Failed: DID NOT RAISE <class 'Exception'>",
+                    "root_cause": "Rate limiter not raising exception when expected. Test expects an exception but none is raised.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:288"
+                },
+                {
+                    "test": "test_rate_limiting_flow[False-1]",
+                    "error": "Exception: Rate limit exceeded for post operation",
+                    "root_cause": "Rate limiter raising exception when not expected. Test expects success but gets rate limit exception.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:293"
+                },
+                {
+                    "test": "test_post_and_comment_flow",
+                    "error": "Exception: Rate limit exceeded for post operation",
+                    "root_cause": "Rate limiter blocking post operation when it should be allowed.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:248"
+                }
+            ]
+        },
+        "error_handling": {
+            "count": 3,
+            "issues": [
+                {
+                    "test": "test_memory_error_tracking[post-side_effects1-post-post-is_logged_in]",
+                    "error": "AssertionError: assert 'Failed to create post' == 'Message: Click intercepted\n'",
+                    "root_cause": "Error message mismatch. Code returns 'Failed to create post' but test expects 'Message: Click intercepted'",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:215"
+                },
+                {
+                    "test": "test_memory_error_tracking[comment-side_effects2-comment-comment-None]",
+                    "error": "AssertionError: assert 'Not logged in' == 'Message: Network error\n'",
+                    "root_cause": "Error message mismatch. Code returns 'Not logged in' but test expects 'Message: Network error'",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:215"
+                },
+                {
+                    "test": "test_validate_media_edge_cases[test_case1]",
+                    "error": "AssertionError: assert 'File too large' in 'File not found: test.jpg'",
+                    "root_cause": "Validation order issue. Code checks file existence before checking file size.",
+                    "location": "tests/social/strategies/test_reddit_strategy.py:168"
+                }
+            ]
+        }
+    },
+    "recommended_fixes": {
+        "media_validation": [
+            "Reorder validation checks to match test expectations: count -> size -> format -> existence",
+            "Update error messages to match test expectations exactly",
+            "Fix video file validation logic",
+            "Fix image file validation logic",
+            "Ensure proper handling of empty file lists"
+        ],
+        "rate_limiting": [
+            "Fix rate limiter initialization in tests",
+            "Ensure rate limiter state is properly reset between tests",
+            "Align rate limiter behavior with test expectations",
+            "Fix exception handling in rate-limited operations"
+        ],
+        "error_handling": [
+            "Standardize error messages across all operations",
+            "Ensure consistent error message format",
+            "Fix error message propagation in memory updates"
+        ]
+    },
+    "implementation_notes": {
+        "media_validation": "The MediaValidator class needs to be updated to match the test expectations for validation order and error messages.",
+        "rate_limiting": "The RateLimiter class needs proper test isolation and state management.",
+        "error_handling": "Error messages need to be standardized across all operations and properly propagated in memory updates."
+    }
+} 
