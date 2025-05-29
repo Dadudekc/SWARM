@@ -37,10 +37,60 @@ ENV/
 *.swo
 .DS_Store
 
-# Logs
+# Logs and databases
 *.log
 logs/
 log/
+*.sqlite
+*.db
+rate_limits.db
+
+# Runtime files
+.pytest_cache/
+.coverage
+htmlcov/
+__pycache__/
+.pytest_cache/
+
+# Test artifacts
+test_recipient/
+MagicMock/
+*_test.png
+test_*.py
+region_test.png
+tests/logs/
+tests/reports/
+
+# Temporary files
+*.tmp
+*.temp
+Thumbs.db
+
+# Project specific
+agent_responses/
+agent_tools/
+episodes/
+messages/
+templates/
+runtime/
+test_logs/
+test_config/
+test_data/
+
+# Development tools
+tools/*.log
+tools/*.db
+tools/*.tmp
+
+# Media files
+media/temp/
+media/cache/
+media/uploads/
+
+# Documentation
+docs/_build/
+docs/_static/
+docs/_templates/
 
 # Discord Bot specific
 discord_bot/config.json
@@ -48,15 +98,6 @@ discord_bot/*.log
 
 # Project specific
 runtime/config/cursor_agent_coords.json
-
-# Logs and databases
-*.sqlite
-*.db
-
-# Runtime files
-.pytest_cache/
-.coverage
-htmlcov/
 
 # Environment variables
 .env.local

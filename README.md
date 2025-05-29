@@ -1,3 +1,93 @@
+# Dream.OS
+
+[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/your-username/your-gist-id/raw/test-status.json)](https://github.com/your-username/Dream.OS/actions)
+
+## Overview
+
+Dream.OS is an AI-powered operating system that provides a seamless interface between users and AI agents. It features:
+
+- Agent control and coordination
+- Message processing and routing
+- Social media integration
+- UI automation and interaction
+
+## Installation
+
+```bash
+# Clone the repository
+git clone https://github.com/your-username/Dream.OS.git
+cd Dream.OS
+
+# Create and activate virtual environment
+python -m venv venv
+source venv/bin/activate  # Linux/Mac
+.\venv\Scripts\activate   # Windows
+
+# Install dependencies
+pip install -r requirements.txt
+pip install -r requirements-test.txt  # For development
+```
+
+## Usage
+
+```python
+from dreamos.core.agent_control import AgentControl
+from dreamos.core.message_processor import MessageProcessor
+
+# Initialize components
+agent_control = AgentControl()
+message_processor = MessageProcessor()
+
+# Process a message
+message = "Hello, world!"
+response = message_processor.process_message(message)
+```
+
+## Development
+
+### Running Tests
+
+```bash
+# Run all tests
+pytest
+
+# Run with coverage
+pytest --cov=dreamos
+
+# Generate HTML coverage report
+pytest --cov=dreamos --cov-report=html
+```
+
+### Code Style
+
+We use:
+- Black for code formatting
+- isort for import sorting
+- flake8 for linting
+
+```bash
+# Format code
+black .
+
+# Sort imports
+isort .
+
+# Lint code
+flake8
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Run tests and linting
+5. Submit a pull request
+
+## License
+
+MIT License - see LICENSE file for details
+
 # Dream.OS Agent Control System
 
 A sophisticated agent control system with Discord bot integration for remote management and monitoring of autonomous agents, including trading bot integration.
