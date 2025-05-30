@@ -1,111 +1,185 @@
-import time
+"""
+Facebook Strategy Module
+
+Handles Facebook-specific social media operations.
+"""
+
+from typing import Optional, Dict, Any, List
 from selenium.webdriver.common.by import By
-from selenium.webdriver.support.ui import WebDriverWait
-from selenium.webdriver.support import expected_conditions as EC
-from selenium.common.exceptions import TimeoutException, NoSuchElementException
+from selenium.common.exceptions import WebDriverException
 
 from .platform_strategy_base import PlatformStrategy
-from dreamos.social.log_writer import logger
+from ..utils.social_common import SocialMediaUtils
+from ..utils.log_manager import LogManager
+from social.constants.platform_constants import (
+    FACEBOOK_MAX_IMAGES,
+    FACEBOOK_MAX_VIDEO_SIZE,
+    FACEBOOK_SUPPORTED_IMAGE_FORMATS,
+    FACEBOOK_SUPPORTED_VIDEO_FORMATS
+)
 
 class FacebookStrategy(PlatformStrategy):
-    """Facebook platform strategy implementation."""
+    """Enhanced Facebook platform strategy with media support and robust error handling."""
     
     LOGIN_URL = "https://facebook.com/login"
     HOME_URL = "https://facebook.com"
+    POST_URL = "https://facebook.com/home"
     
+    def __init__(
+        self,
+        driver,
+        config: dict,
+        memory_update: Optional[Dict[str, Any]] = None,
+        agent_id: Optional[str] = None,
+        *,
+        log_manager: Optional[Any] = None
+    ):
+        """Initialize Facebook strategy with driver, configuration, and optional log_manager.
+        
+        Args:
+            driver: WebDriver instance
+            config: Configuration dictionary
+            memory_update: Optional memory update dictionary
+            agent_id: Optional agent ID
+            log_manager: Optional log manager instance
+        """
+        super().__init__(
+            driver=driver,
+            config=config,
+            memory_update=memory_update,
+            agent_id=agent_id,
+            log_manager=log_manager
+        )
+        
+        # Set platform-specific constants
+        self.max_images = FACEBOOK_MAX_IMAGES
+        self.max_video_size = FACEBOOK_MAX_VIDEO_SIZE
+        self.supported_image_formats = FACEBOOK_SUPPORTED_IMAGE_FORMATS
+        self.supported_video_formats = FACEBOOK_SUPPORTED_VIDEO_FORMATS
+        self.media_button_xpath = "//div[@aria-label='Photo/Video']"
+        self.file_input_xpath = "//input[@type='file']"
+        
     def is_logged_in(self) -> bool:
-        """Check if currently logged into Facebook."""
+        """Check if currently logged into Facebook.
+        
+        Returns:
+            True if logged in, False otherwise
+        """
         try:
-            self.driver.get(self.HOME_URL)
-            time.sleep(3)  # Allow page to load
-            
-            # Check for login form or profile elements
-            try:
-                # If we can find the login form, we're not logged in
-                self.driver.find_element(By.ID, "email")
-                return False
-            except NoSuchElementException:
-                # If we can't find the login form, we're probably logged in
-                return True
-                
-        except Exception as e:
-            logger.error(f"[Facebook] Login check failed: {str(e)}")
+            # Look for login button - if found, not logged in
+            return not self.utils.check_login_status(self.LOGIN_BUTTON)
+        except WebDriverException as e:
+            self._log_error_with_trace("check_login", e, {})
             return False
-
+            
     def login(self) -> bool:
-        """Attempt to log in to Facebook."""
+        """Attempt to log in to Facebook.
+        
+        Returns:
+            True if login successful, False otherwise
+        """
         try:
-            self.driver.get(self.LOGIN_URL)
-            time.sleep(2)  # Allow page to load
-            
             # Get credentials from config
-            email = self.config.get("facebook_email")
-            password = self.config.get("facebook_password")
+            username = self.config.get("facebook", {}).get("username")
+            password = self.config.get("facebook", {}).get("password")
             
-            if not email or not password:
-                logger.error("[Facebook] Missing credentials in config")
+            if not username or not password:
+                self._log_error_with_trace(
+                    "login",
+                    ValueError("Missing Facebook credentials"),
+                    {"username_provided": bool(username)}
+                )
                 return False
+                
+            # Navigate to Facebook
+            self.driver.get(self.base_url)
             
-            # Find and fill login form
-            email_input = self.driver.find_element(By.ID, "email")
-            password_input = self.driver.find_element(By.ID, "pass")
-            login_button = self.driver.find_element(By.NAME, "login")
+            # Handle login
+            success = self.utils.handle_login(
+                username=username,
+                password=password,
+                username_field=self.USERNAME_FIELD,
+                password_field=self.PASSWORD_FIELD,
+                submit_button=self.LOGIN_BUTTON
+            )
             
-            email_input.send_keys(email)
-            password_input.send_keys(password)
-            login_button.click()
-            
-            # Wait for login to complete
-            time.sleep(5)
-            
-            # Verify login success
-            if self.is_logged_in():
-                logger.info("[Facebook] Login successful")
+            if success:
+                self.memory_updates["login_attempts"] += 1
+                self._update_memory("login", True)
                 return True
             else:
-                logger.error("[Facebook] Login failed - credentials may be invalid")
+                self._update_memory("login", False)
                 return False
                 
-        except Exception as e:
-            logger.error(f"[Facebook] Login error: {str(e)}")
+        except WebDriverException as e:
+            self._log_error_with_trace("login", e, {})
+            self._update_memory("login", False, e)
             return False
-
-    def post(self, content: str) -> bool:
-        """Post content to Facebook."""
+            
+    def post(self, content: str, media_paths: Optional[List[str]] = None, is_video: bool = False) -> bool:
+        """Post content to Facebook.
+        
+        Args:
+            content: Content to post
+            media_paths: Optional list of media file paths
+            is_video: Whether the media is video
+            
+        Returns:
+            True if post successful, False otherwise
+        """
         try:
-            # Navigate to home page
-            self.driver.get(self.HOME_URL)
-            time.sleep(5)  # Allow page to load
-            
-            # Find and click the post creation box
-            post_box = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, "//div[@aria-label='Create a post']"))
+            # Validate media if provided
+            if media_paths:
+                if not self._validate_media(media_paths, is_video):
+                    self._log_error_with_trace(
+                        "post",
+                        ValueError("Invalid media files"),
+                        {"media_paths": media_paths, "is_video": is_video}
+                    )
+                    return False
+                    
+            # Find post textarea
+            textarea = self.utils.wait_for_element(
+                By.CSS_SELECTOR,
+                self.POST_TEXTAREA
             )
-            post_box.click()
-            time.sleep(3)
+            if not textarea:
+                self._log_error_with_trace(
+                    "post",
+                    ValueError("Could not find post textarea"),
+                    {}
+                )
+                return False
+                
+            # Enter content
+            textarea.send_keys(content)
             
-            # Find the content input area
-            active_box = WebDriverWait(self.driver, 10).until(
-                EC.presence_of_element_located((By.XPATH, "//div[@role='dialog']//div[@contenteditable='true']"))
-            )
-            active_box.send_keys(content)
-            time.sleep(2)
+            # Upload media if provided
+            if media_paths:
+                if not self._handle_media_upload(media_paths, is_video):
+                    self._log_error_with_trace(
+                        "post",
+                        ValueError("Failed to upload media"),
+                        {"media_paths": media_paths, "is_video": is_video}
+                    )
+                    return False
+                    
+            # Click post button
+            success = self.utils.post_content(self.POST_BUTTON)
             
-            # Find and click the Post button
-            post_button = WebDriverWait(self.driver, 10).until(
-                EC.element_to_be_clickable((By.XPATH, "//div[@aria-label='Post']"))
-            )
-            post_button.click()
-            
-            # Wait for post to complete
-            time.sleep(5)
-            
-            logger.info(f"[Facebook] Post successful: {content}")
-            return True
-            
-        except TimeoutException:
-            logger.error("[Facebook] Post failed - timeout waiting for elements")
-            return False
-        except Exception as e:
-            logger.error(f"[Facebook] Post error: {str(e)}")
+            if success:
+                self.memory_updates["post_attempts"] += 1
+                self._update_memory("post", True)
+                return True
+            else:
+                self._update_memory("post", False)
+                return False
+                
+        except WebDriverException as e:
+            self._log_error_with_trace("post", e, {
+                "content_length": len(content),
+                "has_media": bool(media_paths),
+                "is_video": is_video
+            })
+            self._update_memory("post", False, e)
             return False 

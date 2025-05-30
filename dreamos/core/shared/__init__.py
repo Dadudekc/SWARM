@@ -1,9 +1,13 @@
 """
-Shared Module
+Shared Package
 
-Common utilities and shared components used across the Dream.OS system.
+Provides shared utilities and managers for the Dream.OS system.
 """
 
+from .config_manager import ConfigManager
 from .coordinate_manager import CoordinateManager
 
-__all__ = ['CoordinateManager'] 
+__all__ = [
+    'ConfigManager',
+    'CoordinateManager',
+]

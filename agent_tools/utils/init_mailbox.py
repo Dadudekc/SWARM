@@ -23,16 +23,44 @@ class AgentMailbox:
             ValueError: If agent_id is invalid
             OSError: If base_dir is invalid or cannot be created
         """
+        # Validate agent_id
         if not agent_id or not isinstance(agent_id, str):
-            raise ValueError("Invalid agent_id: must be a non-empty string.")
+            raise ValueError("Invalid agent_id: must be a non-empty string")
+        if any(c in agent_id for c in ['/', '\\', '*', '?', '"', '<', '>', '|', ':']):
+            raise ValueError("Invalid agent_id: contains invalid characters")
         self.agent_id = agent_id
-        self.base_dir = Path(base_dir)
-        self.agent_dir = self.base_dir / agent_id.lower()
-        # Validate base_dir exists or can be created
+
+        # Validate each component of base_dir for invalid characters
+        invalid_dir_chars = set('<>"|?*')
+        p = Path(base_dir)
+        
+        # Check for invalid characters in any path component
+        for part in p.parts:
+            if any(c in part for c in invalid_dir_chars):
+                raise OSError(f"Invalid characters in directory path component: {part}")
+        
+        # Check if parent directory exists
+        parent = p.parent
+        if not parent.exists():
+            raise OSError(f"Parent directory does not exist: {parent}")
+        
+        # Check if parent directory is writable
+        if not os.access(parent, os.W_OK):
+            raise OSError(f"Parent directory is not writable: {parent}")
+        
+        # If absolute path, check if root/anchor exists
+        if p.is_absolute():
+            anchor = p.anchor or p.drive
+            if anchor and not Path(anchor).exists():
+                raise OSError(f"Root/anchor does not exist: {anchor}")
+        
         try:
+            self.base_dir = p.resolve()
             self.base_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
-            raise OSError(f"Directory does not exist or cannot be created: {self.base_dir}") from e
+            raise OSError(f"Directory does not exist or cannot be created: {base_dir}") from e
+        
+        self.agent_dir = self.base_dir / agent_id.lower()
     
     def _get_initial_state(self, current_time: datetime) -> Dict:
         """
@@ -79,30 +107,26 @@ class AgentMailbox:
     
     def reset(self) -> None:
         """
-        Reset an agent's mailbox to its initial state.
-        Creates a backup of the existing mailbox if it exists.
-        Catches PermissionError during backup and continues.
+        Reset the agent mailbox to its initial state.
+        Creates a backup of existing mailbox if it exists.
         """
-        # Backup existing mailbox if it exists
         if self.agent_dir.exists():
-            backup_dir = self.agent_dir.parent / f"{self.agent_id.lower()}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+            # Create backup
             try:
+                backup_dir = self.agent_dir.parent / f"{self.agent_id.lower()}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
                 shutil.copytree(self.agent_dir, backup_dir)
-                # print(f"📦 Created backup at: {backup_dir}")
-            except PermissionError as e:
-                logger.warning(f"PermissionError while backing up mailbox: {e}")
-                print(f"⚠️ PermissionError while backing up mailbox: {e}")
             except Exception as e:
-                logger.warning(f"Unexpected error while backing up mailbox: {e}")
-                print(f"⚠️ Unexpected error while backing up mailbox: {e}")
-        # Ensure directory exists
-        self.agent_dir.mkdir(parents=True, exist_ok=True)
-        # Get and write initial state
-        current_time = datetime.now()
-        initial_state = self._get_initial_state(current_time)
-        self._write_mailbox_files(initial_state)
-        print(f"🔄 Successfully reset mailbox for {self.agent_id}")
-        print(f"📁 Location: {self.agent_dir}")
+                logger.warning(f"Failed to create backup: {e}")
+                
+            # Remove existing directory and all contents
+            try:
+                shutil.rmtree(self.agent_dir)
+            except Exception as e:
+                logger.error(f"Failed to remove existing mailbox: {e}")
+                raise
+                
+        # Initialize new mailbox
+        self.initialize()
     
     def initialize(self) -> None:
         """
@@ -114,11 +138,13 @@ class AgentMailbox:
         if self.agent_dir.exists():
             print(f"⚠️  Mailbox for {self.agent_id} already exists. Use --reset to reset it.")
             return
+            
         # Try to create directory, raise OSError if fails
         try:
             self.agent_dir.mkdir(parents=True, exist_ok=True)
         except Exception as e:
             raise OSError(f"Directory does not exist or cannot be created: {self.agent_dir}") from e
+            
         # Get and write initial state
         current_time = datetime.now()
         initial_state = self._get_initial_state(current_time)

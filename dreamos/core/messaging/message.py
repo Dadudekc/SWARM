@@ -24,10 +24,13 @@ class MessageMode(Enum):
     CAPTAIN = "[CAPTAIN]"
     TASK = "[TASK]"
     INTEGRATE = "[INTEGRATE]"
-    NORMAL = ""  # No additional tags
-    PRIORITY = "priority"
-    BULK = "bulk"
+    NORMAL = "[NORMAL]"  # Changed from empty string to include brackets
+    PRIORITY = "[PRIORITY]"
+    BULK = "[BULK]"
     SELF_TEST = "[SELF_TEST]"  # For self-test protocol messages
+    PROMPT = "[PROMPT]"  # For agent prompts
+    DEVLOG = "[DEVLOG]"  # For development logs
+    SYSTEM = "[SYSTEM]"  # For system commands
 
 @dataclass
 class Message:
@@ -50,16 +53,14 @@ class Message:
             
     def format_content(self) -> str:
         """Format message content with mode prefix."""
-        if self.mode == MessageMode.NORMAL:
-            return self.content
         return f"{self.mode.value} {self.content}"
         
     def to_dict(self) -> Dict[str, Any]:
-        """Convert message to dictionary format."""
+        """Convert message to dictionary format (store original content, not formatted)."""
         return {
             "from_agent": self.from_agent,
             "to_agent": self.to_agent,
-            "content": self.format_content(),
+            "content": self.content,  # store original content only
             "mode": self.mode.name,
             "priority": self.priority,
             "timestamp": self.timestamp.isoformat(),

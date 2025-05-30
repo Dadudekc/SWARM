@@ -8,24 +8,40 @@ import logging
 from typing import Optional, Dict, Callable, Any, List
 import pyautogui
 import time
+from pathlib import Path
+import os
 
 from .menu_builder import MenuBuilder
 from .agent_operations import AgentOperations
 from .ui_automation import UIAutomation
-from dreamos.core.messaging import MessageProcessor
-from dreamos.core import CellPhone
-from dreamos.core.shared import CoordinateManager
+from ..messaging.message_processor import MessageProcessor
+from ..cell_phone import CellPhone
+from ..messaging.types import Message, MessageMode
+from ..shared import CoordinateManager
 
 logger = logging.getLogger('agent_control.controller')
 
 class AgentController:
     """Main controller for agent operations."""
     
-    def __init__(self):
-        """Initialize the controller."""
-        self.agent_operations = AgentOperations()
-        self.message_processor = MessageProcessor()
-        self.cell_phone = CellPhone()
+    def __init__(self, runtime_dir: Optional[str] = None):
+        """Initialize the controller.
+        
+        Args:
+            runtime_dir: Optional runtime directory path. If not provided,
+                        will use a default location in the user's home directory.
+        """
+        self.logger = logging.getLogger('agent_controller')
+        # Set up runtime directory
+        if runtime_dir is None:
+            runtime_dir = os.path.join(os.path.expanduser("~"), ".dreamos", "runtime")
+        self.runtime_dir = Path(runtime_dir)
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize components
+        self.agent_operations = AgentOperations(runtime_dir=str(self.runtime_dir))
+        self.message_processor = MessageProcessor(runtime_dir=self.runtime_dir)
+        self.cell_phone = CellPhone()  # CellPhone is a singleton, no parameters needed
         self.ui_automation = UIAutomation()  # Keep for visual feedback only
         self.menu_builder = None
         self._running = False
@@ -34,6 +50,8 @@ class AgentController:
         # Initialize PyAutoGUI settings
         pyautogui.FAILSAFE = True
         pyautogui.PAUSE = 0.5  # Add small delay between actions
+        
+        logger.info(f"Agent controller initialized with runtime dir: {self.runtime_dir}")
         
     def set_menu_builder(self, menu_builder: MenuBuilder) -> None:
         """Set the menu builder and connect its signals.
@@ -94,34 +112,36 @@ class AgentController:
             if self.menu_builder and self.menu_builder.menu:
                 self.menu_builder.menu._status_panel.update_status("No agents available")
             
-    def cleanup(self):
-        """Clean up resources."""
+    def cleanup(self) -> None:
+        """Clean up all agent resources."""
         try:
-            self._running = False
+            self.logger.info("Cleaning up agent resources")
+            if self.menu_builder and self.menu_builder.menu:
+                self.menu_builder.menu._status_panel.update_status("Cleaning up...")
             
-            # Disconnect signals
-            if self.menu_builder:
-                self.menu_builder.disconnect_signals()
-                
-            # Clean up agent operations
-            if self.agent_operations:
-                try:
-                    self.agent_operations.cleanup()
-                except AttributeError:
-                    pass  # Ignore if cleanup method doesn't exist
-                
+            # Clean up message processor
+            self.agent_operations.message_processor.cleanup()
+            
             # Clean up UI automation
-            if self.ui_automation:
-                try:
-                    self.ui_automation.cleanup()
-                except AttributeError:
-                    pass  # Ignore if cleanup method doesn't exist
-                
-            logger.info("Agent controller cleaned up successfully")
+            self.agent_operations.ui_automation.cleanup()
             
+            # Remove all inbox files
+            mailbox_dir = self.runtime_dir / "mailbox"
+            for agent_dir in mailbox_dir.glob("Agent-*"):
+                if agent_dir.is_dir():
+                    for inbox in agent_dir.glob("*.json"):
+                        if inbox.exists():
+                            inbox.unlink()
+            
+            if self.menu_builder and self.menu_builder.menu:
+                self.menu_builder.menu._status_panel.update_status("Cleanup complete")
+            self.logger.info("Agent controller cleaned up successfully")
         except Exception as e:
-            logger.error(f"Error during controller cleanup: {e}")
-            
+            error_msg = f"Error during cleanup: {str(e)}"
+            self.logger.error(error_msg)
+            if self.menu_builder and self.menu_builder.menu:
+                self.menu_builder.menu._status_panel.update_status(error_msg)
+        
     def run(self) -> None:
         """Run the controller."""
         try:
@@ -188,53 +208,65 @@ class AgentController:
             if self.menu_builder and self.menu_builder.menu:
                 self.menu_builder.menu._status_panel.update_status(f"Error onboarding {agent_id}: {str(e)}")
         
-    def resume_agent(self, agent_id: str, use_ui: bool = True) -> None:
-        """Resume an agent's operation using messaging system.
+    def resume_agent(self, agent_id: str) -> bool:
+        """Resume an agent's operations.
         
         Args:
-            agent_id: The ID of the agent to resume
-            use_ui: Whether to use UI automation
+            agent_id: ID of the agent to resume
+            
+        Returns:
+            True if successful, False otherwise
         """
-        if not agent_id:
-            if self.menu_builder and self.menu_builder.menu:
-                self.menu_builder.menu._status_panel.update_status("Error resuming : Invalid agent ID")
-            return
-            
         try:
-            # Use agent operations for resuming
-            self.agent_operations.resume_agent(agent_id)
+            self.logger.info(f"Resuming {agent_id}")
+            self.menu_builder.menu._status_panel.update_status(f"Resuming {agent_id}...")
             
-            # Update status
-            if self.menu_builder and self.menu_builder.menu:
-                self.menu_builder.menu._status_panel.update_status(f"Resuming {agent_id}...")
+            # Attempt to resume agent
+            success = self.agent_operations.resume_agent(agent_id)
+            
+            if not success:
+                error_msg = f"Error resuming {agent_id}: {self.agent_operations.last_error}"
+                self.logger.error(error_msg)
+                self.menu_builder.menu._status_panel.update_status(error_msg)
+                return False
                 
-            logger.info(f"Resuming {agent_id}")
+            return True
             
         except Exception as e:
-            logger.error(f"Error resuming agent {agent_id}: {e}")
-            if self.menu_builder and self.menu_builder.menu:
-                self.menu_builder.menu._status_panel.update_status(f"Error resuming {agent_id}: {str(e)}")
+            error_msg = f"Error resuming {agent_id}: {str(e)}"
+            self.logger.error(error_msg)
+            self.menu_builder.menu._status_panel.update_status(error_msg)
+            return False
         
-    def verify_agent(self, agent_id: str) -> None:
-        """Verify an agent's state using messaging system.
+    def verify_agent(self, agent_id: str) -> bool:
+        """Verify an agent's state.
         
         Args:
-            agent_id: The ID of the agent to verify
+            agent_id: ID of the agent to verify
+            
+        Returns:
+            True if verification successful, False otherwise
         """
         try:
-            # Use agent operations for verification
-            self.agent_operations.verify_agent(agent_id)
+            self.logger.info(f"Verifying {agent_id}")
+            self.menu_builder.menu._status_panel.update_status(f"Verifying {agent_id}...")
             
-            # Update status
-            if self.menu_builder and self.menu_builder.menu:
-                self.menu_builder.menu._status_panel.update_status(f"Verifying {agent_id}...")
+            # Attempt to verify agent
+            success = self.agent_operations.verify_agent(agent_id)
+            
+            if not success:
+                error_msg = f"Error verifying {agent_id}: {self.agent_operations.last_error}"
+                self.logger.error(error_msg)
+                self.menu_builder.menu._status_panel.update_status(error_msg)
+                return False
                 
-            logger.info(f"Verifying {agent_id}")
+            return True
             
         except Exception as e:
-            logger.error(f"Error verifying agent {agent_id}: {e}")
-            if self.menu_builder and self.menu_builder.menu:
-                self.menu_builder.menu._status_panel.update_status(f"Error verifying {agent_id}: {str(e)}")
+            error_msg = f"Error verifying {agent_id}: {str(e)}"
+            self.logger.error(error_msg)
+            self.menu_builder.menu._status_panel.update_status(error_msg)
+            return False
         
     def repair_agent(self, agent_id: str) -> None:
         """Repair an agent using messaging system.

@@ -53,4 +53,5 @@ class AgentStatusPanel(QFrame):
         Args:
             status_text: The status text to display
         """
-        self.status_label.setText(status_text) 
+        self.status_label.setText(status_text)
+        self.setProperty("sipPyTypeDictRef", status_text) 

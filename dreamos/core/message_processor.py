@@ -1,13 +1,14 @@
 """
 Message Processor
 
-Processes queued messages and sends them to the UI using cursor control.
+Handles message processing and routing between agents.
 """
 
 import logging
-import time
-from typing import Optional, Dict, List
-from .cell_phone import CellPhone, Message
+from typing import Dict, List, Optional, Any
+from datetime import datetime
+from .cell_phone import CellPhone
+from .messaging.types import Message, MessageMode
 from .cursor_controller import CursorController
 from .coordinate_manager import CoordinateManager
 import pyautogui
@@ -15,14 +16,70 @@ import pyautogui
 logger = logging.getLogger('message_processor')
 
 class MessageProcessor:
-    """Processes queued messages and sends them to the UI."""
+    """Processes and routes messages between agents."""
     
     def __init__(self):
         """Initialize the message processor."""
         self.cell_phone = CellPhone()
         self.cursor = CursorController()
         self.coordinate_manager = CoordinateManager()
+        logger.info("Message processor initialized")
+    
+    def process_message(self, message: Message) -> bool:
+        """Process a message and route it to the appropriate agent.
         
+        Args:
+            message: The message to process
+            
+        Returns:
+            bool: True if message was successfully processed
+        """
+        try:
+            # Validate message
+            if not message.validate():
+                logger.error(f"Invalid message: {message}")
+                return False
+            
+            # Route message to UI
+            success = self.cell_phone.send_message(
+                to_agent=message.to_agent,
+                content=message.content,
+                mode=message.mode.name if hasattr(message.mode, 'name') else str(message.mode),
+                priority=message.priority
+            )
+            
+            if success:
+                logger.info(f"Message processed: {message}")
+            else:
+                logger.error(f"Failed to process message: {message}")
+            
+            return success
+            
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
+            return False
+    
+    def get_status(self) -> Dict[str, Any]:
+        """Get current message processing status.
+        
+        Returns:
+            Dict containing processing statistics
+        """
+        return self.cell_phone.get_status()
+    
+    def clear_messages(self, agent_id: Optional[str] = None) -> None:
+        """Clear processed messages.
+        
+        Args:
+            agent_id: Optional agent ID to clear messages for. If None, clears all messages.
+        """
+        self.cell_phone.clear_messages(agent_id)
+    
+    def shutdown(self) -> None:
+        """Clean up resources."""
+        self.cell_phone.shutdown()
+        logger.info("Message processor shut down")
+
     def process_queue(self):
         """Process all messages in the queue."""
         while True:

@@ -1,106 +1,93 @@
 """
-Test configuration for Discord bot tests.
+Test configuration and environment setup.
 """
 
 import os
-import json
-import yaml
+import pytest
+import shutil
 from pathlib import Path
+import logging
+from typing import Generator
+from tests.utils.test_utils import (
+    safe_remove, TEST_ROOT, TEST_DATA_DIR, TEST_OUTPUT_DIR,
+    VOICE_QUEUE_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR,
+    ensure_test_dirs
+)
+import yaml
 
-# Test directories
-TEST_DATA_DIR = Path("tests/data")
-TEST_CONFIG_DIR = Path("tests/test_config")
-
-# Mock data
+# Test constants
 MOCK_AGENT_CONFIG = {
-    "Agent-1": {
-        "channel_id": 123456789,
-        "role_id": 987654321
-    },
-    "Agent-2": {
-        "channel_id": 234567890,
-        "role_id": 876543210
-    }
+    "username": "test_user",
+    "password": "test_pass",
+    "log_dir": str(TEST_RUNTIME_DIR / "logs"),  # Use test runtime directory
+    "max_size": 1024,
+    "max_age": 7,
+    "batch_size": 100,
+    "batch_timeout": 5,
+    "rotation_check_interval": 60,
+    "compress_after": 3
 }
+MOCK_PROMPT = "Test prompt content"
+MOCK_DEVLOG = "Test devlog content"
 
-MOCK_PROMPT = {
-    "prompt": "Test prompt",
-    "context": "Test context",
-    "parameters": {
-        "temperature": 0.7,
-        "max_tokens": 100
-    }
-}
-
-MOCK_DEVLOG = """# Agent-1 Development Log
-
-## 2024-03-20
-- Initial test entry
-- Added test functionality
-
-## 2024-03-21
-- Updated test cases
-- Fixed bugs
-"""
-
-def setup_test_environment():
+def setup_test_environment() -> None:
     """Set up the test environment."""
-    try:
-        # Create test directories
-        TEST_DATA_DIR.mkdir(parents=True, exist_ok=True)
-        TEST_CONFIG_DIR.mkdir(parents=True, exist_ok=True)
-        
-        # Create test files
-        with open(TEST_CONFIG_DIR / "agent_config.yaml", "w") as f:
-            yaml.dump(MOCK_AGENT_CONFIG, f)
-        
-        with open(TEST_DATA_DIR / "test_prompt.json", "w") as f:
-            json.dump(MOCK_PROMPT, f)
-        
-        with open(TEST_DATA_DIR / "agent1_devlog.md", "w") as f:
-            f.write(MOCK_DEVLOG)
-    except Exception as e:
-        print(f"Warning: Error setting up test environment: {e}")
+    ensure_test_dirs()
 
-def cleanup_test_environment():
+def cleanup_test_environment() -> None:
     """Clean up the test environment."""
-    try:
-        # Remove test files
-        if TEST_DATA_DIR.exists():
-            for file in TEST_DATA_DIR.glob("*"):
-                try:
-                    file.unlink()
-                except Exception as e:
-                    print(f"Warning: Error removing file {file}: {e}")
-            
-            try:
-                TEST_DATA_DIR.rmdir()
-            except Exception as e:
-                print(f"Warning: Error removing directory {TEST_DATA_DIR}: {e}")
-        
-        if TEST_CONFIG_DIR.exists():
-            for file in TEST_CONFIG_DIR.glob("*"):
-                try:
-                    file.unlink()
-                except Exception as e:
-                    print(f"Warning: Error removing file {file}: {e}")
-            
-            try:
-                TEST_CONFIG_DIR.rmdir()
-            except Exception as e:
-                print(f"Warning: Error removing directory {TEST_CONFIG_DIR}: {e}")
-    except Exception as e:
-        print(f"Warning: Error cleaning up test environment: {e}")
+    for directory in [TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, 
+                     TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
+        if directory.exists():
+            safe_remove(directory)
 
-# Test bot settings
-TEST_BOT_TOKEN = "test_token_123"
-TEST_GUILD_ID = 123456789
-TEST_CHANNEL_ID = 987654321
+def test_cleanup():
+    """Test that cleanup removes test directories."""
+    cleanup_test_environment()
+    assert not TEST_DATA_DIR.exists(), "test_data should be removed"
+    assert not TEST_CONFIG_DIR.exists(), "test_config should be removed"
+    assert not VOICE_QUEUE_DIR.exists(), "test_voice_queue should be removed"
+    assert not TEST_OUTPUT_DIR.exists(), "test_output should be removed"
+    assert not TEST_RUNTIME_DIR.exists(), "test_runtime should be removed"
+    assert not TEST_TEMP_DIR.exists(), "test_temp should be removed"
 
-# Test user settings
-TEST_USER_ID = 111222333
-TEST_USER_NAME = "TestUser"
+def test_config_file_creation():
+    """Test that config files are created."""
+    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    # Create default config
+    config = {
+        "agent_id": "test_agent",
+        "platform": "test",
+        "credentials": {
+            "username": "test_user",
+            "password": "test_pass"
+        }
+    }
+    
+    with open(config_path, "w") as f:
+        yaml.dump(config, f)
+    
+    assert config_path.exists(), "Config file should exist"
+    with open(config_path) as f:
+        loaded_config = yaml.safe_load(f)
+        assert loaded_config["agent_id"] == "test_agent"
 
-# Test message settings
-TEST_MESSAGE_ID = 444555666
-TEST_MESSAGE_CONTENT = "!help" 
+def test_test_directories_creation():
+    """Test that test directories are created."""
+    # Create required directories
+    (TEST_RUNTIME_DIR / "logs" / "screenshots").mkdir(parents=True, exist_ok=True)
+    (TEST_RUNTIME_DIR / "logs" / "operations").mkdir(parents=True, exist_ok=True)
+    (TEST_RUNTIME_DIR / "mailbox").mkdir(parents=True, exist_ok=True)
+    
+    assert (TEST_RUNTIME_DIR / "logs" / "screenshots").exists(), "screenshots directory should exist"
+    assert (TEST_RUNTIME_DIR / "logs" / "operations").exists(), "operations directory should exist"
+    assert (TEST_RUNTIME_DIR / "mailbox").exists(), "mailbox directory should exist"
+
+@pytest.fixture(autouse=True)
+def setup_teardown():
+    """Setup and teardown for each test."""
+    setup_test_environment()
+    yield
+    cleanup_test_environment() 

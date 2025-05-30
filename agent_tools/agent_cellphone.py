@@ -38,7 +38,7 @@ def send_message(to_agent: str, message: str, priority: int = 0, mode: str = "NO
     Args:
         to_agent: Target agent (e.g., "Agent-2")
         message: Message content
-        priority: Message priority (0-5) - Note: Currently not used
+        priority: Message priority (0-5)
         mode: Message mode (NORMAL, PRIORITY, BULK, RESUME, SYNC, etc.)
     """
     try:
@@ -46,18 +46,12 @@ def send_message(to_agent: str, message: str, priority: int = 0, mode: str = "NO
         phone = CellPhone()
         logger.info("Cell phone initialized")
         
-        # Format message with mode if specified
-        if mode != "NORMAL":
-            mode_enum = MessageMode[mode]
-            if not message.startswith(mode_enum.value):
-                message = f"{mode_enum.value} {message}"
-        
         # Send message
         success = phone.send_message(
-            from_agent="CLI",  # Use CLI as the default sender
             to_agent=to_agent,
-            message=message,
-            mode=MessageMode[mode]
+            content=message,
+            mode=mode,
+            priority=priority
         )
         
         if success:
@@ -65,7 +59,7 @@ def send_message(to_agent: str, message: str, priority: int = 0, mode: str = "NO
             print(f"[OK] Message sent to {to_agent}")
             
             # Get status
-            status = phone.get_status()
+            status = phone.get_message_status(to_agent)
             logger.info(f"Cell phone status: {status}")
             print(f"Status: {status}")
         else:

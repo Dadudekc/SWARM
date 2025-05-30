@@ -1,0 +1,14 @@
+{
+  "twitter": {
+    "enabled": true,
+    "email": "test@example.com",
+    "password": "test_password",
+    "post_interval": 1800,
+    "max_posts_per_day": 10
+  },
+  "global": {
+    "headless": false,
+    "timeout": 30,
+    "retry_attempts": 3
+  }
+}

@@ -56,7 +56,20 @@ class AudienceAnalytics(CommunityBase):
             
         Returns:
             Dict: Updated growth metrics
+            
+        Raises:
+            ValueError: If metrics are invalid
         """
+        if not isinstance(metrics, dict):
+            raise ValueError("Metrics must be a dictionary")
+            
+        required_metrics = ["followers", "following", "posts"]
+        for metric in required_metrics:
+            if metric not in metrics:
+                raise ValueError(f"Missing required metric: {metric}")
+            if not isinstance(metrics[metric], (int, float)) or metrics[metric] < 0:
+                raise ValueError(f"Metric {metric} must be a non-negative number")
+        
         self.growth_rate = (metrics.get("followers", 0) / max(metrics.get("following", 1), 1)) * 100
         self.metrics["follower_growth"] = self.growth_rate
         
@@ -80,7 +93,39 @@ class AudienceAnalytics(CommunityBase):
             
         Returns:
             Dict: Analysis results
+            
+        Raises:
+            ValueError: If data is invalid
         """
+        if not isinstance(data, dict):
+            raise ValueError("Data must be a dictionary")
+            
+        required_fields = ["age_groups", "locations", "interests"]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+                
+        # Validate age groups
+        age_groups = data.get("age_groups", {})
+        if not isinstance(age_groups, dict):
+            raise ValueError("Age groups must be a dictionary")
+        total_age = sum(age_groups.values())
+        if total_age > 100:
+            raise ValueError("Age group percentages cannot exceed 100%")
+            
+        # Validate locations
+        locations = data.get("locations", {})
+        if not isinstance(locations, dict):
+            raise ValueError("Locations must be a dictionary")
+        total_location = sum(locations.values())
+        if total_location > 100:
+            raise ValueError("Location percentages cannot exceed 100%")
+            
+        # Validate interests
+        interests = data.get("interests", [])
+        if not isinstance(interests, list):
+            raise ValueError("Interests must be a list")
+            
         self.demographics[platform] = data
         
         insights = {
@@ -102,9 +147,45 @@ class AudienceAnalytics(CommunityBase):
     def generate_insights(self, platform: str, data: Dict) -> Dict:
         """Generate audience insights based on collected data.
         
+        Args:
+            platform: Target platform
+            data: Data to generate insights from
+            
         Returns:
             Dict: Generated insights
+            
+        Raises:
+            ValueError: If data is invalid
         """
+        if not isinstance(data, dict):
+            raise ValueError("Data must be a dictionary")
+            
+        required_fields = ["engagement", "content", "timing"]
+        for field in required_fields:
+            if field not in data:
+                raise ValueError(f"Missing required field: {field}")
+                
+        # Validate engagement
+        engagement = data.get("engagement", {})
+        if not isinstance(engagement, dict):
+            raise ValueError("Engagement must be a dictionary")
+            
+        # Validate content
+        content = data.get("content", {})
+        if not isinstance(content, dict):
+            raise ValueError("Content must be a dictionary")
+        total_content = sum(content.values())
+        if total_content > 100:
+            raise ValueError("Content percentages cannot exceed 100%")
+            
+        # Validate timing
+        timing = data.get("timing", {})
+        if not isinstance(timing, dict):
+            raise ValueError("Timing must be a dictionary")
+        total_timing = sum(timing.values())
+        if total_timing > 100:
+            raise ValueError("Timing percentages cannot exceed 100%")
+            
         insights = {
             "growth": {
                 "description": "Audience growing steadily",
@@ -133,7 +214,19 @@ class AudienceAnalytics(CommunityBase):
             
         Returns:
             Dict: Report data
+            
+        Raises:
+            ValueError: If format or report type is invalid
+            PermissionError: If unable to write report file
         """
+        valid_formats = ["json", "csv"]
+        if format not in valid_formats:
+            raise ValueError(f"Invalid format. Must be one of: {', '.join(valid_formats)}")
+            
+        valid_types = ["growth", "demographics", "insights"]
+        if report_type not in valid_types:
+            raise ValueError(f"Invalid report type. Must be one of: {', '.join(valid_types)}")
+            
         data = {
             "metrics": self.metrics,
             "demographics": self.demographics.get(platform, {}),
@@ -146,8 +239,13 @@ class AudienceAnalytics(CommunityBase):
             "timestamp": datetime.now().isoformat(),
             "data": data
         }
-        self.reports[f"{platform}_{report_type}"] = report
-        return report
+        
+        try:
+            self.reports[f"{platform}_{report_type}"] = report
+            return report
+        except PermissionError as e:
+            self.logger.error(f"Permission denied saving report: {str(e)}")
+            raise
     
     def get_audience_metrics(self) -> Dict:
         """Get current audience metrics.
@@ -158,7 +256,20 @@ class AudienceAnalytics(CommunityBase):
         return self.metrics
 
     def _get_audience_metrics(self, platform: str) -> Dict:
-        # For test compatibility, return metrics and demographics for the platform
+        """Get audience metrics for a specific platform.
+        
+        Args:
+            platform: Target platform
+            
+        Returns:
+            Dict: Platform metrics
+            
+        Raises:
+            ValueError: If platform is invalid
+        """
+        if platform not in ["twitter", "facebook", "instagram", "linkedin"]:
+            raise ValueError(f"Unsupported platform: {platform}")
+            
         return {
             "growth_rate": self.growth_rate,
             "engagement_rate": self.metrics["engagement_rate"],

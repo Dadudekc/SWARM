@@ -61,12 +61,29 @@ class CommunityBase:
             
         Returns:
             bool: True if successful
+            
+        Raises:
+            PermissionError: If unable to write to file or create directory
         """
         try:
-            os.makedirs(os.path.dirname(config_path), exist_ok=True)
-            with open(config_path, 'w') as f:
-                json.dump(config, f, indent=4)
+            # Try to create directory first
+            try:
+                os.makedirs(os.path.dirname(config_path), exist_ok=True)
+            except PermissionError:
+                self.logger.error("Permission denied creating config directory")
+                raise
+                
+            # Try to write file
+            try:
+                with open(config_path, 'w') as f:
+                    json.dump(config, f, indent=4)
+            except PermissionError:
+                self.logger.error("Permission denied writing config file")
+                raise
+                
             return True
+        except PermissionError:
+            raise  # Re-raise PermissionError
         except Exception as e:
             self.logger.error(f"Error saving config: {str(e)}")
             return False
@@ -98,5 +115,7 @@ class CommunityBase:
         Args:
             new_metrics: New metrics to update
         """
+        if not isinstance(new_metrics, dict):
+            raise ValueError("new_metrics must be a dictionary")
         self.metrics.update(new_metrics)
         self.logger.debug(f"Updated metrics: {new_metrics}") 

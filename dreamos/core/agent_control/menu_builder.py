@@ -22,6 +22,7 @@ class MenuBuilder(BaseMenuBuilder):
         super().__init__()
         self.actions = actions or {}
         self.menu = None  # Initialize menu as None
+        self._controller = None  # Initialize controller as None
         self._build_menu()
         
     def set_controller(self, controller: Any) -> None:
@@ -30,10 +31,45 @@ class MenuBuilder(BaseMenuBuilder):
         Args:
             controller: The controller instance to use
         """
+        self._controller = controller
         if self.menu:
             self.menu.controller = controller
             logger.info("Controller set for menu")
         
+    def _handle_menu_action(self, action_id: str, agent_id: Optional[str] = None) -> None:
+        """Handle menu action selection.
+        
+        Args:
+            action_id: The ID of the selected action
+            agent_id: Optional agent ID if action requires agent selection
+        """
+        if not self._controller:
+            logger.error("No controller available for menu action")
+            return
+            
+        if action_id == 'list':
+            self._handle_list_agents()
+        elif agent_id:
+            if hasattr(self._controller, action_id):
+                handler = getattr(self._controller, action_id)
+                handler(agent_id)
+            else:
+                logger.error(f"No handler found for action: {action_id}")
+        else:
+            self._handle_agent_selection(self.menu.get_item(action_id))
+            
+    def cleanup(self) -> None:
+        """Clean up menu resources."""
+        if self.menu:
+            try:
+                self.disconnect_signals()
+                self.menu.cleanup()
+                self.menu = None
+                self._controller = None
+                logger.info("Menu resources cleaned up")
+            except Exception as e:
+                logger.error(f"Error during menu cleanup: {str(e)}")
+            
     def _build_menu(self):
         """Build the menu structure."""
         # Create new menu instance
@@ -44,7 +80,7 @@ class MenuBuilder(BaseMenuBuilder):
             id='list',
             label='List Agents',
             type=MenuItemType.COMMAND,
-            action=lambda: self._handle_list_agents()
+            action=lambda: self._handle_menu_action('list')
         ))
         
         # Add items for each action
@@ -63,17 +99,22 @@ class MenuBuilder(BaseMenuBuilder):
                 id=action_id,
                 label=label,
                 type=MenuItemType.AGENT_SELECTION,
-                action=lambda a=action_id: self.menu.signals.item_selected.emit(a, None)
+                action=lambda a=action_id: self._handle_menu_action(a)
             ))
             
     def _handle_list_agents(self):
         """Handle list agents action."""
-        if hasattr(self.menu, 'controller') and self.menu.controller:
-            agents = self.menu.controller.list_agents()
-            # Just emit the signal with the agents list
-            self.menu.signals.item_selected.emit('list', agents)
-        else:
-            logger.error("Controller not available for listing agents")
+        if not self._controller:
+            logger.error("No controller available for listing agents")
+            return
+            
+        try:
+            agents = self._controller.list_agents()
+            if self.menu and hasattr(self.menu, 'signals'):
+                self.menu.signals.item_selected.emit('list', agents)
+            logger.info(f"Listed {len(agents)} agents")
+        except Exception as e:
+            logger.error(f"Error listing agents: {str(e)}")
             
     def _handle_agent_selection(self, item: MenuItem):
         """Handle agent selection for menu items.
@@ -81,9 +122,12 @@ class MenuBuilder(BaseMenuBuilder):
         Args:
             item: The menu item that triggered the selection
         """
-        # Get list of available agents from the controller
-        if hasattr(self.menu, 'controller') and self.menu.controller:
-            agents = self.menu.controller.list_agents()
+        if not self._controller:
+            logger.error("No controller available for agent selection")
+            return
+            
+        try:
+            agents = self._controller.list_agents()
             
             # Create submenu for agent selection
             submenu = MenuBuilder()
@@ -92,21 +136,26 @@ class MenuBuilder(BaseMenuBuilder):
                     id=f"{item.id}_{agent}",
                     label=agent,
                     type=MenuItemType.COMMAND,
-                    action=lambda a=agent: self.menu.signals.item_selected.emit(item.id, a)
+                    action=lambda a=agent: self._handle_menu_action(item.id, a)
                 ))
                 
             # Show submenu
             submenu.display_menu()
-        else:
-            logger.error("Controller not available for agent selection")
+            logger.info(f"Showing agent selection menu for action: {item.id}")
+        except Exception as e:
+            logger.error(f"Error handling agent selection: {str(e)}")
             
     def display_menu(self) -> None:
         """Display the menu."""
         if self.menu:
-            # Ensure menu is properly initialized
-            if not self.menu.initialized:
-                self.menu.setup_ui()
-            self.menu.show()
+            try:
+                # Ensure menu is properly initialized
+                if not self.menu.initialized:
+                    self.menu.setup_ui()
+                self.menu.show()
+                logger.info("Menu displayed")
+            except Exception as e:
+                logger.error(f"Error displaying menu: {str(e)}")
             
     def connect_signals(self, handler: Callable[[str, Any], None]) -> None:
         """Connect menu signals to a handler.
@@ -115,8 +164,12 @@ class MenuBuilder(BaseMenuBuilder):
             handler: Function to handle menu item selection
         """
         if self.menu:
-            self.menu.signals.item_selected.connect(handler)
-            self.menu.signals.menu_closed.connect(lambda: logger.debug("Menu closed"))
+            try:
+                self.menu.signals.item_selected.connect(handler)
+                self.menu.signals.menu_closed.connect(lambda: logger.debug("Menu closed"))
+                logger.info("Menu signals connected")
+            except Exception as e:
+                logger.error(f"Error connecting menu signals: {str(e)}")
             
     def disconnect_signals(self) -> None:
         """Disconnect menu signals."""
@@ -124,5 +177,6 @@ class MenuBuilder(BaseMenuBuilder):
             try:
                 self.menu.signals.item_selected.disconnect()
                 self.menu.signals.menu_closed.disconnect()
-            except (TypeError, RuntimeError):
-                pass  # Ignore if already disconnected 
+                logger.info("Menu signals disconnected")
+            except (TypeError, RuntimeError) as e:
+                logger.debug(f"Error disconnecting signals (may be already disconnected): {str(e)}") 

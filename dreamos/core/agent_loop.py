@@ -13,7 +13,7 @@ import discord
 from pathlib import Path
 from typing import Dict, List, Optional
 from datetime import datetime
-from .agent_control import AgentController
+from .agent_control.controller import AgentController
 from .agent_logger import AgentLogger
 from .message_processor import MessageProcessor
 from .persistent_queue import PersistentQueue

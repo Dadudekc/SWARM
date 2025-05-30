@@ -5,9 +5,10 @@ Manages cursor coordinates for agent UI interaction.
 """
 
 import logging
-import json
 from pathlib import Path
 from typing import Dict, Tuple, Optional, List
+
+from .coordinate_utils import load_coordinates, validate_coordinates
 
 logger = logging.getLogger('coordinate_manager')
 
@@ -31,15 +32,18 @@ class CoordinateManager:
             Dictionary mapping agent IDs to their coordinate sets
         """
         try:
-            config_path = Path(self.config_path)
-            
-            if not config_path.exists():
-                logger.error(f"Coordinates file not found at {config_path}")
+            coords = load_coordinates(self.config_path)
+            if not coords:
+                logger.error(f"Failed to load coordinates from {self.config_path}")
                 return {}
                 
-            with open(config_path, 'r') as f:
-                coords = json.load(f)
-                
+            # Validate coordinates
+            is_valid, errors = validate_coordinates(coords)
+            if not is_valid:
+                logger.warning("Coordinate validation errors:")
+                for error in errors:
+                    logger.warning(f"  - {error}")
+            
             # Convert nested coordinate dictionaries to tuples
             processed_coords = {}
             for agent_id, agent_coords in coords.items():

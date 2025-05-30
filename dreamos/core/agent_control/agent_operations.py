@@ -5,9 +5,11 @@ Handles all agent-specific operations like onboarding, resuming, etc.
 """
 
 import logging
-from typing import Union, List, Optional
+from typing import Union, List, Optional, Dict, Any
+from pathlib import Path
 
-from ..message_processor import MessageProcessor
+from ..messaging.message_processor import MessageProcessor
+from ..messaging.types import MessageMode
 from ..cell_phone import CellPhone
 from .ui_automation import UIAutomation
 
@@ -16,11 +18,22 @@ logger = logging.getLogger('agent_control.agent_operations')
 class AgentOperations:
     """Handles agent-specific operations."""
     
-    def __init__(self):
-        """Initialize agent operations."""
-        self.message_processor = MessageProcessor()
+    def __init__(self, runtime_dir: Optional[Path] = None):
+        """Initialize agent operations.
+        
+        Args:
+            runtime_dir: Optional runtime directory for message storage
+        """
+        if runtime_dir is None:
+            runtime_dir = Path.home() / ".dreamos" / "runtime"
+        self.runtime_dir = Path(runtime_dir)
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
+        
+        self.message_processor = MessageProcessor(runtime_dir=self.runtime_dir)
         self.cell_phone = CellPhone()
         self.ui_automation = UIAutomation()
+        self.last_error = None
+        logger.info(f"Agent operations initialized with runtime dir: {self.runtime_dir}")
         
     def list_agents(self) -> List[str]:
         """List all available agents.
@@ -29,12 +42,16 @@ class AgentOperations:
             List of agent IDs
         """
         try:
-            # Get agents from coordinate manager
-            if hasattr(self.message_processor, 'coordinate_manager'):
+            # Get agents from coordinate manager if available
+            if hasattr(self.message_processor, 'coordinate_manager') and self.message_processor.coordinate_manager:
                 agents = list(self.message_processor.coordinate_manager.coordinates.keys())
                 return sorted(agents)
+            # Fallback: scan mailbox directory
+            mailbox_path = getattr(self.message_processor, 'mailbox_path', None)
+            if mailbox_path and mailbox_path.exists():
+                return sorted([d.name for d in mailbox_path.iterdir() if d.is_dir()])
             else:
-                logger.warning("Coordinate manager not available")
+                logger.warning("Mailbox path not available or does not exist")
                 return []
         except Exception as e:
             logger.error(f"Error listing agents: {e}")
@@ -73,7 +90,10 @@ class AgentOperations:
             logger.info(f"Onboarding message sent to agent {agent_id}")
 
         except Exception as e:
-            logger.error(f"Error onboarding agent {agent_id}: {e}")
+            error_msg = f"Error onboarding agent {agent_id}: {str(e)}"
+            logger.error(error_msg)
+            if hasattr(self.ui_automation, 'update_status'):
+                self.ui_automation.update_status(error_msg)
             # Try cell phone as fallback
             try:
                 self.cell_phone.send_message(agent_id, message)
@@ -81,76 +101,86 @@ class AgentOperations:
             except Exception as fallback_error:
                 logger.error(f"Fallback also failed: {fallback_error}")
 
-    def resume_agent(self, agent_id: Union[str, List[str]], use_ui: bool = False) -> None:
+    def resume_agent(self, agent_id: Union[str, List[str]], use_ui: bool = False) -> bool:
         """Resume an agent's operation.
         
         Args:
             agent_id: Single agent ID or list of agent IDs
             use_ui: Whether to use UI automation
-        """
-        if isinstance(agent_id, list):
-            for aid in agent_id:
-                self._resume_single_agent(aid, use_ui)
-        else:
-            self._resume_single_agent(agent_id, use_ui)
-
-    def _resume_single_agent(self, agent_id: str, use_ui: bool = False) -> None:
-        """Resume a single agent.
-        
-        Args:
-            agent_id: The agent ID to resume
-            use_ui: Whether to use UI automation
+            
+        Returns:
+            True if successful, False otherwise
         """
         try:
-            message = "Resuming operations. Please confirm your status and continue with assigned tasks."
+            # Create message for resuming
+            message = {
+                "agent_id": agent_id,
+                "type": "RESUME",
+                "content": "Resume operations",
+                "metadata": {"operation": "resume"}
+            }
             
-            # Send via UI if requested
-            if use_ui:
-                self.ui_automation.send_message(agent_id, message)
+            # Send message
+            self.message_processor.send_message(message)
             
-            # Always send via message processor
-            self.message_processor.send_message(agent_id, message, "RESUME")
-            logger.info(f"Resume message sent to agent {agent_id}")
+            # Update UI
+            self.ui_automation.click(agent_id)
+            self.ui_automation.write("Resuming operations...")
+            
+            return True
             
         except Exception as e:
+            self.last_error = str(e)
             logger.error(f"Error resuming agent {agent_id}: {e}")
-            # Try cell phone as fallback
+            
+            # Send fallback message
             try:
-                self.cell_phone.send_message(agent_id, message)
+                self.cell_phone.send_message(agent_id, "Fallback: Resume operations")
                 logger.info(f"Fallback message sent via cell phone to {agent_id}")
-            except Exception as fallback_error:
-                logger.error(f"Fallback also failed: {fallback_error}")
+            except Exception as cell_error:
+                logger.error(f"Failed to send fallback message: {cell_error}")
+                
+            return False
 
-    def verify_agent(self, agent_id: Union[str, List[str]]) -> None:
+    def verify_agent(self, agent_id: Union[str, List[str]]) -> bool:
         """Verify an agent's status.
         
         Args:
             agent_id: Single agent ID or list of agent IDs
-        """
-        if isinstance(agent_id, list):
-            for aid in agent_id:
-                self._verify_single_agent(aid)
-        else:
-            self._verify_single_agent(agent_id)
             
-    def _verify_single_agent(self, agent_id: str) -> None:
-        """Verify a single agent.
-        
-        Args:
-            agent_id: The agent ID to verify
+        Returns:
+            True if verification successful, False otherwise
         """
         try:
-            message = "Please verify your status and report any issues."
-            self.message_processor.send_message(agent_id, message, "VERIFY")
-            logger.info(f"Verify message sent to agent {agent_id}")
+            # Create message for verification
+            message = {
+                "agent_id": agent_id,
+                "type": "VERIFY",
+                "content": "Verify state",
+                "metadata": {"operation": "verify"}
+            }
+            
+            # Send message
+            self.message_processor.send_message(message)
+            
+            # Update UI
+            self.ui_automation.click(agent_id)
+            self.ui_automation.write("Verifying state...")
+            
+            return True
+            
         except Exception as e:
+            self.last_error = str(e)
             logger.error(f"Error verifying agent {agent_id}: {e}")
-            # Try cell phone as fallback
+            
+            # Send fallback message
             try:
-                self.cell_phone.send_message(agent_id, message)
+                self.cell_phone.send_message(agent_id, "Fallback: Verify state")
                 logger.info(f"Fallback message sent via cell phone to {agent_id}")
-            except Exception as fallback_error:
-                logger.error(f"Fallback also failed: {fallback_error}")
+            except Exception as cell_error:
+                logger.error(f"Failed to send fallback message: {cell_error}")
+                
+            return False
             
     def repair_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Repair an agent's issues.
@@ -282,9 +312,13 @@ class AgentOperations:
             except Exception as fallback_error:
                 logger.error(f"Fallback also failed: {fallback_error}")
                 
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up resources."""
         try:
+            # Clean up message processor
+            if hasattr(self.message_processor, 'cleanup'):
+                self.message_processor.cleanup()
+            
             # Clean up UI automation
             if hasattr(self.ui_automation, 'cleanup'):
                 self.ui_automation.cleanup()
@@ -292,4 +326,6 @@ class AgentOperations:
             logger.info("Agent operations cleaned up successfully")
             
         except Exception as e:
-            logger.error(f"Error during agent operations cleanup: {e}") 
+            self.last_error = str(e)
+            logger.error(f"Error during cleanup: {e}")
+            raise 

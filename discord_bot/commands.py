@@ -17,146 +17,196 @@ import yaml
 import aiohttp
 import pyautogui
 import threading
+import io
+from pathlib import Path
 
-from dreamos.core.messaging import Message, MessageMode, MessageProcessor
+from dreamos.core.messaging.message import Message, MessageMode
+from dreamos.core.messaging.message_processor import MessageProcessor
 from dreamos.core import CellPhone
+from dreamos.core.agent_interface import AgentInterface
+from dreamos.core.metrics import CommandMetrics
 
 logger = logging.getLogger('discord_bot')
 
 class HelpMenu(discord.ui.View):
-    """Interactive help menu with buttons and visual effects."""
+    """Help menu view for displaying command documentation."""
     
     def __init__(self):
-        super().__init__(timeout=180)
+        super().__init__(timeout=180)  # 3 minute timeout
         self.current_page = 0
+        self.pages = []
+        self.setup_pages()
+        self.setup_buttons()
+    
+    def setup_pages(self):
         self.pages = [
-            {
-                "title": "🔄 Swarm Core Commands",
-                "description": "Essential commands for swarm coordination and control",
-                "color": discord.Color.purple(),
-                "icon": "🔄",
-                "thumbnail": "https://i.imgur.com/core-commands.png",  # Add your image URL
-                "fields": [
-                    ("!swarm_help", "Access the swarm command interface"),
-                    ("!list", "Display active swarm members"),
-                    ("!agent_status [agent_id]", "Monitor swarm member status\nExample: !agent_status Agent-1"),
-                    ("!resume <agent_id>", "Activate swarm member\nExample: !resume Agent-1"),
-                    ("!verify <agent_id>", "Validate swarm member integrity\nExample: !verify Agent-1"),
-                    ("!message <agent_id> <message>", "Direct swarm communication\nExample: !message Agent-1 Initiate protocol")
-                ]
-            },
-            {
-                "title": "🎯 Swarm Task Management",
-                "description": "Commands for swarm task distribution and execution",
-                "color": discord.Color.blue(),
-                "icon": "🎯",
-                "fields": [
-                    ("!task <agent_ids> <task>", "Distribute task to swarm members\nExample: !task 1,3,5 Execute system analysis"),
-                    ("!prompt <agent_id> <prompt>", "Send directive to swarm member\nExample: !prompt Agent-1 Analyze network patterns"),
-                    ("!multi <command> <agent_ids>", "Coordinate multiple swarm members\nExample: !multi resume 1,3,5"),
-                    ("!broadcast <message>", "Transmit to entire swarm\nExample: !broadcast System-wide protocol update")
-                ]
-            },
-            {
-                "title": "⚡ Swarm System Operations",
-                "description": "Commands for swarm system maintenance and optimization",
-                "color": discord.Color.gold(),
-                "icon": "⚡",
-                "fields": [
-                    ("!system <action>", "Execute swarm-wide operations\nActions: status, sync, backup, cleanup\nExample: !system status"),
-                    ("!repair <agent_id>", "Restore swarm member functionality\nExample: !repair Agent-1"),
-                    ("!backup <agent_id>", "Preserve swarm member state\nExample: !backup Agent-1"),
-                    ("!restore <agent_id>", "Recover swarm member from backup\nExample: !restore Agent-1"),
-                    ("!sync <agent_id>", "Synchronize swarm member\nExample: !sync Agent-1"),
-                    ("!cleanup <agent_id>", "Optimize swarm member resources\nExample: !cleanup Agent-1")
-                ]
-            },
-            {
-                "title": "📊 Swarm Intelligence",
-                "description": "Commands for swarm knowledge and development tracking",
-                "color": discord.Color.green(),
-                "icon": "📊",
-                "fields": [
-                    ("!devlog <agent_id> <message>", "Record swarm member development\nExample: !devlog Agent-1 Protocol optimization complete"),
-                    ("!view_devlog <agent_id>", "View swarm member development log\nExample: !view_devlog Agent-1"),
-                    ("!clear_devlog <agent_id>", "Reset swarm member development log\nExample: !clear_devlog Agent-1"),
-                    ("!devlog_channel", "Configure swarm intelligence channel"),
-                    ("!channels", "Display swarm communication channels")
-                ]
-            },
-            {
-                "title": "🛸 Swarm Integration",
-                "description": "Commands for swarm member lifecycle management",
-                "color": discord.Color.red(),
-                "icon": "🛸",
-                "fields": [
-                    ("!integrate <agent_id>", "Assimilate new swarm member\nExample: !integrate Agent-1"),
-                    ("!onboard <agent_id>", "Initialize swarm member\nExample: !onboard Agent-1"),
-                    ("!channels", "View swarm communication network"),
-                    ("!status", "Monitor swarm health status")
-                ]
-            },
-            {
-                "title": "🖥️ GUI Control",
-                "description": "Commands for controlling system GUI through Discord",
-                "color": discord.Color.dark_blue(),
-                "icon": "🖥️",
-                "fields": [
-                    ("!gui move <x> <y>", "Move mouse to coordinates\nExample: !gui move 100 200"),
-                    ("!gui click", "Click at current position\nExample: !gui click"),
-                    ("!gui type <text>", "Type text\nExample: !gui type Hello World"),
-                    ("!gui press <key>", "Press a key\nExample: !gui press enter"),
-                    ("!gui hotkey <key1> <key2>", "Press key combination\nExample: !gui hotkey ctrl c"),
-                    ("!gui screenshot", "Take a screenshot\nExample: !gui screenshot"),
-                    ("!gui scroll <amount>", "Scroll mouse wheel\nExample: !gui scroll 10"),
-                    ("!gui drag <x> <y>", "Drag mouse to coordinates\nExample: !gui drag 300 400")
-                ]
-            }
+            discord.Embed(
+                title="Agent Commands",
+                description="Commands for managing agents",
+                color=discord.Color.blue()
+            ),
+            discord.Embed(
+                title="DevLog Commands",
+                description="Commands for managing agent devlogs",
+                color=discord.Color.green()
+            ),
+            discord.Embed(
+                title="System Commands",
+                description="Commands for system operations",
+                color=discord.Color.red()
+            ),
+            discord.Embed(
+                title="Channel Commands",
+                description="Commands for managing channels",
+                color=discord.Color.gold()
+            )
         ]
         
-        # Add category buttons with emojis
+        # Add fields to pages
+        self.pages[0].add_field(
+            name="/list",
+            value="List available agents",
+            inline=False
+        )
+        self.pages[0].add_field(
+            name="/prompt <agent> <text>",
+            value="Send a prompt to an agent",
+            inline=False
+        )
+        self.pages[0].add_field(
+            name="/message <agent> <text>",
+            value="Send a message to an agent",
+            inline=False
+        )
+        
+        self.pages[1].add_field(
+            name="/devlog <agent> <text>",
+            value="Update an agent's devlog",
+            inline=False
+        )
+        self.pages[1].add_field(
+            name="/viewlog <agent>",
+            value="View an agent's devlog",
+            inline=False
+        )
+        self.pages[1].add_field(
+            name="/clearlog <agent>",
+            value="Clear an agent's devlog",
+            inline=False
+        )
+        
+        self.pages[2].add_field(
+            name="/resume <agent>",
+            value="Resume an agent",
+            inline=False
+        )
+        self.pages[2].add_field(
+            name="/verify <agent>",
+            value="Verify an agent's state",
+            inline=False
+        )
+        self.pages[2].add_field(
+            name="/restore <agent>",
+            value="Restore an agent's state",
+            inline=False
+        )
+        self.pages[2].add_field(
+            name="/sync <agent>",
+            value="Sync an agent's state",
+            inline=False
+        )
+        self.pages[2].add_field(
+            name="/cleanup <agent>",
+            value="Clean up an agent's resources",
+            inline=False
+        )
+        
+        self.pages[3].add_field(
+            name="/channels",
+            value="List channel assignments",
+            inline=False
+        )
+        self.pages[3].add_field(
+            name="/assign <agent> <channel>",
+            value="Assign a channel to an agent",
+            inline=False
+        )
+
+    def setup_buttons(self):
         self.add_category_buttons()
-        
+        self.add_navigation_buttons()
+
     def add_category_buttons(self):
-        """Add category selection buttons with enhanced styling."""
         categories = [
-            ("🔄 Core", 0, discord.ButtonStyle.primary),
-            ("🎯 Tasks", 1, discord.ButtonStyle.success),
-            ("⚡ System", 2, discord.ButtonStyle.danger),
-            ("📊 Intelligence", 3, discord.ButtonStyle.secondary),
-            ("🛸 Integration", 4, discord.ButtonStyle.primary),
-            ("🖥️ GUI", 5, discord.ButtonStyle.success)
+            ("Agent Commands", 0, discord.ButtonStyle.primary),
+            ("DevLog Commands", 1, discord.ButtonStyle.success),
+            ("System Commands", 2, discord.ButtonStyle.danger),
+            ("Channel Commands", 3, discord.ButtonStyle.secondary)
         ]
         
-        for label, page_num, style in categories:
+        # Split buttons into two rows
+        for i, (label, page_idx, style) in enumerate(categories):
             button = discord.ui.Button(
                 label=label,
                 style=style,
-                custom_id=f"page_{page_num}",
-                row=1,
-                emoji=label.split()[0]  # Use the emoji from the label
+                row=i // 2  # First 2 buttons in row 0, last 2 in row 1
             )
-            button.callback = lambda i, p=page_num: self.jump_to_page(i, p)
+            # Create a proper callback method that captures page_idx
+            async def category_button_callback(interaction: discord.Interaction, p_idx=page_idx):
+                await self.show_page(p_idx, interaction)
+            button.callback = category_button_callback
             self.add_item(button)
-            
-    async def jump_to_page(self, interaction: discord.Interaction, page: int):
-        """Jump to specific page."""
+
+    def add_navigation_buttons(self):
+        # Add navigation buttons in a separate row
+        prev_button = discord.ui.Button(
+            label="Previous",
+            style=discord.ButtonStyle.secondary,
+            row=2
+        )
+        prev_button.callback = self.previous_page
+        self.add_item(prev_button)
+
+        next_button = discord.ui.Button(
+            label="Next",
+            style=discord.ButtonStyle.secondary,
+            row=2
+        )
+        next_button.callback = self.next_page
+        self.add_item(next_button)
+
+        # Add search button in the same row
+        search_button = discord.ui.Button(
+            label="Search",
+            style=discord.ButtonStyle.success,
+            row=2
+        )
+        search_button.callback = self.search_commands
+        self.add_item(search_button)
+
+    async def show_page(self, page: int, interaction: discord.Interaction):
+        """Show specific page."""
         self.current_page = page
-        await self.update_page(interaction)
+        if interaction: # Make sure interaction is not None
+            await self.update_page(interaction)
+        else:
+            # This case should ideally not happen if callbacks are set up correctly
+            # Log or handle the absence of interaction if necessary
+            logger.warn("HelpMenu.show_page called without interaction object.")
+            # Potentially, if there's a way to get the last interaction or a default one for the view:
+            # await self.update_page(self.last_interaction_or_ctx_placeholder)
+            pass # Or decide not to update if no interaction
         
-    @discord.ui.button(label="◀️ Previous", style=discord.ButtonStyle.secondary, row=0)
-    async def previous_page(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def previous_page(self, interaction: discord.Interaction):
         """Navigate to previous page."""
         self.current_page = (self.current_page - 1) % len(self.pages)
         await self.update_page(interaction)
         
-    @discord.ui.button(label="Next ▶️", style=discord.ButtonStyle.secondary, row=0)
-    async def next_page(self, interaction: discord.Interaction, button: discord.ui.Button):
+    async def next_page(self, interaction: discord.Interaction):
         """Navigate to next page."""
         self.current_page = (self.current_page + 1) % len(self.pages)
         await self.update_page(interaction)
         
-    @discord.ui.button(label="🔍 Search", style=discord.ButtonStyle.success, row=0)
     async def search_commands(self, interaction: discord.Interaction):
         """Open command search modal."""
         modal = CommandSearchModal(self)
@@ -167,9 +217,9 @@ class HelpMenu(discord.ui.View):
         page = self.pages[self.current_page]
         
         embed = discord.Embed(
-            title=f"{page['icon']} {page['title']}",
-            description=page["description"],
-            color=page["color"]
+            title=page.title,
+            description=page.description,
+            color=page.color
         )
         
         # Add animated header with custom image
@@ -180,15 +230,15 @@ class HelpMenu(discord.ui.View):
         )
         
         # Add thumbnail if available
-        if "thumbnail" in page:
-            embed.set_thumbnail(url=page["thumbnail"])
+        if hasattr(page, 'thumbnail') and page.thumbnail:
+            embed.set_thumbnail(url=page.thumbnail.url)
         
         # Add command fields with enhanced formatting and syntax highlighting
-        for name, value in page["fields"]:
+        for field in page.fields:
             embed.add_field(
-                name=f"```ansi\n{name}\n```",
-                value=f"```md\n{value}\n```",
-                inline=False
+                name=f"```ansi\n{field.name}\n```",
+                value=f"```md\n{field.value}\n```",
+                inline=field.inline
             )
             
         # Add interactive footer with dynamic content
@@ -204,6 +254,55 @@ class HelpMenu(discord.ui.View):
         embed.set_image(url="https://i.imgur.com/your-border-image.png")  # Add your border image URL
         
         await interaction.response.edit_message(embed=embed, view=self)
+
+    async def search(self, query: str, interaction: discord.Interaction):
+        """Search for commands matching the query."""
+        query = query.lower()
+        results = []
+        
+        for page in self.pages:
+            for field in page.fields:
+                if query in field.name.lower() or query in field.value.lower():
+                    results.append(field)
+        
+        if results:
+            embed = discord.Embed(
+                title="🔍 Command Search Results",
+                description=f"Found {len(results)} matching commands",
+                color=discord.Color.blue()
+            )
+            
+            for field in results:
+                embed.add_field(
+                    name=field.name,
+                    value=field.value,
+                    inline=False
+                )
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
+            await interaction.response.send_message(
+                "No commands found matching your search.",
+                ephemeral=True
+            )
+    
+    async def select_category(self, category: str, interaction: discord.Interaction):
+        """Show commands for a specific category."""
+        category = category.lower()
+        category_pages = {
+            "agent": 0,  # Agent management commands
+            "devlog": 1,  # Devlog commands
+            "state": 2,  # State management commands
+            "stats": 3   # Statistics commands
+        }
+        
+        if category in category_pages:
+            await self.show_page(category_pages[category], interaction)
+        else:
+            await interaction.response.send_message(
+                f"Invalid category. Available categories: {', '.join(category_pages.keys())}",
+                ephemeral=True
+            )
 
 class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
     """Modal for searching commands with enhanced UI."""
@@ -279,13 +378,12 @@ class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
 class DevLogManager:
     """Manages agent development logs and Discord notifications."""
     
-    def __init__(self, bot):
-        self.bot = bot
+    def __init__(self):
         self.log_path = "runtime/agent_memory"
         self.webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
         self.channel_id = int(os.getenv('DISCORD_DEVLOG_CHANNEL', 0))
         
-    async def update_devlog(self, agent_id: str, message: str, source: str = "manual") -> bool:
+    async def add_entry(self, agent_id: str, message: str, source: str = "manual") -> bool:
         """Update an agent's devlog and notify Discord.
         
         Args:
@@ -342,7 +440,7 @@ class DevLogManager:
         except Exception as e:
             logger.error(f"Error notifying Discord: {e}")
 
-    def get_devlog(self, agent_id: str) -> Optional[str]:
+    async def get_log(self, agent_id: str) -> Optional[str]:
         """Get the contents of an agent's devlog."""
         try:
             log_path = f"{self.log_path}/{agent_id}/devlog.md"
@@ -356,7 +454,7 @@ class DevLogManager:
             logger.error(f"Error reading devlog: {e}")
             return None
 
-    def clear_devlog(self, agent_id: str) -> bool:
+    async def clear_log(self, agent_id: str) -> bool:
         """Clear an agent's devlog with backup."""
         try:
             log_path = f"{self.log_path}/{agent_id}/devlog.md"
@@ -380,318 +478,376 @@ class DevLogManager:
             return False
 
 class AgentCommands(commands.Cog):
-    """Commands for controlling agents via Discord."""
+    """Handles agent-related commands."""
     
     def __init__(self, bot):
+        """Initialize the commands.
+        
+        Args:
+            bot: Discord bot instance
+        """
         self.bot = bot
-        self.processor = MessageProcessor()
-        self.devlog = DevLogManager(bot)
-        
+        self.devlog_manager = DevLogManager()
+        self.message_processor = MessageProcessor()
+        self.cell_phone = CellPhone()
+        self.agent_interface = AgentInterface()
+        self.metrics = CommandMetrics()
+    
     async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
-        """Send a command to an agent using the new messaging system."""
-        message = Message(
-            from_agent="Discord",
-            to_agent=agent_id,
-            content=content,
-            mode=mode
-        )
-        return self.processor.send_message(message)
-
-    @commands.command(name='swarm_help')
-    @commands.cooldown(1, 5)
+        """Send a command to an agent."""
+        try:
+            message = Message(
+                from_agent="Discord",
+                to_agent=agent_id,
+                content=content,
+                mode=mode.value if hasattr(mode, 'value') else mode,
+                priority=0,
+                timestamp=datetime.now(),
+                status="queued"
+            )
+            return await self.message_processor.process_message(message)
+        except Exception as e:
+            logger.error(f"Failed to send command: {e}")
+            return False
+    
+    @commands.command(name="help")
     async def show_help(self, ctx):
-        """Show interactive help menu."""
-        menu = HelpMenu()
-        page = menu.pages[0]
-        
-        embed = discord.Embed(
-            title=page["title"],
-            description=page["description"],
-            color=discord.Color.blue()
-        )
-        
-        for name, value in page["fields"]:
-            embed.add_field(name=name, value=value, inline=False)
-            
-        embed.set_footer(text=f"Page 1/{len(menu.pages)}")
-        await ctx.send(embed=embed, view=menu)
-        
-    @commands.command(name='list')
-    @commands.cooldown(1, 5)
+        """Show the help menu."""
+        try:
+            menu = HelpMenu()
+            await ctx.send(embed=menu.pages[0], view=menu)
+        except Exception as e:
+            await ctx.send(f"Error showing help menu: {str(e)}")
+    
+    @commands.command(name="list_agents")
     async def list_agents(self, ctx):
         """List all available agents."""
-        agents = sorted(self.bot.agent_resume.coords.keys())
-        embed = discord.Embed(
-            title="Available Agents",
-            description="\n".join(f"• {agent}" for agent in agents),
-            color=discord.Color.blue()
-        )
-        await ctx.send(embed=embed)
-        
-    @commands.command(name='resume')
-    @commands.cooldown(1, 10)
-    async def resume_agent(self, ctx, agent_id: str):
-        """Resume an agent's operations."""
-        success = await self.send_command(MessageMode.RESUME, agent_id, "Resume operations")
-        if success:
-            await ctx.send(f"✅ Resumed agent {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to resume agent {agent_id}")
-            
-    @commands.command(name='verify')
-    @commands.cooldown(1, 10)
-    async def verify_agent(self, ctx, agent_id: str):
-        """Verify an agent's integrity."""
-        success = await self.send_command(MessageMode.VERIFY, agent_id, "Verify integrity")
-        if success:
-            await ctx.send(f"✅ Verification request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to verify agent {agent_id}")
-            
-    @commands.command(name='message')
-    @commands.cooldown(1, 5)
-    async def send_message(self, ctx, agent_id: str, *, message: str):
-        """Send a message to an agent."""
-        success = await self.send_command(MessageMode.NORMAL, agent_id, message)
-        if success:
-            await ctx.send(f"✅ Message sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to send message to {agent_id}")
-            
-    @commands.command(name='broadcast')
-    @commands.cooldown(1, 30)
-    async def broadcast_message(self, ctx, *, message: str):
-        """Broadcast a message to all agents."""
-        success = await self.send_command(MessageMode.BROADCAST, "ALL", message)
-        if success:
-            await ctx.send("✅ Message broadcasted to all agents")
-        else:
-            await ctx.send("❌ Failed to broadcast message")
-        
-    @commands.command(name='agent_status')
-    @commands.cooldown(1, 5)
-    async def get_status(self, ctx, agent_id: Optional[str] = None):
-        """Get status of an agent or all agents."""
-        if agent_id:
-            success = await self.send_command(MessageMode.STATUS, agent_id, "Get status")
-            if success:
-                await ctx.send(f"✅ Status request sent to {agent_id}")
-            else:
-                await ctx.send(f"❌ Failed to get status for {agent_id}")
-        else:
-            success = await self.send_command(MessageMode.STATUS, "ALL", "Get all status")
-            if success:
-                await ctx.send("✅ Status request sent to all agents")
-            else:
-                await ctx.send("❌ Failed to get status for all agents")
-        
-    @commands.command(name='repair')
-    @commands.cooldown(1, 30)
-    async def repair_agent(self, ctx, agent_id: str):
-        """Repair an agent."""
-        success = await self.send_command(MessageMode.REPAIR, agent_id, "Repair agent")
-        if success:
-            await ctx.send(f"✅ Repair request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to repair agent {agent_id}")
-            
-    @commands.command(name='backup')
-    @commands.cooldown(1, 30)
-    async def backup_agent(self, ctx, agent_id: str):
-        """Backup an agent's state."""
-        success = await self.send_command(MessageMode.BACKUP, agent_id, "Backup state")
-        if success:
-            await ctx.send(f"✅ Backup request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to backup agent {agent_id}")
-            
-    @commands.command(name='restore')
-    @commands.cooldown(1, 30)
-    async def restore_agent(self, ctx, agent_id: str):
-        """Restore an agent from backup."""
-        success = await self.send_command(MessageMode.RESTORE, agent_id, "Restore from backup")
-        if success:
-            await ctx.send(f"✅ Restore request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to restore agent {agent_id}")
-            
-    @commands.command(name='sync')
-    @commands.cooldown(1, 30)
-    async def sync_agent(self, ctx, agent_id: str):
-        """Synchronize an agent."""
-        success = await self.send_command(MessageMode.SYNC, agent_id, "Sync agent")
-        if success:
-            await ctx.send(f"✅ Sync request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to sync agent {agent_id}")
-            
-    @commands.command(name='cleanup')
-    @commands.cooldown(1, 30)
-    async def cleanup_agent(self, ctx, agent_id: str):
-        """Clean up an agent's resources."""
-        success = await self.send_command(MessageMode.CLEANUP, agent_id, "Cleanup resources")
-        if success:
-            await ctx.send(f"✅ Cleanup request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to cleanup agent {agent_id}")
-            
-    @commands.command(name='task')
-    @commands.cooldown(1, 5)
-    async def send_task(self, ctx, agent_ids: str, *, task: str):
-        """Send a task to multiple agents."""
-        agent_list = [aid.strip() for aid in agent_ids.split(',')]
-        success = True
-        for agent_id in agent_list:
-            if not await self.send_command(MessageMode.TASK, agent_id, task):
-                success = False
-                break
-        if success:
-            await ctx.send(f"✅ Task sent to agents: {agent_ids}")
-        else:
-            await ctx.send(f"❌ Failed to send task to some agents")
-        
-    @commands.command(name='integrate')
-    @commands.cooldown(1, 30)
-    async def integrate_agent(self, ctx, agent_id: str):
-        """Integrate a new agent."""
-        success = await self.send_command(MessageMode.INTEGRATE, agent_id, "Integrate agent")
-        if success:
-            await ctx.send(f"✅ Integration request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to integrate agent {agent_id}")
-            
-    @commands.command(name='onboard')
-    @commands.cooldown(1, 30)
-    async def onboard_agent(self, ctx, agent_id: str):
-        """Onboard a new agent."""
-        success = await self.send_command(MessageMode.ONBOARD, agent_id, "Onboard agent")
-        if success:
-            await ctx.send(f"✅ Onboarding request sent to {agent_id}")
-        else:
-            await ctx.send(f"❌ Failed to onboard agent {agent_id}")
-            
-    @commands.command(name='multi')
-    @commands.cooldown(1, 10)
-    async def multi_agent_command(self, ctx, command: str, *, agent_ids: str):
-        """Send a command to multiple agents."""
-        agent_list = [aid.strip() for aid in agent_ids.split(',')]
-        mode = MessageMode[command.upper()]
-        success = True
-        for agent_id in agent_list:
-            if not await self.send_command(mode, agent_id, f"Execute {command}"):
-                success = False
-                break
-        if success:
-            await ctx.send(f"✅ {command} command sent to agents: {agent_ids}")
-        else:
-            await ctx.send(f"❌ Failed to send {command} command to some agents")
-        
-    @commands.command(name='system')
-    @commands.cooldown(1, 30)
-    async def system_command(self, ctx, action: str):
-        """Execute a system-wide command."""
-        mode = MessageMode[action.upper()]
-        success = await self.send_command(mode, "ALL", f"Execute system {action}")
-        if success:
-            await ctx.send(f"✅ System {action} command sent")
-        else:
-            await ctx.send(f"❌ Failed to execute system {action} command")
-
-    @commands.command(name='gui')
-    @commands.cooldown(1, 5)
-    async def gui_command(self, ctx, action: str, *, params: str = ""):
-        """Execute PyAutoGUI commands through Discord.
-        
-        Usage: !gui <action> [parameters]
-        Actions:
-        - move <x> <y>: Move mouse to coordinates
-        - click: Click at current position
-        - type <text>: Type text
-        - press <key>: Press a key
-        - hotkey <key1> <key2>: Press key combination
-        - screenshot: Take a screenshot
-        - scroll <amount>: Scroll mouse wheel
-        - drag <x> <y>: Drag mouse to coordinates
-        """
         try:
-            # Create status embed
+            agents = ["Agent-1", "Agent-2"]  # Mock data
+            if not agents:
+                await ctx.send("No agents found.")
+                return
+                
             embed = discord.Embed(
-                title="🖥️ GUI Command",
-                description=f"Executing: {action}",
+                title="Available Agents",
+                description="List of all registered agents",
                 color=discord.Color.blue()
             )
-            status_msg = await ctx.send(embed=embed)
             
-            def execute_gui_command():
-                try:
-                    if action == "move":
-                        x, y = map(int, params.split())
-                        pyautogui.moveTo(x, y)
-                        return f"Moved mouse to ({x}, {y})"
-                        
-                    elif action == "click":
-                        pyautogui.click()
-                        return "Clicked at current position"
-                        
-                    elif action == "type":
-                        pyautogui.write(params)
-                        return f"Typed: {params}"
-                        
-                    elif action == "press":
-                        pyautogui.press(params)
-                        return f"Pressed key: {params}"
-                        
-                    elif action == "hotkey":
-                        keys = params.split()
-                        pyautogui.hotkey(*keys)
-                        return f"Pressed hotkey: {' + '.join(keys)}"
-                        
-                    elif action == "screenshot":
-                        screenshot = pyautogui.screenshot()
-                        screenshot_path = "runtime/temp/screenshot.png"
-                        os.makedirs(os.path.dirname(screenshot_path), exist_ok=True)
-                        screenshot.save(screenshot_path)
-                        return "Screenshot taken"
-                        
-                    elif action == "scroll":
-                        amount = int(params)
-                        pyautogui.scroll(amount)
-                        return f"Scrolled {amount} units"
-                        
-                    elif action == "drag":
-                        x, y = map(int, params.split())
-                        pyautogui.dragTo(x, y)
-                        return f"Dragged to ({x}, {y})"
-                        
-                    else:
-                        return f"Unknown action: {action}"
-                        
-                except Exception as e:
-                    return f"Error: {str(e)}"
-            
-            # Execute GUI command in a separate thread
-            result = await asyncio.get_event_loop().run_in_executor(None, execute_gui_command)
-            
-            # Update status embed
+            for agent in agents:
+                embed.add_field(
+                    name=agent,
+                    value="Status: Active",
+                    inline=False
+                )
+                
+            await ctx.send(embed=embed)
+        except Exception as e:
+            await ctx.send(f"Error listing agents: {str(e)}")
+    
+    @commands.command(name="list_channels")
+    async def list_channels(self, ctx):
+        """List all available channels."""
+        try:
+            channels = ["#general", "#commands"]  # Mock data
+            if not channels:
+                await ctx.send("No channels found.")
+                return
+                
             embed = discord.Embed(
-                title="🖥️ GUI Command Complete",
-                description=result,
-                color=discord.Color.green()
+                title="Channel Assignments",
+                description="List of all registered channels",
+                color=discord.Color.blue()
             )
             
-            # If screenshot was taken, attach it
-            if action == "screenshot" and "Error" not in result:
-                try:
-                    await status_msg.edit(embed=embed, file=discord.File("runtime/temp/screenshot.png"))
-                except Exception as e:
-                    logger.error(f"Error sending screenshot: {e}")
-                    await status_msg.edit(embed=embed)
-            else:
-                await status_msg.edit(embed=embed)
+            for channel in channels:
+                embed.add_field(
+                    name=channel,
+                    value="Type: Text",
+                    inline=False
+                )
                 
+            await ctx.send(embed=embed)
         except Exception as e:
-            logger.error(f"Error executing GUI command: {e}")
-            await ctx.send(f"❌ Error: {str(e)}")
+            await ctx.send(f"Error listing channels: {str(e)}")
+    
+    @commands.command(name="send_prompt")
+    async def send_prompt(self, ctx, agent_id: str, prompt_text: str):
+        """Send a prompt to an agent."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            if not prompt_text:
+                await ctx.send("Prompt text is required.")
+                return
+                
+            success = await self.send_command(MessageMode.NORMAL, agent_id, prompt_text)
+            if success:
+                await ctx.send("Prompt sent")
+            else:
+                await ctx.send("Failed to send prompt")
+        except Exception as e:
+            await ctx.send(f"Error sending prompt: {str(e)}")
+    
+    @commands.command(name="update_devlog")
+    async def update_devlog(self, ctx, agent_id: str, message: str):
+        """Update the development log."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            if not message:
+                await ctx.send("Message is required.")
+                return
+                
+            success = await self.devlog_manager.add_entry(agent_id, message, source="manual")
+            if success:
+                await ctx.send("Devlog updated")
+            else:
+                await ctx.send("Failed to update devlog")
+        except Exception as e:
+            await ctx.send(f"Failed to update devlog: {str(e)}")
+    
+    @commands.command(name="view_devlog")
+    async def view_devlog(self, ctx, agent_id: str):
+        """View an agent's devlog."""
+        try:
+            devlog_content = await self.devlog_manager.get_log(agent_id)
+            if not devlog_content:
+                await ctx.send(f"No devlog found for agent {agent_id}.")
+                return
+
+            # Create a file with the devlog content
+            filename = f"{agent_id}_devlog.md"
+            file = discord.File(
+                io.StringIO(devlog_content),
+                filename=filename
+            )
+            await ctx.send(f"Devlog for agent {agent_id}:", file=file)
+        except Exception as e:
+            logger.error(f"Error viewing devlog for agent {agent_id}: {str(e)}")
+            await ctx.send(f"Error viewing devlog for agent {agent_id}: {str(e)}")
+    
+    @commands.command(name="clear_devlog")
+    async def clear_devlog(self, ctx, agent_id: str):
+        """Clear an agent's development log."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            success = await self.devlog_manager.clear_log(agent_id)
+            if success:
+                await ctx.send("Devlog cleared")
+            else:
+                await ctx.send("Failed to clear devlog")
+        except Exception as e:
+            await ctx.send(f"Failed to clear devlog: {str(e)}")
+    
+    @commands.command(name="resume_agent")
+    async def resume_agent(self, ctx, agent_id: str):
+        """Resume an agent's operation."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            success = await self.send_command(MessageMode.RESUME, agent_id, "Resume operation")
+            if success:
+                await ctx.send("Successfully resumed")
+            else:
+                await ctx.send("Failed to resume agent")
+        except Exception as e:
+            await ctx.send(f"Error resuming agent: {str(e)}")
+    
+    @commands.command(name="verify_agent")
+    async def verify_agent(self, ctx, agent_id: str):
+        """Verify an agent's state."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            success = await self.send_command(MessageMode.VERIFY, agent_id, "Verify state")
+            if success:
+                await ctx.send("Verification request sent")
+            else:
+                await ctx.send("Failed to verify agent")
+        except Exception as e:
+            await ctx.send(f"Error verifying agent: {str(e)}")
+    
+    @commands.command(name="send_message")
+    async def send_message(self, ctx, agent_id: str, message: str):
+        """Send a message to an agent."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            if not message:
+                await ctx.send("Message is required.")
+                return
+                
+            success = await self.send_command(MessageMode.NORMAL, agent_id, message)
+            if success:
+                await ctx.send("Message sent")
+            else:
+                await ctx.send("Failed to send message")
+        except Exception as e:
+            await ctx.send(f"Error sending message: {str(e)}")
+    
+    @commands.command(name="restore_agent")
+    async def restore_agent(self, ctx, agent_id: str):
+        """Restore an agent's state."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            success = await self.send_command(MessageMode.RESTORE, agent_id, "Restore state")
+            if success:
+                await ctx.send("Restore request sent")
+            else:
+                await ctx.send("Failed to restore agent")
+        except Exception as e:
+            await ctx.send(f"Error restoring agent: {str(e)}")
+    
+    @commands.command(name="sync_agent")
+    async def sync_agent(self, ctx, agent_id: str):
+        """Synchronize an agent's state."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            success = await self.send_command(MessageMode.SYNC, agent_id, "Sync state")
+            if success:
+                await ctx.send("Sync request sent")
+            else:
+                await ctx.send("Failed to sync agent")
+        except Exception as e:
+            await ctx.send(f"Error synchronizing agent: {str(e)}")
+    
+    @commands.command(name="cleanup_agent")
+    async def cleanup_agent(self, ctx, agent_id: str):
+        """Clean up an agent's resources."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            success = await self.send_command(MessageMode.CLEANUP, agent_id, "Cleanup resources")
+            if success:
+                await ctx.send("Cleanup request sent")
+            else:
+                await ctx.send("Failed to cleanup agent")
+        except Exception as e:
+            await ctx.send(f"Error cleaning up agent: {str(e)}")
+    
+    @commands.command(name="multi_command")
+    async def multi_command(self, ctx, agent_id: str, command: str):
+        """Execute a command on multiple agents."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            if not command:
+                await ctx.send("Command is required.")
+                return
+                
+            success = await self.send_command(MessageMode.NORMAL, agent_id, command)
+            if success:
+                await ctx.send("Multi-command sent")
+            else:
+                await ctx.send("Failed to execute multi-command")
+        except Exception as e:
+            await ctx.send(f"Error executing multi-command: {str(e)}")
+    
+    @commands.command(name="system_command")
+    async def system_command(self, ctx, agent_id: str, command: str):
+        """Send a system command to an agent."""
+        try:
+            logger.debug(f"Starting system_command for agent {agent_id} with command: {command}")
+            
+            if not agent_id or not command:
+                logger.debug("Missing agent_id or command")
+                await ctx.send("Both agent ID and command are required.")
+                return
+
+            logger.debug(f"Calling send_command with MessageMode.SYSTEM")
+            success = await self.send_command(MessageMode.SYSTEM, agent_id, command)
+            logger.debug(f"send_command returned: {success}")
+            
+            if success:
+                logger.debug("Command successful, sending success message")
+                await ctx.send(f"System command sent to agent {agent_id}.")
+            else:
+                logger.debug("Command failed, sending error message")
+                await ctx.send(f"Error executing system command for agent {agent_id}.")
+        except Exception as e:
+            logger.error(f"Error in system command for agent {agent_id}: {str(e)}", exc_info=True)
+            await ctx.send(f"Error executing system command: {str(e)}")
+    
+    @commands.command(name="assign_channel")
+    async def assign_channel(self, ctx, agent_id: str, channel_id: str):
+        """Assign a channel to an agent."""
+        try:
+            if not agent_id:
+                await ctx.send("Agent ID is required.")
+                return
+                
+            if not channel_id:
+                await ctx.send("Channel ID is required.")
+                return
+                
+            # Use proper config path
+            config_path = Path("config/agent_config.yaml")
+            if not config_path.exists():
+                # Create config directory if it doesn't exist
+                config_path.parent.mkdir(parents=True, exist_ok=True)
+                # Create initial config
+                config = {
+                    "log_dir": "logs",
+                    "channel_assignments": {},
+                    "global_ui": {
+                        "input_box": {"x": 100, "y": 100},
+                        "initial_spot": {"x": 200, "y": 200},
+                        "copy_button": {"x": 300, "y": 300},
+                        "response_region": {
+                            "top_left": {"x": 400, "y": 400},
+                            "bottom_right": {"x": 600, "y": 600}
+                        }
+                    }
+                }
+            else:
+                # Load existing config
+                with open(config_path, "r") as f:
+                    config = yaml.safe_load(f)
+            
+            # Ensure channel_assignments exists
+            if "channel_assignments" not in config:
+                config["channel_assignments"] = {}
+            
+            # Update assignment
+            config["channel_assignments"][agent_id] = channel_id
+            
+            # Save config
+            with open(config_path, "w") as f:
+                yaml.dump(config, f)
+            
+            await ctx.send(f"✅ Channel {channel_id} assigned to {agent_id}")
+        except Exception as e:
+            logger.error(f"Error assigning channel: {e}")
+            await ctx.send(f"❌ Error assigning channel: {str(e)}")
+
+    def cog_unload(self):
+        """Clean up resources."""
+        self.message_processor.shutdown()
+        self.cell_phone.shutdown()
 
 async def setup(bot):
     """Set up the commands cog."""

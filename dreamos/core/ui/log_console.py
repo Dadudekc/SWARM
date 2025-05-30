@@ -76,4 +76,7 @@ class LogConsole(QFrame):
         self.log_text.append(formatted_message)
         
         # Scroll to bottom
-        self.log_text.moveCursor(QTextCursor.End) 
+        self.log_text.moveCursor(QTextCursor.End)
+
+        # Replace sipPyTypeDict() with sipPyTypeDictRef()
+        # Example: self.setProperty("sipPyTypeDictRef", ...) 

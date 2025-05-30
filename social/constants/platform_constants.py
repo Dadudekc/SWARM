@@ -62,4 +62,55 @@ FILE_INPUT_XPATHS = {
     "instagram": "//input[@type='file']",
     "linkedin": "//input[@type='file']",
     "stocktwits": "//input[@type='file']"
+}
+
+# Rate Limiting Constants
+RATE_LIMIT_WINDOW = 3600  # 1 hour window
+DEFAULT_COOLDOWN = 300    # 5 minutes cooldown
+
+# Platform-specific rate limits (per hour)
+PLATFORM_RATE_LIMITS = {
+    "twitter": {
+        "post": 50,           # 50 tweets per hour
+        "media_upload": 100,  # 100 media uploads per hour
+        "like": 100,          # 100 likes per hour
+        "retweet": 50,        # 50 retweets per hour
+        "follow": 50,         # 50 follows per hour
+        "comment": 100        # 100 comments per hour
+    },
+    "facebook": {
+        "post": 30,           # 30 posts per hour
+        "media_upload": 50,   # 50 media uploads per hour
+        "like": 100,          # 100 likes per hour
+        "comment": 100,       # 100 comments per hour
+        "share": 30           # 30 shares per hour
+    },
+    "reddit": {
+        "post": 20,           # 20 posts per hour
+        "media_upload": 30,   # 30 media uploads per hour
+        "comment": 50,        # 50 comments per hour
+        "upvote": 100,        # 100 upvotes per hour
+        "downvote": 100       # 100 downvotes per hour
+    },
+    "instagram": {
+        "post": 20,           # 20 posts per hour
+        "media_upload": 30,   # 30 media uploads per hour
+        "like": 100,          # 100 likes per hour
+        "comment": 50,        # 50 comments per hour
+        "follow": 50          # 50 follows per hour
+    },
+    "linkedin": {
+        "post": 20,           # 20 posts per hour
+        "media_upload": 30,   # 30 media uploads per hour
+        "like": 100,          # 100 likes per hour
+        "comment": 50,        # 50 comments per hour
+        "connect": 50         # 50 connection requests per hour
+    },
+    "stocktwits": {
+        "post": 50,           # 50 posts per hour
+        "media_upload": 50,   # 50 media uploads per hour
+        "like": 100,          # 100 likes per hour
+        "comment": 100,       # 100 comments per hour
+        "follow": 50          # 50 follows per hour
+    }
 } 

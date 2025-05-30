@@ -1,0 +1,20 @@
+channel_assignments:
+  Agent-1: '123456789'
+global_ui:
+  copy_button:
+    x: 300
+    y: 300
+  initial_spot:
+    x: 200
+    y: 200
+  input_box:
+    x: 100
+    y: 100
+  response_region:
+    bottom_right:
+      x: 600
+      y: 600
+    top_left:
+      x: 400
+      y: 400
+log_dir: logs

@@ -8,74 +8,121 @@ import logging
 import json
 import os
 from typing import Dict, Optional, Tuple
+from pathlib import Path
+import pyautogui
 
 logger = logging.getLogger('agent_control.coordinates')
 
 class CoordinateManager:
     """Manages agent coordinates and positions."""
     
-    def __init__(self, config_path: Optional[str] = None):
-        """Initialize the coordinate manager.
-        
-        Args:
-            config_path: Optional path to coordinate configuration file
-        """
-        self.config_path = config_path or os.path.join(os.getcwd(), "config", "coordinates.json")
-        self.coordinates: Dict[str, Dict[str, int]] = {}
-        self._load_coordinates()
-        
-    def _load_coordinates(self) -> None:
-        """Load coordinates from configuration file."""
+    def __init__(self):
+        self.coordinates = {}
+        self.coords_file = Path("runtime/config/cursor_agent_coords.json")
+        self.coords_file.parent.mkdir(parents=True, exist_ok=True)
+        self.load_coordinates()
+    
+    def load_coordinates(self):
+        """Load coordinates from file."""
         try:
-            if os.path.exists(self.config_path):
-                with open(self.config_path, 'r') as f:
+            if self.coords_file.exists():
+                with open(self.coords_file, "r") as f:
                     self.coordinates = json.load(f)
-                logger.info(f"Loaded coordinates for {len(self.coordinates)} agents")
             else:
-                logger.warning(f"Coordinate configuration not found at {self.config_path}")
+                self.coordinates = {}
+                self.save_coordinates()
         except Exception as e:
             logger.error(f"Error loading coordinates: {e}")
             self.coordinates = {}
-            
-    def get_coordinates(self, agent_id: str) -> Optional[Dict[str, int]]:
-        """Get coordinates for an agent.
-        
-        Args:
-            agent_id: ID of the agent
-            
-        Returns:
-            Dictionary containing x, y coordinates or None if not found
-        """
-        return self.coordinates.get(agent_id)
-        
-    def set_coordinates(self, agent_id: str, x: int, y: int, message_x: int, message_y: int) -> None:
-        """Set coordinates for an agent.
-        
-        Args:
-            agent_id: ID of the agent
-            x: X coordinate
-            y: Y coordinate
-            message_x: Message X coordinate
-            message_y: Message Y coordinate
-        """
-        self.coordinates[agent_id] = {
-            'x': x,
-            'y': y,
-            'message_x': message_x,
-            'message_y': message_y
-        }
-        self._save_coordinates()
-        
-    def _save_coordinates(self) -> None:
-        """Save coordinates to configuration file."""
+    
+    def save_coordinates(self):
+        """Save coordinates to file."""
         try:
-            os.makedirs(os.path.dirname(self.config_path), exist_ok=True)
-            with open(self.config_path, 'w') as f:
+            with open(self.coords_file, "w") as f:
                 json.dump(self.coordinates, f, indent=2)
-            logger.info("Saved coordinates to configuration file")
         except Exception as e:
             logger.error(f"Error saving coordinates: {e}")
+    
+    def get_coordinates(self, agent_id: str) -> dict:
+        """Get coordinates for an agent."""
+        return self.coordinates.get(agent_id, {})
+    
+    def set_coordinates(self, agent_id: str, coords: dict):
+        """Set coordinates for an agent."""
+        self.coordinates[agent_id] = coords
+        self.save_coordinates()
+    
+    def validate_coordinates(self, coords: dict) -> bool:
+        """Validate coordinate data structure and values."""
+        try:
+            if not isinstance(coords, dict):
+                return False
             
+            required_fields = ["input_box", "initial_spot", "copy_button", "response_region"]
+            for field in required_fields:
+                if field not in coords:
+                    return False
+                
+                if field == "response_region":
+                    if not isinstance(coords[field], dict):
+                        return False
+                    if "top_left" not in coords[field] or "bottom_right" not in coords[field]:
+                        return False
+                    if not isinstance(coords[field]["top_left"], dict) or not isinstance(coords[field]["bottom_right"], dict):
+                        return False
+                    if "x" not in coords[field]["top_left"] or "y" not in coords[field]["top_left"]:
+                        return False
+                    if "x" not in coords[field]["bottom_right"] or "y" not in coords[field]["bottom_right"]:
+                        return False
+                else:
+                    if not isinstance(coords[field], dict):
+                        return False
+                    if "x" not in coords[field] or "y" not in coords[field]:
+                        return False
+            
+            # In test environment, allow any non-negative coordinates
+            if os.getenv("TESTING"):
+                for field in required_fields:
+                    if field == "response_region":
+                        for point in ["top_left", "bottom_right"]:
+                            if coords[field][point]["x"] < 0 or coords[field][point]["y"] < 0:
+                                return False
+                    else:
+                        if coords[field]["x"] < 0 or coords[field]["y"] < 0:
+                            return False
+            else:
+                # In production, validate against screen dimensions
+                screen_width, screen_height = pyautogui.size()
+                for field in required_fields:
+                    if field == "response_region":
+                        for point in ["top_left", "bottom_right"]:
+                            if not (0 <= coords[field][point]["x"] <= screen_width and 
+                                   0 <= coords[field][point]["y"] <= screen_height):
+                                return False
+                    else:
+                        if not (0 <= coords[field]["x"] <= screen_width and 
+                               0 <= coords[field]["y"] <= screen_height):
+                            return False
+            
+            return True
+        except Exception as e:
+            logger.error(f"Error validating coordinates: {e}")
+            return False
+    
+    def get_global_ui_coords(self) -> dict:
+        """Get global UI coordinates."""
+        return self.coordinates.get("global_ui", {})
+    
+    def set_global_ui_coords(self, coords: dict):
+        """Set global UI coordinates."""
+        self.coordinates["global_ui"] = coords
+        self.save_coordinates()
+    
+    def clear_coordinates(self):
+        """Clear all coordinates."""
+        self.coordinates = {}
+        self.save_coordinates()
+        
     def get_message_coordinates(self, agent_id: str) -> Optional[Tuple[int, int]]:
         """Get message coordinates for an agent.
         

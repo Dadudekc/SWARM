@@ -1,20 +1,14 @@
 """
-Dream.OS Messaging System
-
-Provides a unified messaging system for agent communication.
+Messaging module for Dream.OS.
 """
 
-from .message import Message, MessageMode
-from .processor import MessageProcessor
-from .queue import MessageQueue
-from .ui import MessageUI
-from .cli import MessageCLI
+from .types import Message, MessageMode
+from dreamos.core.cell_phone import CellPhone
+from dreamos.core.message_processor import MessageProcessor
 
 __all__ = [
     'Message',
     'MessageMode',
-    'MessageProcessor',
-    'MessageQueue',
-    'MessageUI',
-    'MessageCLI'
-] 
+    'CellPhone',
+    'MessageProcessor'
+]

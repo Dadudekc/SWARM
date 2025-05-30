@@ -8,28 +8,48 @@ Handles parallel posting, cookie management, and error recovery.
 import os
 import time
 import threading
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional, Union
 from datetime import datetime
+from pathlib import Path
 
-from social.driver_manager import get_multi_driver_sessions
-from social.social_config import social_config, get_platform_config, get_global_config
-from dreamos.social.log_writer import logger, write_json_log
-from social.strategies import (
+from .driver_manager import DriverManager
+from ..config.social_config import social_config, Platform
+from ..utils.log_manager import LogManager
+from ..utils.log_config import LogLevel
+from .rate_limiter import RateLimiter
+from .login_handler import LoginHandler
+from .media_validator import MediaValidator
+from ..strategies import (
     FacebookStrategy,
     TwitterStrategy,
     InstagramStrategy,
     RedditStrategy,
-    StocktwitsStrategy,
+    StockTwitsStrategy,
     LinkedInStrategy
 )
 
 class SocialPlatformDispatcher:
     """Main dispatcher for handling social media operations."""
     
-    def __init__(self, memory_update: Dict[str, Any], headless: bool = None):
+    def __init__(self, memory_update: Dict[str, Any], headless: Optional[bool] = None):
+        """Initialize the dispatcher.
+        
+        Args:
+            memory_update: Dictionary for tracking operation state
+            headless: Optional override for headless mode
+        """
         self.memory_update = memory_update
-        self.global_config = get_global_config()
-        self.headless = headless if headless is not None else self.global_config.get("headless", False)
+        self.logger = LogManager(social_config)
+        self.rate_limiter = RateLimiter()
+        self.login_handler = LoginHandler()
+        self.media_validator = MediaValidator()
+        self.driver_manager = DriverManager()
+        
+        # Get platform configurations
+        self.platform_configs = {
+            platform.name.lower(): social_config.get_platform(platform.name.lower())
+            for platform in Platform
+        }
         
         # Initialize platform strategies
         self.platforms = {
@@ -37,7 +57,7 @@ class SocialPlatformDispatcher:
             "twitter": TwitterStrategy,
             "instagram": InstagramStrategy,
             "reddit": RedditStrategy,
-            "stocktwits": StocktwitsStrategy,
+            "stocktwits": StockTwitsStrategy,
             "linkedin": LinkedInStrategy
         }
         
@@ -45,34 +65,46 @@ class SocialPlatformDispatcher:
         self.enabled_platforms = {
             name: strategy
             for name, strategy in self.platforms.items()
-            if get_platform_config(name).get("enabled", False)
+            if self.platform_configs[name].config.get("enabled", False)
         }
         
         # Create session IDs for enabled platforms
         self.session_ids = [f"session_{platform}" for platform in self.enabled_platforms]
         
         # Initialize driver sessions
-        self.driver_sessions = get_multi_driver_sessions(
+        self.driver_sessions = self.driver_manager.get_multi_driver_sessions(
             session_ids=self.session_ids,
-            proxy_rotation=self.global_config.get("proxy_rotation", False),
-            headless=self.headless
+            proxy_rotation=self.platform_configs["twitter"].config.get("proxy_rotation", False),
+            headless=headless if headless is not None else self.platform_configs["twitter"].config.get("headless", False)
         )
         
-        logger.info(f"Initialized dispatcher with {len(self.enabled_platforms)} enabled platforms")
+        self.logger.write_log(
+            platform="dispatcher",
+            status="initialized",
+            tags=["init"],
+            message=f"Initialized dispatcher with {len(self.enabled_platforms)} enabled platforms",
+            level=LogLevel.INFO
+        )
     
     def dispatch_all(self) -> None:
         """Dispatch posts to all enabled platforms in parallel."""
-        logger.info("🚀 Starting multi-platform dispatch cycle...")
+        self.logger.write_log(
+            platform="dispatcher",
+            status="started",
+            tags=["dispatch"],
+            message="Starting multi-platform dispatch cycle",
+            level=LogLevel.INFO
+        )
         
         threads = []
         for index, (platform_name, strategy_class) in enumerate(self.enabled_platforms.items()):
             driver_session = self.driver_sessions[index]
-            platform_config = get_platform_config(platform_name)
+            platform_config = self.platform_configs[platform_name]
             
             # Create strategy instance
             strategy = strategy_class(
                 driver=driver_session.driver,
-                config=platform_config,
+                config=platform_config.config,
                 memory_update=self.memory_update
             )
             
@@ -91,50 +123,129 @@ class SocialPlatformDispatcher:
         for thread in threads:
             thread.join()
         
-        logger.info("✅ Dispatch cycle complete. Shutting down drivers...")
+        self.logger.write_log(
+            platform="dispatcher",
+            status="completed",
+            tags=["dispatch"],
+            message="Dispatch cycle complete. Shutting down drivers",
+            level=LogLevel.INFO
+        )
         self._shutdown_all_drivers()
     
-    def _process_platform(self, strategy: Any, content: str, platform_name: str) -> None:
-        """Process a single platform's posting operation."""
-        try:
-            # Attempt login
-            if not strategy.is_logged_in():
-                if not strategy.login():
-                    logger.error(f"❌ Failed to login to {platform_name}")
-                    write_json_log(
-                        platform=platform_name,
-                        status="failed",
-                        tags=["login"],
-                        error="Login failed"
-                    )
-                    return
+    def _process_platform(self, strategy: Any, content: str, platform_name: str) -> bool:
+        """Process a single platform's posting operation.
+        
+        Args:
+            strategy: Platform strategy instance
+            content: Content to post
+            platform_name: Name of the platform
             
-            # Attempt post
-            if strategy.post(content):
-                logger.info(f"✅ Successfully posted to {platform_name}")
-                write_json_log(
-                    platform=platform_name,
-                    status="successful",
-                    tags=["post"],
-                    metadata={"content": content}
-                )
-            else:
-                logger.error(f"❌ Failed to post to {platform_name}")
-                write_json_log(
+        Returns:
+            bool: True if posting was successful, False otherwise
+        """
+        max_retries = self.platform_configs[platform_name].config.get("max_retries", 3)
+        retry_delay = self.platform_configs[platform_name].config.get("retry_delay", 5)
+        
+        # Validate media first (single pass)
+        if hasattr(strategy, 'media_files'):
+            is_valid, error = self.media_validator.validate(
+                strategy.media_files,
+                is_video=getattr(strategy, 'is_video', False)
+            )
+            if not is_valid:
+                self.logger.write_log(
                     platform=platform_name,
                     status="failed",
-                    tags=["post"],
-                    error="Post failed"
+                    tags=["media_validation"],
+                    message="Media validation failed",
+                    error=error,
+                    level=LogLevel.ERROR
                 )
+                return False
+        
+        # Main retry loop
+        for attempt in range(max_retries):
+            try:
+                # Check rate limits
+                if not self.rate_limiter.check_rate_limit(platform_name, "post"):
+                    self.logger.write_log(
+                        platform=platform_name,
+                        status="rate_limited",
+                        tags=["rate_limit"],
+                        message="Rate limit exceeded for posting",
+                        level=LogLevel.WARNING
+                    )
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    return False
                 
-        except Exception as e:
-            logger.error(f"❌ Error processing {platform_name}: {str(e)}")
-            write_json_log(
-                platform=platform_name,
-                status="failed",
-                tags=["error"],
-                error=str(e)
-            )
+                # Handle login
+                if not self.login_handler.handle_login(strategy, platform_name, self.logger):
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    return False
+                
+                # Attempt post
+                post_successful = False
+                post_error = None
+                try:
+                    if strategy.post(content):
+                        post_successful = True
+                    else:
+                        post_error = "Post method returned False"
+                except Exception as e:
+                    post_error = str(e)
+
+                if post_successful:
+                    self.logger.write_log(
+                        platform=platform_name,
+                        status="successful",
+                        tags=["post"],
+                        message="Post operation successful",
+                        metadata={"content": content},
+                        level=LogLevel.INFO
+                    )
+                    return True  # Success, exit retry loop
+                else:
+                    log_message = f"Post failed: {post_error}" if post_error else "Post failed"
+                    self.logger.write_log(
+                        platform=platform_name,
+                        status="failed",
+                        tags=["post"],
+                        message="Post operation failed",
+                        error=log_message,
+                        level=LogLevel.ERROR
+                    )
+                    if attempt < max_retries - 1:
+                        time.sleep(retry_delay)
+                        continue
+                    
+                    # Final attempt failed
+                    self.memory_update["last_error"] = {
+                        "platform": platform_name,
+                        "timestamp": datetime.now().isoformat(),
+                        "error": log_message,
+                        "context": "post"
+                    }
+                    return False
+                    
+            except Exception as e:  # Outer catch-all for issues like login, rate_limit, or unexpected errors
+                self.logger.write_log(
+                    platform=platform_name,
+                    status="failed",
+                    tags=["error"],
+                    message="Operation failed",
+                    error=str(e),
+                    level=LogLevel.ERROR
+                )
+                if attempt < max_retries - 1:
+                    time.sleep(retry_delay)
+                    continue
+                return False
+        
+        return False  # All retries exhausted
     
     def _shutdown_all_drivers(self) -> None:
         """Safely shut down all driver sessions."""
@@ -143,7 +254,13 @@ class SocialPlatformDispatcher:
                 session.shutdown_driver()
                 session.cleanup_profile()
             except Exception as e:
-                logger.error(f"Error shutting down driver session: {str(e)}")
+                self.logger.write_log(
+                    platform="dispatcher",
+                    status="error",
+                    tags=["shutdown"],
+                    error=f"Error shutting down driver session: {str(e)}",
+                    level=LogLevel.ERROR
+                )
 
 def main():
     """Example usage of the dispatcher."""
@@ -155,10 +272,7 @@ def main():
     }
     
     # Create and run dispatcher
-    dispatcher = SocialPlatformDispatcher(
-        memory_update=example_memory_update,
-        headless=False  # Set to True for production
-    )
+    dispatcher = SocialPlatformDispatcher(example_memory_update)
     dispatcher.dispatch_all()
 
 if __name__ == "__main__":

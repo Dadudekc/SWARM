@@ -1,0 +1,26 @@
+{
+  "agent_4_main_response": {
+    "left": -477,
+    "top": 652,
+    "right": -25,
+    "bottom": 899
+  },
+  "agent_4_typing_indicator": {
+    "left": -485,
+    "top": 644,
+    "right": -15,
+    "bottom": 898
+  },
+  "agent_6_main_response": {
+    "left": 1312,
+    "top": 215,
+    "right": 1836,
+    "bottom": 438
+  },
+  "agent_6_typing_indicator": {
+    "left": 1783,
+    "top": 209,
+    "right": 1899,
+    "bottom": 258
+  }
+}

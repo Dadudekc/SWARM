@@ -8,7 +8,7 @@ import os
 setup(
     name="dreamos",
     version="0.1.0",
-    packages=find_packages(include=['dreamos', 'dreamos.*', 'agent_tools', 'agent_tools.*']),
+    packages=find_packages(include=['dreamos', 'dreamos.*', 'agent_tools', 'agent_tools.*', 'social', 'social.*']),
     install_requires=[
         "pyautogui",
         "pyperclip",
@@ -24,6 +24,7 @@ setup(
     package_data={
         "dreamos": ["core/*"],
         "agent_tools": ["utils/*"],
+        "social": ["utils/*", "community/*"],
     },
     entry_points={
         'console_scripts': [

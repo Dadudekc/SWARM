@@ -1,89 +1,184 @@
 """
-Social Media Configuration
--------------------------
-Central configuration for all social media platforms.
-Store credentials, posting rules, and platform-specific settings.
+Unified Social Configuration Module
+
+Manages configuration for social media operations, combining robust platform management
+with flexible asset handling and path management.
 """
 
 import os
-from typing import Dict, Any
+import json
+from pathlib import Path
+from datetime import datetime
+from enum import Enum
+from typing import Dict, Any, Optional
 
-# Base configuration
-social_config: Dict[str, Any] = {
-    # Facebook Configuration
-    "facebook": {
-        "enabled": True,
-        "email": os.getenv("FACEBOOK_EMAIL", ""),
-        "password": os.getenv("FACEBOOK_PASSWORD", ""),
-        "post_interval": 3600,  # seconds between posts
-        "max_posts_per_day": 5,
-        "hashtags": ["#DreamOS", "#AI", "#Automation"],
-    },
-    
-    # Twitter Configuration
-    "twitter": {
-        "enabled": True,
-        "email": os.getenv("TWITTER_EMAIL", ""),
-        "password": os.getenv("TWITTER_PASSWORD", ""),
-        "post_interval": 1800,  # seconds between posts
-        "max_posts_per_day": 10,
-        "hashtags": ["#DreamOS", "#AI", "#Automation"],
-    },
-    
-    # Instagram Configuration
-    "instagram": {
-        "enabled": True,
-        "username": os.getenv("INSTAGRAM_USERNAME", ""),
-        "password": os.getenv("INSTAGRAM_PASSWORD", ""),
-        "post_interval": 7200,  # seconds between posts
-        "max_posts_per_day": 3,
-        "hashtags": ["#DreamOS", "#AI", "#Automation"],
-    },
-    
-    # Reddit Configuration
-    "reddit": {
-        "enabled": True,
-        "username": os.getenv("REDDIT_USERNAME", ""),
-        "password": os.getenv("REDDIT_PASSWORD", ""),
-        "post_interval": 3600,  # seconds between posts
-        "max_posts_per_day": 5,
-        "subreddits": ["r/artificial", "r/programming", "r/technology"],
-    },
-    
-    # LinkedIn Configuration
-    "linkedin": {
-        "enabled": True,
-        "email": os.getenv("LINKEDIN_EMAIL", ""),
-        "password": os.getenv("LINKEDIN_PASSWORD", ""),
-        "post_interval": 86400,  # seconds between posts
-        "max_posts_per_day": 1,
-        "hashtags": ["#DreamOS", "#AI", "#Automation"],
-    },
-    
-    # StockTwits Configuration
-    "stocktwits": {
-        "enabled": True,
-        "username": os.getenv("STOCKTWITS_USERNAME", ""),
-        "password": os.getenv("STOCKTWITS_PASSWORD", ""),
-        "post_interval": 3600,  # seconds between posts
-        "max_posts_per_day": 5,
-        "hashtags": ["#DreamOS", "#AI", "#Automation"],
-    },
-    
-    # Global Settings
-    "global": {
-        "headless": False,  # Run browsers in headless mode
-        "proxy_rotation": False,  # Enable proxy rotation
-        "retry_attempts": 3,  # Number of retry attempts for failed operations
-        "timeout": 30,  # Default timeout for operations in seconds
-        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
-    }
-}
+class Platform(Enum):
+    """Supported social media platforms."""
+    TWITTER = "twitter"
+    FACEBOOK = "facebook"
+    INSTAGRAM = "instagram"
+    REDDIT = "reddit"
+    LINKEDIN = "linkedin"
+    STOCKTWITS = "stocktwits"
 
-def get_platform_config(platform: str) -> Dict[str, Any]:
-    """Get configuration for a specific platform."""
-    return social_config.get(platform, {})
+# Base directory structure
+BASE_DIR = Path(__file__).resolve().parent.parent
+COOKIES_DIR = BASE_DIR / "cookies"
+MEDIA_DIR = BASE_DIR / "media"
+DEBUG_DIR = BASE_DIR / "debug"
+PROFILES_DIR = BASE_DIR / "profiles"
+CONFIG_DIR = BASE_DIR / "config"
 
-def get_global_config() -> Dict[str, Any]:
-    """Get global configuration settings."""
-    return social_config.get("global", {}) 
+# Ensure directories exist
+for directory in [COOKIES_DIR, MEDIA_DIR, DEBUG_DIR, PROFILES_DIR, CONFIG_DIR]:
+    directory.mkdir(exist_ok=True)
+
+class PlatformConfig:
+    """Platform-specific configuration and asset management."""
+    
+    def __init__(self, name: str):
+        """Initialize platform configuration.
+        
+        Args:
+            name: Platform name (e.g., 'twitter', 'reddit')
+        """
+        self.name = name.lower()
+        self.platform = Platform(self.name)
+        
+        # Platform-specific directories
+        self.cookies_file = COOKIES_DIR / f"{self.name}.pkl"
+        self.media_dir = MEDIA_DIR / self.name
+        self.debug_dir = DEBUG_DIR / self.name
+        self.profile_dir = PROFILES_DIR / self.name
+        
+        # Create platform-specific directories
+        for directory in [self.media_dir, self.debug_dir, self.profile_dir]:
+            directory.mkdir(exist_ok=True)
+            
+        # Platform configuration
+        self.config = {}
+        self.credentials = {}
+        self.media_config = {}
+        self.retry_config = {}
+        self.logging_config = {}
+        
+    def __repr__(self) -> str:
+        return f"<PlatformConfig name={self.name}>"
+        
+    def load_config(self) -> bool:
+        """Load platform configuration from file.
+        
+        Returns:
+            bool: True if config loaded successfully
+        """
+        config_file = CONFIG_DIR / f"{self.name}.json"
+        if not config_file.exists():
+            return False
+            
+        try:
+            with open(config_file, 'r') as f:
+                data = json.load(f)
+                self.config = data.get('config', {})
+                self.credentials = data.get('credentials', {})
+                self.media_config = data.get('media', {})
+                self.retry_config = data.get('retry', {})
+                self.logging_config = data.get('logging', {})
+            return True
+        except Exception:
+            return False
+            
+    def save_config(self) -> bool:
+        """Save platform configuration to file.
+        
+        Returns:
+            bool: True if config saved successfully
+        """
+        config_file = CONFIG_DIR / f"{self.name}.json"
+        try:
+            data = {
+                'config': self.config,
+                'credentials': self.credentials,
+                'media': self.media_config,
+                'retry': self.retry_config,
+                'logging': self.logging_config
+            }
+            with open(config_file, 'w') as f:
+                json.dump(data, f, indent=2)
+            return True
+        except Exception:
+            return False
+
+class SocialConfig:
+    """Global social media configuration manager."""
+    
+    def __init__(self, logger: Optional[Any] = None):
+        """Initialize social configuration.
+        
+        Args:
+            logger: Optional logger instance for logging operations
+        """
+        self.logger = logger
+        self.platforms = {p.name.lower(): PlatformConfig(p.name.lower()) 
+                         for p in Platform}
+        self.memory_updates = {
+            "config_loads": 0,
+            "config_errors": [],
+            "last_action": None,
+            "last_error": None
+        }
+        
+    def get_platform(self, platform: str) -> PlatformConfig:
+        """Get platform configuration.
+        
+        Args:
+            platform: Platform name
+            
+        Returns:
+            PlatformConfig instance
+            
+        Raises:
+            ValueError: If platform is not supported
+        """
+        key = platform.lower()
+        if key not in self.platforms:
+            raise ValueError(f"Unknown platform: {platform}")
+        return self.platforms[key]
+        
+    def _update_memory(self, action: str, success: bool, error: Optional[str] = None) -> None:
+        """Update memory with action results.
+        
+        Args:
+            action: Action performed
+            success: Whether action succeeded
+            error: Optional error message
+        """
+        self.memory_updates["last_action"] = {
+            "action": action,
+            "success": success,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        if success:
+            if action == "load_config":
+                self.memory_updates["config_loads"] += 1
+        else:
+            self.memory_updates["last_error"] = {
+                "error": error,
+                "timestamp": datetime.now().isoformat()
+            }
+            self.memory_updates["config_errors"].append({
+                "error": error,
+                "action": action,
+                "timestamp": datetime.now().isoformat()
+            })
+            
+    def get_memory_updates(self) -> Dict[str, Any]:
+        """Get memory updates for monitoring.
+        
+        Returns:
+            Dictionary containing memory updates
+        """
+        return self.memory_updates
+
+# Global instance
+social_config = SocialConfig() 

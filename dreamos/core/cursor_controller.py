@@ -8,6 +8,7 @@ import logging
 import time
 import pyautogui
 from typing import Optional, Tuple
+from .utils.coords import transform_coordinates
 
 logger = logging.getLogger('cursor_controller')
 
@@ -20,18 +21,19 @@ class CursorController:
         pyautogui.PAUSE = 0.1  # Add small delay between actions
         
     def move_to(self, x: int, y: int):
-        """Move cursor to specified coordinates"""
+        """Move cursor to specified coordinates
+        
+        Args:
+            x: X coordinate (0 to screen_width, or negative for right-edge offset)
+            y: Y coordinate (0 to screen_height)
+        """
         try:
-            # Get screen size
-            screen_width, screen_height = pyautogui.size()
+            # Transform coordinates using shared utility
+            x, y = transform_coordinates(x, y)
             
-            # Ensure coordinates are within screen bounds
-            x = max(0, min(x, screen_width - 1))
-            y = max(0, min(y, screen_height - 1))
-            
-            # Move cursor with bounds checking
+            # Move cursor
             pyautogui.moveTo(x, y)
-            logger.debug(f"Moved cursor to ({x}, {y})")
+            logger.debug(f"Cursor moved to: ({x}, {y})")
         except Exception as e:
             logger.error(f"Error moving cursor: {e}")
             raise
@@ -46,10 +48,20 @@ class CursorController:
             raise
             
     def type_text(self, text: str):
-        """Type text at current position"""
+        """Type text at current position
+        
+        Args:
+            text: Text to type, can include newlines
+        """
         try:
-            pyautogui.write(text)
-            logger.debug(f"Typed text: {text[:30]}...")
+            # Split text into lines and type each line
+            lines = text.split('\n')
+            for i, line in enumerate(lines):
+                if i > 0:  # For all lines after the first
+                    pyautogui.press('enter')  # Press enter to move to next line
+                    time.sleep(0.1)  # Small delay between lines
+                pyautogui.write(line)
+                logger.debug(f"Typed line {i+1}: {line[:30]}...")
         except Exception as e:
             logger.error(f"Error typing text: {e}")
             raise
