@@ -1,97 +1,158 @@
-from datetime import datetime, timedelta
-from typing import Dict, Any, Optional
-from functools import wraps
+"""
+Rate Limiter Module
+-----------------
+Provides rate limiting functionality for API calls.
+"""
+
 import time
+from datetime import datetime
+from typing import Dict, Optional, Union, Callable
+from functools import wraps
 
 class RateLimiter:
-    """Manages rate limits for Reddit API operations."""
+    """Rate limiter for API calls."""
     
     def __init__(self):
-        """Initialize the rate limiter."""
-        self.rate_limits: Dict[str, Dict[str, Any]] = {}
+        """Initialize rate limiter."""
+        self.rate_limits: Dict[str, Dict[str, Union[int, datetime]]] = {}
         self.last_reset: Dict[str, datetime] = {}
+        self.calls: Dict[str, int] = {}
         
-        # Default Reddit rate limits
+        # Set default rate limits
         self.default_limits = {
-            "post": {"limit": 10, "window": 3600},  # 10 posts per hour
-            "comment": {"limit": 50, "window": 3600},  # 50 comments per hour
-            "login": {"limit": 5, "window": 3600}  # 5 login attempts per hour
+            "post": {"limit": 10, "window": 3600, "remaining": 10},
+            "comment": {"limit": 20, "window": 3600, "remaining": 20},
+            "login": {"limit": 5, "window": 3600, "remaining": 5}
         }
         
-    def get_rate_limit(self, action: str) -> Optional[Dict[str, Any]]:
-        """Get the current rate limit for an action.
+        # Initialize with defaults
+        for action, limit_info in self.default_limits.items():
+            self.set_rate_limit(action, **limit_info)
+    
+    def set_rate_limit(
+        self,
+        action: str,
+        limit: int,
+        window: int,
+        remaining: Optional[int] = None
+    ) -> None:
+        """Set rate limit for an action.
         
         Args:
-            action: The action to get the rate limit for
+            action: Action to limit (e.g. 'post', 'comment')
+            limit: Maximum number of calls allowed in window
+            window: Time window in seconds
+            remaining: Number of remaining calls (defaults to limit)
+        """
+        self.rate_limits[action] = {
+            "limit": limit,
+            "window": window,
+            "remaining": remaining if remaining is not None else limit
+        }
+        self.last_reset[action] = datetime.now()
+        self.calls[action] = 0
+    
+    def get_rate_limit(self, action: str) -> Optional[Dict[str, Union[int, datetime]]]:
+        """Get rate limit for an action.
+        
+        Args:
+            action: Action to get limit for
             
         Returns:
-            The rate limit information or None if not set
+            Dict with limit, window and remaining, or None if not set
         """
         return self.rate_limits.get(action)
-        
-    def set_rate_limit(self, action: str, limit_info: Dict[str, Any]) -> None:
-        """Set a custom rate limit for an action.
-        
-        Args:
-            action: The action to set the rate limit for
-            limit_info: Dictionary containing limit, window, and remaining
-        """
-        self.rate_limits[action] = limit_info
-        if action not in self.last_reset:
-            self.last_reset[action] = datetime.now()
-            
+    
     def check_rate_limit(self, action: str) -> bool:
-        """Check if rate limit is exceeded for an action.
+        """Check if an action is within rate limits.
         
         Args:
-            action: Action to check rate limit for
+            action: Action to check
             
         Returns:
-            bool: True if rate limit is not exceeded, False otherwise
+            True if within limits, False if exceeded
         """
         if action not in self.rate_limits:
-            # Initialize with default limit if not set
-            self.set_rate_limit(action, {
-                "limit": self.default_limits[action]["limit"],
-                "window": self.default_limits[action]["window"],
-                "window_start": time.time(),
-                "remaining": self.default_limits[action]["limit"]
-            })
-            
-        current_time = time.time()
-        limit_info = self.rate_limits[action]
-        
-        # Initialize remaining to limit if not set
-        if "remaining" not in limit_info:
-            limit_info["remaining"] = limit_info["limit"]
-            
-        # Reset window if expired
-        if current_time - limit_info["window_start"] >= limit_info["window"]:
-            limit_info["remaining"] = limit_info["limit"]
-            limit_info["window_start"] = current_time
             return True
             
-        # Check if rate limit is exceeded
+        limit_info = self.rate_limits[action]
+        current_time = datetime.now()
+        
+        # Reset window if expired
+        if (current_time - self.last_reset[action]).total_seconds() > limit_info["window"]:
+            self.last_reset[action] = current_time
+            self.calls[action] = 0
+            limit_info["remaining"] = limit_info["limit"]
+            return True
+            
+        # Check if limit exceeded
         if limit_info["remaining"] <= 0:
             return False
             
+        # Decrement remaining and increment calls
         limit_info["remaining"] -= 1
+        self.calls[action] += 1
         return True
+    
+    def reset_rate_limit(self, action: str) -> None:
+        """Reset rate limit for an action.
         
-def rate_limit(action: str):
-    """Decorator to apply rate limiting to a function.
+        Args:
+            action: Action to reset
+        """
+        if action in self.rate_limits:
+            self.last_reset[action] = datetime.now()
+            self.calls[action] = 0
+            self.rate_limits[action]["remaining"] = self.rate_limits[action]["limit"]
+    
+    def get_remaining_calls(self, action: str) -> int:
+        """Get remaining calls for an action.
+        
+        Args:
+            action: Action to check
+            
+        Returns:
+            Number of remaining calls
+        """
+        if action not in self.rate_limits:
+            return 0
+            
+        limit_info = self.rate_limits[action]
+        
+        # Reset window if expired
+        if (datetime.now() - self.last_reset[action]).total_seconds() > limit_info["window"]:
+            return limit_info["limit"]
+            
+        return max(0, limit_info["limit"] - self.calls[action])
+    
+    def rate_limit(self, action: str) -> Callable:
+        """Decorator to apply rate limiting to a function.
+        
+        Args:
+            action: Action to limit
+            
+        Returns:
+            Decorated function
+        """
+        def decorator(func: Callable) -> Callable:
+            @wraps(func)
+            def wrapper(*args, **kwargs):
+                if not self.check_rate_limit(action):
+                    raise Exception(f"Rate limit exceeded for {action}")
+                return func(*args, **kwargs)
+            return wrapper
+        return decorator
+
+# Create a default rate limiter instance
+_default_limiter = RateLimiter()
+
+def rate_limit(action: str) -> Callable:
+    """Standalone decorator to apply rate limiting to a function.
     
     Args:
-        action: The action to rate limit
+        action: Action to limit
         
     Returns:
-        Decorated function that checks rate limits before executing
+        Decorated function
     """
-    def decorator(func):
-        @wraps(func)
-        def wrapper(self, *args, **kwargs):
-            if not self.rate_limiter.check_rate_limit(action):
-                raise Exception(f"Rate limit exceeded for {action}")
-            return func(self, *args, **kwargs)
-        return wrapper
-    return decorator 
+    return _default_limiter.rate_limit(action) 

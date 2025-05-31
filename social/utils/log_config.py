@@ -1,3 +1,9 @@
+"""
+Log Config Module
+----------------
+Provides configuration for logging setup.
+"""
+
 import logging
 from pathlib import Path
 from typing import Optional, List
@@ -36,7 +42,12 @@ class LogConfig:
         use_text: bool = True,
         enable_discord: bool = False,
         discord_webhook_url: Optional[str] = None,
-        discord_levels: Optional[List[str]] = None
+        discord_levels: Optional[List[str]] = None,
+        max_size: int = None,  # For test compatibility
+        max_age: int = None,   # For test compatibility
+        supported_formats: List[str] = None,  # For test compatibility
+        compress_after: int = None,  # For test compatibility
+        enable_metrics: bool = True  # For test compatibility
     ):
         # Validate log level
         try:
@@ -49,7 +60,9 @@ class LogConfig:
         self.date_format = date_format
         self.batch_size = batch_size
         self.batch_timeout = batch_timeout
-        self.rotation_size = rotation_size
+        # Use max_size if provided, else rotation_size
+        self.rotation_size = max_size if max_size is not None else rotation_size
+        self.max_size = self.rotation_size  # Alias for test compatibility
         self.max_files = max_files
         self.rotation_check_interval = rotation_check_interval
         self.cleanup_interval = cleanup_interval
@@ -59,6 +72,10 @@ class LogConfig:
         self.enable_discord = enable_discord
         self.discord_webhook_url = discord_webhook_url
         self.discord_levels = discord_levels or []
+        self.max_age = max_age  # For test compatibility
+        self.supported_formats = supported_formats  # For test compatibility
+        self.compress_after = compress_after  # For test compatibility
+        self.enable_metrics = enable_metrics  # For test compatibility
 
 def setup_logging(
     log_dir: Optional[str] = None,

@@ -17,8 +17,8 @@ from ..config.social_config import social_config, Platform
 from ..utils.log_manager import LogManager
 from ..utils.log_config import LogLevel
 from .rate_limiter import RateLimiter
-from .login_handler import LoginHandler
-from .media_validator import MediaValidator
+from ..strategies.reddit.handlers.login_handler import LoginHandler
+from ..utils.media_validator import MediaValidator
 from ..strategies import (
     FacebookStrategy,
     TwitterStrategy,

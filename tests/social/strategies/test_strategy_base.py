@@ -10,7 +10,7 @@ from social.strategies.reddit_strategy import RedditStrategy
 # from social.core.strategy_base import SocialStrategyBase # Removed, class likely merged/renamed
 from social.config.social_config import PlatformConfig
 from social.utils import LogConfig
-from social.utils.proxy_manager import ProxyManager
+from social.driver.proxy_manager import ProxyManager
 
 # Strategic bypass - Strategy base needs refactor to remove Selenium dependencies
 pytestmark = pytest.mark.skip(reason="Strategic bypass - Strategy base refactor pending")

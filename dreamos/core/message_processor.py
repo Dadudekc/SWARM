@@ -84,13 +84,13 @@ class MessageProcessor:
         """Process all messages in the queue."""
         while True:
             # Get next message from queue
-            msg = self.cell_phone.queue.dequeue()
+            msg = self.cell_phone.queue.get_message()
             if not msg:
                 logger.info("No messages in queue")
                 break
                 
-            logger.info(f"Processing message to {msg['to_agent']}: {msg['content'][:50]}...")
-            self._process_message(msg)
+            logger.info(f"Processing message to {msg.to_agent}: {msg.content[:50]}...")
+            self._process_message(msg.to_dict())
     
     def _process_message(self, msg: dict):
         """Process a single message by sending it to the UI."""

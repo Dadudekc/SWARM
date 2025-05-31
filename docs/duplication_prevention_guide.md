@@ -89,7 +89,6 @@ class Config:
         """Load configuration from environment."""
         return {
             "database_url": os.getenv("DATABASE_URL"),
-            "redis_url": os.getenv("REDIS_URL"),
             "log_level": os.getenv("LOG_LEVEL", "INFO")
         }
 ```
@@ -294,7 +293,6 @@ class Config:
         """Load configuration."""
         return {
             "database_url": os.getenv("DATABASE_URL"),
-            "redis_url": os.getenv("REDIS_URL"),
             "log_level": os.getenv("LOG_LEVEL", "INFO")
         }
 

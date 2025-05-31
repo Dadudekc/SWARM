@@ -109,14 +109,6 @@ cd SWARM
    DATABASE_URL=postgresql://user:password@localhost:5432/swarm_dev
    ```
 
-### Redis Setup
-1. Install Redis
-2. Configure connection
-   ```bash
-   # .env
-   REDIS_URL=redis://localhost:6379/0
-   ```
-
 ## Running the Project
 
 ### Development Server

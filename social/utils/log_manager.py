@@ -11,6 +11,8 @@ from .log_config import setup_logging
 class LogManager:
     """Simple wrapper around Python's logging module."""
     
+    _instance = None  # Singleton instance for test compatibility
+    
     def __init__(self, platform: str, log_dir: Optional[str] = None):
         """Initialize the log manager.
         
@@ -24,6 +26,11 @@ class LogManager:
         # Setup logging if not already configured
         if not logging.getLogger().handlers:
             setup_logging(log_dir)
+        LogManager._instance = self
+    
+    @classmethod
+    def reset_singleton(cls):
+        cls._instance = None
     
     def info(self, message: str, **kwargs) -> None:
         """Log an info message."""

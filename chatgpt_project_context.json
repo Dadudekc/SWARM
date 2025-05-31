@@ -2,6 +2,20 @@
     "project_root": "D:\\SWARM\\Dream.OS",
     "num_files_analyzed": 244,
     "analysis_details": {
+        "agent_tools\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\scanner\\setup.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
         "agent_tools\\scanner\\__init__.py": {
             "language": ".py",
             "functions": [],
@@ -13,12 +27,72 @@
             "language": ".py",
             "functions": [
                 "get_welcome_message",
+                "direct_send_message",
                 "send_message",
-                "main"
+                "main",
+                "get_xy"
             ],
             "classes": {},
             "routes": [],
-            "complexity": 3
+            "complexity": 5
+        },
+        "agent_tools\\scanner\\analyzers\\dependency_analyzer.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "analyze_dependencies",
+                "analyze_file_dependencies",
+                "identify_core_components",
+                "group_into_modules"
+            ],
+            "classes": {
+                "DependencyAnalyzer": {
+                    "methods": [
+                        "__init__",
+                        "analyze_dependencies",
+                        "analyze_file_dependencies",
+                        "identify_core_components",
+                        "group_into_modules"
+                    ],
+                    "docstring": "Analyzes dependencies between files and detects circular dependencies.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "agent_tools\\scanner\\scanner.py": {
+            "language": ".py",
+            "functions": [
+                "default",
+                "__init__",
+                "_find_valid_files",
+                "_detect_encoding",
+                "_save_results"
+            ],
+            "classes": {
+                "PathEncoder": {
+                    "methods": [
+                        "default"
+                    ],
+                    "docstring": "Custom JSON encoder that handles Path objects.",
+                    "base_classes": [
+                        "json.JSONEncoder"
+                    ]
+                },
+                "Scanner": {
+                    "methods": [
+                        "__init__",
+                        "_find_valid_files",
+                        "_detect_encoding",
+                        "_save_results"
+                    ],
+                    "docstring": "Main scanner class that orchestrates the analysis process.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
         },
         "agent_tools\\scanner\\analyzers\\__init__.py": {
             "language": ".py",
@@ -26,6 +100,35 @@
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "agent_tools\\scanner\\analyzers\\ast_analyzer.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "analyze",
+                "_reset_state",
+                "_analyze_tree",
+                "_analyze_function",
+                "_analyze_class",
+                "_extract_base_classes"
+            ],
+            "classes": {
+                "ASTAnalyzer": {
+                    "methods": [
+                        "__init__",
+                        "analyze",
+                        "_reset_state",
+                        "_analyze_tree",
+                        "_analyze_function",
+                        "_analyze_class",
+                        "_extract_base_classes"
+                    ],
+                    "docstring": "Analyzes Python source code using AST.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 14
         },
         "agent_tools\\scanner\\__main__.py": {
             "language": ".py",
@@ -42,138 +145,6 @@
             "classes": {},
             "routes": [],
             "complexity": 0
-        },
-        "agent_tools\\scanner\\setup.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\scanner\\models\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\scanner\\tests\\conftest.py": {
-            "language": ".py",
-            "functions": [
-                "temp_project_dir",
-                "sample_file_analysis",
-                "sample_project_analysis"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
-        },
-        "agent_tools\\scanner\\tests\\test_analyzers.py": {
-            "language": ".py",
-            "functions": [
-                "sample_files",
-                "test_dependency_analyzer_initialization",
-                "test_analyze_dependencies",
-                "test_identify_core_components",
-                "test_group_into_modules",
-                "test_quality_analyzer_initialization",
-                "test_analyze_file_quality",
-                "test_analyze_test_coverage"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 8
-        },
-        "agent_tools\\scanner\\tests\\test_analyzers_edge_cases.py": {
-            "language": ".py",
-            "functions": [
-                "complex_code",
-                "complex_dependencies",
-                "test_quality_analyzer_complex_nesting",
-                "test_quality_analyzer_duplicate_detection",
-                "test_dependency_analyzer_complex_imports",
-                "test_dependency_analyzer_circular_deps",
-                "test_dependency_analyzer_core_components",
-                "test_dependency_analyzer_module_grouping",
-                "test_quality_analyzer_class_inheritance",
-                "test_quality_analyzer_empty_file",
-                "test_dependency_analyzer_empty_file",
-                "test_quality_analyzer_invalid_syntax",
-                "test_dependency_analyzer_invalid_syntax"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 13
-        },
-        "agent_tools\\scanner\\tests\\test_scanner.py": {
-            "language": ".py",
-            "functions": [
-                "temp_project",
-                "test_save_results"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 2
-        },
-        "agent_tools\\scanner\\tests\\test_models.py": {
-            "language": ".py",
-            "functions": [
-                "test_class_info_initialization",
-                "test_file_analysis_initialization",
-                "test_project_analysis_initialization",
-                "test_project_analysis_to_dict"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 4
-        },
-        "agent_tools\\scanner\\tests\\test_models_edge_cases.py": {
-            "language": ".py",
-            "functions": [
-                "test_class_info_edge_cases",
-                "test_file_analysis_edge_cases",
-                "test_project_analysis_edge_cases",
-                "test_serialization_edge_cases"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 4
-        },
-        "agent_tools\\scanner\\tests\\test_utils.py": {
-            "language": ".py",
-            "functions": [
-                "test_is_valid_file",
-                "test_is_test_file",
-                "test_get_file_extension",
-                "test_normalize_path",
-                "test_create_directory",
-                "test_create_directory_existing",
-                "test_create_directory_with_parents",
-                "test_create_directory_permission_error",
-                "test_create_directory_invalid_path",
-                "test_create_directory_max_length",
-                "test_create_directory_concurrent",
-                "create_dir"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 12
-        },
-        "agent_tools\\scanner\\tests\\test_scanner_edge_cases.py": {
-            "language": ".py",
-            "functions": [
-                "complex_project"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
         },
         "agent_tools\\scanner\\models\\analysis.py": {
             "language": ".py",
@@ -208,111 +179,6 @@
             "routes": [],
             "complexity": 6
         },
-        "agent_tools\\scanner\\tests\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\scanner\\scanner.py": {
-            "language": ".py",
-            "functions": [
-                "default",
-                "__init__",
-                "_find_valid_files",
-                "_save_results"
-            ],
-            "classes": {
-                "PathEncoder": {
-                    "methods": [
-                        "default"
-                    ],
-                    "docstring": "Custom JSON encoder that handles Path objects.",
-                    "base_classes": [
-                        "json.JSONEncoder"
-                    ]
-                },
-                "Scanner": {
-                    "methods": [
-                        "__init__",
-                        "_find_valid_files",
-                        "_save_results"
-                    ],
-                    "docstring": "Main scanner class that orchestrates the analysis process.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 8
-        },
-        "agent_tools\\scanner\\analyzers\\ast_analyzer.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "analyze",
-                "_reset_state",
-                "_analyze_tree",
-                "_analyze_function",
-                "_analyze_class",
-                "_extract_base_classes"
-            ],
-            "classes": {
-                "ASTAnalyzer": {
-                    "methods": [
-                        "__init__",
-                        "analyze",
-                        "_reset_state",
-                        "_analyze_tree",
-                        "_analyze_function",
-                        "_analyze_class",
-                        "_extract_base_classes"
-                    ],
-                    "docstring": "Analyzes Python source code using AST.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 14
-        },
-        "agent_tools\\scanner\\analyzers\\dependency_analyzer.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "analyze_dependencies",
-                "analyze_file_dependencies",
-                "identify_core_components",
-                "group_into_modules"
-            ],
-            "classes": {
-                "DependencyAnalyzer": {
-                    "methods": [
-                        "__init__",
-                        "analyze_dependencies",
-                        "analyze_file_dependencies",
-                        "identify_core_components",
-                        "group_into_modules"
-                    ],
-                    "docstring": "Analyzes dependencies between files and detects circular dependencies.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 10
-        },
-        "agent_tools\\scanner\\utils\\file_utils.py": {
-            "language": ".py",
-            "functions": [
-                "is_valid_file",
-                "is_test_file",
-                "get_file_extension",
-                "normalize_path",
-                "create_directory"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 5
-        },
         "agent_tools\\scanner\\analyzers\\quality_analyzer.py": {
             "language": ".py",
             "functions": [
@@ -338,33 +204,12 @@
             "routes": [],
             "complexity": 10
         },
-        "agent_tools\\scanner\\tests\\test_gui_example.py": {
+        "agent_tools\\scanner\\models\\__init__.py": {
             "language": ".py",
-            "functions": [
-                "test_standalone_gui_function",
-                "setup",
-                "test_basic_mouse_operations",
-                "test_keyboard_operations",
-                "test_mouse_positions",
-                "test_screenshot_capture",
-                "test_failsafe"
-            ],
-            "classes": {
-                "TestGUIExample": {
-                    "methods": [
-                        "setup",
-                        "test_basic_mouse_operations",
-                        "test_keyboard_operations",
-                        "test_mouse_positions",
-                        "test_screenshot_capture",
-                        "test_failsafe"
-                    ],
-                    "docstring": "Example GUI test class demonstrating various GUI testing patterns.",
-                    "base_classes": []
-                }
-            },
+            "functions": [],
+            "classes": {},
             "routes": [],
-            "complexity": 13
+            "complexity": 0
         },
         "agent_tools\\scanner\\utils\\__init__.py": {
             "language": ".py",
@@ -372,6 +217,18 @@
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "agent_tools\\scanner\\tests\\test_models.py": {
+            "language": ".py",
+            "functions": [
+                "test_class_info_initialization",
+                "test_file_analysis_initialization",
+                "test_project_analysis_initialization",
+                "test_project_analysis_to_dict"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 4
         },
         "agent_tools\\utils\\init_mailbox.py": {
             "language": ".py",
@@ -399,12 +256,62 @@
             "routes": [],
             "complexity": 11
         },
-        "agent_tools\\utils\\__init__.py": {
+        "agent_tools\\scanner\\tests\\test_utils.py": {
             "language": ".py",
-            "functions": [],
+            "functions": [
+                "test_is_valid_file",
+                "test_is_test_file",
+                "test_get_file_extension",
+                "test_normalize_path",
+                "test_create_directory",
+                "test_create_directory_existing",
+                "test_create_directory_with_parents",
+                "test_create_directory_permission_error",
+                "test_create_directory_invalid_path",
+                "test_create_directory_max_length",
+                "test_create_directory_concurrent",
+                "create_dir"
+            ],
             "classes": {},
             "routes": [],
-            "complexity": 0
+            "complexity": 12
+        },
+        "agent_tools\\scanner\\tests\\test_analyzers.py": {
+            "language": ".py",
+            "functions": [
+                "sample_files",
+                "test_dependency_analyzer_initialization",
+                "test_analyze_dependencies",
+                "test_identify_core_components",
+                "test_group_into_modules",
+                "test_quality_analyzer_initialization",
+                "test_analyze_file_quality",
+                "test_analyze_test_coverage"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 8
+        },
+        "agent_tools\\scanner\\tests\\test_models_edge_cases.py": {
+            "language": ".py",
+            "functions": [
+                "test_class_info_edge_cases",
+                "test_file_analysis_edge_cases",
+                "test_project_analysis_edge_cases",
+                "test_serialization_edge_cases"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 4
+        },
+        "agent_tools\\scanner\\tests\\test_scanner_edge_cases.py": {
+            "language": ".py",
+            "functions": [
+                "complex_project"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
         },
         "crime_report_generator\\main.py": {
             "language": ".py",
@@ -433,6 +340,36 @@
             },
             "routes": [],
             "complexity": 13
+        },
+        "agent_tools\\scanner\\tests\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "crime_report_generator\\data_sources\\austin_scraper.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "collect_data",
+                "_save_raw_data",
+                "_parse_crime_type"
+            ],
+            "classes": {
+                "AustinScraper": {
+                    "methods": [
+                        "__init__",
+                        "collect_data",
+                        "_save_raw_data",
+                        "_parse_crime_type"
+                    ],
+                    "docstring": "Scraper for Austin Police Department crime data.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
         },
         "crime_report_generator\\agents\\report_agent.py": {
             "language": ".py",
@@ -465,28 +402,50 @@
             "routes": [],
             "complexity": 16
         },
-        "crime_report_generator\\data_sources\\austin_scraper.py": {
+        "agent_tools\\scanner\\tests\\conftest.py": {
             "language": ".py",
             "functions": [
-                "__init__",
-                "collect_data",
-                "_save_raw_data",
-                "_parse_crime_type"
+                "temp_project_dir",
+                "sample_file_analysis",
+                "sample_project_analysis"
             ],
-            "classes": {
-                "AustinScraper": {
-                    "methods": [
-                        "__init__",
-                        "collect_data",
-                        "_save_raw_data",
-                        "_parse_crime_type"
-                    ],
-                    "docstring": "Scraper for Austin Police Department crime data.",
-                    "base_classes": []
-                }
-            },
+            "classes": {},
             "routes": [],
-            "complexity": 8
+            "complexity": 3
+        },
+        "agent_tools\\scanner\\tests\\test_scanner.py": {
+            "language": ".py",
+            "functions": [
+                "temp_project",
+                "test_save_results"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
+        "agent_tools\\scanner\\utils\\file_utils.py": {
+            "language": ".py",
+            "functions": [
+                "is_valid_file",
+                "is_test_file",
+                "get_file_extension",
+                "normalize_path",
+                "create_directory"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 5
+        },
+        "crime_report_generator\\processors\\aggregator.py": {
+            "language": ".py",
+            "functions": [
+                "aggregate_by_type",
+                "aggregate_by_district",
+                "top_locations"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
         },
         "crime_report_generator\\data_sources\\houston_scraper.py": {
             "language": ".py",
@@ -511,50 +470,33 @@
             "routes": [],
             "complexity": 8
         },
-        "crime_report_generator\\processors\\aggregator.py": {
+        "agent_tools\\utils\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\scanner\\tests\\test_analyzers_edge_cases.py": {
             "language": ".py",
             "functions": [
-                "aggregate_by_type",
-                "aggregate_by_district",
-                "top_locations"
+                "complex_code",
+                "complex_dependencies",
+                "test_quality_analyzer_complex_nesting",
+                "test_quality_analyzer_duplicate_detection",
+                "test_dependency_analyzer_complex_imports",
+                "test_dependency_analyzer_circular_deps",
+                "test_dependency_analyzer_core_components",
+                "test_dependency_analyzer_module_grouping",
+                "test_quality_analyzer_class_inheritance",
+                "test_quality_analyzer_empty_file",
+                "test_dependency_analyzer_empty_file",
+                "test_quality_analyzer_invalid_syntax",
+                "test_dependency_analyzer_invalid_syntax"
             ],
             "classes": {},
             "routes": [],
-            "complexity": 3
-        },
-        "crime_report_generator\\processors\\categorizer.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "categorize_offense",
-                "categorize_description",
-                "categorize_dataframe",
-                "_categorize_row",
-                "categorize_crime"
-            ],
-            "classes": {
-                "CrimeCategory": {
-                    "methods": [],
-                    "docstring": "Enumeration of crime categories.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "CrimeCategorizer": {
-                    "methods": [
-                        "__init__",
-                        "categorize_offense",
-                        "categorize_description",
-                        "categorize_dataframe",
-                        "_categorize_row",
-                        "categorize_crime"
-                    ],
-                    "docstring": "Class for categorizing crime data into standardized categories.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 12
+            "complexity": 13
         },
         "crime_report_generator\\processors\\cleaner.py": {
             "language": ".py",
@@ -592,6 +534,40 @@
             "routes": [],
             "complexity": 0
         },
+        "crime_report_generator\\processors\\categorizer.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "categorize_offense",
+                "categorize_description",
+                "categorize_dataframe",
+                "_categorize_row",
+                "categorize_crime"
+            ],
+            "classes": {
+                "CrimeCategory": {
+                    "methods": [],
+                    "docstring": "Enumeration of crime categories.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "CrimeCategorizer": {
+                    "methods": [
+                        "__init__",
+                        "categorize_offense",
+                        "categorize_description",
+                        "categorize_dataframe",
+                        "_categorize_row",
+                        "categorize_crime"
+                    ],
+                    "docstring": "Class for categorizing crime data into standardized categories.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 12
+        },
         "crime_report_generator\\reports\\arcgis_fetcher.py": {
             "language": ".py",
             "functions": [
@@ -601,15 +577,6 @@
             "classes": {},
             "routes": [],
             "complexity": 2
-        },
-        "crime_report_generator\\reports\\crimegrade_scraper.py": {
-            "language": ".py",
-            "functions": [
-                "fetch_crimegrade_data"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
         },
         "crime_report_generator\\reports\\crime_report_pipeline.py": {
             "language": ".py",
@@ -622,13 +589,69 @@
             "routes": [],
             "complexity": 3
         },
-        "crime_report_generator\\reports\\report_formatter.py": {
+        "crime_report_generator\\tests\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "crime_report_generator\\reports\\crimegrade_scraper.py": {
             "language": ".py",
             "functions": [
-                "format_markdown_report",
-                "format_discord_report",
-                "format_instagram_report",
-                "format_report"
+                "fetch_crimegrade_data"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "crime_report_generator\\tests\\processors\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "crime_report_generator\\tests\\processors\\test_aggregator.py": {
+            "language": ".py",
+            "functions": [
+                "sample_df",
+                "test_aggregate_by_type",
+                "test_aggregate_by_district",
+                "test_top_locations",
+                "test_empty_dataframe",
+                "test_missing_columns",
+                "test_lowest_activity_locations",
+                "test_top_locations_with_min_count"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 8
+        },
+        "crime_report_generator\\tests\\processors\\test_categorizer.py": {
+            "language": ".py",
+            "functions": [
+                "sample_raw_data",
+                "categorizer",
+                "test_categorize_offense",
+                "test_categorize_description",
+                "test_categorize_dataframe",
+                "test_unknown_offense",
+                "test_empty_dataframe",
+                "test_missing_columns",
+                "test_case_insensitivity"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 9
+        },
+        "crime_report_generator\\reports\\summarizer.py": {
+            "language": ".py",
+            "functions": [
+                "normalize_crime_types",
+                "summarize_arcgis_data",
+                "summarize_crimegrade_data",
+                "compare_sources"
             ],
             "classes": {},
             "routes": [],
@@ -661,17 +684,39 @@
             "routes": [],
             "complexity": 12
         },
-        "crime_report_generator\\reports\\summarizer.py": {
+        "crime_report_generator\\reports\\report_formatter.py": {
             "language": ".py",
             "functions": [
-                "normalize_crime_types",
-                "summarize_arcgis_data",
-                "summarize_crimegrade_data",
-                "compare_sources"
+                "format_markdown_report",
+                "format_discord_report",
+                "format_instagram_report",
+                "format_report"
             ],
             "classes": {},
             "routes": [],
             "complexity": 4
+        },
+        "crime_report_generator\\tests\\agents\\test_report_agent.py": {
+            "language": ".py",
+            "functions": [
+                "mock_distributor",
+                "sample_crime_data",
+                "mock_data_source",
+                "mock_social_config",
+                "agent",
+                "test_process_data",
+                "test_generate_report",
+                "test_schedule_report",
+                "test_distribute_report",
+                "test_remove_job",
+                "test_shutdown",
+                "test_invalid_social_platform",
+                "test_data_processing_error",
+                "test_report_generation_error"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 14
         },
         "crime_report_generator\\reports\\zip_mapper.py": {
             "language": ".py",
@@ -713,67 +758,40 @@
             "routes": [],
             "complexity": 14
         },
-        "crime_report_generator\\tests\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "crime_report_generator\\tests\\agents\\test_report_agent.py": {
+        "crime_report_generator\\tests\\reports\\test_report_generator.py": {
             "language": ".py",
             "functions": [
-                "mock_distributor",
                 "sample_crime_data",
-                "mock_data_source",
-                "mock_social_config",
-                "agent",
-                "test_process_data",
-                "test_generate_report",
-                "test_schedule_report",
-                "test_distribute_report",
-                "test_remove_job",
-                "test_shutdown",
-                "test_invalid_social_platform",
-                "test_data_processing_error",
-                "test_report_generation_error"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 14
-        },
-        "crime_report_generator\\tests\\processors\\test_aggregator.py": {
-            "language": ".py",
-            "functions": [
-                "sample_df",
-                "test_aggregate_by_type",
-                "test_aggregate_by_district",
-                "test_top_locations",
+                "report_generator",
+                "test_generate_markdown_report",
+                "test_generate_html_report",
+                "test_generate_pdf_report",
+                "test_report_summary_statistics",
                 "test_empty_dataframe",
-                "test_missing_columns",
-                "test_lowest_activity_locations",
-                "test_top_locations_with_min_count"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 8
-        },
-        "crime_report_generator\\tests\\processors\\test_categorizer.py": {
-            "language": ".py",
-            "functions": [
-                "sample_raw_data",
-                "categorizer",
-                "test_categorize_offense",
-                "test_categorize_description",
-                "test_categorize_dataframe",
-                "test_unknown_offense",
-                "test_empty_dataframe",
-                "test_missing_columns",
-                "test_case_insensitivity"
+                "test_missing_required_columns",
+                "test_custom_template"
             ],
             "classes": {},
             "routes": [],
             "complexity": 9
+        },
+        "crime_report_generator\\tests\\visualizations\\test_crime_visualizer.py": {
+            "language": ".py",
+            "functions": [
+                "sample_crime_data",
+                "visualizer",
+                "test_create_category_pie_chart",
+                "test_create_trend_line_chart",
+                "test_create_location_bar_chart",
+                "test_create_category_trend_chart",
+                "test_empty_dataframe",
+                "test_missing_required_columns",
+                "test_save_visualization",
+                "test_custom_styling"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 10
         },
         "crime_report_generator\\tests\\processors\\test_cleaner.py": {
             "language": ".py",
@@ -808,67 +826,6 @@
             "routes": [],
             "complexity": 18
         },
-        "crime_report_generator\\tests\\processors\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "crime_report_generator\\tests\\reports\\test_report_generator.py": {
-            "language": ".py",
-            "functions": [
-                "sample_crime_data",
-                "report_generator",
-                "test_generate_markdown_report",
-                "test_generate_html_report",
-                "test_generate_pdf_report",
-                "test_report_summary_statistics",
-                "test_empty_dataframe",
-                "test_missing_required_columns",
-                "test_custom_template"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 9
-        },
-        "crime_report_generator\\tests\\scheduler\\test_report_scheduler.py": {
-            "language": ".py",
-            "functions": [
-                "sample_crime_data",
-                "mock_data_source",
-                "mock_distributor",
-                "scheduler",
-                "test_schedule_report",
-                "test_generate_scheduled_report",
-                "test_distribute_report",
-                "test_invalid_report_type",
-                "test_invalid_format",
-                "test_data_source_error",
-                "test_distributor_error"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 11
-        },
-        "crime_report_generator\\tests\\visualizations\\test_crime_visualizer.py": {
-            "language": ".py",
-            "functions": [
-                "sample_crime_data",
-                "visualizer",
-                "test_create_category_pie_chart",
-                "test_create_trend_line_chart",
-                "test_create_location_bar_chart",
-                "test_create_category_trend_chart",
-                "test_empty_dataframe",
-                "test_missing_required_columns",
-                "test_save_visualization",
-                "test_custom_styling"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 10
-        },
         "crime_report_generator\\visualizations\\crime_visualizer.py": {
             "language": ".py",
             "functions": [
@@ -897,6 +854,25 @@
             },
             "routes": [],
             "complexity": 14
+        },
+        "crime_report_generator\\tests\\scheduler\\test_report_scheduler.py": {
+            "language": ".py",
+            "functions": [
+                "sample_crime_data",
+                "mock_data_source",
+                "mock_distributor",
+                "scheduler",
+                "test_schedule_report",
+                "test_generate_scheduled_report",
+                "test_distribute_report",
+                "test_invalid_report_type",
+                "test_invalid_format",
+                "test_data_source_error",
+                "test_distributor_error"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 11
         },
         "discord_bot\\agent_interface.py": {
             "language": ".py",
@@ -931,6 +907,13 @@
             "classes": {},
             "routes": [],
             "complexity": 1
+        },
+        "dreamos\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "discord_bot\\commands.py": {
             "language": ".py",
@@ -989,39 +972,21 @@
             "routes": [],
             "complexity": 18
         },
-        "discord_bot\\voicebot.py": {
+        "discord_bot\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "discord_bot\\voice_cli.py": {
             "language": ".py",
             "functions": [
-                "run_voicebot",
-                "__init__",
-                "on_created",
-                "__init__",
-                "_after_playback"
+                "main"
             ],
-            "classes": {
-                "VoiceQueueHandler": {
-                    "methods": [
-                        "__init__",
-                        "on_created"
-                    ],
-                    "docstring": "Handles file system events for the voice queue directory.",
-                    "base_classes": [
-                        "FileSystemEventHandler"
-                    ]
-                },
-                "VoiceBot": {
-                    "methods": [
-                        "__init__",
-                        "_after_playback"
-                    ],
-                    "docstring": "Voice-enabled Discord bot for swarm audio output.",
-                    "base_classes": [
-                        "commands.Bot"
-                    ]
-                }
-            },
+            "classes": {},
             "routes": [],
-            "complexity": 9
+            "complexity": 1
         },
         "discord_bot\\tts.py": {
             "language": ".py",
@@ -1039,56 +1004,6 @@
             },
             "routes": [],
             "complexity": 2
-        },
-        "discord_bot\\voice_cli.py": {
-            "language": ".py",
-            "functions": [
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
-        },
-        "discord_bot\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\agent_interface.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "send_command",
-                "broadcast_command",
-                "get_agent_status",
-                "clear_agent_messages",
-                "cleanup"
-            ],
-            "classes": {
-                "AgentInterface": {
-                    "methods": [
-                        "__init__",
-                        "send_command",
-                        "broadcast_command",
-                        "get_agent_status",
-                        "clear_agent_messages",
-                        "cleanup"
-                    ],
-                    "docstring": "Interface between Discord commands and Dream.OS Cell Phone system.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 12
         },
         "dreamos\\core\\agent_logger.py": {
             "language": ".py",
@@ -1138,6 +1053,61 @@
             },
             "routes": [],
             "complexity": 9
+        },
+        "dreamos\\core\\cli.py": {
+            "language": ".py",
+            "functions": [
+                "parse_args",
+                "validate_priority",
+                "cli_main",
+                "__init__",
+                "send_message",
+                "get_status",
+                "clear_messages",
+                "shutdown"
+            ],
+            "classes": {
+                "MessageCLI": {
+                    "methods": [
+                        "__init__",
+                        "send_message",
+                        "get_status",
+                        "clear_messages",
+                        "shutdown"
+                    ],
+                    "docstring": "Command-line interface for agent communication.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 13
+        },
+        "dreamos\\core\\agent_interface.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "send_command",
+                "broadcast_command",
+                "get_agent_status",
+                "clear_agent_messages",
+                "cleanup"
+            ],
+            "classes": {
+                "AgentInterface": {
+                    "methods": [
+                        "__init__",
+                        "send_command",
+                        "broadcast_command",
+                        "get_agent_status",
+                        "clear_agent_messages",
+                        "cleanup"
+                    ],
+                    "docstring": "Interface between Discord commands and Dream.OS Cell Phone system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 12
         },
         "dreamos\\core\\cell_phone.py": {
             "language": ".py",
@@ -1206,56 +1176,39 @@
             "routes": [],
             "complexity": 44
         },
-        "dreamos\\core\\cli.py": {
+        "discord_bot\\voicebot.py": {
             "language": ".py",
             "functions": [
-                "parse_args",
-                "validate_priority",
-                "cli_main",
+                "run_voicebot",
                 "__init__",
-                "send_message",
-                "get_status",
-                "clear_messages",
-                "shutdown"
+                "on_created",
+                "__init__",
+                "_after_playback"
             ],
             "classes": {
-                "MessageCLI": {
+                "VoiceQueueHandler": {
                     "methods": [
                         "__init__",
-                        "send_message",
-                        "get_status",
-                        "clear_messages",
-                        "shutdown"
+                        "on_created"
                     ],
-                    "docstring": "Command-line interface for agent communication.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 13
-        },
-        "dreamos\\core\\config.py": {
-            "language": ".py",
-            "functions": [
-                "load_agent_config",
-                "setup_test_environment",
-                "cleanup_test_environment",
-                "get_test_config"
-            ],
-            "classes": {
-                "ConfigManager": {
+                    "docstring": "Handles file system events for the voice queue directory.",
+                    "base_classes": [
+                        "FileSystemEventHandler"
+                    ]
+                },
+                "VoiceBot": {
                     "methods": [
-                        "load_agent_config",
-                        "setup_test_environment",
-                        "cleanup_test_environment",
-                        "get_test_config"
+                        "__init__",
+                        "_after_playback"
                     ],
-                    "docstring": "Manages configuration loading and validation.",
-                    "base_classes": []
+                    "docstring": "Voice-enabled Discord bot for swarm audio output.",
+                    "base_classes": [
+                        "commands.Bot"
+                    ]
                 }
             },
             "routes": [],
-            "complexity": 8
+            "complexity": 9
         },
         "dreamos\\core\\coordinate_manager.py": {
             "language": ".py",
@@ -1289,6 +1242,29 @@
             "classes": {},
             "routes": [],
             "complexity": 2
+        },
+        "dreamos\\core\\config.py": {
+            "language": ".py",
+            "functions": [
+                "load_agent_config",
+                "setup_test_environment",
+                "cleanup_test_environment",
+                "get_test_config"
+            ],
+            "classes": {
+                "ConfigManager": {
+                    "methods": [
+                        "load_agent_config",
+                        "setup_test_environment",
+                        "cleanup_test_environment",
+                        "get_test_config"
+                    ],
+                    "docstring": "Manages configuration loading and validation.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
         },
         "dreamos\\core\\cursor_controller.py": {
             "language": ".py",
@@ -1346,26 +1322,32 @@
             "routes": [],
             "complexity": 8
         },
-        "dreamos\\core\\message.py": {
+        "dreamos\\core\\metrics.py": {
             "language": ".py",
             "functions": [
-                "__post_init__",
-                "to_dict",
-                "from_dict"
+                "__init__",
+                "track_command",
+                "get_command_stats",
+                "reset_stats",
+                "save_metrics",
+                "load_metrics"
             ],
             "classes": {
-                "Message": {
+                "CommandMetrics": {
                     "methods": [
-                        "__post_init__",
-                        "to_dict",
-                        "from_dict"
+                        "__init__",
+                        "track_command",
+                        "get_command_stats",
+                        "reset_stats",
+                        "save_metrics",
+                        "load_metrics"
                     ],
-                    "docstring": "Message data class.",
+                    "docstring": "Track and report command usage metrics.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 6
+            "complexity": 12
         },
         "dreamos\\core\\menu.py": {
             "language": ".py",
@@ -1552,52 +1534,54 @@
             "routes": [],
             "complexity": 19
         },
-        "dreamos\\core\\messaging.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {
-                "MessageMode": {
-                    "methods": [],
-                    "docstring": "Message modes for different types of communication.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "Message": {
-                    "methods": [],
-                    "docstring": "Represents a message with metadata.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\metrics.py": {
+        "dreamos\\core\\message.py": {
             "language": ".py",
             "functions": [
-                "__init__",
-                "track_command",
-                "get_command_stats",
-                "reset_stats",
-                "save_metrics",
-                "load_metrics"
+                "__post_init__",
+                "to_dict",
+                "from_dict"
             ],
             "classes": {
-                "CommandMetrics": {
+                "Message": {
                     "methods": [
-                        "__init__",
-                        "track_command",
-                        "get_command_stats",
-                        "reset_stats",
-                        "save_metrics",
-                        "load_metrics"
+                        "__post_init__",
+                        "to_dict",
+                        "from_dict"
                     ],
-                    "docstring": "Track and report command usage metrics.",
+                    "docstring": "Message data class.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 12
+            "complexity": 6
+        },
+        "dreamos\\core\\agent_control\\agent_control.py": {
+            "language": ".py",
+            "functions": [
+                "main",
+                "__init__",
+                "_load_coordinates",
+                "move_to_agent",
+                "click_input_box",
+                "click_copy_button",
+                "get_response_region"
+            ],
+            "classes": {
+                "AgentControl": {
+                    "methods": [
+                        "__init__",
+                        "_load_coordinates",
+                        "move_to_agent",
+                        "click_input_box",
+                        "click_copy_button",
+                        "get_response_region"
+                    ],
+                    "docstring": "Handles agent control operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 13
         },
         "dreamos\\core\\persistent_queue.py": {
             "language": ".py",
@@ -1652,6 +1636,26 @@
             "routes": [],
             "complexity": 38
         },
+        "dreamos\\core\\messaging.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "MessageMode": {
+                    "methods": [],
+                    "docstring": "Message modes for different types of communication.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "Message": {
+                    "methods": [],
+                    "docstring": "Represents a message with metadata.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
         "dreamos\\core\\region_finder.py": {
             "language": ".py",
             "functions": [
@@ -1684,31 +1688,39 @@
             "routes": [],
             "complexity": 17
         },
-        "dreamos\\core\\system_init.py": {
+        "dreamos\\core\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\agent_control\\agent_controller.py": {
             "language": ".py",
             "functions": [
-                "main",
                 "__init__",
-                "initialize_core_systems",
-                "establish_communication_channels",
-                "begin_monitoring",
-                "report_status"
+                "_handle_agent_change",
+                "resume_agent",
+                "verify_agent",
+                "cleanup_agent"
             ],
             "classes": {
-                "SystemInitializer": {
+                "AgentController": {
                     "methods": [
                         "__init__",
-                        "initialize_core_systems",
-                        "establish_communication_channels",
-                        "begin_monitoring",
-                        "report_status"
+                        "_handle_agent_change",
+                        "resume_agent",
+                        "verify_agent",
+                        "cleanup_agent"
                     ],
-                    "docstring": "Handles system initialization and communication setup.",
-                    "base_classes": []
+                    "docstring": "Controls agent operations and UI interactions",
+                    "base_classes": [
+                        "QObject"
+                    ]
                 }
             },
             "routes": [],
-            "complexity": 11
+            "complexity": 10
         },
         "dreamos\\core\\response_collector.py": {
             "language": ".py",
@@ -1772,67 +1784,54 @@
             "routes": [],
             "complexity": 35
         },
-        "dreamos\\core\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\agent_control\\agent_controller.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_handle_agent_change",
-                "resume_agent",
-                "verify_agent",
-                "cleanup_agent"
-            ],
-            "classes": {
-                "AgentController": {
-                    "methods": [
-                        "__init__",
-                        "_handle_agent_change",
-                        "resume_agent",
-                        "verify_agent",
-                        "cleanup_agent"
-                    ],
-                    "docstring": "Controls agent operations and UI interactions",
-                    "base_classes": [
-                        "QObject"
-                    ]
-                }
-            },
-            "routes": [],
-            "complexity": 10
-        },
-        "dreamos\\core\\agent_control\\agent_control.py": {
+        "dreamos\\core\\system_init.py": {
             "language": ".py",
             "functions": [
                 "main",
                 "__init__",
-                "_load_coordinates",
-                "move_to_agent",
-                "click_input_box",
-                "click_copy_button",
-                "get_response_region"
+                "initialize_core_systems",
+                "establish_communication_channels",
+                "begin_monitoring",
+                "report_status"
             ],
             "classes": {
-                "AgentControl": {
+                "SystemInitializer": {
                     "methods": [
                         "__init__",
-                        "_load_coordinates",
-                        "move_to_agent",
-                        "click_input_box",
-                        "click_copy_button",
-                        "get_response_region"
+                        "initialize_core_systems",
+                        "establish_communication_channels",
+                        "begin_monitoring",
+                        "report_status"
                     ],
-                    "docstring": "Handles agent control operations.",
+                    "docstring": "Handles system initialization and communication setup.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 13
+            "complexity": 11
+        },
+        "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_setup_ui",
+                "_handle_selection"
+            ],
+            "classes": {
+                "AgentSelectionDialog": {
+                    "methods": [
+                        "__init__",
+                        "_setup_ui",
+                        "_handle_selection"
+                    ],
+                    "docstring": "Dialog for selecting one or more agents.",
+                    "base_classes": [
+                        "QDialog"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 6
         },
         "dreamos\\core\\agent_control\\agent_operations.py": {
             "language": ".py",
@@ -1878,29 +1877,6 @@
             },
             "routes": [],
             "complexity": 30
-        },
-        "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_setup_ui",
-                "_handle_selection"
-            ],
-            "classes": {
-                "AgentSelectionDialog": {
-                    "methods": [
-                        "__init__",
-                        "_setup_ui",
-                        "_handle_selection"
-                    ],
-                    "docstring": "Dialog for selecting one or more agents.",
-                    "base_classes": [
-                        "QDialog"
-                    ]
-                }
-            },
-            "routes": [],
-            "complexity": 6
         },
         "dreamos\\core\\agent_control\\controller.py": {
             "language": ".py",
@@ -1995,35 +1971,94 @@
             "routes": [],
             "complexity": 8
         },
-        "dreamos\\core\\agent_control\\cursor_controller.py": {
+        "dreamos\\core\\agent_control\\screenshot_logger.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "move_to",
-                "click",
-                "type_text",
-                "press_enter",
-                "get_position",
-                "wait",
-                "move_to_agent",
-                "click_input_box",
-                "click_copy_button"
+                "capture",
+                "get_screenshots",
+                "get_latest_screenshot",
+                "compare_screenshots",
+                "cleanup"
             ],
             "classes": {
-                "CursorController": {
+                "ScreenshotLogger": {
                     "methods": [
                         "__init__",
-                        "move_to",
-                        "click",
-                        "type_text",
-                        "press_enter",
-                        "get_position",
-                        "wait",
-                        "move_to_agent",
-                        "click_input_box",
-                        "click_copy_button"
+                        "capture",
+                        "get_screenshots",
+                        "get_latest_screenshot",
+                        "compare_screenshots",
+                        "cleanup"
                     ],
-                    "docstring": "Controls cursor movement and interaction.",
+                    "docstring": "Tracks and manages debug screenshots for UI automation.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 12
+        },
+        "dreamos\\core\\messaging\\message.py": {
+            "language": ".py",
+            "functions": [
+                "__post_init__",
+                "format_content",
+                "to_dict",
+                "from_dict",
+                "validate"
+            ],
+            "classes": {
+                "MessageMode": {
+                    "methods": [],
+                    "docstring": "Message delivery modes.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "Message": {
+                    "methods": [
+                        "__post_init__",
+                        "format_content",
+                        "to_dict",
+                        "from_dict",
+                        "validate"
+                    ],
+                    "docstring": "Represents a message in the Dream.OS system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "dreamos\\core\\agent_control\\timing.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "wait_focus",
+                "wait_click",
+                "wait_typing",
+                "wait_capture",
+                "wait_screenshot",
+                "wait_move",
+                "wait_scroll",
+                "wait_load",
+                "wait_refresh"
+            ],
+            "classes": {
+                "Timing": {
+                    "methods": [
+                        "__init__",
+                        "wait_focus",
+                        "wait_click",
+                        "wait_typing",
+                        "wait_capture",
+                        "wait_screenshot",
+                        "wait_move",
+                        "wait_scroll",
+                        "wait_load",
+                        "wait_refresh"
+                    ],
+                    "docstring": "Minimal Timing stub for UI/automation flow compatibility.",
                     "base_classes": []
                 }
             },
@@ -2066,146 +2101,6 @@
             },
             "routes": [],
             "complexity": 20
-        },
-        "dreamos\\core\\agent_control\\response_capture.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_load_coordinates",
-                "capture_response",
-                "wait_for_copy_button"
-            ],
-            "classes": {
-                "ResponseCapture": {
-                    "methods": [
-                        "__init__",
-                        "_load_coordinates",
-                        "capture_response",
-                        "wait_for_copy_button"
-                    ],
-                    "docstring": "Handles capturing and processing UI responses.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 8
-        },
-        "dreamos\\core\\agent_control\\timing.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "wait_focus",
-                "wait_click",
-                "wait_typing",
-                "wait_capture",
-                "wait_screenshot",
-                "wait_move",
-                "wait_scroll",
-                "wait_load",
-                "wait_refresh"
-            ],
-            "classes": {
-                "Timing": {
-                    "methods": [
-                        "__init__",
-                        "wait_focus",
-                        "wait_click",
-                        "wait_typing",
-                        "wait_capture",
-                        "wait_screenshot",
-                        "wait_move",
-                        "wait_scroll",
-                        "wait_load",
-                        "wait_refresh"
-                    ],
-                    "docstring": "Minimal Timing stub for UI/automation flow compatibility.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 20
-        },
-        "dreamos\\core\\agent_control\\screenshot_logger.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "capture",
-                "get_screenshots",
-                "get_latest_screenshot",
-                "compare_screenshots",
-                "cleanup"
-            ],
-            "classes": {
-                "ScreenshotLogger": {
-                    "methods": [
-                        "__init__",
-                        "capture",
-                        "get_screenshots",
-                        "get_latest_screenshot",
-                        "compare_screenshots",
-                        "cleanup"
-                    ],
-                    "docstring": "Tracks and manages debug screenshots for UI automation.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 12
-        },
-        "dreamos\\core\\agent_control\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\agent_control\\__main__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\messaging\\agent_bus.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_load_history",
-                "_save_history",
-                "subscribe",
-                "unsubscribe",
-                "get_subscriber_count",
-                "cleanup"
-            ],
-            "classes": {
-                "MessagePriority": {
-                    "methods": [],
-                    "docstring": "Message priority levels for swarm coordination.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "BusMessage": {
-                    "methods": [],
-                    "docstring": "Represents a message in the agent bus system.",
-                    "base_classes": []
-                },
-                "AgentBus": {
-                    "methods": [
-                        "__init__",
-                        "_load_history",
-                        "_save_history",
-                        "subscribe",
-                        "unsubscribe",
-                        "get_subscriber_count",
-                        "cleanup"
-                    ],
-                    "docstring": "A message bus implementation for agent communication with swarm support.\n\nThis class provides a centralized message bus that allows agents to:\n- Publish messages to specific topics\n- Subscribe to topics and receive messages\n- Unsubscribe from topics\n- Query message history\n- Route messages based on patterns\n- Handle message priorities\n- Coordinate swarm behavior",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 14
         },
         "dreamos\\core\\agent_control\\ui_automation.py": {
             "language": ".py",
@@ -2327,113 +2222,53 @@
             "routes": [],
             "complexity": 16
         },
-        "dreamos\\core\\messaging\\message.py": {
+        "dreamos\\core\\agent_control\\__main__.py": {
             "language": ".py",
-            "functions": [
-                "__post_init__",
-                "format_content",
-                "to_dict",
-                "from_dict",
-                "validate"
-            ],
-            "classes": {
-                "MessageMode": {
-                    "methods": [],
-                    "docstring": "Message delivery modes.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "Message": {
-                    "methods": [
-                        "__post_init__",
-                        "format_content",
-                        "to_dict",
-                        "from_dict",
-                        "validate"
-                    ],
-                    "docstring": "Represents a message in the Dream.OS system.",
-                    "base_classes": []
-                }
-            },
+            "functions": [],
+            "classes": {},
             "routes": [],
-            "complexity": 10
+            "complexity": 0
         },
-        "dreamos\\core\\messaging\\message_processor.py": {
+        "dreamos\\core\\messaging\\agent_bus.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "start",
-                "stop",
-                "add_message",
-                "get_status",
-                "clear_queue",
-                "_process_messages",
-                "_deliver_message",
-                "_format_message",
-                "_chunk_message",
-                "verify_chunk"
+                "_load_history",
+                "_save_history",
+                "subscribe",
+                "unsubscribe",
+                "get_subscriber_count",
+                "cleanup"
             ],
             "classes": {
-                "MessageMode": {
+                "MessagePriority": {
                     "methods": [],
-                    "docstring": "Message delivery modes.",
+                    "docstring": "Message priority levels for swarm coordination.",
                     "base_classes": [
                         "Enum"
                     ]
                 },
-                "MessageProcessor": {
+                "BusMessage": {
+                    "methods": [],
+                    "docstring": "Represents a message in the agent bus system.",
+                    "base_classes": []
+                },
+                "AgentBus": {
                     "methods": [
                         "__init__",
-                        "start",
-                        "stop",
-                        "add_message",
-                        "get_status",
-                        "clear_queue",
-                        "_process_messages",
-                        "_deliver_message",
-                        "_format_message",
-                        "_chunk_message",
-                        "verify_chunk"
+                        "_load_history",
+                        "_save_history",
+                        "subscribe",
+                        "unsubscribe",
+                        "get_subscriber_count",
+                        "cleanup"
                     ],
-                    "docstring": "Handles message processing and delivery for the cell phone interface.",
+                    "docstring": "A message bus implementation for agent communication with swarm support.\n\nThis class provides a centralized message bus that allows agents to:\n- Publish messages to specific topics\n- Subscribe to topics and receive messages\n- Unsubscribe from topics\n- Query message history\n- Route messages based on patterns\n- Handle message priorities\n- Coordinate swarm behavior",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 22
-        },
-        "dreamos\\core\\messaging\\types.py": {
-            "language": ".py",
-            "functions": [
-                "__post_init__",
-                "format_content",
-                "to_dict",
-                "from_dict",
-                "validate"
-            ],
-            "classes": {
-                "MessageMode": {
-                    "methods": [],
-                    "docstring": "Message modes for different types of communication.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "Message": {
-                    "methods": [
-                        "__post_init__",
-                        "format_content",
-                        "to_dict",
-                        "from_dict",
-                        "validate"
-                    ],
-                    "docstring": "Represents a message in the Dream.OS system.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 10
+            "complexity": 14
         },
         "dreamos\\core\\messaging\\ui.py": {
             "language": ".py",
@@ -2480,7 +2315,51 @@
             "routes": [],
             "complexity": 30
         },
-        "dreamos\\core\\messaging\\__init__.py": {
+        "dreamos\\core\\messaging\\message_processor.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "start",
+                "stop",
+                "add_message",
+                "get_status",
+                "clear_queue",
+                "_process_messages",
+                "_deliver_message",
+                "_format_message",
+                "_chunk_message",
+                "verify_chunk"
+            ],
+            "classes": {
+                "MessageMode": {
+                    "methods": [],
+                    "docstring": "Message delivery modes.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "MessageProcessor": {
+                    "methods": [
+                        "__init__",
+                        "start",
+                        "stop",
+                        "add_message",
+                        "get_status",
+                        "clear_queue",
+                        "_process_messages",
+                        "_deliver_message",
+                        "_format_message",
+                        "_chunk_message",
+                        "verify_chunk"
+                    ],
+                    "docstring": "Handles message processing and delivery for the cell phone interface.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 22
+        },
+        "dreamos\\core\\agent_control\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
@@ -2505,6 +2384,36 @@
             },
             "routes": [],
             "complexity": 4
+        },
+        "dreamos\\core\\messaging\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\agent_control\\response_capture.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_coordinates",
+                "capture_response",
+                "wait_for_copy_button"
+            ],
+            "classes": {
+                "ResponseCapture": {
+                    "methods": [
+                        "__init__",
+                        "_load_coordinates",
+                        "capture_response",
+                        "wait_for_copy_button"
+                    ],
+                    "docstring": "Handles capturing and processing UI responses.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
         },
         "dreamos\\core\\shared\\coordinate_manager.py": {
             "language": ".py",
@@ -2543,6 +2452,41 @@
             "routes": [],
             "complexity": 22
         },
+        "dreamos\\core\\agent_control\\cursor_controller.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "move_to",
+                "click",
+                "type_text",
+                "press_enter",
+                "get_position",
+                "wait",
+                "move_to_agent",
+                "click_input_box",
+                "click_copy_button"
+            ],
+            "classes": {
+                "CursorController": {
+                    "methods": [
+                        "__init__",
+                        "move_to",
+                        "click",
+                        "type_text",
+                        "press_enter",
+                        "get_position",
+                        "wait",
+                        "move_to_agent",
+                        "click_input_box",
+                        "click_copy_button"
+                    ],
+                    "docstring": "Controls cursor movement and interaction.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 20
+        },
         "dreamos\\core\\ui\\agent_status_panel.py": {
             "language": ".py",
             "functions": [
@@ -2573,6 +2517,27 @@
             "routes": [],
             "complexity": 0
         },
+        "dreamos\\core\\ui\\theme_manager.py": {
+            "language": ".py",
+            "functions": [
+                "get_dialog_stylesheet",
+                "apply_dialog_theme",
+                "is_dark_theme"
+            ],
+            "classes": {
+                "ThemeManager": {
+                    "methods": [
+                        "get_dialog_stylesheet",
+                        "apply_dialog_theme",
+                        "is_dark_theme"
+                    ],
+                    "docstring": "Manages application-wide UI theming.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
         "dreamos\\core\\ui\\log_console.py": {
             "language": ".py",
             "functions": [
@@ -2596,34 +2561,6 @@
             "routes": [],
             "complexity": 6
         },
-        "dreamos\\core\\ui\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\ui\\theme_manager.py": {
-            "language": ".py",
-            "functions": [
-                "get_dialog_stylesheet",
-                "apply_dialog_theme",
-                "is_dark_theme"
-            ],
-            "classes": {
-                "ThemeManager": {
-                    "methods": [
-                        "get_dialog_stylesheet",
-                        "apply_dialog_theme",
-                        "is_dark_theme"
-                    ],
-                    "docstring": "Manages application-wide UI theming.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 6
-        },
         "dreamos\\core\\utils\\coords.py": {
             "language": ".py",
             "functions": [
@@ -2633,216 +2570,6 @@
             "classes": {},
             "routes": [],
             "complexity": 2
-        },
-        "reports\\rate_limiter.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "allow_request",
-                "_get_window_data",
-                "_update_window_data",
-                "_cleanup_old_entries",
-                "reset",
-                "get_stats",
-                "get_ip_stats"
-            ],
-            "classes": {
-                "RateLimitConfig": {
-                    "methods": [],
-                    "docstring": "Configuration for rate limiting.",
-                    "base_classes": []
-                },
-                "RateLimiter": {
-                    "methods": [
-                        "__init__",
-                        "allow_request",
-                        "_get_window_data",
-                        "_update_window_data",
-                        "_cleanup_old_entries",
-                        "reset",
-                        "get_stats",
-                        "get_ip_stats"
-                    ],
-                    "docstring": "Rate limiter implementation using Redis for distributed rate limiting.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 16
-        },
-        "reports\\zip_cache.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "get",
-                "set",
-                "invalidate",
-                "get_stats",
-                "_evict_oldest",
-                "_update_request_count",
-                "_prefetch_related",
-                "_generate_related_codes",
-                "_cleanup_old_entries",
-                "warm_cache"
-            ],
-            "classes": {
-                "CacheConfig": {
-                    "methods": [],
-                    "docstring": "Configuration for ZIP code caching.",
-                    "base_classes": []
-                },
-                "ZipCache": {
-                    "methods": [
-                        "__init__",
-                        "get",
-                        "set",
-                        "invalidate",
-                        "get_stats",
-                        "_evict_oldest",
-                        "_update_request_count",
-                        "_prefetch_related",
-                        "_generate_related_codes",
-                        "_cleanup_old_entries",
-                        "warm_cache"
-                    ],
-                    "docstring": "Cache for ZIP code resolution results using Redis.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 22
-        },
-        "reports\\zip_resolver.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "record_failure",
-                "record_success",
-                "can_execute",
-                "__init__",
-                "resolve",
-                "resolve_batch",
-                "get_stats",
-                "reset",
-                "warm_cache",
-                "get_circuit_breaker_status"
-            ],
-            "classes": {
-                "ZipResolverConfig": {
-                    "methods": [],
-                    "docstring": "Configuration for ZIP code resolution service.",
-                    "base_classes": []
-                },
-                "CircuitBreaker": {
-                    "methods": [
-                        "__init__",
-                        "record_failure",
-                        "record_success",
-                        "can_execute"
-                    ],
-                    "docstring": "Circuit breaker pattern implementation.",
-                    "base_classes": []
-                },
-                "ZipResolver": {
-                    "methods": [
-                        "__init__",
-                        "resolve",
-                        "resolve_batch",
-                        "get_stats",
-                        "reset",
-                        "warm_cache",
-                        "get_circuit_breaker_status"
-                    ],
-                    "docstring": "Service for resolving ZIP codes with caching and rate limiting.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 22
-        },
-        "scripts\\reorganize_social.py": {
-            "language": ".py",
-            "functions": [
-                "move_directory",
-                "update_imports",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
-        },
-        "social\\social_config.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "load_config",
-                "save_config",
-                "get",
-                "set",
-                "update",
-                "get_platform_config",
-                "get_memory_updates",
-                "_update_memory"
-            ],
-            "classes": {
-                "SocialConfig": {
-                    "methods": [
-                        "__init__",
-                        "load_config",
-                        "save_config",
-                        "get",
-                        "set",
-                        "update",
-                        "get_platform_config",
-                        "get_memory_updates",
-                        "_update_memory"
-                    ],
-                    "docstring": null,
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 18
-        },
-        "social\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "social\\community\\audience_analytics.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_create_default_config",
-                "track_growth",
-                "analyze_demographics",
-                "generate_insights",
-                "export_report",
-                "get_audience_metrics",
-                "_get_audience_metrics"
-            ],
-            "classes": {
-                "AudienceAnalytics": {
-                    "methods": [
-                        "__init__",
-                        "_create_default_config",
-                        "track_growth",
-                        "analyze_demographics",
-                        "generate_insights",
-                        "export_report",
-                        "get_audience_metrics",
-                        "_get_audience_metrics"
-                    ],
-                    "docstring": "Analyzes audience engagement and demographics across platforms.",
-                    "base_classes": [
-                        "CommunityBase"
-                    ]
-                }
-            },
-            "routes": [],
-            "complexity": 16
         },
         "social\\community\\base.py": {
             "language": ".py",
@@ -2870,6 +2597,45 @@
             },
             "routes": [],
             "complexity": 12
+        },
+        "dreamos\\core\\messaging\\types.py": {
+            "language": ".py",
+            "functions": [
+                "__post_init__",
+                "format_content",
+                "to_dict",
+                "from_dict",
+                "validate"
+            ],
+            "classes": {
+                "MessageMode": {
+                    "methods": [],
+                    "docstring": "Message modes for different types of communication.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "Message": {
+                    "methods": [
+                        "__post_init__",
+                        "format_content",
+                        "to_dict",
+                        "from_dict",
+                        "validate"
+                    ],
+                    "docstring": "Represents a message in the Dream.OS system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "dreamos\\core\\ui\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "social\\community\\content_scheduler.py": {
             "language": ".py",
@@ -2910,7 +2676,65 @@
             "routes": [],
             "complexity": 22
         },
+        "social\\community\\audience_analytics.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_create_default_config",
+                "track_growth",
+                "analyze_demographics",
+                "generate_insights",
+                "export_report",
+                "get_audience_metrics",
+                "_get_audience_metrics"
+            ],
+            "classes": {
+                "AudienceAnalytics": {
+                    "methods": [
+                        "__init__",
+                        "_create_default_config",
+                        "track_growth",
+                        "analyze_demographics",
+                        "generate_insights",
+                        "export_report",
+                        "get_audience_metrics",
+                        "_get_audience_metrics"
+                    ],
+                    "docstring": "Analyzes audience engagement and demographics across platforms.",
+                    "base_classes": [
+                        "CommunityBase"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 16
+        },
         "social\\community\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "scripts\\reorganize_social.py": {
+            "language": ".py",
+            "functions": [
+                "move_directory",
+                "update_imports",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "social\\config\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
@@ -2961,12 +2785,53 @@
             "routes": [],
             "complexity": 16
         },
-        "social\\config\\__init__.py": {
+        "reports\\zip_resolver.py": {
             "language": ".py",
-            "functions": [],
-            "classes": {},
+            "functions": [
+                "__init__",
+                "record_failure",
+                "record_success",
+                "can_execute",
+                "__init__",
+                "resolve",
+                "resolve_batch",
+                "get_stats",
+                "reset",
+                "warm_cache",
+                "get_circuit_breaker_status"
+            ],
+            "classes": {
+                "ZipResolverConfig": {
+                    "methods": [],
+                    "docstring": "Configuration for ZIP code resolution service.",
+                    "base_classes": []
+                },
+                "CircuitBreaker": {
+                    "methods": [
+                        "__init__",
+                        "record_failure",
+                        "record_success",
+                        "can_execute"
+                    ],
+                    "docstring": "Circuit breaker pattern implementation.",
+                    "base_classes": []
+                },
+                "ZipResolver": {
+                    "methods": [
+                        "__init__",
+                        "resolve",
+                        "resolve_batch",
+                        "get_stats",
+                        "reset",
+                        "warm_cache",
+                        "get_circuit_breaker_status"
+                    ],
+                    "docstring": "Service for resolving ZIP codes with caching and rate limiting.",
+                    "base_classes": []
+                }
+            },
             "routes": [],
-            "complexity": 0
+            "complexity": 22
         },
         "social\\constants\\platform_constants.py": {
             "language": ".py",
@@ -2975,36 +2840,44 @@
             "routes": [],
             "complexity": 0
         },
-        "social\\constants\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "social\\core\\dispatcher.py": {
+        "social\\core\\log_manager.py": {
             "language": ".py",
             "functions": [
-                "main",
                 "__init__",
-                "dispatch_all",
-                "_process_platform",
-                "_shutdown_all_drivers"
+                "add_platform",
+                "__new__",
+                "__init__",
+                "reset_singleton",
+                "write_log",
+                "get_logs",
+                "clear_logs",
+                "cleanup"
             ],
             "classes": {
-                "SocialPlatformDispatcher": {
+                "LogConfig": {
                     "methods": [
                         "__init__",
-                        "dispatch_all",
-                        "_process_platform",
-                        "_shutdown_all_drivers"
+                        "add_platform"
                     ],
-                    "docstring": "Main dispatcher for handling social media operations.",
+                    "docstring": "Configuration for log management.",
+                    "base_classes": []
+                },
+                "LogManager": {
+                    "methods": [
+                        "__new__",
+                        "__init__",
+                        "reset_singleton",
+                        "write_log",
+                        "get_logs",
+                        "clear_logs",
+                        "cleanup"
+                    ],
+                    "docstring": "Manages logging operations.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 9
+            "complexity": 18
         },
         "social\\core\\driver_manager.py": {
             "language": ".py",
@@ -3030,6 +2903,37 @@
             },
             "routes": [],
             "complexity": 10
+        },
+        "social\\core\\dispatcher.py": {
+            "language": ".py",
+            "functions": [
+                "main",
+                "__init__",
+                "dispatch_all",
+                "_process_platform",
+                "_shutdown_all_drivers"
+            ],
+            "classes": {
+                "SocialPlatformDispatcher": {
+                    "methods": [
+                        "__init__",
+                        "dispatch_all",
+                        "_process_platform",
+                        "_shutdown_all_drivers"
+                    ],
+                    "docstring": "Main dispatcher for handling social media operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 9
+        },
+        "social\\driver\\driver_utils.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "social\\core\\rate_limiter.py": {
             "language": ".py",
@@ -3062,7 +2966,39 @@
             "routes": [],
             "complexity": 10
         },
-        "social\\driver\\driver_utils.py": {
+        "social\\driver\\proxy_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "add_proxy",
+                "remove_proxy",
+                "get_proxy",
+                "rotate_proxy"
+            ],
+            "classes": {
+                "ProxyManager": {
+                    "methods": [
+                        "__init__",
+                        "add_proxy",
+                        "remove_proxy",
+                        "get_proxy",
+                        "rotate_proxy"
+                    ],
+                    "docstring": "Manages proxy rotation and selection for social media platforms.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "social\\constants\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\driver\\session_state.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
@@ -3076,19 +3012,51 @@
             "routes": [],
             "complexity": 0
         },
-        "social\\driver\\proxy_manager.py": {
+        "social\\strategies\\linkedin_strategy.py": {
             "language": ".py",
-            "functions": [],
-            "classes": {},
+            "functions": [
+                "__init__",
+                "create_post",
+                "post"
+            ],
+            "classes": {
+                "LinkedInStrategy": {
+                    "methods": [
+                        "__init__",
+                        "create_post",
+                        "post"
+                    ],
+                    "docstring": null,
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
             "routes": [],
-            "complexity": 0
+            "complexity": 6
         },
-        "social\\driver\\session_state.py": {
+        "social\\strategies\\twitter_strategy.py": {
             "language": ".py",
-            "functions": [],
-            "classes": {},
+            "functions": [
+                "__init__",
+                "create_post",
+                "post"
+            ],
+            "classes": {
+                "TwitterStrategy": {
+                    "methods": [
+                        "__init__",
+                        "create_post",
+                        "post"
+                    ],
+                    "docstring": null,
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
             "routes": [],
-            "complexity": 0
+            "complexity": 6
         },
         "social\\strategies\\facebook_strategy.py": {
             "language": ".py",
@@ -3114,6 +3082,29 @@
             },
             "routes": [],
             "complexity": 8
+        },
+        "social\\strategies\\stocktwits_strategy.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "create_post",
+                "post"
+            ],
+            "classes": {
+                "StockTwitsStrategy": {
+                    "methods": [
+                        "__init__",
+                        "create_post",
+                        "post"
+                    ],
+                    "docstring": null,
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 6
         },
         "social\\strategies\\platform_strategy_base.py": {
             "language": ".py",
@@ -3171,12 +3162,80 @@
             "routes": [],
             "complexity": 39
         },
-        "social\\strategies\\__init__.py": {
+        "social\\strategies\\instagram_strategy.py": {
             "language": ".py",
-            "functions": [],
-            "classes": {},
+            "functions": [
+                "__init__",
+                "create_post",
+                "post"
+            ],
+            "classes": {
+                "InstagramStrategy": {
+                    "methods": [
+                        "__init__",
+                        "create_post",
+                        "post"
+                    ],
+                    "docstring": null,
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
             "routes": [],
-            "complexity": 0
+            "complexity": 6
+        },
+        "social\\strategies\\reddit\\strategy.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_validate_media",
+                "create_post",
+                "post",
+                "is_logged_in",
+                "login",
+                "comment"
+            ],
+            "classes": {
+                "RedditStrategy": {
+                    "methods": [
+                        "__init__",
+                        "_validate_media",
+                        "create_post",
+                        "post",
+                        "is_logged_in",
+                        "login",
+                        "comment"
+                    ],
+                    "docstring": "Strategy for interacting with Reddit.",
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 14
+        },
+        "social\\strategies\\reddit\\handlers\\comment_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "add_comment",
+                "_verify_comment_success"
+            ],
+            "classes": {
+                "CommentHandler": {
+                    "methods": [
+                        "__init__",
+                        "add_comment",
+                        "_verify_comment_success"
+                    ],
+                    "docstring": "Handles all comment-related operations for Reddit.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
         },
         "social\\strategies\\reddit_strategy.py": {
             "language": ".py",
@@ -3207,79 +3266,12 @@
             "routes": [],
             "complexity": 12
         },
-        "social\\strategies\\reddit\\post_handler.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "create_post"
-            ],
-            "classes": {
-                "PostHandler": {
-                    "methods": [
-                        "__init__",
-                        "create_post"
-                    ],
-                    "docstring": null,
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 4
-        },
-        "social\\strategies\\reddit\\strategy.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "is_logged_in",
-                "login",
-                "post",
-                "comment"
-            ],
-            "classes": {
-                "RedditStrategy": {
-                    "methods": [
-                        "__init__",
-                        "is_logged_in",
-                        "login",
-                        "post",
-                        "comment"
-                    ],
-                    "docstring": "Main Reddit strategy class that orchestrates all Reddit-specific operations.",
-                    "base_classes": [
-                        "PlatformStrategy"
-                    ]
-                }
-            },
-            "routes": [],
-            "complexity": 10
-        },
-        "social\\strategies\\reddit\\__init__.py": {
+        "social\\strategies\\reddit\\handlers\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
-        },
-        "social\\strategies\\reddit\\handlers\\comment_handler.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "add_comment",
-                "_verify_comment_success"
-            ],
-            "classes": {
-                "CommentHandler": {
-                    "methods": [
-                        "__init__",
-                        "add_comment",
-                        "_verify_comment_success"
-                    ],
-                    "docstring": "Handles all comment-related operations for Reddit.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 6
         },
         "social\\strategies\\reddit\\handlers\\login_handler.py": {
             "language": ".py",
@@ -3301,6 +3293,45 @@
             },
             "routes": [],
             "complexity": 6
+        },
+        "social\\strategies\\reddit\\rate_limiting\\rate_limiter.py": {
+            "language": ".py",
+            "functions": [
+                "rate_limit",
+                "__init__",
+                "set_rate_limit",
+                "get_rate_limit",
+                "check_rate_limit",
+                "reset_rate_limit",
+                "get_remaining_calls",
+                "rate_limit",
+                "decorator",
+                "wrapper"
+            ],
+            "classes": {
+                "RateLimiter": {
+                    "methods": [
+                        "__init__",
+                        "set_rate_limit",
+                        "get_rate_limit",
+                        "check_rate_limit",
+                        "reset_rate_limit",
+                        "get_remaining_calls",
+                        "rate_limit"
+                    ],
+                    "docstring": "Rate limiter for API calls.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 17
+        },
+        "social\\strategies\\reddit\\rate_limiting\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "social\\strategies\\reddit\\handlers\\post_handler.py": {
             "language": ".py",
@@ -3325,68 +3356,24 @@
             "routes": [],
             "complexity": 8
         },
-        "social\\strategies\\reddit\\handlers\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "social\\strategies\\reddit\\rate_limiting\\rate_limiter.py": {
-            "language": ".py",
-            "functions": [
-                "rate_limit",
-                "__init__",
-                "get_rate_limit",
-                "set_rate_limit",
-                "check_rate_limit",
-                "decorator",
-                "wrapper"
-            ],
-            "classes": {
-                "RateLimiter": {
-                    "methods": [
-                        "__init__",
-                        "get_rate_limit",
-                        "set_rate_limit",
-                        "check_rate_limit"
-                    ],
-                    "docstring": "Manages rate limits for Reddit API operations.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 11
-        },
-        "social\\strategies\\reddit\\rate_limiting\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
         "social\\strategies\\reddit\\validators\\media_validator.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "validate_media",
-                "_validate_single_file",
-                "validate"
+                "validate_media"
             ],
             "classes": {
                 "MediaValidator": {
                     "methods": [
                         "__init__",
-                        "validate_media",
-                        "_validate_single_file",
-                        "validate"
+                        "validate_media"
                     ],
                     "docstring": "Validates media files for Reddit posts.",
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 8
+            "complexity": 4
         },
         "social\\utils\\base_log_manager.py": {
             "language": ".py",
@@ -3422,138 +3409,38 @@
             "routes": [],
             "complexity": 12
         },
-        "social\\utils\\log_batcher.py": {
+        "social\\social_config.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "add",
-                "flush",
-                "should_flush",
-                "get_batch_size"
+                "load_config",
+                "save_config",
+                "get",
+                "set",
+                "update",
+                "get_platform_config",
+                "get_memory_updates",
+                "_update_memory"
             ],
             "classes": {
-                "LogBatcher": {
+                "SocialConfig": {
                     "methods": [
                         "__init__",
-                        "add",
-                        "flush",
-                        "should_flush",
-                        "get_batch_size"
+                        "load_config",
+                        "save_config",
+                        "get",
+                        "set",
+                        "update",
+                        "get_platform_config",
+                        "get_memory_updates",
+                        "_update_memory"
                     ],
-                    "docstring": "Batches log messages before writing them.",
+                    "docstring": null,
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 10
-        },
-        "social\\utils\\log_config.py": {
-            "language": ".py",
-            "functions": [
-                "setup_logging",
-                "__init__"
-            ],
-            "classes": {
-                "LogLevel": {
-                    "methods": [],
-                    "docstring": "Logging levels as an enum for type safety.",
-                    "base_classes": [
-                        "Enum"
-                    ]
-                },
-                "LogConfig": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Configuration for logging setup.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 3
-        },
-        "social\\utils\\log_manager.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "info",
-                "warning",
-                "error",
-                "debug",
-                "_get_extra"
-            ],
-            "classes": {
-                "LogManager": {
-                    "methods": [
-                        "__init__",
-                        "info",
-                        "warning",
-                        "error",
-                        "debug",
-                        "_get_extra"
-                    ],
-                    "docstring": "Simple wrapper around Python's logging module.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 12
-        },
-        "social\\utils\\log_metrics.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "increment",
-                "get_metric",
-                "get_all_metrics",
-                "reset",
-                "get_uptime"
-            ],
-            "classes": {
-                "LogMetrics": {
-                    "methods": [
-                        "__init__",
-                        "increment",
-                        "get_metric",
-                        "get_all_metrics",
-                        "reset",
-                        "get_uptime"
-                    ],
-                    "docstring": "Tracks and aggregates logging metrics.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 12
-        },
-        "social\\utils\\log_rotator.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "__init__",
-                "should_rotate",
-                "rotate"
-            ],
-            "classes": {
-                "RotationConfig": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Configuration for log rotation.",
-                    "base_classes": []
-                },
-                "LogRotator": {
-                    "methods": [
-                        "__init__",
-                        "should_rotate",
-                        "rotate"
-                    ],
-                    "docstring": "Handles rotation of log files.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 8
+            "complexity": 18
         },
         "social\\utils\\log_writer.py": {
             "language": ".py",
@@ -3587,21 +3474,164 @@
             "routes": [],
             "complexity": 5
         },
+        "social\\utils\\log_config.py": {
+            "language": ".py",
+            "functions": [
+                "setup_logging",
+                "__init__"
+            ],
+            "classes": {
+                "LogLevel": {
+                    "methods": [],
+                    "docstring": "Logging levels as an enum for type safety.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "LogConfig": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Configuration for logging setup.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 3
+        },
+        "social\\utils\\log_batcher.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "add",
+                "get_entries",
+                "is_empty",
+                "should_flush",
+                "flush"
+            ],
+            "classes": {
+                "LogBatcher": {
+                    "methods": [
+                        "__init__",
+                        "add",
+                        "get_entries",
+                        "is_empty",
+                        "should_flush",
+                        "flush"
+                    ],
+                    "docstring": "Batches log entries for efficient writing.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 12
+        },
+        "social\\core\\log_metrics.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "increment_logs",
+                "record_error",
+                "record_rotation",
+                "get_metrics",
+                "reset",
+                "get_uptime"
+            ],
+            "classes": {
+                "LogMetrics": {
+                    "methods": [
+                        "__init__",
+                        "increment_logs",
+                        "record_error",
+                        "record_rotation",
+                        "get_metrics",
+                        "reset",
+                        "get_uptime"
+                    ],
+                    "docstring": "Tracks metrics for logging operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 14
+        },
+        "social\\utils\\log_metrics.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "increment",
+                "increment_logs",
+                "record_error",
+                "record_rotation",
+                "get_metric",
+                "get_all_metrics",
+                "reset",
+                "get_uptime"
+            ],
+            "classes": {
+                "LogMetrics": {
+                    "methods": [
+                        "__init__",
+                        "increment",
+                        "increment_logs",
+                        "record_error",
+                        "record_rotation",
+                        "get_metric",
+                        "get_all_metrics",
+                        "reset",
+                        "get_uptime"
+                    ],
+                    "docstring": "Tracks and aggregates logging metrics.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 18
+        },
+        "social\\utils\\log_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "reset_singleton",
+                "info",
+                "warning",
+                "error",
+                "debug",
+                "_get_extra"
+            ],
+            "classes": {
+                "LogManager": {
+                    "methods": [
+                        "__init__",
+                        "reset_singleton",
+                        "info",
+                        "warning",
+                        "error",
+                        "debug",
+                        "_get_extra"
+                    ],
+                    "docstring": "Simple wrapper around Python's logging module.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 14
+        },
         "social\\utils\\media_validator.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "validate_file",
                 "validate_files",
-                "validate"
+                "validate",
+                "validate_media"
             ],
             "classes": {
                 "MediaValidator": {
                     "methods": [
                         "__init__",
-                        "validate_file",
                         "validate_files",
-                        "validate"
+                        "validate",
+                        "validate_media"
                     ],
                     "docstring": "Validates media files for upload.",
                     "base_classes": []
@@ -3610,38 +3640,24 @@
             "routes": [],
             "complexity": 8
         },
-        "social\\utils\\social_common.py": {
+        "social\\utils\\rate_limiter.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "wait_for_element",
-                "wait_for_clickable",
-                "retry_click",
-                "handle_login",
-                "post_content",
-                "verify_post_success",
-                "validate_media",
-                "upload_media"
+                "check_rate_limit"
             ],
             "classes": {
-                "SocialMediaUtils": {
+                "RateLimiter": {
                     "methods": [
                         "__init__",
-                        "wait_for_element",
-                        "wait_for_clickable",
-                        "retry_click",
-                        "handle_login",
-                        "post_content",
-                        "verify_post_success",
-                        "validate_media",
-                        "upload_media"
+                        "check_rate_limit"
                     ],
-                    "docstring": "Common utilities for social media operations.",
+                    "docstring": null,
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 18
+            "complexity": 4
         },
         "social\\utils\\__init__.py": {
             "language": ".py",
@@ -3682,6 +3698,39 @@
             "routes": [],
             "complexity": 8
         },
+        "social\\utils\\social_common.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "wait_for_element",
+                "wait_for_clickable",
+                "retry_click",
+                "handle_login",
+                "post_content",
+                "verify_post_success",
+                "validate_media",
+                "upload_media"
+            ],
+            "classes": {
+                "SocialMediaUtils": {
+                    "methods": [
+                        "__init__",
+                        "wait_for_element",
+                        "wait_for_clickable",
+                        "retry_click",
+                        "handle_login",
+                        "post_content",
+                        "verify_post_success",
+                        "validate_media",
+                        "upload_media"
+                    ],
+                    "docstring": "Common utilities for social media operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 18
+        },
         "src\\auth\\manager.py": {
             "language": ".py",
             "functions": [
@@ -3713,6 +3762,74 @@
             },
             "routes": [],
             "complexity": 15
+        },
+        "tests\\cleanup_test_artifacts.py": {
+            "language": ".py",
+            "functions": [
+                "cleanup_test_artifacts"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "src\\auth\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\conftest.py": {
+            "language": ".py",
+            "functions": [
+                "setup_test_dirs",
+                "clean_test_dirs",
+                "setup_logging",
+                "mock_pyautogui",
+                "temp_dir",
+                "temp_log_dir",
+                "mock_config",
+                "log_config",
+                "setup_test_env",
+                "pytest_configure",
+                "pytest_collection_modifyitems",
+                "test_data_dir",
+                "mock_agent_registry",
+                "test_messages",
+                "clean_runtime_dir",
+                "voice_queue",
+                "bot",
+                "temp_config_dir",
+                "temp_runtime_dir",
+                "message_processor",
+                "agent_operations",
+                "temp_voice_dir",
+                "mock_driver_manager",
+                "mock_dispatcher",
+                "mock_rate_limiter",
+                "mock_platform_strategy",
+                "gui_test_env",
+                "mock_agent_config",
+                "test_log_dir",
+                "mock_log_data",
+                "mock_log_file",
+                "mock_old_log_file",
+                "mock_compressed_log_file",
+                "setup_and_cleanup",
+                "temp_log_dir"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 35
+        },
+        "tests\\run_tests.py": {
+            "language": ".py",
+            "functions": [
+                "run_tests"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
         },
         "src\\auth\\retry.py": {
             "language": ".py",
@@ -3791,6 +3908,24 @@
             "routes": [],
             "complexity": 25
         },
+        "tests\\test_response_collector.py": {
+            "language": ".py",
+            "functions": [
+                "test_collector",
+                "test_collector_mock",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "social\\strategies\\reddit\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
         "src\\auth\\token.py": {
             "language": ".py",
             "functions": [
@@ -3834,130 +3969,6 @@
             "routes": [],
             "complexity": 22
         },
-        "src\\auth\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tests\\cleanup_test_artifacts.py": {
-            "language": ".py",
-            "functions": [
-                "cleanup_test_artifacts"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
-        },
-        "tests\\run_tests.py": {
-            "language": ".py",
-            "functions": [
-                "run_tests"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
-        },
-        "tests\\conftest.py": {
-            "language": ".py",
-            "functions": [
-                "setup_test_dirs",
-                "clean_test_dirs",
-                "setup_logging",
-                "mock_pyautogui",
-                "temp_dir",
-                "temp_log_dir",
-                "mock_config",
-                "log_config",
-                "setup_test_env",
-                "pytest_configure",
-                "pytest_collection_modifyitems",
-                "test_data_dir",
-                "mock_agent_registry",
-                "test_messages",
-                "clean_runtime_dir",
-                "voice_queue",
-                "bot",
-                "temp_config_dir",
-                "temp_runtime_dir",
-                "message_processor",
-                "agent_operations",
-                "temp_voice_dir",
-                "mock_driver_manager",
-                "mock_dispatcher",
-                "mock_rate_limiter",
-                "mock_platform_strategy",
-                "gui_test_env",
-                "mock_agent_config",
-                "test_log_dir",
-                "mock_log_data",
-                "mock_log_file",
-                "mock_old_log_file",
-                "mock_compressed_log_file",
-                "setup_and_cleanup",
-                "temp_log_dir"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 35
-        },
-        "tests\\test_config.py": {
-            "language": ".py",
-            "functions": [
-                "setup_test_environment",
-                "cleanup_test_environment",
-                "test_cleanup",
-                "test_config_file_creation",
-                "test_test_directories_creation",
-                "setup_teardown"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 6
-        },
-        "tests\\test_gui_example.py": {
-            "language": ".py",
-            "functions": [
-                "mock_pyautogui",
-                "test_standalone_gui_function",
-                "moveTo",
-                "position",
-                "setup",
-                "test_basic_mouse_operations",
-                "test_keyboard_operations",
-                "test_mouse_positions",
-                "test_screenshot_capture",
-                "test_failsafe"
-            ],
-            "classes": {
-                "TestGUIExample": {
-                    "methods": [
-                        "setup",
-                        "test_basic_mouse_operations",
-                        "test_keyboard_operations",
-                        "test_mouse_positions",
-                        "test_screenshot_capture",
-                        "test_failsafe"
-                    ],
-                    "docstring": "Example GUI test class demonstrating various GUI testing patterns.",
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 16
-        },
-        "tests\\test_response_collector.py": {
-            "language": ".py",
-            "functions": [
-                "test_collector",
-                "test_collector_mock",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
-        },
         "tests\\__init__.py": {
             "language": ".py",
             "functions": [],
@@ -3983,6 +3994,35 @@
             "classes": {},
             "routes": [],
             "complexity": 11
+        },
+        "social\\utils\\log_rotator.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "__init__",
+                "should_rotate",
+                "rotate"
+            ],
+            "classes": {
+                "RotationConfig": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Configuration for log rotation.",
+                    "base_classes": []
+                },
+                "LogRotator": {
+                    "methods": [
+                        "__init__",
+                        "should_rotate",
+                        "rotate"
+                    ],
+                    "docstring": "Handles rotation of log files.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
         },
         "tests\\agent_control\\test_control.py": {
             "language": ".py",
@@ -4010,6 +4050,13 @@
             "routes": [],
             "complexity": 18
         },
+        "tests\\agent_control\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
         "tests\\agent_control\\test_tasks.py": {
             "language": ".py",
             "functions": [
@@ -4032,13 +4079,6 @@
             },
             "routes": [],
             "complexity": 8
-        },
-        "tests\\agent_control\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
         },
         "tests\\auth\\test_auth_interface.py": {
             "language": ".py",
@@ -4134,6 +4174,20 @@
             "routes": [],
             "complexity": 18
         },
+        "tests\\test_config.py": {
+            "language": ".py",
+            "functions": [
+                "setup_test_environment",
+                "cleanup_test_environment",
+                "test_cleanup",
+                "test_config_file_creation",
+                "test_test_directories_creation",
+                "setup_teardown"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
+        },
         "tests\\auth\\test_retry_mechanism.py": {
             "language": ".py",
             "functions": [
@@ -4172,22 +4226,12 @@
             "routes": [],
             "complexity": 16
         },
-        "tests\\auth\\test_session.py": {
+        "social\\strategies\\__init__.py": {
             "language": ".py",
-            "functions": [
-                "test_session_creation",
-                "test_session_expiration",
-                "test_session_extension",
-                "test_session_manager_initialization",
-                "test_session_manager_creation",
-                "test_session_manager_retrieval",
-                "test_session_manager_invalidation",
-                "test_session_manager_cleanup",
-                "test_session_manager_max_sessions"
-            ],
+            "functions": [],
             "classes": {},
             "routes": [],
-            "complexity": 9
+            "complexity": 0
         },
         "tests\\auth\\test_token.py": {
             "language": ".py",
@@ -4208,6 +4252,13 @@
             "routes": [],
             "complexity": 11
         },
+        "tests\\cli\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
         "tests\\cli\\test_cellphone_cli.py": {
             "language": ".py",
             "functions": [
@@ -4226,50 +4277,12 @@
             "routes": [],
             "complexity": 10
         },
-        "tests\\cli\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tests\\community\\test_base.py": {
-            "language": ".py",
-            "functions": [
-                "temp_config_dir",
-                "temp_log_dir",
-                "base_instance",
-                "test_init",
-                "test_create_default_config",
-                "test_save_config",
-                "test_save_config_permission_error",
-                "test_load_config",
-                "test_load_nonexistent_config",
-                "test_load_invalid_config",
-                "test_update_metrics",
-                "test_update_metrics_invalid_type",
-                "test_update_metrics_nested"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 13
-        },
         "tests\\community\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
-        },
-        "tests\\core\\test_coordinates.py": {
-            "language": ".py",
-            "functions": [
-                "move_to_coords",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 2
         },
         "tests\\core\\test_init_mailbox.py": {
             "language": ".py",
@@ -4302,39 +4315,53 @@
             "routes": [],
             "complexity": 23
         },
-        "tests\\core\\test_log_manager.py": {
+        "tests\\core\\__init__.py": {
             "language": ".py",
-            "functions": [
-                "reset_log_manager",
-                "clean_temp_log_dir",
-                "test_write_log",
-                "test_read_logs",
-                "test_log_rotation",
-                "test_cleanup",
-                "test_singleton",
-                "test_metrics",
-                "test_get_all_logs",
-                "test_log_manager_initialization"
-            ],
+            "functions": [],
             "classes": {},
             "routes": [],
-            "complexity": 10
+            "complexity": 0
         },
-        "tests\\core\\test_message_loop.py": {
+        "tests\\community\\test_base.py": {
             "language": ".py",
             "functions": [
-                "mock_agent_control",
-                "mock_message_processor",
-                "gui_test_env",
-                "test_full_message_loop",
-                "test_message_loop_error_handling",
-                "test_message_loop_invalid_agent",
-                "test_real_agent_messages",
-                "test_real_ui_automation"
+                "temp_config_dir",
+                "temp_log_dir",
+                "base_instance",
+                "test_init",
+                "test_create_default_config",
+                "test_save_config",
+                "test_save_config_permission_error",
+                "test_load_config",
+                "test_load_nonexistent_config",
+                "test_load_invalid_config",
+                "test_update_metrics",
+                "test_update_metrics_invalid_type",
+                "test_update_metrics_nested"
             ],
             "classes": {},
             "routes": [],
-            "complexity": 8
+            "complexity": 13
+        },
+        "tests\\core\\test_response_collector.py": {
+            "language": ".py",
+            "functions": [
+                "test_collector",
+                "test_collector_mock",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "tests\\core\\test_special_chars.py": {
+            "language": ".py",
+            "functions": [
+                "test_multiline_text"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
         },
         "tests\\core\\test_queue.py": {
             "language": ".py",
@@ -4357,26 +4384,6 @@
             "classes": {},
             "routes": [],
             "complexity": 14
-        },
-        "tests\\core\\test_response_collector.py": {
-            "language": ".py",
-            "functions": [
-                "test_collector",
-                "test_collector_mock",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
-        },
-        "tests\\core\\test_special_chars.py": {
-            "language": ".py",
-            "functions": [
-                "test_multiline_text"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
         },
         "tests\\core\\test_utils.py": {
             "language": ".py",
@@ -4445,12 +4452,94 @@
             "routes": [],
             "complexity": 22
         },
-        "tests\\core\\__init__.py": {
+        "tests\\core\\test_coordinates.py": {
+            "language": ".py",
+            "functions": [
+                "move_to_coords",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
+        "tests\\core\\test_message_loop.py": {
+            "language": ".py",
+            "functions": [
+                "mock_agent_control",
+                "mock_message_processor",
+                "gui_test_env",
+                "test_full_message_loop",
+                "test_message_loop_error_handling",
+                "test_message_loop_invalid_agent",
+                "test_real_agent_messages",
+                "test_real_ui_automation"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 8
+        },
+        "tests\\discord\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "tests\\core\\test_log_manager.py": {
+            "language": ".py",
+            "functions": [
+                "reset_log_manager",
+                "clean_temp_log_dir",
+                "test_write_log",
+                "test_read_logs",
+                "test_log_rotation",
+                "test_cleanup",
+                "test_singleton",
+                "test_metrics",
+                "test_get_all_logs",
+                "test_log_manager_initialization"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 10
+        },
+        "tests\\helpers\\discord_test_utils.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\dreamos\\test_cli.py": {
+            "language": ".py",
+            "functions": [
+                "test_cli_script_exists",
+                "test_cli_help",
+                "test_cli_version",
+                "test_cli_invalid_command"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 4
+        },
+        "social\\strategies\\reddit\\post_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "create_post"
+            ],
+            "classes": {
+                "PostHandler": {
+                    "methods": [
+                        "__init__",
+                        "create_post"
+                    ],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 4
         },
         "tests\\discord\\test_discord_commands.py": {
             "language": ".py",
@@ -4488,32 +4577,6 @@
             "routes": [],
             "complexity": 5
         },
-        "tests\\discord\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tests\\dreamos\\test_cli.py": {
-            "language": ".py",
-            "functions": [
-                "test_cli_script_exists",
-                "test_cli_help",
-                "test_cli_version",
-                "test_cli_invalid_command"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 4
-        },
-        "tests\\helpers\\discord_test_utils.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
         "tests\\messaging\\test_cell_phone.py": {
             "language": ".py",
             "functions": [
@@ -4547,22 +4610,6 @@
             "routes": [],
             "complexity": 0
         },
-        "tests\\reports\\test_crime_report_pipeline.py": {
-            "language": ".py",
-            "functions": [
-                "mock_data",
-                "test_generate_report_both_sources",
-                "test_generate_report_arcgis_only",
-                "test_generate_report_json_format",
-                "test_main_stdout",
-                "test_main_file_output",
-                "test_main_invalid_year",
-                "test_main_multiple_zips"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 8
-        },
         "tests\\reports\\test_report_formatter.py": {
             "language": ".py",
             "functions": [
@@ -4576,175 +4623,6 @@
             "classes": {},
             "routes": [],
             "complexity": 6
-        },
-        "tests\\reports\\test_report_rate_limiter_legacy.py": {
-            "language": ".py",
-            "functions": [
-                "mock_redis",
-                "rate_limit_config",
-                "rate_limiter",
-                "test_rate_limiter_initialization",
-                "test_rate_limiter_allow_request",
-                "test_rate_limiter_deny_request",
-                "test_rate_limiter_burst_limit",
-                "test_rate_limiter_window_sliding",
-                "test_rate_limiter_multiple_ips",
-                "test_rate_limiter_reset",
-                "test_rate_limiter_stats",
-                "test_rate_limiter_cleanup",
-                "test_rate_limiter_ip_stats",
-                "__init__",
-                "get",
-                "set",
-                "delete",
-                "keys",
-                "info"
-            ],
-            "classes": {
-                "InMemoryRedis": {
-                    "methods": [
-                        "__init__",
-                        "get",
-                        "set",
-                        "delete",
-                        "keys",
-                        "info"
-                    ],
-                    "docstring": null,
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 25
-        },
-        "tests\\reports\\test_zip_cache.py": {
-            "language": ".py",
-            "functions": [
-                "mock_redis",
-                "cache_config",
-                "zip_cache",
-                "test_zip_cache_initialization",
-                "test_zip_cache_set_get_valid",
-                "test_zip_cache_set_get_invalid",
-                "test_zip_cache_miss",
-                "test_zip_cache_ttl_valid",
-                "test_zip_cache_ttl_invalid",
-                "test_zip_cache_size_limit",
-                "test_zip_cache_invalidate",
-                "test_zip_cache_stats",
-                "test_zip_cache_prefetch",
-                "test_zip_cache_cleanup",
-                "test_zip_cache_warmup",
-                "__init__",
-                "get",
-                "set",
-                "delete",
-                "keys",
-                "info"
-            ],
-            "classes": {
-                "InMemoryRedis": {
-                    "methods": [
-                        "__init__",
-                        "get",
-                        "set",
-                        "delete",
-                        "keys",
-                        "info"
-                    ],
-                    "docstring": null,
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 27
-        },
-        "tests\\reports\\test_zip_mapper.py": {
-            "language": ".py",
-            "functions": [
-                "test_get_zip_info_local_cache",
-                "test_get_zip_info_api_fallback",
-                "test_get_zip_info_api_error",
-                "test_format_location",
-                "test_get_zip_details",
-                "test_montgomery_zips_completeness"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 6
-        },
-        "tests\\reports\\test_zip_resolver.py": {
-            "language": ".py",
-            "functions": [
-                "mock_redis",
-                "resolver_config",
-                "zip_resolver",
-                "test_resolver_initialization",
-                "test_resolve_cached",
-                "test_resolve_rate_limited",
-                "test_resolve_api_success",
-                "test_resolve_api_error",
-                "test_get_stats",
-                "test_reset"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 10
-        },
-        "tests\\social\\test_audience_analytics.py": {
-            "language": ".py",
-            "functions": [
-                "analytics_instance",
-                "test_init",
-                "test_create_default_config",
-                "test_track_growth",
-                "test_track_growth_invalid_data",
-                "test_analyze_demographics",
-                "test_analyze_demographics_invalid_data",
-                "test_generate_insights",
-                "test_generate_insights_invalid_data",
-                "test_export_report",
-                "test_export_report_invalid_format",
-                "test_export_report_permission_error",
-                "test_get_audience_metrics",
-                "test_get_audience_metrics_invalid_platform",
-                "raise_permission_error"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 15
-        },
-        "tests\\social\\test_content_scheduler.py": {
-            "language": ".py",
-            "functions": [
-                "scheduler_instance",
-                "test_init",
-                "test_create_default_config",
-                "test_schedule_post",
-                "test_schedule_post_invalid_data",
-                "test_schedule_post_rate_limit",
-                "test_get_schedule",
-                "test_get_schedule_invalid_platform",
-                "test_optimize_timing",
-                "test_optimize_timing_invalid_platform",
-                "test_analyze_performance",
-                "test_analyze_performance_no_data",
-                "test_get_optimal_time",
-                "test_get_optimal_time_invalid_platform",
-                "test_save_config_permission_error",
-                "test_load_config_invalid_format",
-                "test_save_config"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 17
-        },
-        "tests\\social\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
         },
         "tests\\social\\core\\test_dispatcher.py": {
             "language": ".py",
@@ -4793,41 +4671,6 @@
             "routes": [],
             "complexity": 20
         },
-        "tests\\social\\core\\test_log_manager.py": {
-            "language": ".py",
-            "functions": [
-                "test_log_dir",
-                "log_config",
-                "mock_writer",
-                "mock_rotator",
-                "mock_batcher",
-                "log_manager",
-                "test_log_manager_initialization",
-                "test_log_manager_singleton",
-                "test_log_manager_reset",
-                "test_log_manager_shutdown",
-                "test_log_manager_flush",
-                "test_write_log",
-                "test_write_batch"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 13
-        },
-        "tests\\social\\core\\test_log_metrics.py": {
-            "language": ".py",
-            "functions": [
-                "metrics",
-                "test_metrics_initialization",
-                "test_metrics_increment_logs",
-                "test_metrics_record_error",
-                "test_metrics_record_rotation",
-                "test_metrics_reset"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 6
-        },
         "tests\\social\\core\\test_log_writer.py": {
             "language": ".py",
             "functions": [
@@ -4864,46 +4707,184 @@
             "routes": [],
             "complexity": 21
         },
-        "tests\\social\\strategies\\test_analytics.py": {
+        "tests\\reports\\test_crime_report_pipeline.py": {
             "language": ".py",
             "functions": [
-                "__init__",
-                "track_engagement",
-                "get_content_metrics",
-                "get_platform_metrics",
-                "calculate_engagement_rate",
-                "analytics_manager",
-                "test_engagement_tracking",
-                "test_content_metrics",
-                "test_platform_metrics",
-                "test_engagement_rate"
+                "mock_data",
+                "test_generate_report_both_sources",
+                "test_generate_report_arcgis_only",
+                "test_generate_report_json_format",
+                "test_main_stdout",
+                "test_main_file_output",
+                "test_main_invalid_year",
+                "test_main_multiple_zips"
             ],
-            "classes": {
-                "AnalyticsManager": {
-                    "methods": [
-                        "__init__",
-                        "track_engagement",
-                        "get_content_metrics",
-                        "get_platform_metrics",
-                        "calculate_engagement_rate"
-                    ],
-                    "docstring": "Analytics management system for social media content.",
-                    "base_classes": []
-                },
-                "TestAnalyticsManager": {
-                    "methods": [
-                        "analytics_manager",
-                        "test_engagement_tracking",
-                        "test_content_metrics",
-                        "test_platform_metrics",
-                        "test_engagement_rate"
-                    ],
-                    "docstring": "Test suite for analytics management system.",
-                    "base_classes": []
-                }
-            },
+            "classes": {},
             "routes": [],
-            "complexity": 20
+            "complexity": 8
+        },
+        "tests\\auth\\test_session.py": {
+            "language": ".py",
+            "functions": [
+                "test_session_creation",
+                "test_session_expiration",
+                "test_session_extension",
+                "test_session_manager_initialization",
+                "test_session_manager_creation",
+                "test_session_manager_retrieval",
+                "test_session_manager_invalidation",
+                "test_session_manager_cleanup",
+                "test_session_manager_max_sessions"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 9
+        },
+        "tests\\social\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\social\\test_content_scheduler.py": {
+            "language": ".py",
+            "functions": [
+                "scheduler_instance",
+                "test_init",
+                "test_create_default_config",
+                "test_schedule_post",
+                "test_schedule_post_invalid_data",
+                "test_schedule_post_rate_limit",
+                "test_get_schedule",
+                "test_get_schedule_invalid_platform",
+                "test_optimize_timing",
+                "test_optimize_timing_invalid_platform",
+                "test_analyze_performance",
+                "test_analyze_performance_no_data",
+                "test_get_optimal_time",
+                "test_get_optimal_time_invalid_platform",
+                "test_save_config_permission_error",
+                "test_load_config_invalid_format",
+                "test_save_config"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 17
+        },
+        "tests\\social\\core\\test_log_manager.py": {
+            "language": ".py",
+            "functions": [
+                "test_log_dir",
+                "log_config",
+                "mock_writer",
+                "mock_rotator",
+                "mock_batcher",
+                "log_manager",
+                "test_log_manager_initialization",
+                "test_log_manager_singleton",
+                "test_log_manager_reset",
+                "test_log_manager_shutdown",
+                "test_log_manager_flush",
+                "test_write_log",
+                "test_write_batch"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 13
+        },
+        "tests\\reports\\test_zip_mapper.py": {
+            "language": ".py",
+            "functions": [
+                "test_get_zip_info_local_cache",
+                "test_get_zip_info_api_fallback",
+                "test_get_zip_info_api_error",
+                "test_format_location",
+                "test_get_zip_details",
+                "test_montgomery_zips_completeness"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
+        },
+        "tests\\social\\test_audience_analytics.py": {
+            "language": ".py",
+            "functions": [
+                "analytics_instance",
+                "test_init",
+                "test_create_default_config",
+                "test_track_growth",
+                "test_track_growth_invalid_data",
+                "test_analyze_demographics",
+                "test_analyze_demographics_invalid_data",
+                "test_generate_insights",
+                "test_generate_insights_invalid_data",
+                "test_export_report",
+                "test_export_report_invalid_format",
+                "test_export_report_permission_error",
+                "test_get_audience_metrics",
+                "test_get_audience_metrics_invalid_platform",
+                "raise_permission_error"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 15
+        },
+        "tests\\social\\strategies\\test_reddit_media.py": {
+            "language": ".py",
+            "functions": [
+                "mock_driver",
+                "mock_utils",
+                "mock_logger",
+                "media_handler",
+                "temp_image_file",
+                "temp_video_file",
+                "test_validate_media_empty_list",
+                "test_validate_media_too_many_images",
+                "test_validate_media_too_many_videos",
+                "test_validate_media_unsupported_format",
+                "test_validate_media_file_not_found",
+                "test_validate_media_success",
+                "test_upload_media_missing_button",
+                "test_upload_media_button_click_failure",
+                "test_upload_media_missing_file_input",
+                "test_upload_media_upload_timeout",
+                "test_upload_media_success",
+                "test_upload_media_multiple_files",
+                "test_handle_upload_error"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 19
+        },
+        "tests\\social\\strategies\\test_reddit_auth.py": {
+            "language": ".py",
+            "functions": [
+                "mock_driver",
+                "mock_utils",
+                "mock_logger",
+                "mock_memory",
+                "auth_handler",
+                "test_initialization",
+                "test_is_logged_in_when_logged_in",
+                "test_is_logged_in_when_not_logged_in",
+                "test_login_success",
+                "test_login_missing_credentials",
+                "test_login_form_not_found",
+                "test_login_click_intercepted",
+                "test_login_verification_failed",
+                "test_is_logged_in_when_login_form_present",
+                "test_is_logged_in_when_user_menu_present",
+                "test_is_logged_in_when_neither_present",
+                "test_login_failure_missing_form",
+                "test_login_failure_missing_button",
+                "test_login_retry_click_failure",
+                "test_login_already_logged_in",
+                "test_login_unexpected_error"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 21
         },
         "tests\\social\\strategies\\test_content_management.py": {
             "language": ".py",
@@ -4947,6 +4928,35 @@
             },
             "routes": [],
             "complexity": 22
+        },
+        "tests\\social\\strategies\\test_reddit_rate_limiter.py": {
+            "language": ".py",
+            "functions": [
+                "rate_limiter",
+                "test_initialization",
+                "test_get_rate_limit",
+                "test_custom_limits",
+                "test_rate_limit_exhaustion",
+                "test_rate_limit_reset",
+                "test_rate_limit_window"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 7
+        },
+        "tests\\social\\core\\test_log_metrics.py": {
+            "language": ".py",
+            "functions": [
+                "metrics",
+                "test_metrics_initialization",
+                "test_metrics_increment_logs",
+                "test_metrics_record_error",
+                "test_metrics_record_rotation",
+                "test_metrics_reset"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
         },
         "tests\\social\\strategies\\test_platform_interface.py": {
             "language": ".py",
@@ -5063,76 +5073,75 @@
             "routes": [],
             "complexity": 25
         },
-        "tests\\social\\strategies\\test_reddit_auth.py": {
+        "tests\\social\\strategies\\test_analytics.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "track_engagement",
+                "get_content_metrics",
+                "get_platform_metrics",
+                "calculate_engagement_rate",
+                "analytics_manager",
+                "test_engagement_tracking",
+                "test_content_metrics",
+                "test_platform_metrics",
+                "test_engagement_rate"
+            ],
+            "classes": {
+                "AnalyticsManager": {
+                    "methods": [
+                        "__init__",
+                        "track_engagement",
+                        "get_content_metrics",
+                        "get_platform_metrics",
+                        "calculate_engagement_rate"
+                    ],
+                    "docstring": "Analytics management system for social media content.",
+                    "base_classes": []
+                },
+                "TestAnalyticsManager": {
+                    "methods": [
+                        "analytics_manager",
+                        "test_engagement_tracking",
+                        "test_content_metrics",
+                        "test_platform_metrics",
+                        "test_engagement_rate"
+                    ],
+                    "docstring": "Test suite for analytics management system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 20
+        },
+        "tests\\social\\strategies\\reddit\\test_post_handler.py": {
             "language": ".py",
             "functions": [
                 "mock_driver",
-                "mock_utils",
-                "mock_logger",
-                "mock_memory",
-                "auth_handler",
+                "mock_config",
+                "mock_memory_update",
+                "post_handler",
                 "test_initialization",
-                "test_is_logged_in_when_logged_in",
-                "test_is_logged_in_when_not_logged_in",
-                "test_login_success",
-                "test_login_missing_credentials",
-                "test_login_form_not_found",
-                "test_login_click_intercepted",
-                "test_login_verification_failed",
-                "test_is_logged_in_when_login_form_present",
-                "test_is_logged_in_when_user_menu_present",
-                "test_is_logged_in_when_neither_present",
-                "test_login_failure_missing_form",
-                "test_login_failure_missing_button",
-                "test_login_retry_click_failure",
-                "test_login_already_logged_in",
-                "test_login_unexpected_error"
+                "test_create_post_success",
+                "test_create_post_timeout",
+                "test_create_post_click_intercepted",
+                "test_create_post_with_media"
             ],
-            "classes": {},
+            "classes": {
+                "TestPostHandler": {
+                    "methods": [
+                        "test_initialization",
+                        "test_create_post_success",
+                        "test_create_post_timeout",
+                        "test_create_post_click_intercepted",
+                        "test_create_post_with_media"
+                    ],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
             "routes": [],
-            "complexity": 21
-        },
-        "tests\\social\\strategies\\test_reddit_media.py": {
-            "language": ".py",
-            "functions": [
-                "mock_driver",
-                "mock_utils",
-                "mock_logger",
-                "media_handler",
-                "temp_image_file",
-                "temp_video_file",
-                "test_validate_media_empty_list",
-                "test_validate_media_too_many_images",
-                "test_validate_media_too_many_videos",
-                "test_validate_media_unsupported_format",
-                "test_validate_media_file_not_found",
-                "test_validate_media_success",
-                "test_upload_media_missing_button",
-                "test_upload_media_button_click_failure",
-                "test_upload_media_missing_file_input",
-                "test_upload_media_upload_timeout",
-                "test_upload_media_success",
-                "test_upload_media_multiple_files",
-                "test_handle_upload_error"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 19
-        },
-        "tests\\social\\strategies\\test_reddit_rate_limiter.py": {
-            "language": ".py",
-            "functions": [
-                "rate_limiter",
-                "test_initialization",
-                "test_get_rate_limit",
-                "test_custom_limits",
-                "test_rate_limit_exhaustion",
-                "test_rate_limit_reset",
-                "test_rate_limit_window"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 7
+            "complexity": 14
         },
         "tests\\social\\strategies\\test_reddit_strategy.py": {
             "language": ".py",
@@ -5182,34 +5191,86 @@
             "routes": [],
             "complexity": 33
         },
-        "tests\\social\\strategies\\reddit\\test_post_handler.py": {
+        "tests\\social\\utils\\test_log_batcher.py": {
+            "language": ".py",
+            "functions": [
+                "test_batcher_initialization",
+                "test_add_entry",
+                "test_add_entry_after_timeout",
+                "test_get_entries",
+                "test_add_entries_until_full",
+                "test_concurrent_access",
+                "add_entries"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 7
+        },
+        "tests\\social\\strategies\\reddit\\test_strategy.py": {
             "language": ".py",
             "functions": [
                 "mock_driver",
                 "mock_config",
                 "mock_memory_update",
-                "post_handler",
+                "strategy",
                 "test_initialization",
-                "test_create_post_success",
-                "test_create_post_timeout",
-                "test_create_post_click_intercepted",
-                "test_create_post_with_media"
+                "test_is_logged_in",
+                "test_login",
+                "test_post_success",
+                "test_post_with_media",
+                "test_post_not_logged_in",
+                "test_comment_success",
+                "test_comment_not_logged_in"
             ],
             "classes": {
-                "TestPostHandler": {
+                "TestRedditStrategy": {
                     "methods": [
                         "test_initialization",
-                        "test_create_post_success",
-                        "test_create_post_timeout",
-                        "test_create_post_click_intercepted",
-                        "test_create_post_with_media"
+                        "test_is_logged_in",
+                        "test_login",
+                        "test_post_success",
+                        "test_post_with_media",
+                        "test_post_not_logged_in",
+                        "test_comment_success",
+                        "test_comment_not_logged_in"
                     ],
                     "docstring": null,
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 14
+            "complexity": 20
+        },
+        "tests\\social\\utils\\test_log_rotator.py": {
+            "language": ".py",
+            "functions": [
+                "test_log_dir",
+                "rotation_config",
+                "log_rotator",
+                "test_log_rotator_initialization",
+                "test_rotate_large_file",
+                "test_compress_old_file",
+                "test_cleanup_old_files",
+                "test_do_not_rotate_small_file",
+                "test_do_not_compress_new_file"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 9
+        },
+        "tests\\social\\utils\\test_media_validator.py": {
+            "language": ".py",
+            "functions": [
+                "test_validate_empty_files",
+                "test_validate_single_image",
+                "test_validate_missing_file",
+                "test_validate_unsupported_format",
+                "test_validate_file_too_large",
+                "test_validate_too_many_files"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
         },
         "tests\\social\\strategies\\test_strategy_base.py": {
             "language": ".py",
@@ -5259,6 +5320,17 @@
             "routes": [],
             "complexity": 40
         },
+        "tests\\utils\\gui_test_utils.py": {
+            "language": ".py",
+            "functions": [
+                "is_headless_environment",
+                "get_display_info",
+                "should_skip_gui_test"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
         "tests\\social\\strategies\\reddit\\test_reddit_platform_rate_limiter.py": {
             "language": ".py",
             "functions": [
@@ -5299,111 +5371,89 @@
             "routes": [],
             "complexity": 19
         },
-        "tests\\social\\strategies\\reddit\\test_strategy.py": {
+        "tests\\utils\\__init__.py": {
             "language": ".py",
             "functions": [
-                "mock_driver",
+                "create_temp_config",
+                "cleanup_temp_file",
                 "mock_config",
-                "mock_memory_update",
-                "strategy",
-                "test_initialization",
-                "test_is_logged_in",
-                "test_login",
-                "test_post_success",
-                "test_post_with_media",
-                "test_post_not_logged_in",
-                "test_comment_success",
-                "test_comment_not_logged_in"
+                "create_mock_embed",
+                "run_async_test",
+                "mock_discord_file",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__"
             ],
             "classes": {
-                "TestRedditStrategy": {
+                "MockMessage": {
                     "methods": [
-                        "test_initialization",
-                        "test_is_logged_in",
-                        "test_login",
-                        "test_post_success",
-                        "test_post_with_media",
-                        "test_post_not_logged_in",
-                        "test_comment_success",
-                        "test_comment_not_logged_in"
+                        "__init__"
+                    ],
+                    "docstring": "Minimal mock for discord.Message.",
+                    "base_classes": []
+                },
+                "MockMember": {
+                    "methods": [],
+                    "docstring": "Minimal mock for discord.Member.",
+                    "base_classes": []
+                },
+                "MockChannel": {
+                    "methods": [],
+                    "docstring": "Minimal mock for discord.TextChannel.",
+                    "base_classes": []
+                },
+                "MockGuild": {
+                    "methods": [],
+                    "docstring": "Minimal mock for discord.Guild.",
+                    "base_classes": []
+                },
+                "MockContext": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Minimal mock for discord.ext.commands.Context.",
+                    "base_classes": []
+                },
+                "MockBot": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Minimal mock for discord.ext.commands.Bot.",
+                    "base_classes": []
+                },
+                "DummyEmbed": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "DummyFile": {
+                    "methods": [
+                        "__init__"
                     ],
                     "docstring": null,
                     "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 20
+            "complexity": 14
         },
-        "tests\\social\\utils\\test_log_batcher.py": {
+        "tests\\voice\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\voice\\test_tts.py": {
             "language": ".py",
             "functions": [
-                "test_batcher_initialization",
-                "test_add_entry",
-                "test_add_entry_after_timeout",
-                "test_get_entries",
-                "test_add_entries_until_full",
-                "test_concurrent_access",
-                "add_entries"
+                "output_dir",
+                "tts_manager"
             ],
             "classes": {},
             "routes": [],
-            "complexity": 7
-        },
-        "tests\\social\\utils\\test_log_config.py": {
-            "language": ".py",
-            "functions": [
-                "test_config_initialization",
-                "test_config_defaults",
-                "test_config_custom_values",
-                "test_config_invalid_level",
-                "test_config_custom_format",
-                "test_config_custom_date_format"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 6
-        },
-        "tests\\social\\utils\\test_log_rotator.py": {
-            "language": ".py",
-            "functions": [
-                "test_log_dir",
-                "rotation_config",
-                "log_rotator",
-                "test_log_rotator_initialization",
-                "test_rotate_large_file",
-                "test_compress_old_file",
-                "test_cleanup_old_files",
-                "test_do_not_rotate_small_file",
-                "test_do_not_compress_new_file"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 9
-        },
-        "tests\\social\\utils\\test_media_validator.py": {
-            "language": ".py",
-            "functions": [
-                "test_validate_empty_files",
-                "test_validate_single_image",
-                "test_validate_missing_file",
-                "test_validate_unsupported_format",
-                "test_validate_file_too_large",
-                "test_validate_too_many_files"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 6
-        },
-        "tests\\utils\\gui_test_utils.py": {
-            "language": ".py",
-            "functions": [
-                "is_headless_environment",
-                "get_display_info",
-                "should_skip_gui_test"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
+            "complexity": 2
         },
         "tests\\utils\\mock_discord.py": {
             "language": ".py",
@@ -5474,133 +5524,6 @@
             "routes": [],
             "complexity": 18
         },
-        "tests\\utils\\test_utils.py": {
-            "language": ".py",
-            "functions": [
-                "safe_remove",
-                "ensure_test_dirs",
-                "setup_test_environment",
-                "cleanup_test_environment"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 4
-        },
-        "tests\\voice\\test_tts.py": {
-            "language": ".py",
-            "functions": [
-                "output_dir",
-                "tts_manager"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 2
-        },
-        "tests\\utils\\__init__.py": {
-            "language": ".py",
-            "functions": [
-                "create_temp_config",
-                "cleanup_temp_file",
-                "mock_config",
-                "create_mock_embed",
-                "run_async_test",
-                "mock_discord_file",
-                "__init__",
-                "__init__",
-                "__init__",
-                "__init__"
-            ],
-            "classes": {
-                "MockMessage": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Minimal mock for discord.Message.",
-                    "base_classes": []
-                },
-                "MockMember": {
-                    "methods": [],
-                    "docstring": "Minimal mock for discord.Member.",
-                    "base_classes": []
-                },
-                "MockChannel": {
-                    "methods": [],
-                    "docstring": "Minimal mock for discord.TextChannel.",
-                    "base_classes": []
-                },
-                "MockGuild": {
-                    "methods": [],
-                    "docstring": "Minimal mock for discord.Guild.",
-                    "base_classes": []
-                },
-                "MockContext": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Minimal mock for discord.ext.commands.Context.",
-                    "base_classes": []
-                },
-                "MockBot": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": "Minimal mock for discord.ext.commands.Bot.",
-                    "base_classes": []
-                },
-                "DummyEmbed": {
-                    "methods": [],
-                    "docstring": null,
-                    "base_classes": []
-                },
-                "DummyFile": {
-                    "methods": [
-                        "__init__"
-                    ],
-                    "docstring": null,
-                    "base_classes": []
-                }
-            },
-            "routes": [],
-            "complexity": 14
-        },
-        "tests\\voice\\test_voicebot.py": {
-            "language": ".py",
-            "functions": [
-                "voice_queue_dir",
-                "mock_voice_client",
-                "voice_bot"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 3
-        },
-        "tests\\voice\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tools\\capture_copy_button.py": {
-            "language": ".py",
-            "functions": [
-                "capture_template",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 2
-        },
-        "tools\\check_cursor_coords.py": {
-            "language": ".py",
-            "functions": [
-                "on_click",
-                "on_press"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 2
-        },
         "tools\\coordinate_utils.py": {
             "language": ".py",
             "functions": [
@@ -5614,6 +5537,63 @@
             "classes": {},
             "routes": [],
             "complexity": 6
+        },
+        "tools\\check_cursor_coords.py": {
+            "language": ".py",
+            "functions": [
+                "on_click",
+                "on_press"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
+        "tools\\run_menu.py": {
+            "language": ".py",
+            "functions": [
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "tests\\utils\\test_utils.py": {
+            "language": ".py",
+            "functions": [
+                "safe_remove",
+                "ensure_test_dirs",
+                "setup_test_environment",
+                "cleanup_test_environment"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 4
+        },
+        "tests\\social\\utils\\test_log_config.py": {
+            "language": ".py",
+            "functions": [
+                "test_config_initialization",
+                "test_config_defaults",
+                "test_config_custom_values",
+                "test_config_invalid_level",
+                "test_config_custom_format",
+                "test_config_custom_date_format"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
+        },
+        "tools\\recalibrate_coords.py": {
+            "language": ".py",
+            "functions": [
+                "get_window_info",
+                "capture_point",
+                "validate_unique_coordinates",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 4
         },
         "tools\\layout_snapshot.py": {
             "language": ".py",
@@ -5652,6 +5632,16 @@
             "routes": [],
             "complexity": 17
         },
+        "tools\\capture_copy_button.py": {
+            "language": ".py",
+            "functions": [
+                "capture_template",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
         "tools\\overlap_heatmap.py": {
             "language": ".py",
             "functions": [
@@ -5675,27 +5665,6 @@
             },
             "routes": [],
             "complexity": 9
-        },
-        "tools\\recalibrate_coords.py": {
-            "language": ".py",
-            "functions": [
-                "get_window_info",
-                "capture_point",
-                "validate_unique_coordinates",
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 4
-        },
-        "tools\\run_menu.py": {
-            "language": ".py",
-            "functions": [
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
         },
         "tools\\send_task.py": {
             "language": ".py",
@@ -5746,6 +5715,17 @@
             },
             "routes": [],
             "complexity": 13
+        },
+        "tests\\voice\\test_voicebot.py": {
+            "language": ".py",
+            "functions": [
+                "voice_queue_dir",
+                "mock_voice_client",
+                "voice_bot"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
         }
     }
 }

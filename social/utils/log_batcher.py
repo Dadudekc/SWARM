@@ -1,68 +1,83 @@
 """
 Log Batcher Module
------------------
-Provides functionality for batching log messages before writing them.
+----------------
+Batches log entries for efficient writing.
 """
 
-from typing import List, Dict, Any, Optional
-from datetime import datetime
-import json
+import time
+from typing import List, Any, Optional
 
 class LogBatcher:
-    """Batches log messages before writing them."""
+    """Batches log entries for efficient writing."""
     
-    def __init__(self, batch_size: int = 100, flush_interval: float = 5.0):
-        """Initialize the log batcher.
+    def __init__(
+        self,
+        max_size: int = 100,
+        timeout: float = 60.0
+    ):
+        """Initialize batcher.
         
         Args:
-            batch_size: Maximum number of messages to batch before flushing
-            flush_interval: Maximum time in seconds to wait before flushing
+            max_size: Maximum number of entries per batch
+            timeout: Maximum time in seconds before batch is flushed
         """
-        self.batch_size = batch_size
-        self.flush_interval = flush_interval
-        self.batch: List[Dict[str, Any]] = []
-        self.last_flush = datetime.now()
+        self.max_size = max_size
+        self.timeout = timeout
+        self.entries: List[Any] = []
+        self.last_flush = time.time()
     
-    def add(self, message: Dict[str, Any]) -> None:
-        """Add a message to the current batch.
+    def add(self, entry: Any) -> bool:
+        """Add an entry to the batch.
         
         Args:
-            message: Log message to add
+            entry: Log entry to add
+            
+        Returns:
+            True if entry was added, False if batch is full
         """
-        self.batch.append({
-            **message,
-            'timestamp': datetime.now().isoformat()
-        })
-        
-        if len(self.batch) >= self.batch_size:
-            self.flush()
+        if len(self.entries) >= self.max_size:
+            return False
+            
+        self.entries.append(entry)
+        return True
     
-    def flush(self) -> Optional[List[Dict[str, Any]]]:
-        """Flush the current batch if it's not empty.
+    def get_entries(self) -> List[Any]:
+        """Get current batch entries.
         
         Returns:
-            List of batched messages if any were flushed, None otherwise
+            List of current entries
         """
-        if not self.batch:
-            return None
-            
-        messages = self.batch.copy()
-        self.batch.clear()
-        self.last_flush = datetime.now()
-        return messages
+        return self.entries
+    
+    def is_empty(self) -> bool:
+        """Check if batch is empty.
+        
+        Returns:
+            True if batch is empty
+        """
+        return len(self.entries) == 0
     
     def should_flush(self) -> bool:
-        """Check if the batch should be flushed based on time.
+        """Check if batch should be flushed.
         
         Returns:
-            True if the batch should be flushed, False otherwise
+            True if batch should be flushed
         """
-        return (datetime.now() - self.last_flush).total_seconds() >= self.flush_interval
+        if len(self.entries) >= self.max_size:
+            return True
+            
+        if time.time() - self.last_flush >= self.timeout:
+            return True
+            
+        return False
     
-    def get_batch_size(self) -> int:
-        """Get the current number of messages in the batch.
+    def flush(self) -> List[Any]:
+        """Flush the batch.
         
         Returns:
-            Number of messages in the current batch
+            List of flushed entries
         """
-        return len(self.batch) 
+        entries = self.entries.copy()
+        self.entries.clear()
+        self.last_flush = time.time()
+        return entries 
