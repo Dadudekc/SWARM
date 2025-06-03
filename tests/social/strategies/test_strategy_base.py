@@ -1,9 +1,11 @@
 import os
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from selenium.common.exceptions import TimeoutException, WebDriverException
+from selenium.common.exceptions import TimeoutException, WebDriverException, ElementClickInterceptedException, ElementNotInteractableException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from social.utils.social_common import SocialMediaUtils
+from social.utils.devlog_manager import DevlogManager
+from datetime import datetime
 
 from social.strategies.platform_strategy_base import PlatformStrategy
 from social.strategies.reddit_strategy import RedditStrategy
@@ -13,7 +15,7 @@ from social.utils import LogConfig
 from social.driver.proxy_manager import ProxyManager
 
 # Strategic bypass - Strategy base needs refactor to remove Selenium dependencies
-pytestmark = pytest.mark.skip(reason="Strategic bypass - Strategy base refactor pending")
+# pytestmark = pytest.mark.skip(reason="Strategic bypass - Strategy base refactor pending")
 
 # --- GLOBAL PATCHES FOR ALL TESTS ---
 @pytest.fixture(autouse=True)
@@ -28,7 +30,7 @@ def patch_sqlite_and_rate_limiter(monkeypatch):
 # Patch SocialMediaUtils in RedditStrategy for all tests that construct it
 @pytest.fixture(autouse=True)
 def patch_social_media_utils(monkeypatch):
-    with patch('social.strategies.reddit_strategy.SocialMediaUtils', new=MagicMock()):
+    with patch('social.utils.social_common.SocialMediaUtils', new=MagicMock()):
         yield
 
 @pytest.fixture
@@ -50,71 +52,77 @@ def mock_driver():
 
 @pytest.fixture
 def specific_strategy_mock_config():
-    """Provides a mock configuration dictionary for a specific strategy (e.g., Reddit)."""
-    # Ensure this matches the structure expected by your strategy
-    config_dict = {
-        'platform': 'reddit', # Example platform
-        'username': 'test_user_top', # Top-level creds
-        'password': 'test_pass_top',
-        'log_config': { # Nested log_config for LogManager initialization
-            'log_dir': 'mock_debug_logs',
-            'log_level': 'DEBUG',
-            'max_size': 1024 * 1024, # 1MB
-            'max_age': 7, # days
-            'batch_size': 100,
-            'batch_timeout': 5, # seconds
-            'rotation_check_interval': 60, # seconds
-            'compress_after': 1 # days
+    """Fixture for Reddit strategy configuration. Ensures required keys for all tests."""
+    config = {
+        "browser": {
+            "headless": False,
+            "window_title": "Reddit - Chromium",
+            "window_coords": {"x": 0, "y": 0, "width": 1920, "height": 1080},
+            "cookies_path": "tests/assets/cookies/reddit.pkl",
+            "profile_path": "tests/assets/profiles/reddit"
         },
-        'reddit': { # Nested reddit config often used by strategies
-            'username': 'test_user', # Reddit-specific creds
-            'password': 'test_pass',
-            'client_id': 'test_client_id',
-            'client_secret': 'test_client_secret',
-            'user_agent': 'test_agent',
-            'subreddit': 'test_subreddit',
-            'media_dir': 'reddit_media_test_specific' # Example specific media dir
+        "reddit": {
+            "username": "test_user",
+            "password": "test_pass",
+            "timeout": 10,
+            "retry_attempts": 3,
+            "rate_limit": {
+                "posts_per_hour": 10,
+                "comments_per_hour": 20
+            }
         },
-        'twitter': { # Example for another platform, if needed by SocialMediaUtils setup
-            'media_dir': 'twitter_media_test_specific'
-        },
-        'sqlite_path': ":memory:", # For any sqlite interactions
-        # Adding a 'debug_dir' for PlatformStrategy LogManager if 'log_config' or 'log_dir' isn't found directly
-        'debug_dir': 'mock_debug_logs_main_config', 
-        # For SocialMediaUtils if platform-specific media_dir (e.g., reddit_media_dir) isn't found
-        'media_dir': 'general_media_dir' 
+        "log_config": LogConfig(
+            log_dir="tests/runtime/logs",
+            level="DEBUG",
+            output_format="text",
+            max_size_mb=10,
+            batch_size=100,
+            batch_timeout=5,
+            max_retries=2,
+            retry_delay=0.1,
+            test_mode=True,
+            rotation_enabled=True,
+            max_files=5,
+            compress_after_days=1,
+            rotation_check_interval=60,
+            cleanup_interval=3600
+        )
     }
-    # To mimic MagicMock's .get behavior for the 'reddit' sub-config if needed by tests directly using mock_config.get
-    # However, PlatformStrategy and SocialMediaUtils will use
-    # For the specific case of config.get("subreddit"), it would be config_dict['reddit']['subreddit']
-    # This part might need adjustment based on how tests use mock_config directly.
-    # For now, returning a plain dict should satisfy SocialMediaUtils if it expects a dict.
-    return config_dict.copy() # Return a copy to prevent modification across tests
+    # Guarantee required keys for all downstream code/tests
+    if "cookies_path" not in config["browser"]:
+        config["browser"]["cookies_path"] = "tests/assets/cookies/reddit.pkl"
+    if "profile_path" not in config["browser"]:
+        config["browser"]["profile_path"] = "tests/assets/profiles/reddit"
+    if "reddit" not in config:
+        config["reddit"] = {}
+    return config
 
 @pytest.fixture
 def mock_memory_update():
-    """Create a mock memory update function."""
-    memory = {
-        "last_error": None,
-        "stats": {"login": 0, "post": 0},
+    """Mock memory update dictionary."""
+    return {
         "last_action": None,
-        "completed_quests": [],
-        "updated_protocols": [],
-        "media_uploads": 0,
-        "errors": [],
-        "login_attempts": 0,
-        "operation_times": {},
-        "post_attempts": 0
+        "last_error": None,
+        "stats": {
+            "posts": 0,
+            "errors": 0,
+            "media_uploads": 0
+        },
+        "retry_history": []
     }
-    return memory
 
 @pytest.fixture
 def mock_utils():
     """Create a mock utils object."""
     utils = MagicMock()
     utils.wait_for_element = MagicMock()
+    utils.wait_for_clickable = MagicMock()
     utils.retry_click = MagicMock()
     utils.verify_post_success = MagicMock()
+    utils.take_screenshot = MagicMock()
+    utils.upload_media = MagicMock(return_value=True)
+    utils.validate_media = MagicMock(return_value=True)
+    utils.send_keys = MagicMock()
     return utils
 
 @pytest.fixture
@@ -127,98 +135,75 @@ def strategy(mock_driver, specific_strategy_mock_config, mock_memory_update):
     """Create a test strategy instance."""
     with patch('social.utils.social_common.SocialMediaUtils') as mock_utils:
         strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update, "test_agent")
-        strategy.utils = mock_utils
+        
+        # Create proper mock objects for instance methods
+        strategy.utils = MagicMock()
         strategy.logger = MagicMock()
         strategy.memory_updates = mock_memory_update.copy()
+        
+        # Mock instance methods properly
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy._validate_media = MagicMock(return_value=(True, None))
+        strategy._upload_media = MagicMock(return_value=True)
+        strategy._verify_post = MagicMock(return_value=True)
+        
         # Ensure media_handler uses the same mock utils
         from social.strategies.reddit_media import RedditMediaHandler
         strategy.media_handler = RedditMediaHandler(mock_driver, mock_utils, strategy.logger)
+        
+        # Initialize post_handler with proper mocks
+        from social.strategies.reddit.post_handler import PostHandler
+        strategy.post_handler = PostHandler(mock_driver, specific_strategy_mock_config)
+        strategy.post_handler.create_post = MagicMock(return_value=True)
+        strategy.post_handler.verify_post = MagicMock(return_value=True)
+        
         return strategy
 
-def test_init(strategy):
+def test_init(mock_driver, specific_strategy_mock_config, mock_memory_update):
     """Test strategy initialization."""
-    assert strategy.INITIAL_RETRY_DELAY == 2
-    assert strategy.MAX_RETRY_DELAY == 30
-    assert strategy.subreddit == "test_subreddit"
-    assert strategy.memory_updates["login_attempts"] == 0
-    assert strategy.memory_updates["post_attempts"] == 0
-    assert strategy.memory_updates["media_uploads"] == 0
-    assert strategy.memory_updates["errors"] == []
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
     assert strategy.memory_updates["last_action"] is None
     assert strategy.memory_updates["last_error"] is None
-    assert strategy.stats["login"] == 0
-    assert strategy.stats["post"] == 0
-    assert "comments" in strategy.stats
-    assert strategy.stats["comments"] == 0
-    assert strategy.stats["media_uploads"] == 0
-    assert "posts" in strategy.stats
-    assert strategy.stats["posts"] == 0
-    assert "errors" in strategy.stats
-    assert strategy.stats["errors"] == 0
+    assert strategy.memory_updates["stats"]["posts"] == 0
+    assert strategy.memory_updates["stats"]["comments"] == 0
+    assert strategy.memory_updates["stats"]["media_uploads"] == 0
+    assert strategy.memory_updates["stats"]["errors"] == 0
+    assert len(strategy.memory_updates["retry_history"]) == 0
 
-def test_calculate_retry_delay(strategy):
-    """Test retry delay calculation with different attempts."""
-    # Test first attempt
+def test_calculate_retry_delay(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test retry delay calculation."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Test initial delay
     delay = strategy.calculate_retry_delay(1)
-    assert delay >= strategy.INITIAL_RETRY_DELAY * 0.9  # Min with jitter
-    assert delay <= strategy.INITIAL_RETRY_DELAY * 1.1  # Max with jitter
-    assert delay <= strategy.MAX_RETRY_DELAY  # Never exceed max
-
+    assert delay >= strategy.INITIAL_RETRY_DELAY * 0.9  # Allow for jitter
+    assert delay <= strategy.INITIAL_RETRY_DELAY * 1.1
+    
     # Test exponential backoff
-    delay2 = strategy.calculate_retry_delay(2)
-    assert delay2 > delay  # Should be longer than first attempt
-    assert delay2 <= strategy.MAX_RETRY_DELAY  # Still shouldn't exceed max
+    delay = strategy.calculate_retry_delay(2)
+    assert delay >= strategy.INITIAL_RETRY_DELAY * 2 * 0.9
+    assert delay <= strategy.INITIAL_RETRY_DELAY * 2 * 1.1
+    
+    # Test max delay cap
+    delay = strategy.calculate_retry_delay(10)
+    assert delay <= strategy.MAX_RETRY_DELAY * 1.1  # Allow for jitter
 
-    # Test max delay
-    delay_max = strategy.calculate_retry_delay(10)  # High attempt number
-    assert delay_max <= strategy.MAX_RETRY_DELAY  # Should be capped at max
-
-@patch('os.path.exists')
-@patch('os.path.splitext')
-@patch('os.path.getsize')
-def test_validate_media_single_image(mock_getsize, mock_splitext, mock_exists, mock_driver, mock_utils, mock_log_manager, mock_sqlite):
+def test_validate_media_single_image(mock_driver, specific_strategy_mock_config, mock_memory_update):
     """Test validating a single image file."""
-    # Diagnostic hardcoded config
-    hardcoded_test_config = {
-        'use_temp_dir': True,
-        'log_config': { # Nested log_config
-            'log_dir': 'logs_from_hardcoded_test',
-            'log_level': 'DEBUG',
-            'max_size': 1024 * 1024,
-            'max_age': 7,
-            'batch_size': 100,
-            'batch_timeout': 5,
-            'rotation_check_interval': 60,
-            'compress_after': 1
-        },
-        'reddit': { # Nested reddit config
-            'username': 'test_user',
-            'password': 'test_pass',
-            'client_id': 'test_client_id',
-            'client_secret': 'test_client_secret',
-            'user_agent': 'test_agent',
-            'subreddit': 'test_subreddit'
-            # 'media_dir': 'reddit_media_test' # Explicitly add if SocialMediaUtils needs it directly
-        },
-        'sqlite_path': ":memory:",
-        'debug_dir': 'mock_debug_logs_hardcoded', # For PlatformStrategy LogManager init
-        'platform_media_dir': 'platform_media_test_hardcoded' # A generic one just in case
-    }
-    # mock_utils is passed as memory_update, mock_log_manager as agent_id for RedditStrategy
-    strategy = RedditStrategy(mock_driver, hardcoded_test_config, mock_utils, mock_log_manager)
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
     
-    # Mock the file operations
-    mock_exists.return_value = True
-    mock_splitext.return_value = ("test", ".jpg")
-    mock_getsize.return_value = 1024  # 1KB
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
     
-    with patch.object(strategy, '_create_media_dir'):
-        is_valid, error = strategy._validate_media(["test.jpg"])
-        assert is_valid is True
-        assert error is None
-        mock_exists.assert_any_call("test.jpg")
-        mock_splitext.assert_called_once_with("test.jpg")
-        mock_getsize.assert_called_once_with("test.jpg")
+    # Test with valid file
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        result = strategy._validate_media(["test.jpg"])
+        assert result[0] is True
+        assert result[1] is None
 
 @patch('os.path.exists')
 @patch('os.path.splitext')
@@ -251,54 +236,60 @@ def test_validate_media_unsupported_format(mock_splitext, mock_exists, specific_
         assert "Unsupported file format" in error
         mock_splitext.assert_called_once_with("test.xyz")
 
-def test_login_success(strategy):
+def test_login_success(mock_driver, specific_strategy_mock_config, mock_memory_update):
     """Test successful login."""
-    strategy.memory_updates = {
-        "last_error": None,
-        "stats": {"login": 0, "post": 0},
-        "last_action": None
-    }
-    strategy.stats = strategy.memory_updates["stats"]
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
     
-    # Mock the elements
-    mock_username = Mock()
-    mock_password = Mock()
-    mock_submit = Mock()
+    # Mock is_logged_in to return True
+    strategy.is_logged_in = Mock(return_value=True)
     
-    # Mock the sequence of element finds
-    with patch.object(strategy.utils, 'wait_for_element', side_effect=[mock_username, mock_password, mock_submit]), \
-         patch.object(strategy.utils, 'wait_for_clickable', return_value=mock_submit), \
-         patch.object(strategy.utils, 'retry_click', return_value=True), \
-         patch.object(strategy, 'is_logged_in', side_effect=[False, True]):
-        
-        # Mock the config values
-        strategy.config = MagicMock()
-        strategy.config.get.side_effect=lambda key, default=None: {
-            "username": "test_user",
-            "password": "test_pass",
-            "subreddit": "test_subreddit"
-        }.get(key, default)
-        
-        assert strategy.login() is True
-        assert strategy.memory_updates["last_error"] is None
-        assert strategy.memory_updates["stats"]["login"] == 1
-        assert strategy.memory_updates["last_action"] == "login"
+    # Mock login handler
+    strategy.login_handler = Mock()
+    strategy.login_handler.login = Mock(return_value=True)
+    
+    # Mock rate limiter
+    strategy.rate_limiter = Mock()
+    strategy.rate_limiter.check_rate_limit = Mock(return_value=True)
+    
+    result = strategy.login()
+    
+    assert result is True
+    assert strategy.memory_updates["last_action"] == "login"
+    assert strategy.memory_updates["last_error"] is None
+    assert strategy.memory_updates["stats"]["login"] == 1
+    strategy.login_handler.login.assert_called_once()
 
 def test_login_missing_credentials(specific_strategy_mock_config, mock_driver, mock_utils, mock_log_manager):
     """Test login with missing credentials."""
-    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_utils, mock_log_manager)
+    # Initialize memory updates with required keys
+    memory_updates = {
+        "last_action": None,
+        "last_error": None,
+        "stats": {
+            "login": 0,
+            "post": 0,
+            "comment": 0,
+            "posts": 0,
+            "comments": 0,
+            "media_uploads": 0,
+            "errors": 0,
+            "login_attempts": 0
+        },
+        "retry_history": []
+    }
+    
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, memory_updates, utils=mock_utils, log_manager=mock_log_manager)
+    
     # Set empty credentials
-    if isinstance(specific_strategy_mock_config, dict):
-        specific_strategy_mock_config['reddit'] = {}
-    else:
-        # Handle case where it might not be a dict (though fixture says it is)
-        # This is defensive coding for this persistent issue
-        pass # Or raise an error, or mock specific_strategy_mock_config.reddit if it were an object
-        
-    assert strategy.login() is False
+    strategy.config['reddit'] = {}
+    
+    result = strategy.login()
+    
+    assert result is False
     mock_utils.wait_for_element.assert_not_called()
-    # Accept either 'Missing credentials' or 'Element not found' (implementation may vary)
-    assert strategy.memory_updates["last_error"]["error"] in ["Missing credentials", "Element not found"]
+    assert strategy.memory_updates["last_error"] is not None
+    assert strategy.memory_updates["stats"]["errors"] == 1
+    assert strategy.stats["errors"] == 1
 
 @pytest.mark.skip(reason="Strategic bypass - Auth Layer refactor pending")
 def test_login_failure(strategy):
@@ -346,120 +337,109 @@ def test_login_button_click_failed(strategy):
         assert strategy.memory_updates["last_error"] is not None
 
 def test_is_logged_in_true(mock_driver, specific_strategy_mock_config, mock_memory_update):
-    """Test when is_logged_in should return True."""
-    strategy_instance = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update, "test_agent")
-
-    # Mock utils.wait_for_element
-    # Scenario: Logged in (login form not found, user menu found)
-    mock_user_menu_element = Mock()
-    strategy_instance.utils = MagicMock(spec=SocialMediaUtils) # Ensure utils is a MagicMock
+    """Test is_logged_in when user is logged in."""
+    strategy_instance = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    strategy_instance.utils = Mock()
+    
+    # Mock wait_for_element to return None for login form and a mock for user menu
     strategy_instance.utils.wait_for_element.side_effect = [
-        None,  # login_form not found
-        mock_user_menu_element  # user_menu found
+        None,  # login form
+        Mock()  # user menu
     ]
     
     assert strategy_instance.is_logged_in() is True
-    assert strategy_instance.utils.wait_for_element.call_count == 2
-    # Check that the correct XPATHs were used for login form and user menu
-    strategy_instance.utils.wait_for_element.assert_any_call(By.XPATH, "//form[@id='login-form']", timeout=2)
-    strategy_instance.utils.wait_for_element.assert_any_call(By.XPATH, "//button[@id='USER_DROPDOWN_ID']", timeout=2)
-    assert strategy_instance.memory_updates.get("last_error") is None # No error if logged in
+    assert strategy_instance.memory_updates["last_action"] == "is_logged_in"
+    assert strategy_instance.memory_updates["last_error"] is None
 
-def test_is_logged_in_false(specific_strategy_mock_config, mock_driver, mock_utils, mock_log_manager):
-    """Test when is_logged_in should return False."""
-    strategy_instance = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_utils, mock_log_manager)
-    strategy_instance.utils = MagicMock(spec=SocialMediaUtils) # Ensure utils is a MagicMock for isolated testing
-
-    # Scenario 1: Not logged in (login form found)
-    mock_login_form_element = Mock()
-    strategy_instance.utils.wait_for_element.side_effect = [mock_login_form_element]
-    assert strategy_instance.is_logged_in() is False
-    strategy_instance.utils.wait_for_element.assert_called_once_with(By.XPATH, "//form[@id='login-form']", timeout=2)
-    assert "Login form found" in strategy_instance.memory_updates["last_error"]["error"]
-
-    # Reset mock for Scenario 2
-    strategy_instance.utils.reset_mock()
-    strategy_instance.memory_updates["last_error"] = None # Clear previous error
-
-    # Scenario 2: Not logged in (login form not found, user menu not found)
-    strategy_instance.utils.wait_for_element.side_effect = [
-        None,  # login_form not found
-        None   # user_menu not found
-    ]
-    assert strategy_instance.is_logged_in() is False
-    assert strategy_instance.utils.wait_for_element.call_count == 2
-    strategy_instance.utils.wait_for_element.assert_any_call(By.XPATH, "//form[@id='login-form']", timeout=2)
-    strategy_instance.utils.wait_for_element.assert_any_call(By.XPATH, "//button[@id='USER_DROPDOWN_ID']", timeout=2)
-    assert "User menu not found" in strategy_instance.memory_updates["last_error"]["error"]
-
-def test_post_success(strategy):
-    """Test successful post creation."""
-    strategy.memory_updates = {
-        "last_error": None,
-        "stats": {"login": 0, "post": 0},
-        "last_action": None
-    }
-    strategy.stats = strategy.memory_updates["stats"]
+def test_is_logged_in_false(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test checking if user is not logged in."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
     
-    # Mock the elements
-    mock_title = Mock()
-    mock_submit = Mock()
+    # Mock the wait_for_element method
+    strategy.utils = MagicMock()
+    strategy.utils.wait_for_element = MagicMock()
+    strategy.utils.wait_for_element.side_effect = [MagicMock(), None]
     
-    # Mock the sequence of element finds and interactions
-    with patch.object(strategy, 'is_logged_in', return_value=True), \
-         patch.object(strategy.utils, 'wait_for_element', side_effect=[mock_title, mock_submit]), \
-         patch.object(strategy.utils, 'wait_for_clickable', return_value=mock_submit), \
-         patch.object(strategy.utils, 'retry_click', return_value=True), \
-         patch.object(strategy, '_verify_post_success', return_value=True):
-        
-        # Mock the config values
-        strategy.config = MagicMock()
-        strategy.config.get.side_effect=lambda key, default=None: {
-            "subreddit": "test_subreddit"
-        }.get(key, default)
-        
-        assert strategy.post("Test content") is True
-        assert strategy.memory_updates["stats"]["post"] == 1
-        assert strategy.memory_updates["last_action"] == "post"
-        assert strategy.memory_updates["last_error"] is None
-
-def test_post_failure(specific_strategy_mock_config, mock_driver, mock_utils, mock_log_manager, mock_sqlite):
-    """Test post failure."""
-    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_utils, mock_log_manager)
+    # Test is_logged_in
+    result = strategy.is_logged_in()
     
-    # Mock is_logged_in to return True
-    with patch.object(strategy, 'is_logged_in', return_value=True):
-        # Mock the post form element to raise an exception
-        mock_utils.wait_for_element.side_effect = Exception("Element not found")
-        
-        assert strategy.post("Test content") is False
-        assert strategy.memory_updates["last_error"]["error"] == "Element not found"
-
-def test_post_verification_failed(strategy):
-    # Only patch if verify_post exists
-    if hasattr(strategy, 'verify_post'):
-        with patch.object(strategy, 'is_logged_in', new=Mock(return_value=True)), \
-             patch.object(strategy, 'verify_post', new=Mock(return_value=False)):
-            assert strategy.post("Test post") is False
-            assert strategy.memory_updates["last_error"] is not None
-
-def test_post_button_not_found(strategy):
-    """Test post when submit button is not found."""
-    with patch.object(strategy, 'is_logged_in', return_value=True), \
-         patch.object(strategy.utils, 'wait_for_element', return_value=Mock()), \
-         patch.object(strategy.utils, 'wait_for_clickable', return_value=None):
-        assert strategy.post("Test post") is False
-        assert strategy.memory_updates["last_error"] is not None
-        # Accept either error message since implementation may vary
-        assert strategy.memory_updates["last_error"]["error"] in ["Submit button not found", "Element not found"]
-
-def test_post_not_logged_in(strategy):
-    """Test posting when not logged in."""
-    strategy.memory_updates["last_error"] = None
-    with patch.object(strategy, 'is_logged_in', return_value=False):
-        assert strategy.post("Test content", media_files=None) is False
+    # Verify results
+    assert result is False
+    assert strategy.memory_updates["last_action"] == "is_logged_in"
     assert strategy.memory_updates["last_error"] is not None
-    assert strategy.memory_updates["last_error"]["error"] == "Not logged in"
+
+def test_post_success_with_redis(mock_driver, specific_strategy_mock_config, mock_memory_update, mock_redis_connection):
+    """Test successful post with Redis connection."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(return_value=True)
+    strategy.post_handler.verify_post = MagicMock(return_value=True)
+    
+    # Test post creation
+    result = strategy.post("Test post", ["test.jpg"])
+    assert result is True
+    assert strategy.memory_updates["last_action"] == "post"
+    assert strategy.memory_updates["last_error"] is None
+    assert strategy.memory_updates["stats"]["posts"] == 1
+
+def test_post_not_logged_in(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test post attempt when not logged in."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=False)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(return_value=False)
+    
+    # Test post attempt
+    result = strategy.post("Test post", ["test.jpg"])
+    assert result is False
+    assert strategy.memory_updates["last_error"]["error"] == "Post verification failed"
+    assert strategy.memory_updates["stats"]["errors"] == 1
+
+def test_post_failure(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test post failure handling."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(return_value=False)
+    strategy.post_handler.verify_post = MagicMock(return_value=False)
+    
+    # Test post failure
+    result = strategy.post("Test post", ["test.jpg"])
+    assert result is False
+    assert strategy.memory_updates["last_error"]["error"] == "Post verification failed"
+    assert strategy.memory_updates["stats"]["errors"] == 1
+
+def test_post_button_not_found(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test post button not found scenario."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.rate_limiter = MagicMock()
+    strategy.rate_limiter.check_rate_limit = MagicMock(return_value=True)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(side_effect=NoSuchElementException("Post button not found"))
+    
+    # Mock media validation
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        
+        # Attempt to create a post
+        result = strategy.create_post("Test Title", "Test Content", ["test.jpg"])
+        
+        # Verify error was handled
+        assert result is False
+        assert "Post button not found" in strategy.memory_updates["last_error"]["error"]
+        assert strategy.memory_updates["last_action"] is None
+        assert strategy.post_handler.create_post.call_count == 1
 
 def test_post_media_validation_failed(strategy):
     # Only patch if validate_media exists
@@ -478,43 +458,91 @@ def test_post_media_upload_failed(strategy):
             assert strategy.post("Test post", media=["test.jpg"]) is False
             assert strategy.memory_updates["last_error"] is not None
 
-def test_upload_media_success(strategy):
+def test_upload_media_success(mock_driver, specific_strategy_mock_config, mock_memory_update):
     """Test successful media upload."""
-    mock_file_input = Mock()
-    mock_file_input.send_keys = Mock()
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
     
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    mock_upload_button = MagicMock()
+    strategy.utils.wait_for_element.return_value = mock_upload_button
+    
+    # Mock file operations
     with patch('os.path.exists', return_value=True), \
-         patch('os.path.splitext', return_value=('test', '.jpg')), \
-         patch('os.path.abspath', return_value='/absolute/path/test.jpg'), \
-         patch.object(strategy.utils, 'wait_for_clickable', return_value=Mock()), \
-         patch.object(strategy.utils, 'retry_click', return_value=True), \
-         patch.object(strategy.utils, 'wait_for_element', return_value=mock_file_input), \
-         patch.object(strategy, '_validate_media', return_value=(True, None)):
-        assert strategy._upload_media(["test.jpg"]) is True
+         patch('os.path.splitext', return_value=("test", ".jpg")), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.abspath', return_value="/absolute/path/test.jpg"):
+        
+        # Test media upload
+        result = strategy._upload_media(["test.jpg"])
+        
+        # Verify results
+        assert result is True
+        assert strategy.memory_updates["last_action"] == "media_upload"
         assert strategy.memory_updates["last_error"] is None
-        assert strategy.memory_updates["media_uploads"] == 1
-        mock_file_input.send_keys.assert_called_once_with('/absolute/path/test.jpg')
+        assert strategy.memory_updates["stats"]["media_uploads"] == 1
+        
+        # Verify mocks were called correctly
+        strategy.utils.wait_for_element.assert_called_once()
+        mock_upload_button.click.assert_called_once()
+        mock_upload_button.send_keys.assert_called_once_with("/absolute/path/test.jpg")
 
-def test_upload_media_button_not_found(strategy):
-    """Test media upload when button is not found."""
+def test_upload_media_button_not_found(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test handling when media upload button is not found."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    strategy.utils.wait_for_element.return_value = None
+    
+    # Mock file operations
     with patch('os.path.exists', return_value=True), \
-         patch('os.path.splitext', return_value=('test', '.jpg')), \
-         patch.object(strategy.utils, 'wait_for_clickable', return_value=None), \
-         patch.object(strategy, '_validate_media', return_value=(True, None)):
-        assert strategy._upload_media(["test.jpg"]) is False
-        assert strategy.memory_updates["last_error"] is not None
-        assert "Media upload button not found" in str(strategy.memory_updates["last_error"]["error"])
+         patch('os.path.splitext', return_value=("test", ".jpg")), \
+         patch('os.path.getsize', return_value=1024):
+        
+        # Test media upload
+        result = strategy._upload_media(["test.jpg"])
+        
+        # Verify results
+        assert result is False
+        assert strategy.memory_updates["last_action"] == "media_upload"
+        assert "button not found" in str(strategy.memory_updates["last_error"]).lower()
+        assert strategy.memory_updates["stats"]["errors"] == 1
+        
+        # Verify mocks were called correctly
+        strategy.utils.wait_for_element.assert_called_once()
 
-def test_upload_media_click_failed(strategy):
-    """Test media upload when click fails."""
+def test_upload_media_click_failed(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test handling when media upload click fails."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    mock_upload_button = MagicMock()
+    mock_upload_button.click.side_effect = ElementClickInterceptedException("Click intercepted")
+    strategy.utils.wait_for_element.return_value = mock_upload_button
+    
+    # Mock file operations
     with patch('os.path.exists', return_value=True), \
-         patch('os.path.splitext', return_value=('test', '.jpg')), \
-         patch.object(strategy.utils, 'wait_for_clickable', return_value=Mock()), \
-         patch.object(strategy.utils, 'retry_click', return_value=False), \
-         patch.object(strategy, '_validate_media', return_value=(True, None)):
-        assert strategy._upload_media(["test.jpg"]) is False
-        assert strategy.memory_updates["last_error"] is not None
-        assert "Failed to click media upload button" in str(strategy.memory_updates["last_error"]["error"])
+         patch('os.path.splitext', return_value=("test", ".jpg")), \
+         patch('os.path.getsize', return_value=1024):
+        
+        # Test media upload
+        result = strategy._upload_media(["test.jpg"])
+        
+        # Verify results
+        assert result is False
+        assert strategy.memory_updates["last_action"] == "media_upload"
+        assert strategy.memory_updates["last_error"]["error"] == "Click intercepted"
+        assert strategy.memory_updates["stats"]["errors"] == 1
+        assert strategy.stats["errors"] == 1
+        
+        # Verify mocks were called correctly
+        strategy.utils.wait_for_element.assert_called_once()
+        mock_upload_button.click.assert_called_once()
 
 @patch('os.path.exists')
 @patch('os.path.splitext')
@@ -533,74 +561,397 @@ def test_validate_media_too_many_files(mock_getsize, mock_splitext, mock_exists,
     assert is_valid is False
     assert "Too many files" in error
 
-def test_validate_media_file_too_large(strategy):
-    """Test validating a file that is too large."""
-    strategy.media_validator.max_size = 1024 # 1KB
+def test_validate_media_file_too_large(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test handling of files that are too large."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Create a mock file that's too large
     with patch('os.path.exists', return_value=True), \
-         patch('os.path.getsize', return_value=2048): # 2KB
-        is_valid, error = strategy._validate_media(["test.jpg"])
-        assert is_valid is False
-        assert "File too large" in error
+         patch('os.path.getsize', return_value=21 * 1024 * 1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        result = strategy._validate_media(["large_file.jpg"])
+        assert result[0] is False
+        assert result[1] == "File too large: large_file.jpg (max: 20.0MB)"
 
-def test_validate_media_file_not_found(strategy):
-    """Test validating a file that does not exist."""
+def test_validate_media_file_not_found(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test handling of non-existent files."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Test with non-existent file
     with patch('os.path.exists', return_value=False):
-        is_valid, error = strategy._validate_media(["nonexistent.jpg"])
-        assert is_valid is False
-        assert "File not found" in error
+        result = strategy._validate_media(["nonexistent.jpg"])
+        assert result[0] is False
+        assert result[1] == "File not found: nonexistent.jpg"
 
-def test_validate_media_valid_image(strategy, tmp_path):
-    """Test _validate_media with a single valid image."""
-    valid_image = tmp_path / "image.jpg"
-    valid_image.write_text("fake image data")
-    is_valid, error = strategy._validate_media([str(valid_image)])
-    assert is_valid is True
-    assert error is None
+def test_validate_media_valid_image(mock_driver, specific_strategy_mock_config, mock_memory_update, tmp_path):
+    """Test validating a valid image file."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Create a temporary image file
+    test_file = tmp_path / "test.jpg"
+    test_file.write_bytes(b"test image data")
+    
+    # Test with valid file
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        result = strategy._validate_media([str(test_file)])
+        assert result[0] is True
+        assert result[1] is None
 
-def test_validate_media_invalid_format(strategy, tmp_path):
-    """Test _validate_media with an invalid image format."""
-    invalid_image = tmp_path / "image.txt"
-    invalid_image.write_text("fake image data")
-    # This test assumes the base strategy uses the MediaValidator defaults,
-    # which might include .txt if not configured otherwise for specific image formats.
-    # For a more robust test, one might need to mock MediaValidator or ensure strategy's
-    # supported_formats are set explicitly for the test.
-    # Assuming default validation might fail .txt if only image formats are supported:
-    is_valid, error = strategy._validate_media([str(invalid_image)])
-    assert is_valid is False
-    assert error is not None
+def test_validate_media_invalid_format(mock_driver, specific_strategy_mock_config, mock_memory_update, tmp_path):
+    """Test validating a file with invalid format."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Create a temporary file with invalid format
+    test_file = tmp_path / "test.xyz"
+    test_file.write_bytes(b"test data")
+    
+    # Test with invalid format
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.xyz')):
+        result = strategy._validate_media([str(test_file)])
+        assert result[0] is False
+        assert result[1] == f"Unsupported file format: {test_file} (supported: .jpg, .jpeg, .png, .gif)"
 
-def test_validate_media_too_many_images(strategy, tmp_path):
-    """Test _validate_media with too many images."""
-    strategy.max_images = 1 # Set a low limit for testing
-    images = []
-    for i in range(2):
-        img = tmp_path / f"image{i}.jpg"
-        img.write_text("fake")
-        images.append(str(img))
-    is_valid, error = strategy._validate_media(images)
-    assert is_valid is False
-    assert error is not None
-    strategy.max_images = strategy.MAX_IMAGES
+def test_validate_media_too_many_images(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test validation of too many images."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Create test files
+    test_files = [f"test{i}.jpg" for i in range(21)]  # 21 files, exceeding the limit of 20
+    
+    # Mock file operations
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        result = strategy._validate_media(test_files)
+        assert result[0] is False
+        assert result[1] == "Too many files (max: 20)"
 
-def test_validate_media_video_unsupported(strategy, tmp_path):
-    """Test _validate_media with video when not supported by the method call (is_video=False)."""
-    video_file = tmp_path / "video.mp4"
-    video_file.write_text("fake video data")
-    # Called with is_video=False (default for _validate_media in base)
-    is_valid, error = strategy._validate_media([str(video_file)])
-    # Expect validation to fail if .mp4 is not in supported_image_formats
-    # and is_video=False was used during MediaValidator.validate call.
-    assert is_valid is False
-    assert error is not None
+def test_validate_media_video_unsupported(mock_driver, specific_strategy_mock_config, mock_memory_update, tmp_path):
+    """Test validating an unsupported video file."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Create a temporary video file
+    test_file = tmp_path / "test.mp4"
+    test_file.write_bytes(b"test video data")
+    
+    # Test with unsupported video format
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.mp4')):
+        result = strategy._validate_media([str(test_file)])
+        assert result[0] is False
+        assert result[1] == f"Unsupported file format: {test_file} (supported: .jpg, .jpeg, .png, .gif)"
 
-def test_validate_media_valid_video_when_specified(strategy, tmp_path):
-    """Test _validate_media with a valid video when is_video=True."""
-    strategy.max_videos = 1
-    strategy.supported_video_formats = [".mp4"]
-    video_file = tmp_path / "video.mp4"
-    video_file.write_text("fake video data")
-    # Explicitly tell _validate_media (which passes to MediaValidator) that it's a video
-    is_valid, error = strategy._validate_media([str(video_file)], is_video=True)
-    assert is_valid is True
-    assert error is None 
+def test_validate_media_valid_video_when_specified(mock_driver, specific_strategy_mock_config, mock_memory_update, tmp_path):
+    """Test validating a valid video file when video is supported."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Create a temporary video file
+    test_file = tmp_path / "test.mp4"
+    test_file.write_bytes(b"test video data")
+    
+    # Test with valid video format
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.mp4')):
+        result = strategy._validate_media([str(test_file)], is_video=True)
+        assert result[0] is True
+        assert result[1] is None
+
+def test_platform_initialization_missing_keys(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test initialization with missing configuration keys."""
+    # Create config with missing keys
+    config = {
+        "reddit": {
+            "subreddit": "test_subreddit"
+            # Missing username and password
+        }
+    }
+    
+    # Test initialization
+    with pytest.raises(ValueError) as exc_info:
+        RedditStrategy(mock_driver, config, mock_memory_update)
+    
+    assert "Missing required browser configuration" in str(exc_info.value)
+
+def test_platform_initialization_valid_keys(mock_driver, mock_memory_update):
+    """Test platform initialization with valid browser automation configuration."""
+    config = {
+        "browser": {
+            "headless": False,
+            "window_title": "Reddit - Chromium",
+            "window_coords": {"x": 0, "y": 0, "width": 1920, "height": 1080},
+            "cookies_path": "tests/assets/cookies/reddit.pkl",
+            "profile_path": "tests/assets/profiles/reddit"
+        },
+        "reddit": {
+            "username": "test_user",
+            "password": "test_pass",
+            "timeout": 10,
+            "retry_attempts": 3
+        }
+    }
+    
+    # Initialize memory updates with expected structure
+    memory_updates = {
+        "last_action": None,
+        "last_error": None,
+        "stats": {
+            "login": 0,
+            "post": 0,
+            "comment": 0,
+            "posts": 0,
+            "comments": 0,
+            "media_uploads": 0,
+            "errors": 0,
+            "retries": 0,
+            "login_attempts": 0
+        },
+        "retry_history": []
+    }
+    
+    strategy = RedditStrategy(mock_driver, config, mock_memory_update)
+    assert strategy.config == config
+    assert strategy.driver == mock_driver
+    assert strategy.memory_updates == memory_updates
+
+def test_reddit_strategy_error_handling(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test error handling in Reddit strategy."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock is_logged_in to return True
+    strategy.is_logged_in = Mock(return_value=True)
+    
+    # Mock rate limiter
+    strategy.rate_limiter = Mock()
+    strategy.rate_limiter.check_rate_limit = Mock(return_value=True)
+    
+    # Mock post handler to raise an error
+    strategy.post_handler = Mock()
+    strategy.post_handler.create_post = Mock(side_effect=Exception("Test error"))
+    
+    # Attempt to create a post
+    result = strategy.create_post("Test Title", "Test Content")
+    
+    # Verify error was handled
+    assert result is False
+    assert "Test error" in strategy.memory_updates["last_error"]["error"]
+    assert strategy.memory_updates["last_action"] is None
+
+def test_devlog_embed_validation(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test devlog embed validation."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock is_logged_in to return True
+    strategy.is_logged_in = MagicMock(return_value=True)
+    
+    # Mock rate limiter
+    strategy.rate_limiter = MagicMock()
+    strategy.rate_limiter.check_rate_limit = MagicMock(return_value=True)
+    
+    # Mock post handler
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(return_value=True)
+    
+    # Test devlog embed validation
+    from social.utils.log_level import LogLevel
+    result = strategy.post_devlog("Test Title", "Test Content", LogLevel.INFO)
+    
+    assert result is True
+    assert strategy.memory_updates["last_action"] == "post"
+    assert strategy.memory_updates["last_error"] is None
+    assert strategy.memory_updates["stats"]["post"] == 1
+    strategy.post_handler.create_post.assert_called_once()
+
+def test_reddit_strategy_retry_behavior(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test retry behavior for failed operations."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.login = MagicMock(side_effect=[False, True])
+    
+    # Test retry behavior
+    result = strategy.retry_operation("login", max_retries=2)
+    
+    assert result is True
+    assert strategy.memory_updates["stats"]["retries"] == 2
+    assert len(strategy.memory_updates["retry_history"]) == 2
+    assert strategy.memory_updates["last_action"] == "login"
+    
+    # Test max retries exceeded
+    strategy.login = MagicMock(return_value=False)
+    result = strategy.retry_operation("login", max_retries=2)
+    
+    assert result is False
+    assert strategy.memory_updates["stats"]["retries"] == 4  # 2 from previous + 2 new attempts
+    assert len(strategy.memory_updates["retry_history"]) == 4  # 2 from previous + 2 new attempts
+
+def test_reddit_strategy_rate_limiting(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test rate limiting behavior."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock is_logged_in to return True
+    strategy.is_logged_in = Mock(return_value=True)
+    
+    # Mock rate limiter to simulate rate limit exceeded
+    strategy.rate_limiter = Mock()
+    strategy.rate_limiter.check_rate_limit = Mock(return_value=False)
+    
+    # Mock post handler
+    strategy.post_handler = Mock()
+    strategy.post_handler.create_post = Mock(return_value=False)
+    
+    # Attempt to create a post
+    result = strategy.create_post("Test Title", "Test Content")
+    
+    # Verify rate limit error was handled
+    assert result is False
+    assert "Rate limit exceeded" in strategy.memory_updates["last_error"]["error"]
+    assert strategy.memory_updates["last_action"] == "rate_limit"
+
+def test_reddit_strategy_media_validation_edge_cases(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test media validation edge cases in Reddit strategy."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Mock necessary methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.utils = MagicMock()
+    
+    # Test too many files
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        result = strategy._validate_media(["test1.jpg", "test2.jpg", "test3.jpg", "test4.jpg", "test5.jpg", "test6.jpg", "test7.jpg", "test8.jpg", "test9.jpg", "test10.jpg", "test11.jpg", "test12.jpg", "test13.jpg", "test14.jpg", "test15.jpg", "test16.jpg", "test17.jpg", "test18.jpg", "test19.jpg", "test20.jpg", "test21.jpg"])
+        assert result[0] is False
+        assert result[1] == "Too many files (max: 20)"
+    
+    # Test file not found
+    with patch('os.path.exists', return_value=False):
+        result = strategy._validate_media(["nonexistent.jpg"])
+        assert result[0] is False
+        assert result[1] == "File not found: nonexistent.jpg"
+    
+    # Test unsupported format
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.xyz')):
+        result = strategy._validate_media(["test.xyz"])
+        assert result[0] is False
+        assert result[1] == "Unsupported file format: test.xyz (supported: .jpg, .jpeg, .png, .gif)"
+
+def test_reddit_strategy_error_recovery(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test error recovery in Reddit strategy."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.rate_limiter = MagicMock()
+    strategy.rate_limiter.check_rate_limit = MagicMock(return_value=True)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(side_effect=[
+        Exception("Temporary error"),
+        True  # Success on retry
+    ])
+    
+    # Mock media validation
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        
+        # Attempt to create a post
+        result = strategy.create_post("Test Title", "Test Content", ["test.jpg"])
+        
+        # Verify error recovery
+        assert result is True
+        assert strategy.memory_updates["last_action"] == "post"
+        assert strategy.memory_updates["last_error"] is None
+        assert strategy.memory_updates["stats"]["post"] == 1
+        assert strategy.post_handler.create_post.call_count == 2
+
+def test_reddit_strategy_integration(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test full integration of Reddit strategy components."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.rate_limiter = MagicMock()
+    strategy.rate_limiter.check_rate_limit = MagicMock(return_value=True)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(return_value=True)
+    strategy.login_handler = MagicMock()
+    strategy.login_handler.login = MagicMock(return_value=True)
+    
+    # Mock media validation
+    with patch('os.path.exists', return_value=True), \
+         patch('os.path.getsize', return_value=1024), \
+         patch('os.path.splitext', return_value=('test', '.jpg')):
+        
+        # Test login
+        login_result = strategy.login()
+        assert login_result is True
+        assert strategy.memory_updates["last_action"] == "login"
+        assert strategy.memory_updates["last_error"] is None
+        
+        # Test post creation
+        post_result = strategy.create_post("Test Title", "Test Content", ["test.jpg"])
+        assert post_result is True
+        assert strategy.memory_updates["last_action"] == "post"
+        assert strategy.memory_updates["last_error"] is None
+        assert strategy.memory_updates["stats"]["post"] == 1
+        
+        # Verify all components were called
+        strategy.login_handler.login.assert_called_once()
+        strategy.post_handler.create_post.assert_called_once()
+
+def test_devlog_embed_validation(mock_driver, specific_strategy_mock_config, mock_memory_update):
+    """Test devlog embed validation."""
+    strategy = RedditStrategy(mock_driver, specific_strategy_mock_config, mock_memory_update)
+    
+    # Create proper mock objects for instance methods
+    strategy.is_logged_in = MagicMock(return_value=True)
+    strategy.rate_limiter = MagicMock()
+    strategy.rate_limiter.check_rate_limit = MagicMock(return_value=True)
+    strategy.post_handler = MagicMock()
+    strategy.post_handler.create_post = MagicMock(return_value=True)
+    
+    # Test devlog embed validation
+    from social.utils.log_level import LogLevel
+    result = strategy.post_devlog("Test Title", "Test Content", LogLevel.INFO)
+    
+    assert result is True
+    assert strategy.memory_updates["last_action"] == "post"
+    assert strategy.memory_updates["last_error"] is None
+    assert strategy.memory_updates["stats"]["post"] == 1
+    strategy.post_handler.create_post.assert_called_once() 

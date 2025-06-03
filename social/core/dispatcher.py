@@ -11,11 +11,12 @@ import threading
 from typing import List, Dict, Any, Optional, Union
 from datetime import datetime
 from pathlib import Path
+from unittest.mock import Mock
 
 from .driver_manager import DriverManager
 from ..config.social_config import social_config, Platform
 from ..utils.log_manager import LogManager
-from ..utils.log_config import LogLevel
+from ..utils.log_config import LogLevel, LogConfig
 from .rate_limiter import RateLimiter
 from ..strategies.reddit.handlers.login_handler import LoginHandler
 from ..utils.media_validator import MediaValidator
@@ -27,6 +28,7 @@ from ..strategies import (
     StockTwitsStrategy,
     LinkedInStrategy
 )
+from ..strategies.reddit.config import RedditConfig
 
 class SocialPlatformDispatcher:
     """Main dispatcher for handling social media operations."""
@@ -39,9 +41,46 @@ class SocialPlatformDispatcher:
             headless: Optional override for headless mode
         """
         self.memory_update = memory_update
-        self.logger = LogManager(social_config)
-        self.rate_limiter = RateLimiter()
-        self.login_handler = LoginHandler()
+        
+        # Initialize LogManager with social-specific config
+        log_config = LogConfig(
+            log_dir="logs/social",
+            batch_size=20,  # Larger batch size for social operations
+            batch_timeout=1.0,
+            max_retries=3,
+            retry_delay=0.5
+        )
+        self.log_manager = LogManager(config=log_config)
+        
+        # Initialize rate limiter with default limits
+        default_limits = {
+            "post": {"limit": 50, "window": 3600},  # 50 posts per hour
+            "comment": {"limit": 100, "window": 3600},  # 100 comments per hour
+            "login": {"limit": 5, "window": 300},  # 5 login attempts per 5 minutes
+            "like": {"limit": 200, "window": 3600},  # 200 likes per hour
+            "follow": {"limit": 50, "window": 3600},  # 50 follows per hour
+            "message": {"limit": 20, "window": 3600},  # 20 messages per hour
+        }
+        self.rate_limiter = RateLimiter(limits=default_limits)
+        
+        # Initialize login handler with mock driver and config for testing
+        mock_driver = Mock()
+        mock_config = RedditConfig(
+            username="test_user",
+            password="test_pass",
+            cookies_path=Path("data/cookies"),
+            max_retries=3,
+            retry_delay=1,
+            session_timeout=24,
+            rate_limit_posts=10,
+            rate_limit_comments=50,
+            supported_image_formats=[".jpg", ".png", ".gif"],
+            supported_video_formats=[".mp4", ".mov"],
+            max_images=10,
+            max_videos=1,
+            max_video_size=10 * 1024 * 1024
+        )
+        self.login_handler = LoginHandler(driver=mock_driver, config=mock_config)
         self.media_validator = MediaValidator()
         self.driver_manager = DriverManager()
         
@@ -68,6 +107,17 @@ class SocialPlatformDispatcher:
             if self.platform_configs[name].config.get("enabled", False)
         }
         
+        # Log enabled platforms
+        self.log_manager.info(
+            platform="social",
+            status="initialized",
+            message="Social platform dispatcher initialized",
+            metadata={
+                "enabled_platforms": list(self.enabled_platforms.keys()),
+                "headless_mode": headless
+            }
+        )
+        
         # Create session IDs for enabled platforms
         self.session_ids = [f"session_{platform}" for platform in self.enabled_platforms]
         
@@ -78,17 +128,65 @@ class SocialPlatformDispatcher:
             headless=headless if headless is not None else self.platform_configs["twitter"].config.get("headless", False)
         )
         
-        self.logger.write_log(
-            platform="dispatcher",
-            status="initialized",
-            tags=["init"],
-            message=f"Initialized dispatcher with {len(self.enabled_platforms)} enabled platforms",
-            level=LogLevel.INFO
+        # Log driver initialization
+        self.log_manager.info(
+            platform="social",
+            status="drivers_initialized",
+            message="Driver sessions initialized",
+            metadata={
+                "session_ids": self.session_ids,
+                "proxy_rotation": self.platform_configs["twitter"].config.get("proxy_rotation", False),
+                "headless": headless if headless is not None else self.platform_configs["twitter"].config.get("headless", False)
+            }
         )
+        
+    def _update_memory(self, action: str, success: bool, error: Optional[str] = None) -> None:
+        """Update memory with action results.
+        
+        Args:
+            action: Action performed
+            success: Whether action succeeded
+            error: Optional error message
+        """
+        # Update memory
+        self.memory_update["last_action"] = {
+            "action": action,
+            "success": success,
+            "timestamp": datetime.now().isoformat()
+        }
+        
+        if not success:
+            self.memory_update["last_error"] = {
+                "error": error,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        # Log the update
+        if success:
+            self.log_manager.info(
+                platform="social",
+                status=action,
+                message=f"Social action completed: {action}",
+                metadata={
+                    "action": action,
+                    "success": success
+                }
+            )
+        else:
+            self.log_manager.error(
+                platform="social",
+                status=action,
+                message=f"Social action failed: {action}",
+                error=error,
+                metadata={
+                    "action": action,
+                    "success": success
+                }
+            )
     
     def dispatch_all(self) -> None:
         """Dispatch posts to all enabled platforms in parallel."""
-        self.logger.write_log(
+        self.log_manager.write_log(
             platform="dispatcher",
             status="started",
             tags=["dispatch"],
@@ -123,7 +221,7 @@ class SocialPlatformDispatcher:
         for thread in threads:
             thread.join()
         
-        self.logger.write_log(
+        self.log_manager.write_log(
             platform="dispatcher",
             status="completed",
             tags=["dispatch"],
@@ -153,7 +251,7 @@ class SocialPlatformDispatcher:
                 is_video=getattr(strategy, 'is_video', False)
             )
             if not is_valid:
-                self.logger.write_log(
+                self.log_manager.write_log(
                     platform=platform_name,
                     status="failed",
                     tags=["media_validation"],
@@ -168,7 +266,7 @@ class SocialPlatformDispatcher:
             try:
                 # Check rate limits
                 if not self.rate_limiter.check_rate_limit(platform_name, "post"):
-                    self.logger.write_log(
+                    self.log_manager.write_log(
                         platform=platform_name,
                         status="rate_limited",
                         tags=["rate_limit"],
@@ -181,7 +279,7 @@ class SocialPlatformDispatcher:
                     return False
                 
                 # Handle login
-                if not self.login_handler.handle_login(strategy, platform_name, self.logger):
+                if not self.login_handler.handle_login(strategy, platform_name, self.log_manager):
                     if attempt < max_retries - 1:
                         time.sleep(retry_delay)
                         continue
@@ -199,7 +297,7 @@ class SocialPlatformDispatcher:
                     post_error = str(e)
 
                 if post_successful:
-                    self.logger.write_log(
+                    self.log_manager.write_log(
                         platform=platform_name,
                         status="successful",
                         tags=["post"],
@@ -210,7 +308,7 @@ class SocialPlatformDispatcher:
                     return True  # Success, exit retry loop
                 else:
                     log_message = f"Post failed: {post_error}" if post_error else "Post failed"
-                    self.logger.write_log(
+                    self.log_manager.write_log(
                         platform=platform_name,
                         status="failed",
                         tags=["post"],
@@ -232,7 +330,7 @@ class SocialPlatformDispatcher:
                     return False
                     
             except Exception as e:  # Outer catch-all for issues like login, rate_limit, or unexpected errors
-                self.logger.write_log(
+                self.log_manager.write_log(
                     platform=platform_name,
                     status="failed",
                     tags=["error"],
@@ -254,7 +352,7 @@ class SocialPlatformDispatcher:
                 session.shutdown_driver()
                 session.cleanup_profile()
             except Exception as e:
-                self.logger.write_log(
+                self.log_manager.write_log(
                     platform="dispatcher",
                     status="error",
                     tags=["shutdown"],

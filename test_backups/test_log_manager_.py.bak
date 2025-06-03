@@ -1,0 +1,131 @@
+"""Tests for the core log manager functionality."""
+
+import pytest
+from pathlib import Path
+import json
+import time
+from datetime import datetime
+from unittest.mock import Mock, patch
+
+from social.utils.log_manager import LogManager
+from social.utils.log_config import LogConfig, LogLevel
+from social.utils.log_metrics import LogMetrics
+
+@pytest.fixture
+def test_log_dir(tmp_path):
+    """Create a temporary log directory for testing."""
+    log_dir = tmp_path / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
+    return log_dir
+
+@pytest.fixture
+def log_config(tmp_path):
+    """Create a test log configuration."""
+    return LogConfig(
+        log_dir=tmp_path / "logs",
+        batch_size=10,
+        batch_timeout=1.0,
+        rotation_size=1024,  # 1KB for testing
+        max_files=5,
+        rotation_check_interval=1.0,
+        cleanup_interval=1.0,
+        use_temp_dir=True,
+        use_json=True,
+        use_text=True,
+        max_size=2048,  # 2KB for testing
+        max_age=86400,  # 1 day for testing
+        compress_after=43200  # 12 hours for testing
+    )
+
+@pytest.fixture
+def mock_writer():
+    """Create a mock log writer."""
+    writer = Mock()
+    writer.write_log.return_value = True
+    return writer
+
+@pytest.fixture
+def mock_rotator():
+    """Create a mock log rotator."""
+    rotator = Mock()
+    rotator.rotate_file.return_value = True
+    return rotator
+
+@pytest.fixture
+def mock_batcher():
+    """Create a mock log batcher."""
+    batcher = Mock()
+    batcher.add_entry.return_value = True
+    return batcher
+
+@pytest.fixture
+def log_manager(log_config, mock_writer, mock_rotator, mock_batcher):
+    """Create a log manager instance for testing."""
+    with patch('social.utils.log_manager.LogWriter', return_value=mock_writer), \
+         patch('social.utils.log_manager.LogRotator', return_value=mock_rotator), \
+         patch('social.utils.log_manager.LogBatcher', return_value=mock_batcher):
+        LogManager.reset_singleton()  # Ensure fresh instance for each test
+        manager = LogManager(log_config)
+        yield manager
+        manager.shutdown()
+        # Clean up any remaining files
+        for file in Path(log_config.log_dir).glob("*"):
+            try:
+                file.unlink()
+            except Exception:
+                pass
+
+def test_log_manager_initialization(log_manager, log_config):
+    """Test log manager initialization."""
+    assert log_manager.config == log_config
+    assert log_manager.log_dir.exists()
+    assert isinstance(log_manager.get_metrics(), LogMetrics)
+
+def test_log_manager_singleton(log_config):
+    """Test that log manager maintains singleton pattern."""
+    manager1 = LogManager(log_config)
+    manager2 = LogManager(log_config)
+    assert manager1 is manager2
+
+def test_log_manager_reset(log_config):
+    """Test that log manager can be reset."""
+    manager1 = LogManager(log_config)
+    LogManager.reset_singleton()
+    manager2 = LogManager(log_config)
+    assert manager1 is not manager2
+
+def test_log_manager_shutdown(log_manager):
+    """Test log manager shutdown."""
+    log_manager.shutdown()
+    # Verify no errors occur during shutdown
+    assert True  # If we get here, shutdown didn't raise exceptions
+
+def test_log_manager_flush(log_manager):
+    """Test log manager flush."""
+    log_manager.flush()
+    # Verify no errors occur during flush
+    assert True  # If we get here, flush didn't raise exceptions
+
+def test_write_log(log_manager, mock_batcher):
+    """Test writing a log entry."""
+    log_manager.write_log(
+        platform="test",
+        status="INFO",
+        message="Test message",
+        level=LogLevel.INFO
+    )
+    mock_batcher.add_entry.assert_called_once()
+
+def test_write_batch(log_manager, mock_writer):
+    """Test writing a batch of logs."""
+    entries = [
+        {
+            "timestamp": datetime.now(),
+            "platform": "test",
+            "status": "INFO",
+            "message": "Test message",
+            "level": LogLevel.INFO.value
+        }
+    ]
+    log_manager._write_batch(entries)
+    mock_writer.write_log.assert_called_once() 

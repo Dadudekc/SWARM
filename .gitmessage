@@ -1,0 +1,42 @@
+feat(logging): Transform Dream.OS into operator-grade command interface
+
+Major logging system integration across all components:
+
+- Discord Commander
+  * Add !logs command with agent/level filtering
+  * Integrate with LogManager for real-time monitoring
+  * Support for Discord alerts and incident pings
+
+- Devlog System
+  * Bridge execution logs with storytelling
+  * Write key events to devlog.md
+  * Support for Discord syndication
+
+- Social Memory
+  * Feed logs into memory_update structure
+  * Enable real-time state reflection
+  * Support for retry logic and sentiment tracking
+
+- GUI Dashboard
+  * Add LogMonitor component with real-time tailing
+  * Implement log level and platform filters
+  * Add detail pane and auto-refresh
+  * Ensure clean shutdown and resource release
+
+Technical Details:
+- Add LogManager integration to all components
+- Implement proper error handling and cleanup
+- Add PyQt5 requirements with version locks
+- Create main window and application entry point
+
+Breaking Changes: None
+Migration Guide: None
+
+Testing:
+- [x] Discord commands
+- [x] Devlog integration
+- [x] Social memory updates
+- [x] GUI dashboard functionality
+- [x] Resource cleanup
+
+Related Issues: #123, #124, #125 

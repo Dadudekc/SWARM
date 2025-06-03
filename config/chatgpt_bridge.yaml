@@ -1,0 +1,49 @@
+# ChatGPT Bridge Configuration
+
+# Browser settings
+window_title: "Cursor"
+page_load_wait: 30.0  # Increased timeout for better reliability
+response_wait: 10.0   # Increased wait time for responses
+paste_delay: 0.5
+
+# Retry settings
+max_retries: 5        # Increased retries for better reliability
+backoff_factor: 2.0
+
+# Health monitoring
+health_check_interval: 30.0
+session_timeout: 3600.0
+
+# Logging
+log_level: INFO
+log_file: "runtime/bridge_inbox/bridge.log"
+
+# Bridge inbox settings
+bridge_inbox:
+  path: "runtime/bridge_inbox"
+  pending_file: "pending_requests.json"
+  check_interval: 60  # seconds
+
+# Logging settings
+logging:
+  level: INFO
+  platform: "chatgpt_bridge"
+  tags:
+    - "bridge"
+    - "chatgpt"
+    - "cursor"
+
+# Error handling
+error_handling:
+  max_retries: 3
+  retry_delay: 60  # seconds
+  backoff_factor: 2
+
+# Message routing
+message_routing:
+  # Tags to identify ChatGPT-related messages
+  chatgpt_tags:
+    - "chatgpt_request"
+    - "chatgpt_response"
+  # Priority for ChatGPT messages (higher = more urgent)
+  priority: 10 

@@ -32,6 +32,15 @@ class MessageMode(Enum):
     DEVLOG = "[DEVLOG]"  # For development logs
     SYSTEM = "[SYSTEM]"  # For system commands
 
+class MessagePriority(Enum):
+    """Message priority levels."""
+    LOWEST = 0
+    LOW = 1
+    NORMAL = 2
+    HIGH = 3
+    HIGHEST = 4
+    CRITICAL = 5
+
 @dataclass
 class Message:
     """Represents a message in the Dream.OS system."""

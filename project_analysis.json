@@ -3186,23 +3186,23 @@
         "language": ".py",
         "functions": [
             "__init__",
-            "_validate_media",
             "create_post",
             "post",
             "is_logged_in",
             "login",
-            "comment"
+            "comment",
+            "_validate_media"
         ],
         "classes": {
             "RedditStrategy": {
                 "methods": [
                     "__init__",
-                    "_validate_media",
                     "create_post",
                     "post",
                     "is_logged_in",
                     "login",
-                    "comment"
+                    "comment",
+                    "_validate_media"
                 ],
                 "docstring": "Strategy for interacting with Reddit.",
                 "base_classes": [
@@ -3254,7 +3254,7 @@
                     "post",
                     "comment"
                 ],
-                "docstring": null,
+                "docstring": "Strategy for interacting with Reddit.",
                 "base_classes": [
                     "PlatformStrategy"
                 ]
@@ -3274,15 +3274,15 @@
         "language": ".py",
         "functions": [
             "__init__",
-            "login",
-            "_verify_login_success"
+            "is_logged_in",
+            "login"
         ],
         "classes": {
             "LoginHandler": {
                 "methods": [
                     "__init__",
-                    "login",
-                    "_verify_login_success"
+                    "is_logged_in",
+                    "login"
                 ],
                 "docstring": "Handles all login-related operations for Reddit.",
                 "base_classes": []
@@ -3444,7 +3444,13 @@
         "functions": [
             "write_json_log",
             "__init__",
-            "write_log"
+            "__init__",
+            "write_log",
+            "read_logs",
+            "clear_logs",
+            "_is_in_time_range",
+            "_parse_text_entry",
+            "_update_text_entry"
         ],
         "classes": {
             "LogLevel": {
@@ -3455,27 +3461,35 @@
                 ]
             },
             "LogEntry": {
-                "methods": [],
+                "methods": [
+                    "__init__"
+                ],
                 "docstring": "Represents a single log entry.",
                 "base_classes": []
             },
             "LogWriter": {
                 "methods": [
                     "__init__",
-                    "write_log"
+                    "write_log",
+                    "read_logs",
+                    "clear_logs",
+                    "_is_in_time_range",
+                    "_parse_text_entry",
+                    "_update_text_entry"
                 ],
                 "docstring": "Handles writing log entries to files.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 5
+        "complexity": 17
     },
     "social\\utils\\log_config.py": {
         "language": ".py",
         "functions": [
             "setup_logging",
-            "__init__"
+            "__init__",
+            "add_platform"
         ],
         "classes": {
             "LogLevel": {
@@ -3487,14 +3501,15 @@
             },
             "LogConfig": {
                 "methods": [
-                    "__init__"
+                    "__init__",
+                    "add_platform"
                 ],
                 "docstring": "Configuration for logging setup.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 3
+        "complexity": 5
     },
     "social\\utils\\log_batcher.py": {
         "language": ".py",
@@ -3502,8 +3517,9 @@
             "__init__",
             "add",
             "get_entries",
+            "clear",
             "is_empty",
-            "should_flush",
+            "_should_flush",
             "flush"
         ],
         "classes": {
@@ -3512,16 +3528,17 @@
                     "__init__",
                     "add",
                     "get_entries",
+                    "clear",
                     "is_empty",
-                    "should_flush",
+                    "_should_flush",
                     "flush"
                 ],
-                "docstring": "Batches log entries for efficient writing.",
+                "docstring": "Handles batching log entries for efficient writing.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 12
+        "complexity": 14
     },
     "social\\core\\log_metrics.py": {
         "language": ".py",
@@ -3556,63 +3573,71 @@
         "language": ".py",
         "functions": [
             "__init__",
-            "increment",
             "increment_logs",
             "record_error",
             "record_rotation",
-            "get_metric",
-            "get_all_metrics",
-            "reset",
-            "get_uptime"
+            "record_operation_time",
+            "record_retry",
+            "get_metrics",
+            "reset"
         ],
         "classes": {
             "LogMetrics": {
                 "methods": [
                     "__init__",
-                    "increment",
                     "increment_logs",
                     "record_error",
                     "record_rotation",
-                    "get_metric",
-                    "get_all_metrics",
-                    "reset",
-                    "get_uptime"
+                    "record_operation_time",
+                    "record_retry",
+                    "get_metrics",
+                    "reset"
                 ],
                 "docstring": "Tracks and aggregates logging metrics.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 18
+        "complexity": 16
     },
     "social\\utils\\log_manager.py": {
         "language": ".py",
         "functions": [
+            "__new__",
             "__init__",
-            "reset_singleton",
+            "write_log",
+            "_write_batch",
+            "flush",
             "info",
             "warning",
             "error",
             "debug",
-            "_get_extra"
+            "get_metrics",
+            "reset",
+            "reset_singleton"
         ],
         "classes": {
             "LogManager": {
                 "methods": [
+                    "__new__",
                     "__init__",
-                    "reset_singleton",
+                    "write_log",
+                    "_write_batch",
+                    "flush",
                     "info",
                     "warning",
                     "error",
                     "debug",
-                    "_get_extra"
+                    "get_metrics",
+                    "reset",
+                    "reset_singleton"
                 ],
-                "docstring": "Simple wrapper around Python's logging module.",
+                "docstring": "Manages logging operations and coordinates between different logging components.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 14
+        "complexity": 24
     },
     "social\\utils\\media_validator.py": {
         "language": ".py",
@@ -3641,20 +3666,26 @@
         "language": ".py",
         "functions": [
             "__init__",
-            "check_rate_limit"
+            "check_rate_limit",
+            "set_rate_limit",
+            "reset_limits",
+            "get_remaining"
         ],
         "classes": {
             "RateLimiter": {
                 "methods": [
                     "__init__",
-                    "check_rate_limit"
+                    "check_rate_limit",
+                    "set_rate_limit",
+                    "reset_limits",
+                    "get_remaining"
                 ],
-                "docstring": null,
+                "docstring": "Handles rate limiting for API operations.",
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 4
+        "complexity": 10
     },
     "social\\utils\\__init__.py": {
         "language": ".py",
@@ -3784,7 +3815,9 @@
             "setup_logging",
             "mock_pyautogui",
             "temp_dir",
-            "temp_log_dir",
+            "test_dirs",
+            "test_env",
+            "clean_test_dirs",
             "mock_config",
             "log_config",
             "setup_test_env",
@@ -3817,7 +3850,7 @@
         ],
         "classes": {},
         "routes": [],
-        "complexity": 35
+        "complexity": 37
     },
     "tests\\run_tests.py": {
         "language": ".py",
@@ -3996,30 +4029,33 @@
         "language": ".py",
         "functions": [
             "__init__",
-            "__init__",
             "should_rotate",
-            "rotate"
+            "rotate_file",
+            "cleanup_old_files",
+            "get_rotation_info",
+            "reset"
         ],
         "classes": {
-            "RotationConfig": {
-                "methods": [
-                    "__init__"
-                ],
-                "docstring": "Configuration for log rotation.",
-                "base_classes": []
-            },
             "LogRotator": {
                 "methods": [
                     "__init__",
                     "should_rotate",
-                    "rotate"
+                    "rotate_file",
+                    "cleanup_old_files",
+                    "get_rotation_info",
+                    "reset"
                 ],
-                "docstring": "Handles rotation of log files.",
+                "docstring": "Handles log file rotation and cleanup.",
+                "base_classes": []
+            },
+            "RotationConfig": {
+                "methods": [],
+                "docstring": null,
                 "base_classes": []
             }
         },
         "routes": [],
-        "complexity": 8
+        "complexity": 12
     },
     "tests\\agent_control\\test_control.py": {
         "language": ".py",

@@ -1,31 +1,195 @@
 # Dream.OS
 
-[![Tests](https://img.shields.io/endpoint?url=https://gist.githubusercontent.com/your-username/your-gist-id/raw/test-status.json)](https://github.com/your-username/Dream.OS/actions)
+[![Tests](https://github.com/victor-general/Dream.OS/actions/workflows/ci.yml/badge.svg)](https://github.com/victor-general/Dream.OS/actions)
+[![Coverage](https://codecov.io/gh/victor-general/Dream.OS/branch/main/graph/badge.svg)](https://codecov.io/gh/victor-general/Dream.OS)
 
 ## Overview
 
-Dream.OS is an AI-powered operating system that provides a seamless interface between users and AI agents. It features:
+Dream.OS is not your grandma's operating system. It's a swarm-driven AI platform where agents run full tilt, autorouting tasks, posting logs to Discord, and even trading TSLA if you let them. The system provides:
 
 - Agent control and coordination
 - Message processing and routing
 - Social media integration
 - UI automation and interaction
+- Trading bot integration
 
 ## Installation
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/Dream.OS.git
+git clone https://github.com/victor-general/Dream.OS.git
 cd Dream.OS
 
 # Create and activate virtual environment
 python -m venv venv
 source venv/bin/activate  # Linux/Mac
-.\venv\Scripts\activate   # Windows
+venv\Scripts\activate     # Windows
 
 # Install dependencies
 pip install -r requirements.txt
 pip install -r requirements-test.txt  # For development
+```
+
+### First Run Setup
+
+```bash
+# Create required directories
+mkdir -p runtime/agent_comms/governance
+mkdir -p runtime/agent_comms/onboarding
+mkdir -p dreamos/data
+touch dreamos/data/message_history.json
+
+# Copy and configure environment files
+cp discord_bot/.env.example discord_bot/.env
+cp Trading_/basicbot/.env.example Trading_/basicbot/.env
+# Edit both .env files with your tokens and credentials
+```
+
+## Core Components
+
+### 1. System Orchestrator (`dreamos.core.orchestrator.SystemOrchestrator`)
+The central control unit that coordinates all system components:
+- Manages agent lifecycle and communication
+- Handles task distribution and monitoring
+- Maintains system-wide logging
+- Coordinates with external services (Discord, etc.)
+- Implements the Captain role for agent supervision
+
+### 2. Agent Management
+- **AgentManager** (`dreamos.core.agent_control.agent_manager`)
+  - Handles agent lifecycle (creation, monitoring, restart)
+  - Implements auto-resume after idle timeout
+- **AgentBus** (`dreamos.core.messaging.agent_bus`)
+  - Provides communication infrastructure between agents
+  - Handles message routing and delivery
+- **CellPhone** (`dreamos.core.messaging.cell_phone`)
+  - Manages direct agent-to-agent messaging
+  - Implements retry logic for failed deliveries
+- **CaptainPhone** (`dreamos.core.messaging.captain_phone`)
+  - Specialized communication channel for Captain-agent interactions
+  - High-priority message routing
+
+### 3. Task Management (`dreamos.core.tasks.task_manager`)
+- **TaskManager**: Handles task creation, assignment, and tracking
+  - Uses `specs/task-schema.json` for validation
+  - Supports task priorities and dependencies
+  - Maintains task history and status
+  - Integrates with agent status monitoring
+
+Example task creation:
+```python
+from dreamos.core.tasks.task_manager import TaskManager
+
+tm = TaskManager()
+task_id = tm.create_task(
+    title="Fix agent loop bug",
+    description="Agents drop out after first cycle. Implement auto-resume.",
+    priority=10,
+    assigned_to="agent_4"
+)
+```
+
+### 4. Logging System (`dreamos.core.logging.log_manager`)
+- **LogManager**: Centralized logging with multiple platforms:
+  - System logs (`logs/system.log`)
+  - Agent logs (`logs/agents.log`)
+  - Task logs (`logs/tasks.log`)
+  - DevLog entries (`logs/devlog.log`)
+  - Message history (`logs/messages.log`)
+  - Captain monitoring logs (`logs/captain.log`)
+- Supports log rotation and archival
+- Provides structured logging with tags and levels
+
+Example logging configuration (`config/system_config.yaml`):
+```yaml
+logging:
+  level: INFO
+  rotate:
+    when: midnight
+    backup_count: 7
+  platforms:
+    system: system.log
+    agents: agents.log
+    tasks: tasks.log
+    devlog: devlog.log
+    messages: messages.log
+    captain: captain.log
+```
+
+### 5. Communication Infrastructure
+- **MessageRecord** (`dreamos.core.messaging.message_record`):
+  ```json
+  {
+    "timestamp": "2025-06-01T14:23:00Z",
+    "from_agent": "agent_3",
+    "to_agent": "agent_5",
+    "payload": "Fix parser bug",
+    "tags": ["task_update"]
+  }
+  ```
+- **Message History**: Persistent storage in `dreamos/data/message_history.json`
+- **DevLog**: Integration with Discord for external logging
+- **CellPhone/CaptainPhone**: Specialized communication channels
+
+Example message sending:
+```python
+from dreamos.core.messaging.cell_phone import CellPhone
+
+cp = CellPhone()
+cp.send(to_agent="agent_2", message="Please run tests on module X")
+```
+
+### 5. ChatGPT Bridge Integration
+- **ChatGPTBridge** (`dreamos.core.messaging.chatgpt_bridge`)
+  - Provides seamless integration with ChatGPT
+  - Uses undetected-chromedriver for reliable automation
+  - Supports direct agent-to-ChatGPT communication
+  - Maintains persistent browser session
+  - Handles message queuing and delivery
+
+Example ChatGPT request:
+```python
+from dreamos.core.messaging.cell_phone import CellPhone
+from dreamos.core.messaging.message_record import MessageRecord
+
+# Initialize cell phone
+cp = CellPhone()
+
+# Create ChatGPT request
+message = MessageRecord(
+    from_agent="agent_1",
+    to_agent="chatgpt_bridge",
+    payload="What's the best way to optimize this code?",
+    tags=["chatgpt_request"]
+)
+
+# Send request
+cp.send(message)
+
+# Receive response
+response = cp.receive("agent_1")
+if response and "chatgpt_response" in response.tags:
+    print(f"ChatGPT says: {response.payload}")
+```
+
+Configuration (`config/chatgpt_bridge.yaml`):
+```yaml
+# Chrome user data directory
+user_data_dir: "C:/Users/Victor/AppData/Local/Google/Chrome/User Data"
+
+# Cursor window settings
+cursor_window_title: "Cursor – agent"
+
+# Timeouts and delays
+page_load_wait: 10
+response_wait: 5
+paste_delay: 0.5
+
+# Bridge inbox settings
+bridge_inbox:
+  path: "runtime/bridge_inbox"
+  pending_file: "pending_requests.json"
+  check_interval: 60
 ```
 
 ## Usage
@@ -87,6 +251,461 @@ flake8
 ## License
 
 MIT License - see LICENSE file for details
+
+# Dream.OS System Architecture
+
+## Overview
+Dream.OS is a sophisticated multi-agent operating system designed to coordinate and manage autonomous agents through a centralized orchestration system. The system provides robust communication, task management, logging, and monitoring capabilities.
+
+## Core Components
+
+### 1. System Orchestrator
+The central control unit that coordinates all system components:
+- Manages agent lifecycle and communication
+- Handles task distribution and monitoring
+- Maintains system-wide logging
+- Coordinates with external services (Discord, etc.)
+- Implements the Captain role for agent supervision
+
+### 2. Agent Management
+- **AgentManager**: Handles agent lifecycle (creation, monitoring, restart)
+- **AgentBus**: Provides communication infrastructure between agents
+- **CellPhone**: Manages direct agent-to-agent messaging
+- **CaptainPhone**: Specialized communication channel for Captain-agent interactions
+
+### 3. Task Management
+- **TaskManager**: Handles task creation, assignment, and tracking
+- Supports task priorities and dependencies
+- Maintains task history and status
+- Integrates with agent status monitoring
+
+### 4. Logging System
+- **LogManager**: Centralized logging with multiple platforms:
+  - System logs
+  - Agent logs
+  - Task logs
+  - DevLog entries
+  - Message history
+  - Captain monitoring logs
+- Supports log rotation and archival
+- Provides structured logging with tags and levels
+
+### 5. Communication Infrastructure
+- **MessageRecord**: Structured message format for agent communication
+- **Message History**: Persistent storage of all communications
+- **DevLog**: Integration with Discord for external logging
+- **CellPhone/CaptainPhone**: Specialized communication channels
+
+## System Flow
+
+### 1. Agent Communication
+```mermaid
+graph LR
+    A[Agent] -->|Message| B[CellPhone]
+    B -->|Route| C[AgentBus]
+    C -->|Deliver| D[Target Agent]
+    C -->|Broadcast| A
+    E[Captain] -->|Monitor| C
+    E -->|Response| B
+    E -->|Priority Override| D
+```
+
+### 2. Task Management
+```mermaid
+graph TD
+    A[System] -->|Create| B[PriorityQueue]
+    B -->|Assign| C[Agent]
+    C -->|Update| D[Task Status]
+    D -->|Notify| E[Captain]
+    E -->|Monitor| C
+    E -->|Escalate| F[System]
+    F -->|Reassign| B
+```
+
+### 3. Logging Flow
+```mermaid
+graph LR
+    A[Component] -->|Log| B[LogManager]
+    B -->|Store| C[Log Files]
+    B -->|Notify| D[DevLog]
+    D -->|Post| E[Discord]
+    B -->|Stream| F[Console]
+    B -->|Metrics| G[Prometheus]
+```
+
+## Key Features
+
+### 1. Captain Monitoring (`dreamos.core.orchestrator.CaptainMonitor`)
+- Continuous monitoring of agent communications
+  - Polls each agent's devlog folder
+  - Automatically escalates idle agents after 5 minutes
+  - Maintains agent health metrics
+- Automatic response to help requests
+  - Keyword-based detection
+  - Context-aware responses
+  - Task status integration
+- Task status tracking
+  - Real-time progress monitoring
+  - Dependency resolution
+  - Priority management
+- Agent performance monitoring
+  - Response time tracking
+  - Resource usage metrics
+  - Error rate monitoring
+
+### 2. Message Management
+- **CellPhone** (`dreamos.core.messaging.cell_phone`)
+  - Direct message routing
+  - Retry logic (3 attempts)
+  - Message queuing
+  - Delivery confirmation
+- **CaptainPhone** (`dreamos.core.messaging.captain_phone`)
+  - High-priority override channel
+  - Emergency broadcast capability
+  - System-wide announcements
+- Message History
+  - Persistent storage
+  - Query capabilities
+  - Retention policies
+  - Export functionality
+
+### 3. Task Management
+- Priority-based task assignment
+  - 5 priority levels
+  - Dynamic reprioritization
+  - Deadline management
+- Dependency tracking
+  - Task chains
+  - Parallel execution
+  - Blocked task detection
+- Status monitoring
+  - Real-time updates
+  - Progress tracking
+  - Resource allocation
+- Task history and reporting
+  - Performance metrics
+  - Completion rates
+  - Time tracking
+
+### 4. Logging and Monitoring
+- Multi-platform logging
+  - Structured JSON format
+  - Log rotation
+  - Compression
+- Log rotation and archival
+  - Daily rotation
+  - 7-day retention
+  - Compression after 3 days
+- Structured logging with tags
+  - Component identification
+  - Error categorization
+  - Performance tracking
+- External logging via Discord
+  - Real-time alerts
+  - Status updates
+  - Error notifications
+
+## System Configuration
+
+### Required Components
+1. Runtime Directory Structure:
+```
+dreamos/
+├── config/
+│   └── system_config.yaml
+├── data/
+│   └── message_history.json
+├── logs/
+│   ├── system.log
+│   ├── agents.log
+│   ├── tasks.log
+│   ├── devlog.log
+│   ├── messages.log
+│   └── captain.log
+└── runtime/
+```
+
+### Configuration Parameters
+- Discord integration (token, channel ID)
+- Logging levels and rotation policies
+- Task management settings
+- Agent monitoring parameters
+
+## Usage Guidelines
+
+### 1. Agent Communication
+- Use CellPhone for direct agent-to-agent communication
+- Use CaptainPhone for Captain-agent interactions
+- Follow message format guidelines
+- Monitor message history for context
+
+### 2. Task Management
+- Create tasks with clear priorities
+- Monitor task dependencies
+- Update task status regularly
+- Review task history for patterns
+
+### 3. Logging
+- Use appropriate log levels
+- Include relevant tags
+- Monitor log rotation
+- Review logs for system health
+
+### 4. Captain Role
+- Monitor agent communications
+- Respond to help requests
+- Track task progress
+- Maintain system stability
+
+## Error Handling
+
+### 1. Communication Errors
+- Message delivery failures
+  - Automatic retry (3 attempts)
+  - Failure logging
+  - Dead letter queue
+- Connection issues
+  - Automatic reconnection
+  - Connection pooling
+  - Timeout handling
+- Timeout handling
+  - Configurable timeouts
+  - Graceful degradation
+  - Fallback mechanisms
+- Retry mechanisms
+  - Exponential backoff
+  - Circuit breaker
+  - Bulkhead pattern
+
+### 2. Task Management
+- Failed task assignments
+  - Automatic retry
+  - Alternative agent selection
+  - Task splitting
+- Dependency conflicts
+  - Automatic resolution
+  - Manual override
+  - Conflict logging
+- Status update failures
+  - Local caching
+  - Batch updates
+  - Recovery procedures
+- Task recovery procedures
+  - State restoration
+  - Checkpoint management
+  - Rollback capability
+
+### 3. Logging Issues
+- File permission problems
+  - Automatic permission repair
+  - Fallback logging
+  - Alert generation
+- Disk space management
+  - Automatic cleanup
+  - Space monitoring
+  - Alert thresholds
+- Log rotation failures
+  - Backup creation
+  - Manual rotation
+  - Error reporting
+- Recovery procedures
+  - Log file repair
+  - Data recovery
+  - System notification
+
+## Best Practices
+
+### 1. Agent Development
+- Follow communication protocols
+  - Use CellPhone for standard messages
+  - Use CaptainPhone for urgent matters
+  - Include proper message tags
+- Implement proper error handling
+  - Catch and log exceptions
+  - Implement retry logic
+  - Provide fallback behavior
+- Maintain task status updates
+  - Regular progress reports
+  - Clear status messages
+  - Dependency notifications
+- Use appropriate logging levels
+  - DEBUG for development
+  - INFO for normal operation
+  - WARNING for recoverable issues
+  - ERROR for critical problems
+
+### 2. System Administration
+- Monitor system resources
+  - CPU usage
+  - Memory consumption
+  - Disk space
+  - Network bandwidth
+- Review logs regularly
+  - Daily log rotation
+  - Weekly log analysis
+  - Monthly performance review
+- Maintain configuration
+  - Version control configs
+  - Document changes
+  - Test configurations
+- Update components as needed
+  - Security patches
+  - Feature updates
+  - Bug fixes
+
+### 3. Task Management
+- Clear task descriptions
+  - Purpose
+  - Requirements
+  - Dependencies
+  - Success criteria
+- Proper priority assignment
+  - Use all 5 levels
+  - Consider dependencies
+  - Review regularly
+- Regular status updates
+  - Progress tracking
+  - Blocking issues
+  - Completion estimates
+- Dependency management
+  - Clear dependencies
+  - Parallel tasks
+  - Critical path
+
+### 4. Logging
+- Appropriate log levels
+  - DEBUG: Detailed debugging
+  - INFO: General information
+  - WARNING: Potential issues
+  - ERROR: Serious problems
+- Meaningful tags
+  - Component name
+  - Operation type
+  - Status code
+- Regular log review
+  - Daily checks
+  - Weekly analysis
+  - Monthly reports
+- Proper error handling
+  - Exception details
+  - Stack traces
+  - Context information
+
+## Future Enhancements
+
+### 1. Planned Features
+- **ENH-001**: Enhanced agent monitoring
+  - Real-time metrics
+  - Predictive analytics
+  - Health scoring
+- **ENH-002**: Advanced task scheduling
+  - Cron-style scheduling
+  - Resource-based allocation
+  - Dynamic prioritization
+- **ENH-003**: Improved logging analytics
+  - Log pattern detection
+  - Anomaly detection
+  - Trend analysis
+- **ENH-004**: Extended communication protocols
+  - WebSocket support
+  - gRPC integration
+  - Message encryption
+
+### 2. Integration Points
+- **INT-001**: Additional external services
+  - Slack integration
+  - Email notifications
+  - SMS alerts
+- **INT-002**: Enhanced Discord integration
+  - Rich embeds
+  - Interactive buttons
+  - Thread support
+- **INT-003**: Extended monitoring capabilities
+  - Grafana dashboards
+  - Prometheus metrics
+  - AlertManager integration
+- **INT-004**: Advanced reporting features
+  - Custom reports
+  - Export options
+  - Visualization tools
+
+## Contributing
+Please follow these guidelines when contributing to the system:
+
+1. Follow existing code structure
+   - Use established patterns
+   - Maintain consistency
+   - Document changes
+
+2. Maintain logging standards
+   - Use proper levels
+   - Include tags
+   - Add context
+
+3. Update documentation
+   - Update README
+   - Add docstrings
+   - Update examples
+
+4. Add appropriate tests
+   - Unit tests
+   - Integration tests
+   - Performance tests
+
+5. Follow error handling patterns
+   - Use custom exceptions
+   - Implement retries
+   - Add logging
+
+## Support
+
+### Getting Help
+1. Review logs for issues
+   ```bash
+   tail -f logs/system.log
+   tail -f logs/agents.log
+   tail -f logs/captain.log
+   ```
+
+2. Check agent status
+   ```bash
+   python run_menu.py
+   # Select "List Agents" to see status
+   ```
+
+3. Monitor task progress
+   ```bash
+   python run_menu.py
+   # Select "View Task Board" for details
+   ```
+
+### Contact
+- **GitHub Issues**: [Report bugs or request features](https://github.com/victor-general/Dream.OS/issues)
+- **Discord**: [Join our support server](https://discord.gg/dreamos)
+- **Email**: support@dreamos.ai
+
+## License
+Copyright (c) 2025 Victor (General Victor)
+
+MIT License. See [LICENSE](LICENSE) for details.
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
 
 # Dream.OS Agent Control System
 

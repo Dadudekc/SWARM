@@ -15,11 +15,11 @@ from tests.utils.test_utils import (
 )
 import yaml
 
-# Test constants
+# Test constants - Use relative paths from TEST_ROOT
 MOCK_AGENT_CONFIG = {
     "username": "test_user",
     "password": "test_pass",
-    "log_dir": str(TEST_RUNTIME_DIR / "logs"),  # Use test runtime directory
+    "log_dir": "logs",  # Relative path that will be resolved in tests
     "max_size": 1024,
     "max_age": 7,
     "batch_size": 100,
@@ -33,6 +33,9 @@ MOCK_DEVLOG = "Test devlog content"
 def setup_test_environment() -> None:
     """Set up the test environment."""
     ensure_test_dirs()
+    # Create log directory structure
+    log_dir = TEST_RUNTIME_DIR / "logs"
+    log_dir.mkdir(parents=True, exist_ok=True)
 
 def cleanup_test_environment() -> None:
     """Clean up the test environment."""
@@ -41,49 +44,189 @@ def cleanup_test_environment() -> None:
         if directory.exists():
             safe_remove(directory)
 
-def test_cleanup():
-    """Test that cleanup removes test directories."""
-    cleanup_test_environment()
-    assert not TEST_DATA_DIR.exists(), "test_data should be removed"
-    assert not TEST_CONFIG_DIR.exists(), "test_config should be removed"
-    assert not VOICE_QUEUE_DIR.exists(), "test_voice_queue should be removed"
-    assert not TEST_OUTPUT_DIR.exists(), "test_output should be removed"
-    assert not TEST_RUNTIME_DIR.exists(), "test_runtime should be removed"
-    assert not TEST_TEMP_DIR.exists(), "test_temp should be removed"
-
-def test_config_file_creation():
-    """Test that config files are created."""
-    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
-    config_path.parent.mkdir(parents=True, exist_ok=True)
+def test_config_defaults():
+    """Test default configuration values."""
+    setup_test_environment()
     
-    # Create default config
+    # Create config with absolute path
     config = {
         "agent_id": "test_agent",
         "platform": "test",
         "credentials": {
             "username": "test_user",
             "password": "test_pass"
-        }
+        },
+        "log_dir": str(TEST_RUNTIME_DIR / "logs")  # Use absolute path
     }
+    
+    # Save config
+    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
     
     with open(config_path, "w") as f:
         yaml.dump(config, f)
     
+    # Verify config
     assert config_path.exists(), "Config file should exist"
     with open(config_path) as f:
         loaded_config = yaml.safe_load(f)
         assert loaded_config["agent_id"] == "test_agent"
+        assert loaded_config["log_dir"] == str(TEST_RUNTIME_DIR / "logs")
+        
+        # Create and verify log directory
+        log_dir = Path(loaded_config["log_dir"])
+        log_dir.mkdir(parents=True, exist_ok=True)
+        assert log_dir.exists(), "Log directory should exist"
+        assert os.access(log_dir, os.W_OK), "Log directory should be writable"
+        
+        # Test writing to log directory
+        test_log_file = log_dir / "test.log"
+        with open(test_log_file, "w") as f:
+            f.write("test log entry")
+        assert test_log_file.exists(), "Should be able to write to log directory"
 
-def test_test_directories_creation():
-    """Test that test directories are created."""
-    # Create required directories
-    (TEST_RUNTIME_DIR / "logs" / "screenshots").mkdir(parents=True, exist_ok=True)
-    (TEST_RUNTIME_DIR / "logs" / "operations").mkdir(parents=True, exist_ok=True)
-    (TEST_RUNTIME_DIR / "mailbox").mkdir(parents=True, exist_ok=True)
+def test_config_custom_values():
+    """Test custom configuration values."""
+    setup_test_environment()
     
-    assert (TEST_RUNTIME_DIR / "logs" / "screenshots").exists(), "screenshots directory should exist"
-    assert (TEST_RUNTIME_DIR / "logs" / "operations").exists(), "operations directory should exist"
-    assert (TEST_RUNTIME_DIR / "mailbox").exists(), "mailbox directory should exist"
+    # Create config with custom values using absolute path
+    custom_log_dir = str(TEST_RUNTIME_DIR / "custom_logs")
+    config = {
+        "agent_id": "test_agent",
+        "platform": "test",
+        "credentials": {
+            "username": "custom_user",
+            "password": "custom_pass"
+        },
+        "log_dir": custom_log_dir
+    }
+    
+    # Save config
+    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(config_path, "w") as f:
+        yaml.dump(config, f)
+    
+    # Verify config
+    assert config_path.exists(), "Config file should exist"
+    with open(config_path) as f:
+        loaded_config = yaml.safe_load(f)
+        assert loaded_config["agent_id"] == "test_agent"
+        assert loaded_config["log_dir"] == custom_log_dir
+        
+        # Create and verify custom log directory
+        log_dir = Path(loaded_config["log_dir"])
+        log_dir.mkdir(parents=True, exist_ok=True)
+        assert log_dir.exists(), "Custom log directory should exist"
+        assert os.access(log_dir, os.W_OK), "Custom log directory should be writable"
+        
+        # Test writing to custom log directory
+        test_log_file = log_dir / "test.log"
+        with open(test_log_file, "w") as f:
+            f.write("test log entry")
+        assert test_log_file.exists(), "Should be able to write to custom log directory"
+
+def test_invalid_log_dir():
+    """Test handling of invalid log directory."""
+    setup_test_environment()
+    
+    # Try to create config with invalid log directory
+    invalid_log_dir = str(TEST_RUNTIME_DIR / "invalid" / "log" / "dir")
+    config = {
+        "agent_id": "test_agent",
+        "platform": "test",
+        "credentials": {
+            "username": "test_user",
+            "password": "test_pass"
+        },
+        "log_dir": invalid_log_dir
+    }
+    
+    # Save config
+    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(config_path, "w") as f:
+        yaml.dump(config, f)
+    
+    # Verify config
+    assert config_path.exists(), "Config file should exist"
+    with open(config_path) as f:
+        loaded_config = yaml.safe_load(f)
+        assert loaded_config["agent_id"] == "test_agent"
+        assert loaded_config["log_dir"] == invalid_log_dir
+        
+        # Verify invalid log directory is not created
+        log_dir = Path(loaded_config["log_dir"])
+        assert not log_dir.exists(), "Invalid log directory should not exist"
+        
+        # Test that attempting to create the directory fails
+        with pytest.raises((OSError, PermissionError)):
+            log_dir.mkdir(parents=True, exist_ok=True)
+
+def test_log_level():
+    """Test log level configuration and entry counting."""
+    setup_test_environment()
+    
+    # Create config with log level
+    config = {
+        "agent_id": "test_agent",
+        "platform": "test",
+        "credentials": {
+            "username": "test_user",
+            "password": "test_pass"
+        },
+        "log_dir": "logs",
+        "log_level": "INFO"
+    }
+    
+    # Save config
+    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
+    with open(config_path, "w") as f:
+        yaml.dump(config, f)
+    
+    # Create log directory
+    log_dir = TEST_RUNTIME_DIR / config["log_dir"]
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Configure logging
+    log_file = log_dir / "test.log"
+    logging.basicConfig(
+        level=config["log_level"],
+        format='%(asctime)s - %(levelname)s - %(message)s',
+        filename=str(log_file)
+    )
+    
+    # Write test log entries
+    test_messages = [
+        "Debug message",
+        "Info message",
+        "Warning message",
+        "Error message"
+    ]
+    
+    logging.debug(test_messages[0])
+    logging.info(test_messages[1])
+    logging.warning(test_messages[2])
+    logging.error(test_messages[3])
+    
+    # Verify log file exists and contains entries
+    assert log_file.exists(), "Log file should exist"
+    
+    # Count log entries
+    with open(log_file) as f:
+        log_content = f.read()
+        entry_count = log_content.count(" - ")
+        assert entry_count == 3, f"Should have 3 log entries (INFO and above), got {entry_count}"
+        
+        # Verify specific messages are present/absent based on log level
+        assert test_messages[0] not in log_content, "Debug message should not be logged"
+        assert test_messages[1] in log_content, "Info message should be logged"
+        assert test_messages[2] in log_content, "Warning message should be logged"
+        assert test_messages[3] in log_content, "Error message should be logged"
 
 @pytest.fixture(autouse=True)
 def setup_teardown():

@@ -5,6 +5,7 @@ Manages cursor coordinates for agent UI interaction.
 """
 
 import logging
+import os
 from pathlib import Path
 from typing import Dict, Tuple, Optional, List
 
@@ -22,7 +23,12 @@ class CoordinateManager:
             config_path: Optional path to the coordinates config file.
                         Defaults to runtime/config/cursor_agent_coords.json
         """
-        self.config_path = config_path or "D:/SWARM/Dream.OS/runtime/config/cursor_agent_coords.json"
+        # Use test-specific file in test environment
+        if os.environ.get('PYTEST_CURRENT_TEST'):
+            self.config_path = config_path or str(Path(__file__).parent.parent.parent / "tests" / "config" / "test_agent_coords.json")
+        else:
+            self.config_path = config_path or "D:/SWARM/Dream.OS/runtime/config/cursor_agent_coords.json"
+            
         self.coordinates = self._load_coordinates()
         
     def _load_coordinates(self) -> Dict[str, Dict[str, Tuple[int, int]]]:

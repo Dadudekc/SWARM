@@ -18,6 +18,7 @@ from selenium.common.exceptions import (
 )
 from datetime import datetime
 import praw
+import logging
 
 from social.strategies.platform_strategy_base import PlatformStrategy
 from social.utils.media_validator import MediaValidator
@@ -124,6 +125,61 @@ class RedditStrategy(PlatformStrategy):
         # Ensure retry_history exists
         if 'retry_history' not in self.memory_updates:
             self.memory_updates['retry_history'] = []
+
+        self._validate_config()
+        self._setup_rate_limiter()
+
+    def _validate_config(self) -> None:
+        """Validate required configuration values."""
+        required_keys = {
+            'reddit': {
+                'username': str,
+                'password': str,
+                'client_id': str,
+                'client_secret': str,
+                'user_agent': str
+            }
+        }
+        
+        for section, keys in required_keys.items():
+            if section not in self.config:
+                raise ValueError(f"Missing configuration section: {section}")
+            for key, key_type in keys.items():
+                if key not in self.config[section]:
+                    raise ValueError(f"Missing configuration key: {section}.{key}")
+                if not isinstance(self.config[section][key], key_type):
+                    raise ValueError(f"Invalid type for {section}.{key}")
+
+    def _setup_rate_limiter(self) -> None:
+        """Setup rate limiting for Reddit API."""
+        self.rate_limiter = {
+            'last_post': 0,
+            'last_comment': 0,
+            'min_interval': 60  # Minimum seconds between actions
+        }
+
+    def _check_rate_limit(self, action_type: str) -> bool:
+        """Check if action is allowed by rate limits."""
+        current_time = time.time()
+        last_action = self.rate_limiter[f'last_{action_type}']
+        
+        if current_time - last_action < self.rate_limiter['min_interval']:
+            return False
+            
+        self.rate_limiter[f'last_{action_type}'] = current_time
+        return True
+
+    def _handle_error(self, error: Exception, action: str) -> None:
+        """Handle and log errors."""
+        error_msg = str(error)
+        logging.error(f"Reddit {action} error: {error_msg}")
+        self.memory_updates.update({
+            "last_action": action,
+            "last_error": {
+                "error": error_msg,
+                "timestamp": time.time()
+            }
+        })
 
     def calculate_retry_delay(self, attempt: int) -> float:
         """Calculate retry delay with exponential backoff and jitter.
@@ -325,110 +381,88 @@ class RedditStrategy(PlatformStrategy):
             return False
 
     def _handle_rate_limit(self) -> None:
-        """Handle rate limiting"""
-        self.memory_updates["last_action"] = "rate_limit"
+        """Handle rate limit exceeded."""
         self.memory_updates["last_error"] = {
             "error": "Rate limit exceeded",
-            "context": "rate_limit",
-            "timestamp": datetime.now().isoformat()
+            "context": "rate_limit"
         }
-        raise Exception("Rate limit exceeded")
+        self.memory_updates["last_action"] = "rate_limit"
+        self.memory_updates["stats"]["errors"] += 1
+        self.stats["errors"] += 1
+        if self.logger:
+            self.logger.error(
+                message="Rate limit exceeded",
+                platform="reddit",
+                status="error"
+            )
 
     def _handle_retry(self, error: str, context: str) -> None:
-        """Handle retry attempts and update history."""
+        """Handle retry attempts."""
         retry_entry = {
             "error": error,
             "context": context,
             "timestamp": datetime.now().isoformat()
         }
-        
-        # Add to retry history
         if "retry_history" not in self.memory_updates:
             self.memory_updates["retry_history"] = []
         self.memory_updates["retry_history"].append(retry_entry)
-        
-        # Update retry stats - only increment on actual retries
-        if "stats" not in self.memory_updates:
-            self.memory_updates["stats"] = {}
-        if "retries" not in self.memory_updates["stats"]:
-            self.memory_updates["stats"]["retries"] = 0
-        # Only increment retry count if this is not the first attempt
-        if len(self.memory_updates["retry_history"]) > 1:
-            self.memory_updates["stats"]["retries"] += 1
-            self.stats["retries"] += 1
-
-    def _handle_error(self, error: str, context: str) -> None:
-        """Handle errors and update stats."""
-        error_entry = {
-            "error": error,
-            "context": context,
-            "timestamp": datetime.now().isoformat()
-        }
-        if "stats" not in self.memory_updates:
-            self.memory_updates["stats"] = {}
-        if "errors" not in self.memory_updates["stats"]:
-            self.memory_updates["stats"]["errors"] = 0
-        if "errors" not in self.stats:
-            self.stats["errors"] = 0
-        if context == "post":
-            self.stats["posts"] = 0
-            self.memory_updates["stats"]["posts"] = 0
-        elif context == "login":
-            self.stats["login"] = 0
-            self.memory_updates["stats"]["login"] = 0
-        # Keep last_action as is for post, rate_limit, and login contexts
-        if context not in ("post", "rate_limit", "login"):
-            self.memory_updates["last_action"] = None
-        self.memory_updates["stats"]["errors"] += 1
-        self.stats["errors"] += 1
-        self.memory_updates["last_error"] = error_entry
+        self.memory_updates["stats"]["retries"] += 1
+        self.stats["retries"] += 1
         if self.logger:
-            self.logger.error(
-                message=f"Error in {context}: {error}",
+            self.logger.info(
+                message=f"Retrying {context}: {error}",
                 platform="reddit",
-                status="error"
+                status="retry"
             )
 
     def retry_operation(self, operation: str, max_retries: int = 3) -> bool:
-        """Retry a failed operation with exponential backoff."""
-        retry_count = 0
-        while retry_count < max_retries:
-            retry_count += 1
-            delay = self.calculate_retry_delay(retry_count)
+        """Retry an operation with exponential backoff.
+        
+        Args:
+            operation: Operation to retry
+            max_retries: Maximum number of retries
             
-            # Log retry attempt
-            if self.logger:
-                self.logger.info(
-                    message=f"Retrying {operation} (attempt {retry_count}/{max_retries})",
-                    platform="reddit",
-                    status="retry"
-                )
-            
-            # Wait before retry
-            time.sleep(delay)
-            
-            # Add to retry history before attempt
-            self._handle_retry(f"Retry attempt {retry_count}", operation)
-            
-            # Attempt operation based on type
-            if operation == "login":
-                success = self.login()
-            elif operation == "post":
-                if hasattr(self, 'last_title') and hasattr(self, 'last_content'):
+        Returns:
+            True if successful, False otherwise
+        """
+        attempt = 0
+        while attempt <= max_retries:
+            try:
+                # Execute operation
+                if operation == "post":
+                    if not hasattr(self, 'last_title') or not hasattr(self, 'last_content'):
+                        self._handle_error("No previous post to retry", "retry")
+                        return False
                     success = self.create_post(self.last_title, self.last_content, getattr(self, 'last_media_files', None))
+                elif operation == "login":
+                    success = self.login()
                 else:
-                    success = False
-            else:
-                success = False
-                
-            if success:
-                # Clear retry history on success
-                self.memory_updates["retry_history"] = []
-                return True
-                
-            # Handle retry failure
-            self._handle_retry(f"Retry {retry_count} failed", operation)
-            
+                    self._handle_error(f"Unknown operation: {operation}", "retry")
+                    return False
+                    
+                if success:
+                    return True
+                    
+                # Only increment retry count if operation failed
+                if attempt < max_retries:
+                    self._handle_retry(f"Operation {operation} failed", operation)
+                    attempt += 1
+                    time.sleep(self.calculate_retry_delay(attempt))
+                    continue
+                else:
+                    self._handle_error(f"Operation {operation} failed after {max_retries} retries", "retry")
+                    return False
+                    
+            except Exception as e:
+                if attempt < max_retries:
+                    self._handle_retry(str(e), operation)
+                    attempt += 1
+                    time.sleep(self.calculate_retry_delay(attempt))
+                    continue
+                else:
+                    self._handle_error(str(e), operation)
+                    return False
+                    
         return False
 
     @rate_limit("login")
@@ -453,87 +487,129 @@ class RedditStrategy(PlatformStrategy):
         self._handle_error("Login failed", "login")
         return False
 
-    def post(self, content: str, media_files: Optional[List[str]] = None) -> bool:
+    def post_devlog(self, title: str, content: str, level: str = "INFO") -> bool:
+        """Post a development log entry.
+        
+        Args:
+            title: Title of the log entry
+            content: Content of the log entry
+            level: Log level (INFO, WARNING, ERROR, etc.)
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Create a formatted log entry
+            log_entry = {
+                "title": title,
+                "content": content,
+                "level": level,
+                "timestamp": datetime.now().isoformat()
+            }
+            
+            # Write to log file
+            if self.logger:
+                self.logger.info(f"DevLog: {title} - {content}")
+            
+            # Create the post
+            success = self.create_post(title, content)
+            
+            if success:
+                # Update memory
+                self.memory_updates["last_action"] = "post"
+                self.memory_updates["stats"]["post"] = self.memory_updates["stats"].get("post", 0) + 1
+                self.memory_updates["stats"]["devlogs"] = self.memory_updates["stats"].get("devlogs", 0) + 1
+                return True
+            else:
+                self._handle_error("Failed to create devlog post", "devlog")
+                return False
+            
+        except Exception as e:
+            self._handle_error(e, "devlog")
+            return False
+
+    def post(self, content: str, media_files: Optional[List[str]] = None, title: Optional[str] = None) -> bool:
         """Post content to Reddit.
         
         Args:
             content: Content to post
             media_files: Optional list of media files to attach
+            title: Optional title for the post
+            
         Returns:
-            True if post was successful, False otherwise
-        Raises:
-            Exception: If rate limit is exceeded
+            True if successful, False otherwise
         """
         try:
-            # Always set last_action to post at the start
-            self.memory_updates["last_action"] = "post"
-            
-            # Check rate limits
-            if not self.rate_limiter.check_rate_limit("post"):
+            # Check if logged in
+            if not self.is_logged_in():
+                self._handle_error("Not logged in", "post")
+                return False
+                
+            # Check rate limit
+            if not self._check_rate_limit('post'):
                 self._handle_rate_limit()
                 return False
+                
+            # Use default title if none provided
+            title = title or "New Post"
             
-            # Only call create_post, do not increment posts here (handled in create_post)
-            success = self.create_post(content, content, media_files)
-            if not success:
-                self._handle_error("Post verification failed", "post")
-            return success
+            # Create the post
+            success = self.create_post(title, content, media_files)
             
-        except Exception as e:
-            if "Rate limit exceeded" in str(e):
-                self._handle_rate_limit()
+            if success:
+                self.memory_updates["last_action"] = "post"
+                self.memory_updates["stats"]["posts"] = self.memory_updates["stats"].get("posts", 0) + 1
+                return True
             else:
-                self._handle_error(str(e), "post")
+                self._handle_error("Post verification failed", "post")
+                return False
+                
+        except Exception as e:
+            self._handle_error(e, "post")
             return False
 
     def create_post(self, title: str, content: str, media_files: Optional[List[str]] = None) -> bool:
-        """Create a post on Reddit, with retry on recoverable errors."""
-        max_retries = 2
-        attempt = 0
-        while attempt <= max_retries:
-            try:
-                self.last_title = title
-                self.last_content = content
-                self.last_media_files = media_files
-                
-                # Check rate limits again in create_post
-                if not self.rate_limiter.check_rate_limit("post"):
-                    self._handle_rate_limit()
-                    return False
-                
-                if not self.is_logged_in():
-                    self._handle_error("Not logged in", "post")
+        """Create a post on Reddit.
+        
+        Args:
+            title: Post title
+            content: Post content
+            media_files: Optional list of media files
+            
+        Returns:
+            True if successful, False otherwise
+        """
+        try:
+            # Validate media files if provided
+            if media_files:
+                is_video = any(ext.lower() in self.supported_video_formats for _, ext in map(os.path.splitext, media_files))
+                is_valid, error = self._validate_media(media_files, is_video)
+                if not is_valid:
+                    self._handle_error(ValueError(error), "post")
                     return False
                     
-                if media_files:
-                    is_valid, error = self._validate_media(media_files, is_video=False)
-                    if not is_valid:
-                        self._handle_error(error, "validate_media")
-                        return False
-                        
-                success = self.post_handler.create_post(title, content, media_files)
-                if success:
-                    self.memory_updates["stats"]["posts"] += 1
-                    self.memory_updates["stats"]["post"] += 1
-                    self.stats["posts"] += 1
-                    self.stats["post"] += 1
-                    self.memory_updates["last_error"] = None
-                    return True
-                else:
+            # Create post using handler
+            success = self.post_handler.create_post(title, content, media_files)
+            
+            if success:
+                # Verify post was created
+                if not self._verify_post_success():
                     self._handle_error("Post verification failed", "post")
                     return False
                     
-            except Exception as e:
-                # Only increment retry stats on actual retry (not first attempt)
-                if attempt < max_retries:
-                    if attempt > 0:  # Only increment retry count after first attempt
-                        self._handle_retry(str(e), "post")
-                    attempt += 1
-                    continue
-                else:
-                    self._handle_error(str(e), "post")
-                    return False
-        return False
+                # Update stats
+                self.memory_updates["stats"]["posts"] = self.memory_updates["stats"].get("posts", 0) + 1
+                if media_files:
+                    self.memory_updates["stats"]["media_uploads"] = self.memory_updates["stats"].get("media_uploads", 0) + 1
+                    
+                return True
+            else:
+                self._handle_error("Failed to create post", "post")
+                return False
+                
+        except Exception as e:
+            self._handle_error(e, "post")
+            return False
 
     def comment(self, post_url: str, comment_text: str) -> bool:
         """Post a comment on a Reddit post."""

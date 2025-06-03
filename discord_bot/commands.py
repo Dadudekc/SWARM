@@ -25,6 +25,7 @@ from dreamos.core.messaging.message_processor import MessageProcessor
 from dreamos.core import CellPhone
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
+from dreamos.core.log_manager import LogManager
 
 logger = logging.getLogger('discord_bot')
 
@@ -375,7 +376,7 @@ class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-class DevLogManager:
+class AgentDevLogManager:
     """Manages agent development logs and Discord notifications."""
     
     def __init__(self):
@@ -487,11 +488,12 @@ class AgentCommands(commands.Cog):
             bot: Discord bot instance
         """
         self.bot = bot
-        self.devlog_manager = DevLogManager()
+        self.devlog_manager = AgentDevLogManager()
         self.message_processor = MessageProcessor()
         self.cell_phone = CellPhone()
         self.agent_interface = AgentInterface()
         self.metrics = CommandMetrics()
+        self.log_manager = LogManager()  # Initialize LogManager
     
     async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
         """Send a command to an agent."""
@@ -843,6 +845,77 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             logger.error(f"Error assigning channel: {e}")
             await ctx.send(f"❌ Error assigning channel: {str(e)}")
+    
+    @commands.command(name="logs")
+    async def show_logs(self, ctx, agent_id: str = None, level: str = "info", limit: int = 10):
+        """Show logs for an agent or all agents.
+        
+        Args:
+            agent_id: Optional agent ID to filter logs
+            level: Log level (info, warning, error, debug)
+            limit: Maximum number of logs to show
+        """
+        try:
+            # Get logs from LogManager
+            logs = self.log_manager.read_logs(
+                platform=agent_id or "all",
+                level=level.upper(),
+                limit=limit
+            )
+            
+            if not logs:
+                await ctx.send(f"No {level} logs found for {agent_id or 'all agents'}")
+                return
+            
+            # Create embed for logs
+            embed = discord.Embed(
+                title=f"Logs for {agent_id or 'All Agents'}",
+                description=f"Showing {len(logs)} {level} logs",
+                color=discord.Color.blue()
+            )
+            
+            # Add log entries to embed
+            for log in logs:
+                timestamp = log.get('timestamp', 'Unknown')
+                message = log.get('message', 'No message')
+                status = log.get('status', 'Unknown')
+                
+                embed.add_field(
+                    name=f"{timestamp} - {status}",
+                    value=message,
+                    inline=False
+                )
+            
+            await ctx.send(embed=embed)
+            
+            # Log the command usage
+            self.log_manager.info(
+                platform="discord",
+                status="command",
+                message=f"Logs command used for {agent_id or 'all agents'}",
+                metadata={
+                    "user": str(ctx.author),
+                    "level": level,
+                    "limit": limit
+                }
+            )
+            
+        except Exception as e:
+            error_msg = f"Error showing logs: {str(e)}"
+            await ctx.send(error_msg)
+            
+            # Log the error
+            self.log_manager.error(
+                platform="discord",
+                status="error",
+                message="Error in logs command",
+                error=str(e),
+                metadata={
+                    "user": str(ctx.author),
+                    "agent_id": agent_id,
+                    "level": level
+                }
+            )
 
     def cog_unload(self):
         """Clean up resources."""

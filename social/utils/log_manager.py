@@ -1,408 +1,180 @@
 """
-Log Manager Module
------------------
-Manages logging operations and coordinates between different logging components.
+Simplified Log Manager
+--------------------
+Provides centralized logging with basic rotation and metrics.
 """
 
-from typing import Dict, Any, Optional, List, Union
-from datetime import datetime
-from pathlib import Path
-import os
-import json
-import threading
 import logging
-import tempfile
-from contextlib import contextmanager
-import platform
-import time
-import atexit
-import portalocker
-
-from .log_config import LogConfig
-from .log_writer import LogWriter, LogEntry
-from .log_batcher import LogBatcher
-from .log_rotator import LogRotator
-from .log_metrics import LogMetrics
-
-# Configure logging
-logger = logging.getLogger("LogManager")
-logging.basicConfig(level=logging.DEBUG)
+import json
+from pathlib import Path
+from typing import Optional, Dict, Any, List
+from datetime import datetime
+import threading
+from logging.handlers import RotatingFileHandler
 
 class LogManager:
-    """Manages logging operations and coordinates between different logging components."""
+    """Simplified log manager implementation."""
     
     _instance = None
-    _init_lock = threading.RLock()  # CHANGED: Use RLock for reentrancy
-    _operation_lock = threading.RLock()  # CHANGED: Use RLock for reentrancy
-    _initialized = False
-    _file_locks = {}  # Track active file locks
-    _cleanup_registered = False
+    _lock = threading.Lock()
     
-    def __new__(cls, config: Optional[LogConfig] = None):
-        """Ensure singleton instance with thread safety.
-        
-        Args:
-            config: Optional logging configuration
-        """
+    def __new__(cls, config: Optional[Dict[str, Any]] = None):
         if cls._instance is None:
-            with cls._init_lock:
+            with cls._lock:
                 if cls._instance is None:
                     cls._instance = super().__new__(cls)
-                    if not cls._cleanup_registered:
-                        atexit.register(cls._cleanup_all_locks)
-                        cls._cleanup_registered = True
+                    cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self, config: Optional[LogConfig] = None):
-        """Initialize the log manager with thread safety.
-        
-        Args:
-            config: Optional logging configuration
-        """
-        if not self._initialized:
-            with self._init_lock:
-                if not self._initialized:
-                    try:
-                        self._initialize(config)
-                        self._initialized = True
-                    except Exception as e:
-                        logger.error(f"Failed to initialize LogManager: {str(e)}")
-                        self._initialized = False  # Reset initialization flag on failure
-                        raise
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        if self._initialized:
+            return
+            
+        self._config = config or {}
+        self._metrics = {
+            'total_entries': 0,
+            'entries_by_level': {},
+            'entries_by_platform': {},
+            'errors': 0
+        }
+        self._setup_logging()
+        self._initialized = True
     
-    def _initialize(self, config: Optional[LogConfig] = None) -> None:
-        """Initialize the log manager with configuration.
+    def _setup_logging(self):
+        """Set up logging configuration."""
+        root_logger = logging.getLogger()
+        root_logger.setLevel(self._config.get('level', logging.INFO))
         
-        Args:
-            config: Optional configuration
-        """
-        # Use provided config or create default
-        self.config = config or LogConfig(str(Path.cwd() / "logs"))
+        # Remove existing handlers
+        for handler in root_logger.handlers[:]:
+            root_logger.removeHandler(handler)
         
-        # Create components
-        self.batcher = LogBatcher(
-            batch_size=self.config.batch_size,
-            batch_timeout=self.config.batch_timeout,
-            max_retries=self.config.max_retries,
-            retry_delay=self.config.retry_delay,
-            test_mode=self.config.test_mode
+        # Create formatter
+        formatter = logging.Formatter(
+            self._config.get('log_format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
+            self._config.get('date_format', '%Y-%m-%d %H:%M:%S')
         )
-        self.writer = LogWriter(self.config.log_dir)
-        self.rotator = LogRotator(self.config.log_dir)
-        self.metrics = LogMetrics()
         
-        # Setup log directory
-        self._setup_log_directory()
+        # Add console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        root_logger.addHandler(console_handler)
         
-        # Register cleanup handler
-        if not self._cleanup_registered:
-            atexit.register(self._cleanup_all_locks)
-            self._cleanup_registered = True
-    
-    def _setup_log_directory(self) -> None:
-        """Set up the log directory with proper permissions."""
-        try:
-            # Create log directory if it doesn't exist
-            self.config.log_dir = Path(self.config.log_dir)
-            self.config.log_dir.mkdir(parents=True, exist_ok=True)
-            
-            # Test write permissions
-            test_file = self.config.log_dir / ".test_write"
-            try:
-                test_file.touch()
-                test_file.unlink()
-            except Exception as e:
-                raise PermissionError(f"Log directory {self.config.log_dir} is not writable: {str(e)}")
-                
-        except Exception as e:
-            logger.error(f"Failed to set up log directory: {str(e)}")
-            raise
-    
-    def _acquire_lock(self, f, log_file: str, timeout: int = 5) -> None:
-        """Acquire a file lock with timeout.
+        # Add file handlers for each platform
+        log_dir = Path(self._config.get('log_dir', 'logs'))
+        log_dir.mkdir(exist_ok=True)
         
-        Args:
-            f: File object to lock
-            log_file: Path to the log file
-            timeout: Maximum time to wait for lock in seconds
-            
-        Raises:
-            TimeoutError: If lock cannot be acquired within timeout
-        """
-        logger.debug(f"🔒 Attempting lock on: {log_file}")
-        start = time.time()
-        while True:
-            try:
-                portalocker.lock(f, portalocker.LOCK_EX | portalocker.LOCK_NB)
-                logger.debug(f"✅ Lock acquired: {log_file}")
-                return
-            except portalocker.exceptions.LockException:
-                if time.time() - start > timeout:
-                    logger.error(f"⛔ Timeout locking file: {log_file}")
-                    raise TimeoutError(f"Timeout acquiring lock on {log_file}")
-                time.sleep(0.1)
-    
-    def _release_lock(self, f, log_file: str) -> None:
-        """Release a file lock.
-        
-        Args:
-            f: File object to unlock
-            log_file: Path to the log file
-        """
-        logger.debug(f"🔓 Releasing lock: {log_file}")
-        try:
-            portalocker.unlock(f)
-            logger.debug(f"✅ Lock released: {log_file}")
-        except Exception as e:
-            logger.error(f"Failed to release lock for {log_file}: {str(e)}")
-    
-    @classmethod
-    def _cleanup_all_locks(cls):
-        """Clean up all file locks."""
-        for file_path, lock_info in list(cls._file_locks.items()):
-            try:
-                if lock_info['file'].fileno() != -1:  # Check if file is still open
-                    logger.debug(f"Cleaning up lock for {file_path}")
-                    portalocker.unlock(lock_info['file'])
-                lock_info['file'].close()
-                if lock_info['lock_file'].exists():
-                    lock_info['lock_file'].unlink()
-            except Exception as e:
-                logger.error(f"Failed to cleanup lock for {file_path}: {str(e)}")
-            finally:
-                cls._file_locks.pop(file_path, None)
-    
-    @contextmanager
-    def _get_file_lock(self, file_path: Path):
-        """Get a file lock for thread-safe operations.
-        
-        Args:
-            file_path: Path to lock
-        """
-        lock_file = file_path.with_suffix(file_path.suffix + '.lock')
-        lock_info = None
-        
-        try:
-            # Create lock file
-            lock_file.parent.mkdir(parents=True, exist_ok=True)
-            lock_fd = open(lock_file, 'w')
-            
-            # Try to acquire lock with timeout
-            self._acquire_lock(lock_fd, str(file_path))
-            
-            # Store lock info
-            lock_info = {
-                'file': lock_fd,
-                'lock_file': lock_file
-            }
-            self._file_locks[str(file_path)] = lock_info
-            
-            yield
-            
-        finally:
-            if lock_info:
-                try:
-                    if lock_info['file'].fileno() != -1:  # Check if file is still open
-                        self._release_lock(lock_info['file'], str(file_path))
-                    lock_info['file'].close()
-                    if lock_info['lock_file'].exists():
-                        lock_info['lock_file'].unlink()
-                except Exception as e:
-                    logger.error(f"Failed to release lock for {file_path}: {str(e)}")
-                finally:
-                    self._file_locks.pop(str(file_path), None)
-    
-    def write_log(
-        self,
-        platform: str,
-        status: str,
-        message: str,
-        level: str = "INFO",
-        tags: Optional[list] = None,
-        metadata: Optional[Dict[str, Any]] = None,
-        error: Optional[str] = None,
-        format: str = "json"
-    ) -> bool:
-        """Write a log entry with thread safety.
-        
-        Args:
-            platform: Platform name
-            status: Operation status
-            message: Log message
-            level: Log level
-            tags: Optional tags
-            metadata: Optional metadata
-            error: Optional error message
-            format: Output format
-            
-        Returns:
-            bool: True if write was successful
-        """
-        try:
-            # Create log entry
-            entry = LogEntry(
-                platform=platform,
-                status=status,
-                message=message,
-                level=level,
-                timestamp=datetime.now(),
-                tags=tags,
-                metadata=metadata,
-                error=error
+        for platform, log_file in self._config.get('platforms', {}).items():
+            file_handler = RotatingFileHandler(
+                log_dir / log_file,
+                maxBytes=10 * 1024 * 1024,  # 10MB
+                backupCount=5
             )
+            file_handler.setFormatter(formatter)
+            root_logger.addHandler(file_handler)
+    
+    def write_log(self, message: str, level: str = "INFO", platform: str = "system", **kwargs) -> None:
+        """Write a log entry."""
+        try:
+            # Update metrics
+            self._metrics['total_entries'] += 1
+            self._metrics['entries_by_level'][level] = self._metrics['entries_by_level'].get(level, 0) + 1
+            self._metrics['entries_by_platform'][platform] = self._metrics['entries_by_platform'].get(platform, 0) + 1
             
-            # Add to batch with thread safety
-            with self._operation_lock:
-                if self.batcher.add(entry.__dict__):
-                    # Update metrics
-                    self.metrics.increment_logs(
-                        platform=platform,
-                        level=level,
-                        status=status,
-                        format_type=format
-                    )
-                    return True
-                
-                # Batch is full, flush it
-                self._write_batch()
-                
-                # Try adding again
-                if self.batcher.add(entry.__dict__):
-                    self.metrics.increment_logs(
-                        platform=platform,
-                        level=level,
-                        status=status,
-                        format_type=format
-                    )
-                    return True
+            # Get logger for platform
+            logger = logging.getLogger(platform)
             
-            return False
+            # Log message
+            log_method = getattr(logger, level.lower(), logger.info)
+            log_method(message, extra=kwargs)
             
         except Exception as e:
-            logger.error(f"Failed to write log: {str(e)}")
-            self.metrics.record_error(str(e))
-            return False
-    
-    def _write_batch(self) -> None:
-        """Write the current batch of entries with thread safety."""
-        with self._operation_lock:
-            entries = self.batcher.get_entries()
-            for entry in entries:
-                self.writer.write_log(entry)
-    
-    def _flush_all_batches(self) -> None:
-        """Flush all pending batches with thread safety."""
-        with self._operation_lock:
-            self._write_batch()
-            self.batcher.clear()
-    
-    def flush(self) -> None:
-        """Flush any pending log entries with thread safety."""
-        with self._operation_lock:
-            self._write_batch()
-    
-    def read_logs(
-        self,
-        platform: str,
-        level: Optional[str] = None,
-        status: Optional[str] = None,
-        tags: Optional[List[str]] = None,
-        format: str = "json"
-    ) -> List[Dict[str, Any]]:
-        """Read logs for a platform with filtering.
-        
-        Args:
-            platform: Platform to read logs for
-            level: Optional level filter
-            status: Optional status filter
-            tags: Optional tags filter
-            format: Log file format
-            
-        Returns:
-            List of log entries
-        """
-        with self._operation_lock:
-            try:
-                # Read all logs for platform
-                entries = self.writer.read_logs(platform, format=format)
-                
-                # Apply filters
-                if level:
-                    entries = [e for e in entries if e["level"] == level]
-                if status:
-                    entries = [e for e in entries if e["status"] == status]
-                if tags:
-                    entries = [e for e in entries if all(tag in e.get("tags", []) for tag in tags)]
-                
-                return entries
-            except Exception as e:
-                logger.error(f"Failed to read logs: {str(e)}")
-                return []
-    
-    def cleanup(self) -> None:
-        """Clean up old log files."""
-        with self._operation_lock:
-            try:
-                self.rotator.cleanup()
-            except Exception as e:
-                logger.error(f"Failed to cleanup logs: {str(e)}")
-    
-    def reset(self) -> None:
-        """Reset the log manager state."""
-        with self._operation_lock:
-            self.batcher.clear()
-            self.metrics.reset()
-    
-    @classmethod
-    def reset_singleton(cls) -> None:
-        """Reset the singleton instance."""
-        with cls._init_lock:
-            if cls._instance is not None:
-                try:
-                    cls._instance.shutdown()
-                except Exception as e:
-                    logger.error(f"Error during singleton reset: {str(e)}")
-                finally:
-                    cls._instance = None
-                    cls._initialized = False
-    
-    def shutdown(self) -> None:
-        """Shutdown the log manager."""
-        with self._operation_lock:
-            try:
-                self._flush_all_batches()
-                self._cleanup_all_locks()
-            except Exception as e:
-                logger.error(f"Failed to shutdown log manager: {str(e)}")
-            finally:
-                self._initialized = False
-    
-    def info(self, platform: str, status: str, message: str, **kwargs) -> bool:
-        """Write an info level log entry."""
-        return self.write_log(platform, status, message, level="INFO", **kwargs)
-    
-    def warning(self, platform: str, status: str, message: str, **kwargs) -> bool:
-        """Write a warning level log entry."""
-        return self.write_log(platform, status, message, level="WARNING", **kwargs)
-    
-    def error(self, platform: str, status: str, message: str, **kwargs) -> bool:
-        """Write an error level log entry."""
-        return self.write_log(platform, status, message, level="ERROR", **kwargs)
-    
-    def debug(self, platform: str, status: str, message: str, **kwargs) -> bool:
-        """Write a debug level log entry."""
-        return self.write_log(platform, status, message, level="DEBUG", **kwargs)
+            self._metrics['errors'] += 1
+            logging.error(f"Error writing log: {e}")
     
     def get_metrics(self) -> Dict[str, Any]:
         """Get current metrics."""
-        with self._operation_lock:
-            return self.metrics.get_metrics()
-
-    @property
-    def log_dir(self) -> Path:
-        """Get the log directory path.
-        
-        Returns:
-            Path object pointing to the log directory
-        """
-        return self.config.log_dir 
+        return dict(self._metrics)
+    
+    def read_logs(
+        self,
+        platform: Optional[str] = None,
+        level: Optional[str] = None,
+        start_time: Optional[datetime] = None,
+        end_time: Optional[datetime] = None,
+        limit: Optional[int] = None
+    ) -> List[Dict[str, Any]]:
+        """Read log entries with optional filtering."""
+        try:
+            log_dir = Path(self._config.get('log_dir', 'logs'))
+            entries = []
+            
+            # Get log file for platform
+            if platform and platform not in self._config.get('platforms', {}):
+                raise ValueError(f"Invalid platform: {platform}")
+                
+            log_file = log_dir / self._config.get('platforms', {}).get(platform, "system.log")
+            
+            # Read and parse log file
+            with open(log_file, 'r') as f:
+                for line in f:
+                    try:
+                        entry = json.loads(line)
+                        if isinstance(entry, dict):
+                            # Apply filters
+                            if level and entry.get("level") != level:
+                                continue
+                            if start_time and datetime.fromisoformat(entry.get("timestamp", "")) < start_time:
+                                continue
+                            if end_time and datetime.fromisoformat(entry.get("timestamp", "")) > end_time:
+                                continue
+                            entries.append(entry)
+                    except json.JSONDecodeError:
+                        continue
+            
+            # Apply limit
+            if limit is not None:
+                entries = entries[-limit:]
+                
+            return entries
+            
+        except Exception as e:
+            logging.error(f"Error reading logs: {e}")
+            return []
+    
+    def cleanup(self) -> None:
+        """Clean up old log files."""
+        try:
+            log_dir = Path(self._config.get('log_dir', 'logs'))
+            max_age_days = self._config.get('max_age_days', 30)
+            
+            if max_age_days > 0:
+                cutoff = datetime.now() - timedelta(days=max_age_days)
+                for log_file in log_dir.glob('*.log*'):
+                    try:
+                        if log_file.stat().st_mtime < cutoff.timestamp():
+                            log_file.unlink()
+                    except Exception as e:
+                        logging.error(f"Error removing old log file {log_file}: {e}")
+        except Exception as e:
+            logging.error(f"Error during cleanup: {e}")
+    
+    def debug(self, platform: str, message: str, **kwargs) -> None:
+        """Write debug log entry."""
+        self.write_log(message=message, level="DEBUG", platform=platform, **kwargs)
+    
+    def info(self, platform: str, message: str, **kwargs) -> None:
+        """Write info log entry."""
+        self.write_log(message=message, level="INFO", platform=platform, **kwargs)
+    
+    def warning(self, platform: str, message: str, **kwargs) -> None:
+        """Write warning log entry."""
+        self.write_log(message=message, level="WARNING", platform=platform, **kwargs)
+    
+    def error(self, platform: str, message: str, **kwargs) -> None:
+        """Write error log entry."""
+        self.write_log(message=message, level="ERROR", platform=platform, **kwargs)
+    
+    def critical(self, platform: str, message: str, **kwargs) -> None:
+        """Write critical log entry."""
+        self.write_log(message=message, level="CRITICAL", platform=platform, **kwargs)

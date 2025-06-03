@@ -1,6 +1,6 @@
 # Core dependencies
 screeninfo>=0.6.7
-pyautogui>=0.9.53
+pyautogui>=0.9.54
 Pillow>=9.0.0
 keyboard>=0.13.5
 
@@ -23,5 +23,25 @@ geopy>=2.4.1
 requests>=2.31.0
 pytest>=8.0.0
 pytest-mock>=3.12.0
-selenium>=4.18.1
-webdriver-manager>=4.0.1 
+selenium>=4.10.0
+webdriver-manager>=4.0.1
+undetected-chromedriver>=3.5.0
+pygetwindow>=0.0.9
+
+# ChatGPT bridge dependencies
+websockets>=10.0
+asyncio>=3.4.3
+
+# Logging and monitoring
+prometheus-client>=0.16.0
+python-json-logger>=2.0.7
+
+# Testing
+pytest-asyncio>=0.21.0
+pytest-cov>=4.0.0
+
+# Development
+black>=23.0.0
+isort>=5.12.0
+flake8>=6.0.0
+mypy>=1.0.0 

@@ -13,7 +13,7 @@ logger = logging.getLogger('agent_control.coordinate_transformer')
 class CoordinateTransformer:
     """Transforms coordinates between monitor and screen space."""
     
-    def __init__(self, transform_debug: bool = False):
+    def __init__(self, transform_debug: bool = True):
         """Initialize coordinate transformer.
         
         Args:

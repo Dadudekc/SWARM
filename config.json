@@ -1,0 +1,25 @@
+{
+    "reverse_order": false,
+    "archive_enabled": true,
+    "excluded_chats": [],
+    "headless": false,
+    "output_dir": "responses",
+    "prompt_cycle": [
+        "analyze",
+        "summarize",
+        "improve"
+    ],
+    "memory": {
+        "memory_file": "memory/persistent_memory.json",
+        "feedback_log_file": "memory/feedback_log.json",
+        "context_memory_file": "memory/context_memory.json",
+        "max_recent_responses": 100,
+        "max_user_interactions": 50,
+        "max_platform_memories": 200
+    },
+    "feedback": {
+        "low_score_threshold": 0.5,
+        "hallucination_check": true,
+        "auto_export_interval": 3600
+    }
+} 

@@ -1,0 +1,26 @@
+{
+    "reddit": {
+        "username": "your_reddit_username",
+        "password": "your_reddit_password",
+        "client_id": "your_client_id",
+        "client_secret": "your_client_secret",
+        "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36",
+        "cookies_path": "data/cookies",
+        "profile_path": "data/profiles",
+        "subreddit": "your_subreddit",
+        "window_coords": {
+            "x": 0,
+            "y": 0,
+            "width": 1920,
+            "height": 1080
+        },
+        "window_title": "Reddit Browser"
+    },
+    "browser": {
+        "window_size": {
+            "width": 1920,
+            "height": 1080
+        },
+        "window_title": "Reddit Browser"
+    }
+} 

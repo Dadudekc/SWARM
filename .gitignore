@@ -146,4 +146,8 @@ Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOCK
 Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/CURRENT
 Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
 Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/000*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old* 
+Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
+
+# Bridge runtime files
+runtime/bridge_inbox/pending_requests.json
+runtime/bridge_inbox/bridge.log 

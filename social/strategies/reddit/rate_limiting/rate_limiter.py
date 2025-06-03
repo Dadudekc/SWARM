@@ -6,7 +6,7 @@ Provides rate limiting functionality for API calls.
 
 import time
 from datetime import datetime
-from typing import Dict, Optional, Union, Callable
+from typing import Dict, Optional, Union, Callable, List
 from functools import wraps
 
 class RateLimiter:
@@ -17,6 +17,10 @@ class RateLimiter:
         self.rate_limits: Dict[str, Dict[str, Union[int, datetime]]] = {}
         self.last_reset: Dict[str, datetime] = {}
         self.calls: Dict[str, int] = {}
+        self.timestamps: Dict[str, List[float]] = {}
+        self.operation_times: Dict[str, List[float]] = {}  # Track operation timestamps
+        self.rate_limit_window = 60  # 1 minute window
+        self.max_requests = 30  # 30 requests per minute
         
         # Set default rate limits
         self.default_limits = {
@@ -63,35 +67,38 @@ class RateLimiter:
         """
         return self.rate_limits.get(action)
     
-    def check_rate_limit(self, action: str) -> bool:
-        """Check if an action is within rate limits.
+    def check_rate_limit(self, operation: str) -> bool:
+        """Check if operation is within rate limits.
         
         Args:
-            action: Action to check
+            operation: Operation to check rate limit for
             
         Returns:
-            True if within limits, False if exceeded
-        """
-        if action not in self.rate_limits:
-            return True
+            True if operation is allowed, False if rate limit exceeded
             
-        limit_info = self.rate_limits[action]
+        Raises:
+            Exception: If rate limit is exceeded
+        """
+        # Get rate limit config for operation
+        if operation not in self.rate_limits:
+            return True  # No rate limit configured
+        
+        limit_info = self.rate_limits[operation]
         current_time = datetime.now()
         
         # Reset window if expired
-        if (current_time - self.last_reset[action]).total_seconds() > limit_info["window"]:
-            self.last_reset[action] = current_time
-            self.calls[action] = 0
+        if (current_time - self.last_reset[operation]).total_seconds() > limit_info["window"]:
+            self.last_reset[operation] = current_time
+            self.calls[operation] = 0
             limit_info["remaining"] = limit_info["limit"]
-            return True
-            
+        
         # Check if limit exceeded
         if limit_info["remaining"] <= 0:
-            return False
-            
+            raise Exception(f"Rate limit exceeded for {operation}")
+        
         # Decrement remaining and increment calls
         limit_info["remaining"] -= 1
-        self.calls[action] += 1
+        self.calls[operation] += 1
         return True
     
     def reset_rate_limit(self, action: str) -> None:
@@ -139,9 +146,34 @@ class RateLimiter:
             def wrapper(*args, **kwargs):
                 if not self.check_rate_limit(action):
                     raise Exception(f"Rate limit exceeded for {action}")
-                return func(*args, **kwargs)
+                try:
+                    return func(*args, **kwargs)
+                except Exception as e:
+                    if "rate limit" in str(e).lower():
+                        raise Exception(f"Rate limit exceeded for {action}")
+                    raise
             return wrapper
         return decorator
+
+    def _is_within_rate_limit(self, action: str) -> bool:
+        """Check if the action is within the rate limit window and update counters."""
+        if action not in self.rate_limits:
+            return True
+        limit_info = self.rate_limits[action]
+        current_time = datetime.now()
+        # Reset window if expired
+        if (current_time - self.last_reset[action]).total_seconds() > limit_info["window"]:
+            self.last_reset[action] = current_time
+            self.calls[action] = 0
+            limit_info["remaining"] = limit_info["limit"]
+            return True
+        # Check if limit exceeded
+        if limit_info["remaining"] <= 0:
+            return False
+        # Decrement remaining and increment calls
+        limit_info["remaining"] -= 1
+        self.calls[action] += 1
+        return True
 
 # Create a default rate limiter instance
 _default_limiter = RateLimiter()

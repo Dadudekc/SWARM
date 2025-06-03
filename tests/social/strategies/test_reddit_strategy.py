@@ -15,6 +15,7 @@ import types
 
 from social.strategies.reddit_strategy import RedditStrategy
 from social.utils.log_config import LogConfig, LogLevel
+from social.utils.log_manager import LogManager
 from social.constants.platform_constants import (
     REDDIT_MAX_IMAGES,
 )
@@ -29,38 +30,28 @@ def mock_driver():
     return driver
 
 @pytest.fixture
-def mock_config(tmp_path):
-    config = {
-        "log_config": LogConfig(
-            log_dir=str(tmp_path / "logs"),
-            level="INFO",
-            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-        ),
+def mock_config():
+    """Create mock config."""
+    return {
         "username": "test_user",
         "password": "test_pass",
-        "max_retries": 2,
-        "retry_delay": 0,
-        "timeout": 1,
-        "api_key": "test_api_key",
-        "api_secret": "test_api_secret",
-        "browser": {
-            "headless": False,
-            "window_title": "Test Browser",
-            "window_coords": {
-                "x": 0,
-                "y": 0,
-                "width": 1024,
-                "height": 768
-            },
-            "cookies_path": str(tmp_path / "cookies")
-        }
+        "browser": {"type": "firefox", "headless": True},
+        "log_config": LogConfig(
+            log_dir="test_logs",
+            level="DEBUG",
+            log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            output_format="json"
+        )
     }
-    # Set additional attributes directly
-    config["log_config"].max_size_mb = 10
-    config["log_config"].max_age_days = 7
-    config["log_config"].batch_size = 100
-    config["log_config"].batch_timeout = 60.0
-    return config
+
+@pytest.fixture
+def mock_logger():
+    """Create mock logger."""
+    logger = Mock()
+    logger.error = Mock()
+    logger.info = Mock()
+    logger.debug = Mock()
+    return logger
 
 @pytest.fixture
 def mock_memory_update():
@@ -83,16 +74,20 @@ def mock_memory_update():
     }
 
 @pytest.fixture
-def strategy(mock_driver, mock_config, mock_memory_update):
-    strat = RedditStrategy(mock_driver, mock_config, mock_memory_update)
-    strat.utils = Mock()  # inject a mocked utils everywhere
-    strat.logger = Mock()  # mock the logger
-    return strat
+def mock_log_manager():
+    return Mock(spec=LogManager)
 
 @pytest.fixture
-def reddit_strategy_fixture(mock_driver, mock_config, mock_memory_update):
+def strategy(mock_driver, mock_config, mock_logger):
+    """Create strategy with mocks."""
+    strategy = RedditStrategy(mock_driver, mock_config)
+    strategy.logger = mock_logger
+    return strategy
+
+@pytest.fixture
+def reddit_strategy_fixture(mock_driver, mock_config, mock_memory_update, mock_log_manager):
     """Fixture for RedditStrategy with real file operations."""
-    strat = RedditStrategy(mock_driver, mock_config, mock_memory_update)
+    strat = RedditStrategy(mock_driver, mock_config, mock_memory_update, log_manager=mock_log_manager)
     strat.utils = Mock()  # inject a mocked utils everywhere
     strat.logger = Mock()  # mock the logger
     return strat
@@ -380,3 +375,39 @@ class TestRedditStrategy:
         is_valid, error = reddit_strategy_fixture._validate_media([str(image)], is_video=False)
         assert is_valid is False
         assert error is not None
+
+    def test_init(self, strategy, mock_driver, mock_config):
+        """Test strategy initialization."""
+        assert strategy.driver == mock_driver
+        assert strategy.config == mock_config
+        assert strategy.logger is not None
+
+    def test_login_success(self, strategy, mock_driver):
+        """Test successful login."""
+        # Mock driver behavior
+        mock_driver.get.return_value = None
+        mock_driver.find_element.return_value = Mock()
+        
+        # Mock wait_for_element
+        strategy.utils.wait_for_element.return_value = Mock()
+        
+        # Mock retry_click
+        strategy.utils.retry_click.return_value = True
+        
+        assert strategy.login() is True
+        mock_driver.get.assert_called_with("https://www.reddit.com/login")
+
+    def test_login_failure(self, strategy, mock_driver):
+        """Test login failure."""
+        # Mock driver behavior
+        mock_driver.get.return_value = None
+        mock_driver.find_element.side_effect = NoSuchElementException()
+        
+        # Mock wait_for_element
+        strategy.utils.wait_for_element.return_value = Mock()
+        
+        # Mock retry_click
+        strategy.utils.retry_click.side_effect = ElementClickInterceptedException()
+        
+        assert strategy.login() is False
+        strategy.logger.error.assert_called()

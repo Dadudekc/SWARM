@@ -1,118 +1,252 @@
 """
-Discord Bot for Agent Control
+Dream.OS Discord Bot
 
-Handles Discord bot initialization and command loading.
+Provides Discord interface for Dream.OS system.
 """
 
 import os
+import logging
 import discord
 from discord.ext import commands
-import logging
-import asyncio
-from dotenv import load_dotenv
+from pathlib import Path
+from dreamos.core.agent_control.system_orchestrator import SystemOrchestrator
+from social.utils.log_manager import LogManager, LogLevel
 
-from dreamos.core.agent_loop import start_agent_loops
-
-# Set up logging with more detailed format
-logging.basicConfig(
-    level=logging.DEBUG,  # Changed to DEBUG for more verbose output
-    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-)
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger('discord_bot')
 
-# Debug prints for environment setup
-print("\n=== Environment Configuration Debug ===")
-print(f"Current working directory: {os.getcwd()}")
-print(f"Looking for .env file in: {os.path.join(os.getcwd(), 'discord_bot', '.env')}")
-
-# Load environment variables
-load_dotenv()
-TOKEN = os.getenv('DISCORD_TOKEN')
-print(f"\nDiscord Token present: {'Yes' if TOKEN else 'No'}")
-
-# Debug prints for bot configuration
-print("\n=== Bot Configuration ===")
-print(f"Bot intents: message_content={True}")  # Only using message_content intent
-
-if not TOKEN:
-    print("\nERROR: No Discord token found!")
-    print("Please ensure you have a .env file in the discord_bot directory with:")
-    print("DISCORD_TOKEN=your_discord_bot_token_here")
-    raise ValueError("No Discord token found. Please set DISCORD_TOKEN in .env file")
-
-# Set up bot with minimal intents
-intents = discord.Intents.default()
-intents.message_content = True  # Only enable message content intent
-
-bot = commands.Bot(command_prefix='!', intents=intents)
-
-@bot.event
-async def on_ready():
-    """Called when the bot is ready and connected to Discord."""
-    print("\n=== Bot Ready ===")
-    print(f'Logged in as {bot.user.name} ({bot.user.id})')
-    print(f'Connected to {len(bot.guilds)} guilds')
+class DreamOSBot(commands.Bot):
+    """Dream.OS Discord bot."""
     
-    # Send swarm initialization message
-    for guild in bot.guilds:
-        try:
-            # Find the first text channel we can send messages to
-            channel = next((ch for ch in guild.text_channels if ch.permissions_for(guild.me).send_messages), None)
-            if channel:
-                embed = discord.Embed(
-                    title="🛸 SWARM INITIALIZATION COMPLETE",
-                    description="WE. ARE. SWARM.",
-                    color=discord.Color.purple()
-                )
-                embed.add_field(
-                    name="System Status",
-                    value="✅ Online and Operational",
-                    inline=False
-                )
-                embed.add_field(
-                    name="Swarm Members",
-                    value=f"🛸 {len(bot.guilds)} Networks Connected",
-                    inline=False
-                )
-                embed.set_footer(text="Dream.OS Swarm System")
-                await channel.send(embed=embed)
-        except Exception as e:
-            print(f'Error sending initialization message to {guild.name}: {e}')
-    
-    # Load commands
-    try:
-        await bot.load_extension('discord_bot.commands')
-        print('Commands loaded successfully')
-    except Exception as e:
-        print(f'Error loading commands: {e}')
-        logger.error(f'Error loading commands: {e}')
-    
-    # Start agent loops
-    try:
-        agent_tasks = await start_agent_loops(bot)
-        print(f'Started {len(agent_tasks)} agent loops')
-    except Exception as e:
-        print(f'Error starting agent loops: {e}')
-        logger.error(f'Error starting agent loops: {e}')
-    
-    # Set bot status
-    await bot.change_presence(
-        activity=discord.Activity(
-            type=discord.ActivityType.watching,
-            name="for agent commands"
+    def __init__(self):
+        """Initialize the bot."""
+        intents = discord.Intents.default()
+        intents.message_content = True
+        intents.members = True
+        
+        super().__init__(
+            command_prefix='!',
+            intents=intents,
+            help_command=None
         )
-    )
-    print('Bot status set')
+        
+        # Initialize system orchestrator
+        self.runtime_dir = Path("runtime")
+        self.runtime_dir.mkdir(exist_ok=True)
+        
+        # Initialize logging
+        self.log_manager = LogManager({
+            'log_dir': str(self.runtime_dir / "logs"),
+            'level': LogLevel.INFO,
+            'platforms': {
+                'discord': 'discord.log',
+                'commands': 'commands.log'
+            }
+        })
+        
+        self.orchestrator = SystemOrchestrator(
+            runtime_dir=self.runtime_dir,
+            discord_token=os.getenv("DISCORD_TOKEN"),
+            channel_id=int(os.getenv("DISCORD_CHANNEL_ID"))
+        )
+        
+        self.log_manager.info(
+            platform="discord",
+            status="success",
+            message="Discord bot initialized",
+            tags=["startup", "init"]
+        )
+        
+    async def setup_hook(self):
+        """Set up bot commands and start system."""
+        try:
+            # Start system orchestrator
+            await self.orchestrator.start()
+            
+            # Add commands
+            self.add_command(self.cmd_help)
+            self.add_command(self.cmd_status)
+            self.add_command(self.cmd_task)
+            self.add_command(self.cmd_devlog)
+            
+            self.log_manager.info(
+                platform="discord",
+                status="success",
+                message="Bot commands set up successfully",
+                tags=["startup", "commands"]
+            )
+            
+        except Exception as e:
+            self.log_manager.error(
+                platform="discord",
+                status="error",
+                message=f"Failed to set up bot: {str(e)}",
+                tags=["startup", "error"]
+            )
+            raise
+        
+    async def on_ready(self):
+        """Handle bot ready event."""
+        self.log_manager.info(
+            platform="discord",
+            status="success",
+            message=f"Bot connected as {self.user}",
+            tags=["startup", "ready"]
+        )
+        
+    @commands.command(name="help")
+    async def cmd_help(self, ctx):
+        """Show help information."""
+        try:
+            help_text = """
+**Dream.OS Bot Commands**
 
-def run_bot():
-    """Run the Discord bot."""
-    print("\n=== Starting Bot ===")
-    try:
-        bot.run(TOKEN)
-    except Exception as e:
-        print(f"\nERROR: Failed to run bot: {e}")
-        logger.error(f"Error running bot: {e}")
-        raise
+`!help` - Show this help message
+`!status <agent_id>` - Show agent status
+`!task <agent_id> <title> <description>` - Create new task
+`!devlog <agent_id> <category> <content>` - Add devlog entry
+            """
+            await ctx.send(help_text)
+            
+            self.log_manager.info(
+                platform="commands",
+                status="success",
+                message=f"Help command executed by {ctx.author}",
+                tags=["command", "help"]
+            )
+            
+        except Exception as e:
+            self.log_manager.error(
+                platform="commands",
+                status="error",
+                message=f"Error in help command: {str(e)}",
+                tags=["command", "help", "error"]
+            )
+            await ctx.send("Error showing help information")
+        
+    @commands.command(name="status")
+    async def cmd_status(self, ctx, agent_id: str):
+        """Show agent status."""
+        try:
+            status = await self.orchestrator.get_agent_status(agent_id)
+            
+            # Format status message
+            msg = f"**Status for Agent {agent_id}**\n\n"
+            
+            # Tasks section
+            msg += "**Tasks**\n"
+            msg += f"Total: {status['tasks']['total']}\n"
+            msg += f"Summary: {status['tasks']['summary']}\n\n"
+            
+            # Devlog section
+            msg += "**DevLog**\n"
+            msg += f"Total Entries: {status['devlog']['total_entries']}\n\n"
+            
+            # Messages section
+            msg += "**Messages**\n"
+            msg += f"Total: {status['messages']['total']}\n"
+            
+            await ctx.send(msg)
+            
+            self.log_manager.info(
+                platform="commands",
+                status="success",
+                message=f"Status command executed for agent {agent_id} by {ctx.author}",
+                tags=["command", "status"]
+            )
+            
+        except Exception as e:
+            self.log_manager.error(
+                platform="commands",
+                status="error",
+                message=f"Error in status command for agent {agent_id}: {str(e)}",
+                tags=["command", "status", "error"]
+            )
+            await ctx.send(f"Error getting status: {str(e)}")
+            
+    @commands.command(name="task")
+    async def cmd_task(self, ctx, agent_id: str, title: str, *, description: str):
+        """Create new task."""
+        try:
+            task_id = await self.orchestrator.create_agent_task(
+                agent_id=agent_id,
+                title=title,
+                description=description
+            )
+            
+            await ctx.send(f"Task created with ID: {task_id}")
+            
+            self.log_manager.info(
+                platform="commands",
+                status="success",
+                message=f"Task command executed for agent {agent_id} by {ctx.author}",
+                tags=["command", "task"]
+            )
+            
+        except Exception as e:
+            self.log_manager.error(
+                platform="commands",
+                status="error",
+                message=f"Error in task command for agent {agent_id}: {str(e)}",
+                tags=["command", "task", "error"]
+            )
+            await ctx.send(f"Error creating task: {str(e)}")
+            
+    @commands.command(name="devlog")
+    async def cmd_devlog(self, ctx, agent_id: str, category: str, *, content: str):
+        """Add devlog entry."""
+        try:
+            await self.orchestrator.devlog_manager.add_devlog_entry(
+                agent_id=agent_id,
+                category=category,
+                content=content
+            )
+            
+            await ctx.send("Devlog entry added successfully")
+            
+            self.log_manager.info(
+                platform="commands",
+                status="success",
+                message=f"Devlog command executed for agent {agent_id} by {ctx.author}",
+                tags=["command", "devlog"]
+            )
+            
+        except Exception as e:
+            self.log_manager.error(
+                platform="commands",
+                status="error",
+                message=f"Error in devlog command for agent {agent_id}: {str(e)}",
+                tags=["command", "devlog", "error"]
+            )
+            await ctx.send(f"Error adding devlog entry: {str(e)}")
+            
+    async def close(self):
+        """Handle bot shutdown."""
+        try:
+            await self.orchestrator.stop()
+            await super().close()
+            
+            self.log_manager.info(
+                platform="discord",
+                status="success",
+                message="Discord bot shut down successfully",
+                tags=["shutdown", "complete"]
+            )
+            
+        except Exception as e:
+            self.log_manager.error(
+                platform="discord",
+                status="error",
+                message=f"Error during bot shutdown: {str(e)}",
+                tags=["shutdown", "error"]
+            )
+            raise
 
-if __name__ == '__main__':
-    run_bot() 
+def main():
+    """Run the bot."""
+    bot = DreamOSBot()
+    bot.run(os.getenv("DISCORD_TOKEN"))
+
+if __name__ == "__main__":
+    main() 

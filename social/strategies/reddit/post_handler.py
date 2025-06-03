@@ -7,6 +7,17 @@ class PostHandler:
         self.driver = driver
         self.config = config
         self.utils = None  # Will be set by RedditStrategy
+        
+        # Selectors for Reddit post elements
+        self.selectors = {
+            "title_input": "//textarea[@name='title']",
+            "content_input": "//div[@role='textbox']",
+            "submit_button": "//button[@type='submit']",
+            "media_upload": "//button[contains(@class, 'media-upload')]",
+            "file_input": "//input[@type='file']",
+            "upload_complete": "//div[contains(@class, 'upload-complete')]",
+            "post_content": "//div[@class='post-content']"
+        }
 
     def create_post(self, content: str, media_paths: Optional[List[str]] = None, is_video: bool = False) -> bool:
         """Create a new post on Reddit.
@@ -21,25 +32,19 @@ class PostHandler:
         """
         try:
             # Navigate to submit page
-            self.driver.get(f"https://www.reddit.com/r/{self.config.get('reddit', {}).get('subreddit', 'test')}/submit")
+            subreddit = self.config.get('reddit', {}).get('subreddit', 'test')
+            self.driver.get(f"https://www.reddit.com/r/{subreddit}/submit")
             
-            # Find and fill title
-            title_field = self.utils.wait_for_element(By.XPATH, "//textarea[@name='title']")
-            if not title_field:
+            # Find and fill content
+            content_input = self.utils.wait_for_element(By.XPATH, self.selectors["content_input"])
+            if not content_input:
                 return False
-            title_field.send_keys(content[:300])  # Reddit title limit
-            
-            # Find and fill text if content is longer
-            if len(content) > 300:
-                text_field = self.utils.wait_for_element(By.XPATH, "//div[@role='textbox']")
-                if not text_field:
-                    return False
-                text_field.send_keys(content[300:])
+            content_input.send_keys(content)
                 
-            # Upload media if provided
+            # Handle media if provided
             if media_paths:
                 # Find upload button
-                upload_button = self.utils.wait_for_clickable(By.XPATH, "//button[contains(@class, 'media-upload')]")
+                upload_button = self.utils.wait_for_clickable(By.XPATH, self.selectors["media_upload"])
                 if not upload_button:
                     return False
                     
@@ -48,7 +53,7 @@ class PostHandler:
                     return False
                     
                 # Find file input
-                file_input = self.utils.wait_for_element(By.XPATH, "//input[@type='file']")
+                file_input = self.utils.wait_for_element(By.XPATH, self.selectors["file_input"])
                 if not file_input:
                     return False
                     
@@ -59,13 +64,13 @@ class PostHandler:
                     # Wait for upload to complete
                     if not self.utils.wait_for_element(
                         By.XPATH,
-                        "//div[contains(@class, 'upload-complete')]",
+                        self.selectors["upload_complete"],
                         timeout=30
                     ):
                         return False
-                    
-            # Find and click submit button
-            submit_button = self.utils.wait_for_clickable(By.XPATH, "//button[@type='submit']")
+            
+            # Submit post
+            submit_button = self.utils.wait_for_clickable(By.XPATH, self.selectors["submit_button"])
             if not submit_button:
                 return False
                 
@@ -74,7 +79,7 @@ class PostHandler:
                 return False
                 
             # Verify post success
-            if not self.utils.wait_for_element(By.XPATH, "//div[@class='post-content']", timeout=10):
+            if not self.utils.wait_for_element(By.XPATH, self.selectors["post_content"], timeout=10):
                 return False
                 
             return True

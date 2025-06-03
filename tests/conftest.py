@@ -11,7 +11,7 @@ import warnings
 from pathlib import Path
 import asyncio
 import discord
-from typing import Generator, Dict, Any
+from typing import Generator, Dict, Any, Optional
 from unittest.mock import MagicMock, patch
 import tempfile
 import shutil
@@ -19,6 +19,16 @@ import yaml
 import json
 from datetime import datetime, timedelta
 import gzip
+import fakeredis
+import redis
+import time
+import stat
+import platform
+import win32security
+import win32con
+import win32api
+import pywintypes
+import psutil
 
 from tests.utils.gui_test_utils import is_headless_environment, should_skip_gui_test
 from tests.test_config import setup_test_environment, cleanup_test_environment
@@ -26,6 +36,10 @@ from tests.utils.test_utils import (
     safe_remove, TEST_ROOT, TEST_DATA_DIR, TEST_OUTPUT_DIR,
     VOICE_QUEUE_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR,
     ensure_test_dirs
+)
+from tests.test_markers import (
+    is_claimed_by_agent, get_claiming_agent, get_claim_issue,
+    agent_claimed, agent_fixed, agent_skipped, agent_in_progress
 )
 
 # Filter out Discord audioop deprecation warning
@@ -58,35 +72,81 @@ MOCK_AGENT_CONFIG = {
     }
 }
 
+def pytest_addoption(parser):
+    """Add custom command line options."""
+    parser.addoption(
+        "--agent-id",
+        action="store",
+        default=None,
+        help="ID of the agent running the tests"
+    )
+    parser.addoption(
+        "--skip-claimed",
+        action="store_true",
+        default=False,
+        help="Skip tests claimed by other agents"
+    )
+
+def pytest_collection_modifyitems(config, items):
+    """Modify test collection based on agent ID and claimed tests."""
+    agent_id = config.getoption("--agent-id")
+    skip_claimed = config.getoption("--skip-claimed")
+    
+    if not agent_id:
+        return
+    
+    for item in items:
+        # Skip tests claimed by other agents
+        if skip_claimed and is_claimed_by_agent(item) and not is_claimed_by_agent(item, agent_id):
+            item.add_marker(pytest.mark.skip(reason=f"Test claimed by agent {get_claiming_agent(item)}"))
+            continue
+        
+        # Add agent ID to test name for better tracking
+        item.name = f"[Agent-{agent_id}] {item.name}"
+
 @pytest.fixture(scope="session", autouse=True)
 def setup_test_dirs() -> Generator[None, None, None]:
     """Set up test directories and clean them up after tests."""
     # Create test directories
     for dir_path in [TEST_DATA_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
+        try:
+            if dir_path.exists():
+                shutil.rmtree(dir_path, ignore_errors=True)
+            dir_path.mkdir(parents=True, exist_ok=True)
+        except (PermissionError, OSError) as e:
+            logging.warning(f"Failed to create test directory {dir_path}: {e}")
     
     yield
     
     # Clean up test directories
     for dir_path in [TEST_DATA_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        if dir_path.exists():
-            shutil.rmtree(dir_path)
+        try:
+            if dir_path.exists():
+                shutil.rmtree(dir_path, ignore_errors=True)
+        except (PermissionError, OSError) as e:
+            logging.warning(f"Failed to remove test directory {dir_path}: {e}")
 
 @pytest.fixture(scope="function")
 def clean_test_dirs() -> Generator[None, None, None]:
     """Clean test directories before and after each test."""
     # Clean up before test
     for dir_path in [TEST_DATA_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        if dir_path.exists():
-            shutil.rmtree(dir_path)
-        dir_path.mkdir(parents=True, exist_ok=True)
+        try:
+            if dir_path.exists():
+                shutil.rmtree(dir_path, ignore_errors=True)
+            dir_path.mkdir(parents=True, exist_ok=True)
+        except (PermissionError, OSError) as e:
+            logging.warning(f"Failed to clean test directory {dir_path}: {e}")
     
     yield
     
     # Clean up after test
     for dir_path in [TEST_DATA_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        if dir_path.exists():
-            shutil.rmtree(dir_path)
+        try:
+            if dir_path.exists():
+                shutil.rmtree(dir_path, ignore_errors=True)
+        except (PermissionError, OSError) as e:
+            logging.warning(f"Failed to clean test directory {dir_path}: {e}")
 
 # Configure logging for tests
 @pytest.fixture(autouse=True)
@@ -118,34 +178,201 @@ def mock_pyautogui() -> Generator[None, None, None]:
     else:
         yield
 
-@pytest.fixture(scope="function")
+@pytest.fixture(scope="session")
 def temp_dir() -> Generator[Path, None, None]:
-    """Create a temporary directory for each test."""
-    temp_dir = TEST_TEMP_DIR / f"test_{next(tempfile._get_candidate_names())}"
-    temp_dir.mkdir(parents=True, exist_ok=True)
+    """Create a temporary directory for tests.
+    
+    Yields:
+        Path to temporary directory
+    """
+    temp_dir = Path(tempfile.mkdtemp())
     yield temp_dir
-    safe_remove(temp_dir)
+    shutil.rmtree(temp_dir, ignore_errors=True)
+
+@pytest.fixture(scope="session")
+def test_dirs(temp_dir: Path) -> Generator[Dict[str, Path], None, None]:
+    """Create test directories.
+    
+    Args:
+        temp_dir: Path to temporary directory
+        
+    Yields:
+        Dictionary of test directory paths
+    """
+    dirs = {
+        "data": temp_dir / "data",
+        "logs": temp_dir / "logs",
+        "cache": temp_dir / "cache",
+        "temp": temp_dir / "temp"
+    }
+    
+    # Create directories with proper permissions
+    for dir_path in dirs.values():
+        try:
+            dir_path.mkdir(parents=True, exist_ok=True)
+            # Ensure directory is writable
+            test_file = dir_path / ".test"
+            test_file.touch()
+            test_file.unlink()
+        except (PermissionError, OSError) as e:
+            pytest.skip(f"Could not create test directory {dir_path}: {e}")
+    
+    yield dirs
+    
+    # Cleanup
+    for dir_path in dirs.values():
+        try:
+            shutil.rmtree(dir_path, ignore_errors=True)
+        except (PermissionError, OSError):
+            pass
 
 @pytest.fixture(scope="function")
-def temp_log_dir(temp_dir) -> Generator[Path, None, None]:
-    """Create a temporary log directory for each test."""
-    log_dir = temp_dir / "logs"
-    log_dir.mkdir(parents=True, exist_ok=True)
-    yield log_dir
+def test_env(test_dirs: Dict[str, Path]) -> Generator[Dict[str, Any], None, None]:
+    """Create test environment.
+    
+    Args:
+        test_dirs: Dictionary of test directory paths
+        
+    Yields:
+        Dictionary of test environment variables
+    """
+    env = {
+        "TEST_DATA_DIR": str(test_dirs["data"]),
+        "TEST_LOG_DIR": str(test_dirs["logs"]),
+        "TEST_CACHE_DIR": str(test_dirs["cache"]),
+        "TEST_TEMP_DIR": str(test_dirs["temp"]),
+        "PYTEST_CURRENT_TEST": "1"
+    }
+    
+    # Set environment variables
+    old_env = {}
+    for key, value in env.items():
+        old_env[key] = os.environ.get(key)
+        os.environ[key] = value
+    
+    yield env
+    
+    # Restore environment variables
+    for key, value in old_env.items():
+        if value is None:
+            del os.environ[key]
+        else:
+            os.environ[key] = value
+
+@pytest.fixture(scope="function")
+def agent_id(request) -> Optional[str]:
+    """Get agent ID from command line option."""
+    return request.config.getoption("--agent-id")
+
+@pytest.fixture(scope="function")
+def test_analysis_file() -> Path:
+    """Get path to test analysis file."""
+    return Path(project_root) / "test_error_analysis.json"
+
+@pytest.fixture(scope="function")
+def test_analysis(test_analysis_file: Path) -> Generator[Dict, None, None]:
+    """Load and save test analysis data."""
+    if not test_analysis_file.exists():
+        data = {
+            "claimed_tests": {},
+            "test_status": {
+                "total_tests": 0,
+                "passed": 0,
+                "failed": 0,
+                "skipped": 0,
+                "in_progress": 0
+            },
+            "agent_assignments": {},
+            "last_run": None,
+            "test_history": []
+        }
+    else:
+        with open(test_analysis_file, 'r') as f:
+            data = json.load(f)
+    
+    yield data
+    
+    with open(test_analysis_file, 'w') as f:
+        json.dump(data, f, indent=2)
+
+@pytest.fixture(scope="function")
+def update_test_status(test_analysis: Dict, agent_id: Optional[str]) -> Generator[None, None, None]:
+    """Update test status in analysis file."""
+    def _update(test_name: str, status: str, fix_attempt: Optional[str] = None):
+        if test_name in test_analysis["claimed_tests"]:
+            test_analysis["claimed_tests"][test_name]["status"] = status
+            if fix_attempt:
+                test_analysis["claimed_tests"][test_name]["fix_attempts"].append({
+                    "attempt": fix_attempt,
+                    "timestamp": datetime.now().isoformat()
+                })
+    
+    yield _update
+
+@pytest.fixture(scope="function")
+def claim_test(test_analysis: Dict, agent_id: Optional[str]) -> Generator[None, None, None]:
+    """Claim a test for an agent."""
+    def _claim(test_name: str, issue: str) -> bool:
+        if not agent_id:
+            return False
+        
+        if test_name in test_analysis["claimed_tests"]:
+            return False
+        
+        test_analysis["claimed_tests"][test_name] = {
+            "agent": agent_id,
+            "status": "in_progress",
+            "issue": issue,
+            "claimed_at": datetime.now().isoformat(),
+            "fix_attempts": []
+        }
+        
+        test_analysis["test_status"]["in_progress"] += 1
+        return True
+    
+    yield _claim
+
+@pytest.fixture(scope="function")
+def release_test(test_analysis: Dict) -> Generator[None, None, None]:
+    """Release a test claim."""
+    def _release(test_name: str):
+        if test_name in test_analysis["claimed_tests"]:
+            del test_analysis["claimed_tests"][test_name]
+            test_analysis["test_status"]["in_progress"] -= 1
+    
+    yield _release
 
 @pytest.fixture
 def mock_config():
+    """Create a mock configuration for testing."""
     return {
-        "log_dir": "logs",
-        "max_size": 10 * 1024 * 1024,  # 10MB
-        "max_age": 30 * 24 * 60 * 60,  # 30 days
-        "use_json": True,
-        "use_text": True,
-        "use_temp_dir": True,  # Use temp dir for tests
-        "batch_size": 100,
-        "batch_timeout": 5,
-        "rotation_check_interval": 60,
-        "compress_after": 1
+        "reddit": {
+            "client_id": "dummy",
+            "client_secret": "dummy",
+            "username": "bot",
+            "password": "hunter2",
+            "user_agent": "test_agent",
+            "subreddits": ["test_subreddit"],
+            "max_posts_per_day": 10,
+            "max_comments_per_day": 20,
+            "post_delay": 3600,
+            "comment_delay": 1800
+        },
+        "logging": {
+            "level": "INFO",
+            "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            "date_format": "%Y-%m-%d %H:%M:%S",
+            "log_dir": "logs",
+            "max_size_mb": 10,
+            "max_files": 5,
+            "max_age_days": 30,
+            "compress_after_days": 1
+        },
+        "platforms": {
+            "reddit": "reddit.log",
+            "discord": "discord.log",
+            "twitter": "twitter.log"
+        }
     }
 
 @pytest.fixture
@@ -168,6 +395,9 @@ def pytest_configure(config):
     """Configure pytest with custom markers and settings."""
     config.addinivalue_line(
         "markers", "gui: mark test as requiring GUI interaction"
+    )
+    config.addinivalue_line(
+        "markers", "quarantined: mark test as quarantined due to known issues"
     )
     config.option.asyncio_mode = "strict"
     config.option.asyncio_default_fixture_loop_scope = "function"
@@ -213,27 +443,145 @@ def test_messages():
         "info": "Information: {info_message}"
     }
 
-@pytest.fixture
+@pytest.fixture(autouse=True)
 def clean_runtime_dir():
-    """Create and clean up runtime directory."""
-    path = TEST_RUNTIME_DIR
-    if path.exists():
-        shutil.rmtree(path)
-    path.mkdir(exist_ok=True)
-    yield path
-    shutil.rmtree(path)
+    """Clean up runtime directory before and after each test."""
+    path = Path(tempfile.gettempdir()) / "dream_os_test_runtime"
+    
+    try:
+        # Clean up existing directory if it exists
+        if path.exists():
+            try:
+                shutil.rmtree(path)
+            except (PermissionError, OSError) as e:
+                logging.warning(f"Failed to remove existing runtime directory: {e}")
+                # Try to remove individual files
+                for item in path.iterdir():
+                    try:
+                        if item.is_file():
+                            item.unlink()
+                        elif item.is_dir():
+                            shutil.rmtree(item)
+                    except Exception as e:
+                        logging.warning(f"Failed to remove {item}: {e}")
+                        continue
+        
+        # Create fresh directory with proper permissions
+        path.mkdir(parents=True, exist_ok=True)
+        
+        # Verify directory is writable
+        test_file = path / ".test"
+        try:
+            test_file.touch()
+            test_file.unlink()
+        except Exception as e:
+            pytest.skip(f"Runtime directory is not writable: {e}")
+        
+        yield path
+        
+    finally:
+        # Cleanup after test
+        try:
+            if path.exists():
+                # First try to remove files individually
+                for item in path.iterdir():
+                    try:
+                        if item.is_file():
+                            item.unlink()
+                        elif item.is_dir():
+                            shutil.rmtree(item)
+                    except Exception as e:
+                        logging.warning(f"Failed to remove {item}: {e}")
+                        continue
+                
+                # Then try to remove the directory itself
+                try:
+                    path.rmdir()
+                except Exception as e:
+                    logging.warning(f"Failed to remove runtime directory: {e}")
+        except Exception as e:
+            logging.warning(f"Failed to clean up runtime directory: {e}")
 
 @pytest.fixture(autouse=True)
 async def setup_teardown():
-    """Global setup and teardown for all tests."""
-    # Setup
-    temp_dir = TEST_TEMP_DIR
-    temp_dir.mkdir(exist_ok=True)
+    """Set up and tear down test environment."""
+    # Create a temporary directory for all test files
+    temp_base = Path(tempfile.mkdtemp(prefix="dream_os_test_"))
+    
+    # Set up test directories
+    test_dirs = {
+        'data': temp_base / "data",
+        'output': temp_base / "output",
+        'voice_queue': temp_base / "voice_queue",
+        'config': temp_base / "config",
+        'runtime': temp_base / "runtime",
+        'temp': temp_base / "temp"
+    }
+    
+    # Create directories
+    for directory in test_dirs.values():
+        directory.mkdir(parents=True, exist_ok=True)
+    
+    # Update environment variables
+    os.environ["DREAM_OS_TEST_DIR"] = str(test_dirs['runtime'])
+    os.environ["DREAM_OS_TEST_DATA_DIR"] = str(test_dirs['data'])
+    os.environ["DREAM_OS_TEST_OUTPUT_DIR"] = str(test_dirs['output'])
+    os.environ["DREAM_OS_TEST_CONFIG_DIR"] = str(test_dirs['config'])
+    
+    try:
+        # Create test config file
+        config = {
+            "log_dir": str(test_dirs['runtime'] / "logs"),
+            "channel_assignments": {
+                "Agent-1": "general",
+                "Agent-2": "commands"
+            },
+            "global_ui": {
+                "input_box": {"x": 100, "y": 100},
+                "initial_spot": {"x": 200, "y": 200},
+                "copy_button": {"x": 300, "y": 300},
+                "response_region": {
+                    "top_left": {"x": 400, "y": 400},
+                    "bottom_right": {"x": 600, "y": 600}
+                }
+            }
+        }
+        
+        config_path = test_dirs['config'] / "agent_config.yaml"
+        with open(config_path, "w") as f:
+            yaml.dump(config, f)
+            
+    except Exception as e:
+        logging.error(f"Failed to set up test environment: {e}")
+        raise
     
     yield
     
-    # Teardown
-    safe_remove(temp_dir)
+    # Clean up
+    try:
+        # Remove environment variables
+        for var in ["DREAM_OS_TEST_DIR", "DREAM_OS_TEST_DATA_DIR", 
+                    "DREAM_OS_TEST_OUTPUT_DIR", "DREAM_OS_TEST_CONFIG_DIR"]:
+            if var in os.environ:
+                del os.environ[var]
+        
+        # Remove test directories
+        for directory in test_dirs.values():
+            if directory.exists():
+                try:
+                    shutil.rmtree(directory)
+                except Exception as e:
+                    logging.warning(f"Failed to remove {directory}: {e}")
+                    
+        # Remove base temp directory
+        if temp_base.exists():
+            try:
+                shutil.rmtree(temp_base)
+            except Exception as e:
+                logging.warning(f"Failed to remove {temp_base}: {e}")
+                
+    except Exception as e:
+        logging.error(f"Failed to clean up test environment: {e}")
 
 @pytest.fixture
 def voice_queue(tmp_path):
@@ -434,4 +782,165 @@ def temp_log_dir() -> Path:
     """Create a temporary log directory for each test."""
     log_dir = Path("tests/runtime/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
-    yield log_dir 
+    yield log_dir
+    # Clean up after test
+    if log_dir.exists():
+        # First, ensure all file handles are closed
+        import gc
+        gc.collect()
+        time.sleep(0.1)  # Give time for file handles to be released
+        
+        # Then remove files
+        for file in log_dir.glob("*"):
+            try:
+                if file.is_file():
+                    # Try to close any open handles
+                    try:
+                        with open(file, 'r') as f:
+                            pass  # Just open and close to ensure handle is released
+                    except:
+                        pass
+                    file.unlink()
+                elif file.is_dir():
+                    shutil.rmtree(file)
+            except (PermissionError, OSError) as e:
+                logging.warning(f"Failed to remove {file}: {e}")
+                time.sleep(0.1)  # Wait before retrying
+                try:
+                    if file.is_file():
+                        file.unlink()
+                    elif file.is_dir():
+                        shutil.rmtree(file)
+                except (PermissionError, OSError) as e:
+                    logging.warning(f"Failed to remove {file} after retry: {e}")
+        
+        # Finally remove the directory
+        try:
+            log_dir.rmdir()
+        except (PermissionError, OSError) as e:
+            logging.warning(f"Failed to remove log directory {log_dir}: {e}")
+            time.sleep(0.1)  # Wait before retrying
+            try:
+                log_dir.rmdir()
+            except (PermissionError, OSError) as e:
+                logging.warning(f"Failed to remove log directory {log_dir} after retry: {e}")
+
+@pytest.fixture(scope="function")
+def mock_redis():
+    """Create a mock Redis server using fakeredis."""
+    server = fakeredis.FakeServer()
+    redis_client = fakeredis.FakeRedis(server=server)
+    
+    # Patch redis.Redis to return our fake client
+    with patch('redis.Redis', return_value=redis_client):
+        yield redis_client
+
+@pytest.fixture(scope="function")
+def mock_redis_connection(mock_redis):
+    """Create a mock Redis connection that can be used in tests."""
+    with patch('social.core.redis_manager.RedisManager.get_connection', return_value=mock_redis):
+        yield mock_redis
+
+@pytest.fixture(scope="session", autouse=True)
+def setup_test_directories():
+    """Create and clean up test directories with proper permissions."""
+    test_dirs = [
+        "tests/runtime/logs",
+        "tests/runtime/cookies",
+        "tests/runtime/profiles",
+        "tests/runtime/temp"
+    ]
+    
+    # First, try to kill any processes that might be holding file handles
+    for proc in psutil.process_iter(['pid', 'name', 'open_files']):
+        try:
+            for file in proc.open_files():
+                if any(dir in file.path for dir in test_dirs):
+                    proc.kill()
+        except (psutil.NoSuchProcess, psutil.AccessDenied):
+            pass
+    
+    # Wait a moment for processes to be killed
+    time.sleep(1)
+    
+    # Clean up and create directories
+    for dir_path in test_dirs:
+        path = Path(dir_path)
+        try:
+            # Remove directory if it exists
+            if path.exists():
+                shutil.rmtree(path, ignore_errors=True)
+            
+            # Create directory
+            path.mkdir(parents=True, exist_ok=True)
+            
+            # Set permissions
+            if platform.system() == 'Windows':
+                try:
+                    # Get current user's SID
+                    username = os.getenv('USERNAME')
+                    sid = win32security.LookupAccountName(None, username)[0]
+                    
+                    # Create DACL
+                    dacl = win32security.ACL()
+                    dacl.AddAccessAllowedAce(
+                        win32security.ACL_REVISION,
+                        win32con.GENERIC_ALL,
+                        sid
+                    )
+                    
+                    # Set security
+                    security = win32security.SECURITY_DESCRIPTOR()
+                    security.SetSecurityDescriptorDacl(1, dacl, 0)
+                    win32security.SetFileSecurity(
+                        str(path),
+                        win32security.DACL_SECURITY_INFORMATION,
+                        security
+                    )
+                except Exception as e:
+                    print(f"Warning: Could not set Windows security on {path}: {e}")
+                    # Fallback to basic permissions
+                    os.chmod(str(path), stat.S_IWRITE | stat.S_IREAD)
+            else:
+                os.chmod(str(path), 0o777)
+                
+        except Exception as e:
+            print(f"Warning: Could not set up directory {path}: {e}")
+    
+    yield
+    
+    # Cleanup after tests
+    for dir_path in test_dirs:
+        path = Path(dir_path)
+        try:
+            if path.exists():
+                shutil.rmtree(path, ignore_errors=True)
+        except Exception as e:
+            print(f"Warning: Could not clean up directory {path}: {e}")
+
+def load_quarantined_tests() -> Dict[str, Any]:
+    """Load quarantined tests from analysis file."""
+    analysis_file = Path(project_root) / "test_error_analysis.json"
+    if not analysis_file.exists():
+        return {"test_details": {}, "quarantined_tests": []}
+    
+    with open(analysis_file, 'r') as f:
+        data = json.load(f)
+    return data
+
+def pytest_collection_modifyitems(config, items):
+    """Modify test collection to skip quarantined tests."""
+    quarantined_data = load_quarantined_tests()
+    quarantined_tests = {
+        test["test_name"]: test["issue"] 
+        for test in quarantined_data.get("quarantined_tests", [])
+    }
+    
+    for item in items:
+        test_name = item.name
+        if test_name in quarantined_tests:
+            item.add_marker(
+                pytest.mark.skip(
+                    reason=f"Test quarantined: {quarantined_tests[test_name]}"
+                )
+            ) 

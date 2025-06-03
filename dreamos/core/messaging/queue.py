@@ -1,223 +1,180 @@
 """
-Queue Module
-
-Handles message queuing and persistence for the Dream.OS messaging system.
+Message Queue Implementation
+--------------------------
+Provides persistent message queue functionality for the unified message system.
 """
 
-import logging
+import asyncio
 import json
-import threading
+import logging
 from pathlib import Path
-from typing import Dict, List, Optional, Any
-from queue import PriorityQueue
+from typing import List, Dict, Any, Optional
 from datetime import datetime
+from queue import PriorityQueue
+from .unified_message_system import Message, MessageQueue, MessagePriority
 
-from .message import Message
+logger = logging.getLogger('dreamos.messaging.queue')
 
-logger = logging.getLogger('messaging.queue')
-
-class MessageQueue:
-    """Manages message queuing and persistence."""
+class PersistentMessageQueue(MessageQueue):
+    """Persistent message queue implementation."""
     
-    def __init__(self, queue_path: Optional[str] = None):
-        """Initialize the message queue.
+    def __init__(self, queue_dir: Path):
+        """Initialize queue.
         
         Args:
-            queue_path: Optional path to queue storage file
+            queue_dir: Directory for queue storage
         """
-        self._queue = PriorityQueue()
-        self._history: List[Dict[str, Any]] = []
-        self._max_history = 1000
-        self._lock = threading.Lock()
+        self.queue_dir = queue_dir
+        self.queue_dir.mkdir(parents=True, exist_ok=True)
         
-        # Set up queue storage
-        if queue_path:
-            self.queue_path = Path(queue_path)
-            self.queue_path.parent.mkdir(parents=True, exist_ok=True)
-            self._load_queue()
-        else:
-            self.queue_path = None
-            
-    def enqueue(self, message: Message) -> bool:
-        """Add a message to the queue.
+        # In-memory queues by agent
+        self._queues: Dict[str, PriorityQueue] = {}
+        self._locks: Dict[str, asyncio.Lock] = {}
+        
+        # Load existing queues
+        self._load_queues()
+    
+    def _load_queues(self) -> None:
+        """Load existing queues from disk."""
+        try:
+            for queue_file in self.queue_dir.glob("*.json"):
+                agent_id = queue_file.stem
+                self._queues[agent_id] = PriorityQueue()
+                self._locks[agent_id] = asyncio.Lock()
+                
+                with open(queue_file, 'r') as f:
+                    messages = json.load(f)
+                    for msg_data in messages:
+                        message = Message.from_dict(msg_data)
+                        self._queues[agent_id].put(
+                            (-message.priority.value, message)
+                        )
+                        
+            logger.info(f"Loaded {len(self._queues)} message queues")
+        except Exception as e:
+            logger.error(f"Error loading message queues: {e}")
+    
+    def _save_queue(self, agent_id: str) -> None:
+        """Save queue to disk.
         
         Args:
-            message: Message to add
+            agent_id: ID of agent whose queue to save
+        """
+        try:
+            queue_file = self.queue_dir / f"{agent_id}.json"
+            messages = []
+            
+            # Get all messages from queue
+            temp_queue = PriorityQueue()
+            while not self._queues[agent_id].empty():
+                _, message = self._queues[agent_id].get()
+                messages.append(message.to_dict())
+                temp_queue.put((-message.priority.value, message))
+            
+            # Restore queue
+            self._queues[agent_id] = temp_queue
+            
+            # Save to disk
+            with open(queue_file, 'w') as f:
+                json.dump(messages, f)
+                
+        except Exception as e:
+            logger.error(f"Error saving queue for {agent_id}: {e}")
+    
+    async def enqueue(self, message: Message) -> bool:
+        """Add message to queue.
+        
+        Args:
+            message: Message to enqueue
             
         Returns:
             bool: True if message was successfully queued
         """
         try:
-            if not message.validate():
-                return False
-                
-            # Calculate priority (higher number = higher priority)
-            priority = message.priority
-            timestamp = datetime.now().timestamp()
+            agent_id = message.recipient_id
+            
+            # Create queue if needed
+            if agent_id not in self._queues:
+                self._queues[agent_id] = PriorityQueue()
+                self._locks[agent_id] = asyncio.Lock()
             
             # Add to queue
-            self._queue.put((-priority, timestamp, message.to_dict()))
+            async with self._locks[agent_id]:
+                self._queues[agent_id].put(
+                    (-message.priority.value, message)
+                )
+                self._save_queue(agent_id)
             
-            # Add to history
-            with self._lock:
-                self._history.append({
-                    'message': message.to_dict(),
-                    'timestamp': timestamp,
-                    'status': 'queued'
-                })
-                
-                # Trim history if needed
-                if len(self._history) > self._max_history:
-                    self._history = self._history[-self._max_history:]
-                    
-            # Save queue if path is set
-            if self.queue_path:
-                self._save_queue()
-                
-            logger.info(f"Message queued from {message.from_agent} to {message.to_agent}")
+            logger.info(f"Message queued for {agent_id}")
             return True
             
         except Exception as e:
-            logger.error(f"Failed to enqueue message: {e}")
+            logger.error(f"Error enqueueing message: {e}")
             return False
-            
-    def dequeue(self) -> Optional[Dict[str, Any]]:
-        """Get next message from queue.
-        
-        Returns:
-            Optional[Dict]: Next message or None if queue is empty
-        """
-        try:
-            if self._queue.empty():
-                return None
-                
-            _, _, message = self._queue.get()
-            
-            # Update history
-            with self._lock:
-                for hist_msg in self._history:
-                    if hist_msg['message'] == message:
-                        hist_msg['status'] = 'processing'
-                        hist_msg['processing_time'] = datetime.now().timestamp()
-                        break
-                        
-            # Save queue if path is set
-            if self.queue_path:
-                self._save_queue()
-                
-            return message
-            
-        except Exception as e:
-            logger.error(f"Failed to dequeue message: {e}")
-            return None
-            
-    def get_status(self) -> Dict[str, Any]:
-        """Get current queue status.
-        
-        Returns:
-            Dict containing queue statistics
-        """
-        try:
-            return {
-                'queue_size': self._queue.qsize(),
-                'history_size': len(self._history),
-                'recent_messages': self._history[-10:] if self._history else []
-            }
-        except Exception as e:
-            logger.error(f"Failed to get queue status: {e}")
-            return {'error': str(e)}
-            
-    def clear(self, agent_id: Optional[str] = None) -> None:
-        """Clear messages from queue.
+    
+    async def get_messages(self, agent_id: str) -> List[Message]:
+        """Get all pending messages for an agent.
         
         Args:
-            agent_id: Optional agent ID to clear messages for
+            agent_id: ID of agent to get messages for
+            
+        Returns:
+            List[Message]: List of pending messages
         """
         try:
-            if agent_id:
-                # Create new queue without agent's messages
-                new_queue = PriorityQueue()
-                while not self._queue.empty():
-                    priority, timestamp, message = self._queue.get()
-                    if message['to_agent'] != agent_id:
-                        new_queue.put((priority, timestamp, message))
-                self._queue = new_queue
+            if agent_id not in self._queues:
+                return []
+            
+            messages = []
+            async with self._locks[agent_id]:
+                while not self._queues[agent_id].empty():
+                    _, message = self._queues[agent_id].get()
+                    messages.append(message)
                 
-                # Update history
-                with self._lock:
-                    self._history = [
-                        msg for msg in self._history 
-                        if msg['message']['to_agent'] != agent_id
-                    ]
-            else:
-                # Clear entire queue
-                while not self._queue.empty():
-                    self._queue.get()
-                with self._lock:
-                    self._history = []
+                # Save empty queue
+                self._save_queue(agent_id)
+            
+            logger.info(f"Retrieved {len(messages)} messages for {agent_id}")
+            return messages
+            
+        except Exception as e:
+            logger.error(f"Error getting messages for {agent_id}: {e}")
+            return []
+    
+    async def acknowledge(self, message_id: str) -> bool:
+        """Mark message as processed.
+        
+        Args:
+            message_id: ID of message to acknowledge
+            
+        Returns:
+            bool: True if message was successfully acknowledged
+        """
+        try:
+            # Find message in queues
+            for agent_id, queue in self._queues.items():
+                async with self._locks[agent_id]:
+                    temp_queue = PriorityQueue()
+                    found = False
                     
-            # Save queue if path is set
-            if self.queue_path:
-                self._save_queue()
-                
-            logger.info(f"Queue cleared for {agent_id if agent_id else 'all agents'}")
+                    while not queue.empty():
+                        _, message = queue.get()
+                        if message.message_id == message_id:
+                            message.status = "processed"
+                            found = True
+                        temp_queue.put((-message.priority.value, message))
+                    
+                    # Restore queue
+                    self._queues[agent_id] = temp_queue
+                    
+                    if found:
+                        self._save_queue(agent_id)
+                        logger.info(f"Message {message_id} acknowledged")
+                        return True
+            
+            logger.warning(f"Message {message_id} not found")
+            return False
             
         except Exception as e:
-            logger.error(f"Failed to clear queue: {e}")
-            
-    def _save_queue(self) -> None:
-        """Save queue to file."""
-        try:
-            # Convert queue to list
-            queue_list = []
-            while not self._queue.empty():
-                priority, timestamp, message = self._queue.get()
-                queue_list.append({
-                    'priority': -priority,  # Convert back to positive
-                    'timestamp': timestamp,
-                    'message': message
-                })
-                
-            # Save to file
-            with open(self.queue_path, 'w') as f:
-                json.dump({
-                    'queue': queue_list,
-                    'history': self._history
-                }, f, indent=2)
-                
-            # Restore queue
-            for item in queue_list:
-                self._queue.put((-item['priority'], item['timestamp'], item['message']))
-                
-        except Exception as e:
-            logger.error(f"Failed to save queue: {e}")
-            
-    def _load_queue(self) -> None:
-        """Load queue from file."""
-        try:
-            if not self.queue_path.exists():
-                return
-                
-            # Load from file
-            with open(self.queue_path, 'r') as f:
-                data = json.load(f)
-                
-            # Restore queue
-            for item in data['queue']:
-                self._queue.put((-item['priority'], item['timestamp'], item['message']))
-                
-            # Restore history
-            with self._lock:
-                self._history = data['history']
-                
-        except Exception as e:
-            logger.error(f"Failed to load queue: {e}")
-            
-    def shutdown(self) -> None:
-        """Clean up resources."""
-        try:
-            if self.queue_path:
-                self._save_queue()
-            logger.info("Message queue shut down")
-        except Exception as e:
-            logger.error(f"Error during shutdown: {e}") 
+            logger.error(f"Error acknowledging message {message_id}: {e}")
+            return False 

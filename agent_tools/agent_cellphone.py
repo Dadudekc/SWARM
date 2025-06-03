@@ -12,6 +12,8 @@ import logging
 import sys
 import time
 import pyautogui
+import json
+from pathlib import Path
 from dreamos.core import CellPhone, MessageMode
 from dreamos.core.coordinate_manager import CoordinateManager
 from dreamos.core.agent_control.coordinate_transformer import CoordinateTransformer
@@ -46,58 +48,37 @@ def direct_send_message(to_agent: str, message: str, mode: str = "NORMAL"):
         mode: Message mode (NORMAL, PRIORITY, BULK, RESUME, SYNC, etc.)
     """
     try:
-        # Initialize coordinate manager
-        coord_manager = CoordinateManager()
-        coords = coord_manager.get_coordinates(to_agent)
+        # Load agent coordinates
+        coords_file = Path("runtime/config/cursor_agent_coords.json")
+        with open(coords_file, 'r') as f:
+            coordinates = json.load(f)
         
-        if not coords:
+        if to_agent not in coordinates:
             logger.error(f"No coordinates found for {to_agent}")
             print(f"[ERROR] No coordinates found for {to_agent}")
             return False
             
-        # Helper function to get x,y from coordinate format
-        def get_xy(coord):
-            if isinstance(coord, tuple):
-                return coord
-            elif isinstance(coord, dict):
-                return (coord['x'], coord['y'])
-            return (0, 0)
+        coords = coordinates[to_agent]
         
-        # Get coordinates in correct format
-        input_box_coords = get_xy(coords['input_box'])
-        copy_button_coords = get_xy(coords['copy_button'])
+        # Get input box coordinates - use input_box for all agents
+        input_box_coords = (coords['input_box']['x'], coords['input_box']['y'])
         
         logger.info(f"Moving to input box at {input_box_coords}")
         
-        # Move to input box and double-click to ensure focus
+        # Move to input box and click
         pyautogui.moveTo(input_box_coords[0], input_box_coords[1])
         pyautogui.click()
         time.sleep(0.5)
-        pyautogui.click()  # Double click
-        time.sleep(1.0)  # Longer delay to ensure focus
         
         # Type the message
         logger.info("Typing message...")
         pyautogui.write(message)
-        time.sleep(2.0)  # Much longer delay to ensure message is fully typed
-        
-        # Double-click input box again to ensure focus
-        pyautogui.moveTo(input_box_coords[0], input_box_coords[1])
-        pyautogui.click()
         time.sleep(0.5)
-        pyautogui.click()  # Double click
-        time.sleep(1.0)
         
-        # Press Enter to send the message
+        # Press Enter to send
         logger.info("Pressing Enter to send message...")
         pyautogui.press('enter')
-        time.sleep(2.0)  # Longer delay after sending
-        
-        # Move to copy button and click (for next message)
-        logger.info(f"Moving to copy button at {copy_button_coords}")
-        pyautogui.moveTo(copy_button_coords[0], copy_button_coords[1])
-        pyautogui.click()
-        time.sleep(1.0)  # Longer delay after clicking copy button
+        time.sleep(0.5)
         
         logger.info(f"Message sent successfully to {to_agent}")
         print(f"[OK] Message sent to {to_agent}")

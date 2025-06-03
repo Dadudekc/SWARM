@@ -83,10 +83,10 @@ class PlatformStrategy(ABC):
         *,
         log_manager: Optional[Any] = None
     ):
-        """Initialize platform strategy with driver, configuration, and optional log_manager.
+        """Initialize the platform strategy.
         
         Args:
-            driver: WebDriver instance
+            driver: Selenium WebDriver instance
             config: Configuration dictionary
             memory_update: Optional memory update dictionary
             agent_id: Optional agent ID
@@ -94,24 +94,30 @@ class PlatformStrategy(ABC):
         """
         self.driver = driver
         self.config = config
-        self.agent_id = agent_id or "default"
+        self.memory_updates = memory_update or {}
+        self.agent_id = agent_id
+        self.logger = log_manager
+        
+        # Initialize with config validation
+        self.initialize(config)
+        
         self.platform = self.__class__.__name__.replace('Strategy', '').lower()
         self.utils = SocialMediaUtils(driver, config)
-        self.logger = log_manager if log_manager is not None else LogManager(self.platform)
         
         # Initialize memory tracking
-        default_memory_updates = {
-            "login_attempts": 0,
-            "post_attempts": 0,
-            "media_uploads": 0,
-            "errors": [],
+        self.memory_updates = {
+            "stats": {
+                "posts": 0,
+                "comments": 0,
+                "media_uploads": 0,
+                "login_attempts": 0
+            },
             "last_action": None,
             "last_error": None,
-            "retry_history": [],
-            "operation_times": {},
-            "stats": {}
+            "retry_history": []
         }
-        self.memory_updates = {**default_memory_updates, **(memory_update or {})}
+        if memory_update:
+            self.memory_updates.update(memory_update)
 
     def _calculate_retry_delay(self, attempt: int) -> float:
         """Calculate exponential backoff delay with jitter."""
@@ -160,15 +166,101 @@ class PlatformStrategy(ABC):
             self.logger.info(f"{action} - {status}")
 
     @retry_with_recovery("media_upload")
-    def _handle_media_upload(self, media_paths: List[str], is_video: bool = False) -> bool:
-        """Handle media upload with memory tracking and retry logic."""
-        self.memory_updates["media_uploads"] += 1
-        return self.utils.upload_media(media_paths, is_video)
+    def _handle_media_upload(self, media_paths: List[str]) -> bool:
+        """Handle media upload process.
+        
+        Args:
+            media_paths: List of paths to media files
+            
+        Returns:
+            bool: True if upload successful, False otherwise
+        """
+        try:
+            if not media_paths:
+                self.memory_updates["last_error"] = {
+                    "error": "No media files provided",
+                    "context": "media_upload",
+                    "timestamp": datetime.now().isoformat()
+                }
+                return False
+                
+            # Increment media upload count
+            self.memory_updates["stats"]["media_uploads"] += 1
+            self.memory_updates["last_action"] = "media_upload"
+            
+            # Validate media files
+            for path in media_paths:
+                if not self._validate_media(path):
+                    return False
+                    
+            # Upload media
+            for path in media_paths:
+                if not self._upload_media(path):
+                    self.memory_updates["last_error"] = {
+                        "error": f"Failed to upload media: {path}",
+                        "context": "media_upload",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                    return False
+                    
+            return True
+            
+        except Exception as e:
+            self.memory_updates["last_error"] = {
+                "error": str(e),
+                "context": "media_upload",
+                "timestamp": datetime.now().isoformat()
+            }
+            return False
 
-    @retry_with_recovery("media_validation")
-    def _validate_media(self, media_paths: List[str], is_video: bool = False) -> bool:
-        """Validate media files with memory tracking and retry logic."""
-        return self.utils.validate_media(media_paths, is_video)
+    def _validate_media(self, media_path: str) -> bool:
+        """Validate a media file.
+        
+        Args:
+            media_path: Path to the media file
+            
+        Returns:
+            bool: True if valid, False otherwise
+        """
+        try:
+            if not os.path.exists(media_path):
+                self.memory_updates["last_error"] = {
+                    "error": f"File not found: {media_path}",
+                    "context": "media_validation",
+                    "timestamp": datetime.now().isoformat()
+                }
+                return False
+                
+            # Check file size
+            file_size = os.path.getsize(media_path)
+            if file_size > self.config.get("max_file_size", 10 * 1024 * 1024):  # Default 10MB
+                self.memory_updates["last_error"] = {
+                    "error": f"File too large: {media_path}",
+                    "context": "media_validation",
+                    "timestamp": datetime.now().isoformat()
+                }
+                return False
+                
+            # Check file extension
+            _, ext = os.path.splitext(media_path)
+            allowed_extensions = self.config.get("allowed_extensions", [".jpg", ".jpeg", ".png", ".gif"])
+            if ext.lower() not in allowed_extensions:
+                self.memory_updates["last_error"] = {
+                    "error": f"Unsupported file format: {ext}",
+                    "context": "media_validation",
+                    "timestamp": datetime.now().isoformat()
+                }
+                return False
+                
+            return True
+            
+        except Exception as e:
+            self.memory_updates["last_error"] = {
+                "error": str(e),
+                "context": "media_validation",
+                "timestamp": datetime.now().isoformat()
+            }
+            return False
 
     def get_memory_updates(self) -> Dict[str, Any]:
         """Get current memory state."""
@@ -198,16 +290,83 @@ class PlatformStrategy(ABC):
         """Log into the platform."""
         pass
 
-    @abstractmethod
-    def post(self, content: str, media_paths: Optional[List[str]] = None, is_video: bool = False) -> bool:
-        """Post content to the platform."""
-        pass
+    def post(self, content: str, media_paths: Optional[List[str]] = None) -> bool:
+        """Create a post with optional media.
+        
+        Args:
+            content: Text content of the post
+            media_paths: Optional list of paths to media files
+            
+        Returns:
+            bool: True if post successful, False otherwise
+        """
+        try:
+            if not self.is_logged_in():
+                self.memory_updates["last_error"] = {
+                    "error": "Not logged in",
+                    "context": "post",
+                    "timestamp": datetime.now().isoformat()
+                }
+                return False
+                
+            # Handle media upload if provided
+            if media_paths:
+                if not self._handle_media_upload(media_paths):
+                    return False
+                    
+            # Create post
+            try:
+                success = self.utils.create_post(content)
+                if not success:
+                    self.memory_updates["last_error"] = {
+                        "error": "Failed to create post",
+                        "context": "post",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                    return False
+                    
+                # Update stats
+                self.memory_updates["stats"]["posts"] += 1
+                self.memory_updates["last_action"] = "post"
+                return True
+                
+            except Exception as e:
+                if "button not found" in str(e).lower():
+                    self.memory_updates["last_error"] = {
+                        "error": "Post button not found",
+                        "context": "post",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                else:
+                    self.memory_updates["last_error"] = {
+                        "error": str(e),
+                        "context": "post",
+                        "timestamp": datetime.now().isoformat()
+                    }
+                return False
+                
+        except Exception as e:
+            self.memory_updates["last_error"] = {
+                "error": str(e),
+                "context": "post",
+                "timestamp": datetime.now().isoformat()
+            }
+            return False
 
-    def create_post(self) -> str:
-        """Create a post with retry logic."""
-        return retry_with_recovery("create_post")(self._create_post_impl)(self)
+    def create_post(self, title: str, content: str, media_files: Optional[List[str]] = None) -> bool:
+        """Create a post with retry logic.
+        
+        Args:
+            title: Post title
+            content: Post content
+            media_files: Optional list of media file paths
+            
+        Returns:
+            True if post was created successfully, False otherwise
+        """
+        return retry_with_recovery("create_post")(self._create_post_impl)(self, title, content, media_files)
 
-    def _create_post_impl(self) -> str:
+    def _create_post_impl(self, title: str, content: str, media_files: Optional[List[str]] = None) -> bool:
         """Implementation of post creation."""
         raise NotImplementedError("Subclasses must implement _create_post_impl")
 
@@ -259,4 +418,32 @@ class PlatformStrategy(ABC):
             return True
         except WebDriverException as e:
             self.logger.error("Failed to send keys", error=e)
-            return False 
+            return False
+
+    def initialize(self, config: dict) -> None:
+        """Initialize the strategy with configuration.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Raises:
+            ValueError: If required configuration keys are missing
+        """
+        # Validate browser configuration
+        if 'browser' not in config:
+            raise ValueError("Missing required browser configuration")
+            
+        browser_config = config['browser']
+        required_browser_keys = ['headless', 'window_title', 'window_coords', 'cookies_path']
+        missing_keys = [key for key in required_browser_keys if key not in browser_config]
+        if missing_keys:
+            raise ValueError(f"Missing required browser configuration keys: {', '.join(missing_keys)}")
+            
+        # Validate window coordinates
+        window_coords = browser_config['window_coords']
+        required_coords = ['x', 'y', 'width', 'height']
+        missing_coords = [coord for coord in required_coords if coord not in window_coords]
+        if missing_coords:
+            raise ValueError(f"Missing required window coordinates: {', '.join(missing_coords)}")
+            
+        self.config = config 

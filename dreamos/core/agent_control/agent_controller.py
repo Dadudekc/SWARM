@@ -5,9 +5,10 @@ Manages agent operations and UI interactions.
 """
 
 import logging
-from typing import Optional
+from typing import Optional, Dict, Any
 from PyQt5.QtCore import QObject, pyqtSignal
 from .ui_automation import UIAutomation
+from .periodic_restart import AgentResumeManager
 
 logger = logging.getLogger('agent_controller')
 
@@ -26,6 +27,7 @@ class AgentController(QObject):
         super().__init__()
         self.ui_automation = ui_automation
         self.current_agent: Optional[str] = None
+        self.resume_manager = AgentResumeManager(ui_automation)
         
         # Connect signals
         self.agent_changed.connect(self._handle_agent_change)
@@ -51,7 +53,11 @@ class AgentController(QObject):
             logger.debug(f"Resuming agent: {agent_id}")
             self.current_agent = agent_id
             self.status_updated.emit(f"Resuming agent: {agent_id}")
-            # Additional resume logic here
+            
+            # Start resume checks for all agents
+            self.resume_manager.start_resume_checks(agent_id)
+            logger.info(f"Started resume checks for {agent_id}")
+                
         except Exception as e:
             logger.error(f"Error resuming agent: {e}")
             self.ui_automation.handle_error(f"Error resuming {agent_id}: {str(e)}")
@@ -65,7 +71,12 @@ class AgentController(QObject):
         try:
             logger.debug(f"Verifying agent: {agent_id}")
             self.status_updated.emit(f"Verifying agent: {agent_id}")
-            # Additional verification logic here
+            
+            # Ensure resume checks are running
+            if agent_id not in self.resume_manager.resume_timers:
+                self.resume_manager.start_resume_checks(agent_id)
+                logger.info(f"Started resume checks for {agent_id}")
+                
         except Exception as e:
             logger.error(f"Error verifying agent: {e}")
             self.ui_automation.handle_error(f"Error verifying {agent_id}: {str(e)}")
@@ -79,7 +90,34 @@ class AgentController(QObject):
         try:
             logger.debug(f"Cleaning up agent: {agent_id}")
             self.status_updated.emit(f"Cleaning up agent: {agent_id}")
-            # Additional cleanup logic here
+            
+            # Stop resume checks
+            self.resume_manager.stop_resume_checks(agent_id)
+            logger.info(f"Stopped resume checks for {agent_id}")
+                
         except Exception as e:
             logger.error(f"Error cleaning up agent: {e}")
-            self.ui_automation.handle_error(f"Error cleaning up {agent_id}: {str(e)}") 
+            self.ui_automation.handle_error(f"Error cleaning up {agent_id}: {str(e)}")
+            
+    def get_agent_status(self, agent_id: str) -> Dict[str, Any]:
+        """Get detailed status for an agent.
+        
+        Args:
+            agent_id: ID of agent to get status for
+            
+        Returns:
+            Dict containing agent status information
+        """
+        status = {
+            "agent_id": agent_id,
+            "is_current": agent_id == self.current_agent,
+            "last_resume": None
+        }
+        
+        if agent_id == "Agent-3":
+            status.update({
+                "periodic_restart_enabled": agent_id in self.restart_manager.restart_timers,
+                "last_restart": self.restart_manager.last_restart.get(agent_id)
+            })
+            
+        return status 
