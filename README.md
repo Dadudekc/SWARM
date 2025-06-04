@@ -13,6 +13,10 @@ Dream.OS is not your grandma's operating system. It's a swarm-driven AI platform
 - UI automation and interaction
 - Trading bot integration
 
+## Product Offerings
+
+The Dream.OS platform can be packaged in several ways to fit different business needs. See [docs/product_offerings.md](docs/product_offerings.md) for details on SaaS, social-media automation, trading bots, on-premise deployments, and a custom agent SDK.
+
 ## Installation
 
 ```bash
