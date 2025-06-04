@@ -46,3 +46,4 @@ isort>=5.12.0
 flake8>=6.0.0
 mypy>=1.0.0
 streamlit>=1.29.0
+schedule>=1.2.0

@@ -5,9 +5,12 @@ import json
 from pathlib import Path
 import requests
 
+from self_discovery.journal import calculate_relapse_risk, log_coding_session, init_db
+
 DB_PATH = Path("data/life_os.db")
 
 # Initialize database
+init_db(DB_PATH)
 conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS habits(date TEXT, habit TEXT, completed INTEGER)")
@@ -15,6 +18,8 @@ cur.execute("CREATE TABLE IF NOT EXISTS moods(date TEXT PRIMARY KEY, mood TEXT, 
 cur.execute("CREATE TABLE IF NOT EXISTS affirmations(date TEXT PRIMARY KEY, text TEXT)")
 cur.execute("CREATE TABLE IF NOT EXISTS trades(timestamp TEXT, bias INTEGER, confidence INTEGER, notes TEXT)")
 cur.execute("CREATE TABLE IF NOT EXISTS weekly_goals(week_start TEXT, goal TEXT, score INTEGER)")
+cur.execute("CREATE TABLE IF NOT EXISTS journal_entries(date TEXT PRIMARY KEY, entry TEXT, emotion TEXT, relapse_score REAL)")
+cur.execute("CREATE TABLE IF NOT EXISTS coding_sessions(timestamp TEXT, notes TEXT)")
 conn.commit()
 conn.close()
 
@@ -35,7 +40,14 @@ if quote:
     st.info(quote)
 
 # Tabs
-tabs = st.tabs(["Daily Rituals", "TSLA Trades", "Devlog", "Weekly Planner"])
+tabs = st.tabs([
+    "Daily Rituals",
+    "TSLA Trades",
+    "Devlog",
+    "Weekly Planner",
+    "Journal",
+    "Coding Log",
+])
 
 # Daily Rituals Tab
 with tabs[0]:
@@ -126,4 +138,44 @@ with tabs[3]:
         st.subheader("This Week's Goals")
         for g, s in rows:
             st.write(f"{g} - {s}/10")
+    conn.close()
+
+# Journal Tab
+with tabs[4]:
+    st.header("Daily Journal")
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    today = datetime.date.today().isoformat()
+    entry = st.text_area("Entry", "")
+    emotion = st.selectbox("Emotion", ["😀", "🙂", "😐", "😞", "😡"])
+    if st.button("Save Entry"):
+        score = calculate_relapse_risk(entry)
+        cur.execute(
+            "REPLACE INTO journal_entries(date, entry, emotion, relapse_score) VALUES(?,?,?,?)",
+            (today, entry, emotion, score),
+        )
+        conn.commit()
+    cur.execute(
+        "SELECT date, emotion, relapse_score FROM journal_entries ORDER BY date DESC LIMIT 7"
+    )
+    rows = cur.fetchall()
+    if rows:
+        st.subheader("Recent Journals")
+        st.table(rows)
+    conn.close()
+
+# Coding Log Tab
+with tabs[5]:
+    st.header("Coding Sessions")
+    conn = sqlite3.connect(DB_PATH)
+    cur = conn.cursor()
+    notes = st.text_input("Notes", "")
+    if st.button("Log Session"):
+        log_coding_session(notes)
+        conn.commit()
+    cur.execute(
+        "SELECT timestamp, notes FROM coding_sessions ORDER BY timestamp DESC LIMIT 10"
+    )
+    rows = cur.fetchall()
+    st.table(rows)
     conn.close()
