@@ -71,7 +71,6 @@ The central control unit that coordinates all system components:
 
 ### 3. Task Management (`dreamos.core.tasks.task_manager`)
 - **TaskManager**: Handles task creation, assignment, and tracking
-  - Uses `specs/task-schema.json` for validation
   - Supports task priorities and dependencies
   - Maintains task history and status
   - Integrates with agent status monitoring
