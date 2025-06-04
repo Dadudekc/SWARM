@@ -3,7 +3,7 @@ import logging
 from typing import Optional, Callable, Awaitable
 from datetime import datetime
 
-from .message import Message
+from .messaging.common import Message
 
 logger = logging.getLogger(__name__)
 

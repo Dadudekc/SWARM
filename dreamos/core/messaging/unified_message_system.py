@@ -16,86 +16,15 @@ import threading
 from pathlib import Path
 from typing import List, Dict, Any, Optional, Set, Callable, Pattern
 from datetime import datetime
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass
 from abc import ABC, abstractmethod
-from enum import Enum
 from queue import PriorityQueue
 import re
 from uuid import uuid4
+from .common import Message, MessageMode, MessagePriority
 
 logger = logging.getLogger('dreamos.messaging')
 
-class MessageMode(Enum):
-    """Message modes for different types of communication."""
-    RESUME = "[RESUME]"
-    SYNC = "[SYNC]"
-    VERIFY = "[VERIFY]"
-    REPAIR = "[REPAIR]"
-    BACKUP = "[BACKUP]"
-    RESTORE = "[RESTORE]"
-    CLEANUP = "[CLEANUP]"
-    CAPTAIN = "[CAPTAIN]"
-    TASK = "[TASK]"
-    INTEGRATE = "[INTEGRATE]"
-    NORMAL = "[NORMAL]"
-    PRIORITY = "[PRIORITY]"
-    BULK = "[BULK]"
-    SELF_TEST = "[SELF_TEST]"
-    PROMPT = "[PROMPT]"
-    DEVLOG = "[DEVLOG]"
-    SYSTEM = "[SYSTEM]"
-    COMMAND = "[COMMAND]"
-
-class MessagePriority(Enum):
-    """Message priority levels."""
-    LOWEST = 0
-    LOW = 1
-    NORMAL = 2
-    HIGH = 3
-    HIGHEST = 4
-    CRITICAL = 5
-
-@dataclass
-class Message:
-    """Unified message structure."""
-    message_id: str
-    sender_id: str
-    recipient_id: str
-    content: str
-    mode: MessageMode
-    priority: MessagePriority
-    timestamp: datetime
-    metadata: Dict[str, Any]
-    status: str = "queued"
-
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for storage."""
-        return {
-            "message_id": self.message_id,
-            "sender_id": self.sender_id,
-            "recipient_id": self.recipient_id,
-            "content": self.content,
-            "mode": self.mode.value,
-            "priority": self.priority.value,
-            "timestamp": self.timestamp.isoformat(),
-            "metadata": self.metadata,
-            "status": self.status
-        }
-
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Message':
-        """Create from dictionary."""
-        return cls(
-            message_id=data["message_id"],
-            sender_id=data["sender_id"],
-            recipient_id=data["recipient_id"],
-            content=data["content"],
-            mode=MessageMode(data["mode"]),
-            priority=MessagePriority(data["priority"]),
-            timestamp=datetime.fromisoformat(data["timestamp"]),
-            metadata=data["metadata"],
-            status=data["status"]
-        )
 
 class MessageQueue(ABC):
     """Abstract base class for message queue implementations."""
@@ -157,9 +86,9 @@ class SimpleQueue(MessageQueue):
     
     async def enqueue(self, message: Message) -> bool:
         """Add message to queue."""
-        if message.recipient_id not in self._messages:
-            self._messages[message.recipient_id] = []
-        self._messages[message.recipient_id].append(message)
+        if message.to_agent not in self._messages:
+            self._messages[message.to_agent] = []
+        self._messages[message.to_agent].append(message)
         return True
     
     async def get_messages(self, agent_id: str) -> List[Message]:
@@ -191,7 +120,7 @@ class SimpleHistory(MessageHistory):
         """Get message history with optional filtering."""
         filtered = self._history
         if agent_id:
-            filtered = [m for m in filtered if m.recipient_id == agent_id]
+            filtered = [m for m in filtered if m.to_agent == agent_id]
         if start_time:
             filtered = [m for m in filtered if m.timestamp >= start_time]
         if end_time:
@@ -286,8 +215,8 @@ class UnifiedMessageSystem:
             # Create message
             message = Message(
                 message_id=str(uuid4()),
-                sender_id=from_agent,
-                recipient_id=to_agent,
+                from_agent=from_agent,
+                to_agent=to_agent,
                 content=content,
                 mode=mode,
                 priority=priority,
@@ -416,8 +345,8 @@ class UnifiedMessageSystem:
             message: Message to notify about
         """
         # Notify direct subscribers
-        if message.recipient_id in self._subscribers:
-            for handler in self._subscribers[message.recipient_id]:
+        if message.to_agent in self._subscribers:
+            for handler in self._subscribers[message.to_agent]:
                 try:
                     await handler(message)
                 except Exception as e:
@@ -425,7 +354,7 @@ class UnifiedMessageSystem:
         
         # Notify pattern subscribers
         for pattern, handlers in self._pattern_subscribers.items():
-            if pattern.match(message.recipient_id):
+            if pattern.match(message.to_agent):
                 for handler in handlers:
                     try:
                         await handler(message)

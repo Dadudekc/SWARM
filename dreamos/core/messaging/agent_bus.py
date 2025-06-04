@@ -17,21 +17,14 @@ import asyncio
 import logging
 import re
 from uuid import uuid4
-from enum import Enum
 from queue import PriorityQueue
 from pathlib import Path
 import json
 
-from .message import Message, MessageMode
+from .common import Message, MessageMode, MessagePriority
 
 logger = logging.getLogger(__name__)
 
-class MessagePriority(Enum):
-    """Message priority levels for swarm coordination."""
-    LOW = 0
-    NORMAL = 1
-    HIGH = 2
-    CRITICAL = 3
 
 @dataclass
 class BusMessage:

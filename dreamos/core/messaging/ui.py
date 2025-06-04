@@ -9,7 +9,7 @@ import time
 from typing import Optional, Dict, Any
 import pyautogui
 
-from .message import Message, MessageMode
+from .common import Message, MessageMode
 from .processor import MessageProcessor
 
 logger = logging.getLogger('messaging.ui')
