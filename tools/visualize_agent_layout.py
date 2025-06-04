@@ -13,7 +13,11 @@ import numpy as np
 from typing import Dict, Tuple, List
 import argparse
 
-from .coordinate_utils import load_coordinates, regions_overlap, validate_coordinates
+from dreamos.core.coordinate_utils import (
+    load_coordinates,
+    regions_overlap,
+    validate_coordinates,
+)
 
 # Configure logging
 logging.basicConfig(
