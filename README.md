@@ -7,6 +7,8 @@
 
 Dream.OS is a swarm-driven platform for coordinating autonomous agents. It aims to provide a reliable operating environment where multiple agents can collaborate on complex tasks across domains such as content generation, data analysis and trading automation. The system currently offers:
 
+For a quick reference of the repository layout, see [docs/directory_overview.md](docs/directory_overview.md).
+
 - Agent control and coordination
 - Message processing and routing
 - Social media integration
