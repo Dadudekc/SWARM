@@ -18,7 +18,7 @@ from queue import PriorityQueue
 from pathlib import Path
 import json
 
-from .message import Message, MessageMode
+from .common import Message, MessageMode
 
 logger = logging.getLogger(__name__)
 

@@ -9,7 +9,8 @@ import logging
 from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
-from .unified_message_system import Message, MessageHistory
+from .common import Message
+from .unified_message_system import MessageHistory
 
 logger = logging.getLogger('dreamos.messaging.history')
 

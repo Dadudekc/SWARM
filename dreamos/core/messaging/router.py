@@ -7,7 +7,8 @@ Provides message routing functionality for the unified message system.
 import logging
 import re
 from typing import Dict, Set, Callable, Pattern, Optional
-from .unified_message_system import Message, MessageRouter, MessageMode
+from .common import Message, MessageMode
+from .unified_message_system import MessageRouter
 
 logger = logging.getLogger('dreamos.messaging.router')
 

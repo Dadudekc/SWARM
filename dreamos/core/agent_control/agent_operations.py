@@ -9,7 +9,7 @@ from typing import Union, List, Optional, Dict, Any
 from pathlib import Path
 
 from ..messaging.message_processor import MessageProcessor
-from ..messaging.types import MessageMode
+from ..messaging.common import MessageMode
 from ..cell_phone import CellPhone
 from .ui_automation import UIAutomation
 

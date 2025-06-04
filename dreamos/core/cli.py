@@ -16,10 +16,10 @@ if __name__ == "__main__":
     project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
     sys.path.insert(0, project_root)
     from dreamos.core.message_processor import MessageProcessor
-    from dreamos.core.messaging.types import Message, MessageMode
+    from dreamos.core.messaging.common import Message, MessageMode
 else:
     from .message_processor import MessageProcessor
-    from .messaging.types import Message, MessageMode
+    from .messaging.common import Message, MessageMode
 
 # Version information
 __version__ = "1.0.0"

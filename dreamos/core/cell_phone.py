@@ -12,7 +12,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pathlib import Path
 from .persistent_queue import PersistentQueue
-from .messaging.types import Message, MessageMode
+from .messaging.common import Message, MessageMode
 
 logger = logging.getLogger('cell_phone')
 

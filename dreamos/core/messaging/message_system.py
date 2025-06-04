@@ -11,29 +11,10 @@ from typing import List, Dict, Any, Optional
 from datetime import datetime
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
-from enum import Enum
+
+from .common import MessageMode
 
 logger = logging.getLogger('dreamos.messaging')
-
-class MessageMode(Enum):
-    """Message modes for different types of communication."""
-    RESUME = "[RESUME]"
-    SYNC = "[SYNC]"
-    VERIFY = "[VERIFY]"
-    REPAIR = "[REPAIR]"
-    BACKUP = "[BACKUP]"
-    RESTORE = "[RESTORE]"
-    CLEANUP = "[CLEANUP]"
-    CAPTAIN = "[CAPTAIN]"
-    TASK = "[TASK]"
-    INTEGRATE = "[INTEGRATE]"
-    NORMAL = "[NORMAL]"
-    PRIORITY = "[PRIORITY]"
-    BULK = "[BULK]"
-    SELF_TEST = "[SELF_TEST]"
-    PROMPT = "[PROMPT]"
-    DEVLOG = "[DEVLOG]"
-    SYSTEM = "[SYSTEM]"
 
 @dataclass
 class MessageRecord:

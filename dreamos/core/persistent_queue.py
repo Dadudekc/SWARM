@@ -11,7 +11,7 @@ import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
-from dreamos.core.messaging.message import Message  # Import Message for type checking
+from dreamos.core.messaging.common import Message  # Import Message for type checking
 
 logger = logging.getLogger('persistent_queue')
 
