@@ -50,10 +50,10 @@ sys.modules.setdefault("aiohttp", types.ModuleType("aiohttp"))
 cell_phone_stub = types.ModuleType("dreamos.core.messaging.cell_phone")
 cell_phone_stub.CaptainPhone = type("CaptainPhone", (), {"__init__": lambda *_, **__: None})
 cell_phone_stub.CellPhone = type("CellPhone", (), {"__init__": lambda *_, **__: None})
-sys.modules.setdefault("dreamos.core.messaging.cell_phone", cell_phone_stub)
+sys.modules["dreamos.core.messaging.cell_phone"] = cell_phone_stub
 captain_phone_stub = types.ModuleType("dreamos.core.messaging.captain_phone")
 captain_phone_stub.CaptainPhone = type("CaptainPhone", (), {"__init__": lambda *_, **__: None})
-sys.modules.setdefault("dreamos.core.messaging.captain_phone", captain_phone_stub)
+sys.modules["dreamos.core.messaging.captain_phone"] = captain_phone_stub
 message_stub = types.ModuleType("dreamos.core.messaging.message")
 message_stub.Message = object
 sys.modules.setdefault("dreamos.core.messaging.message", message_stub)
