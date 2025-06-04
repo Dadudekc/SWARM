@@ -1,4 +1,4 @@
-"""Instagram posting strategy implementation."""
+"""Implementation of the Instagram posting strategy."""
 
 from .platform_strategy_base import PlatformStrategy
 

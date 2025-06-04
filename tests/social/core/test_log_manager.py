@@ -1,3 +1,5 @@
+"""Tests for the social module's logging manager."""
+
 import os
 import logging
 from pathlib import Path

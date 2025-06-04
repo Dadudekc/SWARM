@@ -1,3 +1,5 @@
+"""Tests for the persistent queue implementation."""
+
 import os
 from tempfile import TemporaryDirectory
 from pathlib import Path

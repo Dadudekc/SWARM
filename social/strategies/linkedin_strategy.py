@@ -1,4 +1,4 @@
-"""LinkedIn posting strategy implementation."""
+"""Implementation of the LinkedIn posting strategy."""
 
 from .platform_strategy_base import PlatformStrategy
 

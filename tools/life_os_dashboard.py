@@ -1,3 +1,5 @@
+"""Simple Streamlit dashboard for logging personal metrics."""
+
 import streamlit as st
 import sqlite3
 import datetime

@@ -1,4 +1,4 @@
-"""Generate a trimmed-down copy of Dream.OS for demos."""
+"""Utility script for generating a minimal Dream.OS distribution."""
 
 import shutil
 from pathlib import Path
