@@ -954,6 +954,19 @@ python main_trader.py         # For live trading
 python run_menu.py
 ```
 
+### Backup and Restore
+
+Use `tools/backup_restore.py` to archive agent mailboxes, devlogs and
+task queues.
+
+```bash
+# Create a backup archive
+python tools/backup_restore.py backup backups/dreamos_backup.tar.gz
+
+# Restore from an archive
+python tools/backup_restore.py restore backups/dreamos_backup.tar.gz
+```
+
 ## Development
 
 ### Running Tests
