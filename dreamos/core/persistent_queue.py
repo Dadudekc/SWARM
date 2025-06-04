@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
 from dreamos.core.messaging.common import Message
+from dreamos.core.message import Message as LegacyMessage
 
 logger = logging.getLogger('persistent_queue')
 
@@ -182,17 +183,19 @@ class PersistentQueue:
         finally:
             self._release_lock()
     
-    def enqueue(self, message: Union[Dict, Message]) -> bool:
+    def enqueue(self, message: Union[Dict, Message, LegacyMessage]) -> bool:
         """Add a message to the queue, inserting by priority (lower number = higher priority)."""
-        if not isinstance(message, (dict, Message)):
+        if not isinstance(message, (dict, Message, LegacyMessage)):
             # Raise ValueError for invalid message types (fixes test_invalid_message)
             raise ValueError("Message must be a dict or Message object")
         if not self._acquire_lock():
             return False
         try:
-            # Convert dict to Message if needed
+            # Convert dict or legacy Message to new Message object
             if isinstance(message, dict):
                 message = Message.from_dict(message)
+            elif isinstance(message, LegacyMessage):
+                message = Message.from_dict(message.to_dict())
             # Check queue size limit
             queue = self._read_queue()
             if len(queue) >= self.max_size:
@@ -270,7 +273,7 @@ class PersistentQueue:
         finally:
             self._release_lock()
     
-    def add_message(self, message: Union[Dict, Message]) -> bool:
+    def add_message(self, message: Union[Dict, Message, LegacyMessage]) -> bool:
         """Alias for enqueue method."""
         return self.enqueue(message)
     
