@@ -25,9 +25,9 @@ from selenium.webdriver.support import expected_conditions as EC
 import pyautogui
 import pygetwindow as gw
 
+import asyncio
 from ..logging.log_manager import LogManager
 from .cell_phone import CellPhone
-from .message_system import MessageRecord, MessageMode
 
 # Constants
 DEFAULT_MAX_RETRIES = 3
@@ -422,13 +422,12 @@ class ChatGPTBridge:
             response = self._send_prompt(prompt)
             
             # Send response back to agent
-            self.cell_phone.send_message(
-                MessageRecord(
-                    sender_id="chatgpt_bridge",
-                    recipient_id=agent_id,
+            asyncio.run(
+                self.cell_phone.send_message(
+                    to_agent=agent_id,
                     content=response,
-                    timestamp=time.time(),
-                    mode=MessageMode.NORMAL
+                    mode="NORMAL",
+                    from_agent="chatgpt_bridge"
                 )
             )
             
@@ -444,14 +443,13 @@ class ChatGPTBridge:
             self._update_health(False, error_msg)
             
             # Send error message to agent
-            self.cell_phone.send_message(
-                MessageRecord(
-                    sender_id="chatgpt_bridge",
-                    recipient_id=agent_id,
+            asyncio.run(
+                self.cell_phone.send_message(
+                    to_agent=agent_id,
                     content=f"Error: {error_msg}",
-                    timestamp=time.time(),
-                    mode=MessageMode.SYSTEM,
-                    tags=["bridge_error"]
+                    mode="SYSTEM",
+                    from_agent="chatgpt_bridge",
+                    metadata={"tags": ["bridge_error"]}
                 )
             )
             
