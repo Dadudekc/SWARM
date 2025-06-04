@@ -129,19 +129,6 @@
   },
   "quarantined_tests": [
     {
-      "test_name": "test_log_rotation",
-      "file": "tests/social/core/test_log_manager.py",
-      "issue": "Windows file locking issues preventing proper log rotation",
-      "suggested_fix": "Implement platform-specific file locking mechanism",
-      "platform_impact": "Windows",
-      "root_cause": "File locking conflicts between read and write operations",
-      "impact_assessment": "Affects log rotation and file size management",
-      "quarantine_date": "2024-06-02T20:45:00Z",
-      "last_reviewed": "2024-06-03T06:45:00Z",
-      "attempts": 5,
-      "quarantine_reason": "Exceeded 4-attempt threshold for Windows file locking issues"
-    },
-    {
       "test_name": "test_log_cleanup",
       "file": "tests/social/core/test_log_manager.py",
       "issue": "Windows permission and ACL issues during cleanup",
