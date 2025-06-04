@@ -1,9 +1,13 @@
 """
-AgentBus - A message bus implementation for agent communication.
+AgentBus - A legacy message bus implementation for agent communication.
 
-This module provides a centralized message bus for agent communication,
-allowing agents to publish and subscribe to messages in a decoupled manner.
-Supports swarm-like behavior through advanced routing and pattern matching.
+.. deprecated:: 1.0
+   Use :mod:`dreamos.core.messaging.unified_message_system` instead.
+
+This module provided a centralized bus allowing agents to publish and subscribe
+to messages in a decoupled manner and supported swarm-like behavior through
+advanced routing and pattern matching. It is retained for backward
+compatibility but no longer used by the core system.
 """
 
 from typing import Any, Callable, Dict, List, Optional, Set, Pattern
@@ -13,21 +17,14 @@ import asyncio
 import logging
 import re
 from uuid import uuid4
-from enum import Enum
 from queue import PriorityQueue
 from pathlib import Path
 import json
 
-from .message import Message, MessageMode
+from .common import Message, MessageMode, MessagePriority
 
 logger = logging.getLogger(__name__)
 
-class MessagePriority(Enum):
-    """Message priority levels for swarm coordination."""
-    LOW = 0
-    NORMAL = 1
-    HIGH = 2
-    CRITICAL = 3
 
 @dataclass
 class BusMessage:

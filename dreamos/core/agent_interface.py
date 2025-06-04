@@ -5,11 +5,15 @@ Provides an interface between Discord commands and the Dream.OS Cell Phone syste
 """
 
 import logging
+import asyncio
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 from .messaging.cell_phone import CellPhone
 from .messaging.types import MessageMode
-from .messaging.agent_bus import AgentBus, MessagePriority
+from .messaging.unified_message_system import (
+    UnifiedMessageSystem,
+    MessagePriority,
+)
 
 logger = logging.getLogger('discord_bot.agent_interface')
 
@@ -23,7 +27,7 @@ class AgentInterface:
             runtime_dir: Optional runtime directory for message storage
         """
         self.cell_phone = CellPhone()
-        self.agent_bus = AgentBus(runtime_dir=runtime_dir)
+        self.message_system = UnifiedMessageSystem(runtime_dir=runtime_dir)
         
     def send_command(self, command: str, agent_id: str, content: str, priority: int = 0) -> bool:
         """Send a command to an agent via the Cell Phone interface.
@@ -73,14 +77,14 @@ class AgentInterface:
             )
             
             if success:
-                # Also publish to agent bus
-                self.agent_bus.publish(
-                    topic=agent_id,
+                # Also send via unified message system
+                self.message_system.send(
+                    to_agent=agent_id,
                     content=content,
-                    sender="DISCORD",
+                    from_agent="DISCORD",
                     metadata={"command": command},
                     mode=mode,
-                    priority=message_priority
+                    priority=message_priority,
                 )
                 logger.info(f"Command '{command}' sent to {agent_id}")
             else:
@@ -170,6 +174,6 @@ class AgentInterface:
     def cleanup(self):
         """Clean up resources."""
         try:
-            self.agent_bus.cleanup()
+            asyncio.run(self.message_system.cleanup())
         except Exception as e:
-            logger.error(f"Error during cleanup: {e}") 
+            logger.error(f"Error during cleanup: {e}")

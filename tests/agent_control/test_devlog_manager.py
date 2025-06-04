@@ -1,4 +1,3 @@
-import asyncio
 from pathlib import Path
 from unittest.mock import AsyncMock
 import sys
@@ -76,25 +75,27 @@ spec.loader.exec_module(devlog_module)
 DevLogManager = devlog_module.DevLogManager
 
 
-def test_add_and_get_log(tmp_path: Path):
+@pytest.mark.asyncio
+async def test_add_and_get_log(tmp_path: Path):
     manager = DevLogManager(runtime_dir=tmp_path)
     manager._notify_discord = AsyncMock()
 
-    result = asyncio.run(manager.add_entry("agent1", "hello world"))
+    result = await manager.add_entry("agent1", "hello world")
     assert result
 
-    content = asyncio.run(manager.get_log("agent1"))
+    content = await manager.get_log("agent1")
     assert "hello world" in content
     manager._notify_discord.assert_awaited()
 
 
-def test_clear_log(tmp_path: Path):
+@pytest.mark.asyncio
+async def test_clear_log(tmp_path: Path):
     manager = DevLogManager(runtime_dir=tmp_path)
     manager._notify_discord = AsyncMock()
 
-    asyncio.run(manager.add_entry("agent1", "something"))
-    cleared = asyncio.run(manager.clear_log("agent1"))
+    await manager.add_entry("agent1", "something")
+    cleared = await manager.clear_log("agent1")
     assert cleared
 
-    content = asyncio.run(manager.get_log("agent1"))
+    content = await manager.get_log("agent1")
     assert "Log cleared" in content

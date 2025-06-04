@@ -58,6 +58,19 @@ class DevLogManager:
         
         # Set up Discord bot
         self._setup_bot()
+
+    def _ensure_agent_dir(self, agent_id: str) -> Path:
+        """Ensure the directory for an agent's devlog exists."""
+        agent_dir = self.log_path / agent_id
+        agent_dir.mkdir(parents=True, exist_ok=True)
+        return agent_dir
+
+    def _ensure_log_header(self, log_path: Path, agent_id: str) -> None:
+        """Ensure a devlog file has the standard header."""
+        if not log_path.exists():
+            with open(log_path, "w") as f:
+                f.write(f"# {agent_id} Devlog\n\n")
+                f.write("## Events\n\n")
         
     def _load_config(self) -> None:
         """Load devlog configuration."""
@@ -217,8 +230,8 @@ class DevLogManager:
             bool: True if the entry was added
         """
         try:
-            log_file = self.log_path / agent_id / "devlog.md"
-            log_file.parent.mkdir(parents=True, exist_ok=True)
+            log_file = self._ensure_agent_dir(agent_id) / "devlog.md"
+            self._ensure_log_header(log_file, agent_id)
 
             timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M]")
             entry = f"{timestamp} [{source.upper()}] {message}\n"
@@ -252,6 +265,48 @@ class DevLogManager:
                     await channel.send(embed=embed)
         except Exception as e:
             logger.error(f"Error notifying Discord: {e}")
+
+    async def log_event(self, agent_id: str, event: str, data: Optional[Dict] = None) -> bool:
+        """Log a structured event for an agent."""
+        if not event:
+            raise ValueError("event must be a non-empty string")
+
+        try:
+            log_file = self._ensure_agent_dir(agent_id) / "devlog.md"
+            self._ensure_log_header(log_file, agent_id)
+
+            with open(log_file, "a") as f:
+                timestamp = datetime.now().isoformat()
+                f.write(f"\n### {event} ({timestamp})\n")
+                if data:
+                    f.write("```json\n")
+                    f.write(json.dumps(data, indent=2))
+                    f.write("\n```\n")
+                f.write("\n")
+
+            await self._notify_discord(agent_id, f"{event}: {json.dumps(data) if data else ''}", "event")
+            return True
+        except Exception as e:
+            logger.error(f"Error logging event for {agent_id}: {e}")
+            return False
+
+    async def send_embed(
+        self,
+        agent_id: str,
+        title: str,
+        description: str,
+        color: int = 0x000000,
+        fields: Optional[Dict[str, str]] = None,
+    ) -> bool:
+        """Send an embedded message event to the devlog."""
+        embed_data = {
+            "title": title,
+            "description": description,
+            "color": color,
+            "fields": fields or {},
+            "timestamp": datetime.now().isoformat(),
+        }
+        return await self.log_event(agent_id, "embed", embed_data)
 
     async def get_log(self, agent_id: str) -> Optional[str]:
         """Return the contents of an agent's devlog."""

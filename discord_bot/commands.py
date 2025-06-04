@@ -18,7 +18,7 @@ import yaml
 import io
 from pathlib import Path
 
-from dreamos.core.messaging.message import Message, MessageMode
+from dreamos.core.messaging.common import Message, MessageMode
 from dreamos.core.messaging.message_processor import MessageProcessor
 from dreamos.core.messaging.cell_phone import CellPhone
 from dreamos.core.agent_interface import AgentInterface

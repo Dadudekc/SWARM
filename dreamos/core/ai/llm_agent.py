@@ -8,7 +8,7 @@ import asyncio
 from typing import Dict, Any, Optional, List
 from datetime import datetime
 from ..messaging.unified_message_system import UnifiedMessageSystem
-from ..messaging.message import Message, MessageMode, MessagePriority
+from ..messaging.common import Message, MessageMode, MessagePriority
 from .chatgpt_bridge import ChatGPTBridge
 
 class LLMAgent:
