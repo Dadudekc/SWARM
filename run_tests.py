@@ -24,8 +24,13 @@ def run_test(test_path, test_name=None):
     return result
 
 if __name__ == '__main__':
-    # Get test path from command line
-    test_path = sys.argv[1] if len(sys.argv) > 1 else 'tests/test_log_manager.py'
+    # Get test path from command line. Default to current log manager test
+    # location within the social core tests.
+    test_path = (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else 'tests/social/core/test_log_manager.py'
+    )
     test_name = sys.argv[2] if len(sys.argv) > 2 else None
     
     # Run the test
