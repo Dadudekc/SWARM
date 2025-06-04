@@ -847,6 +847,7 @@ Dream.OS/
 ### 2. Development
 - [Code Style Guide](docs/code_style_guide.md)
 - [Testing Guide](docs/testing_guide.md)
+- [Testing Strategy](docs/testing_strategy.md)
 - [Project Setup](docs/project_setup_guide.md)
 - [Contribution Guide](docs/contribution_guide.md)
 
