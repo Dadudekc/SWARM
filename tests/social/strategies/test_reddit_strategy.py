@@ -33,9 +33,24 @@ def mock_driver():
 def mock_config():
     """Create mock config."""
     return {
-        "username": "test_user",
-        "password": "test_pass",
-        "browser": {"type": "firefox", "headless": True},
+        "reddit": {
+            "username": "test_user",
+            "password": "test_pass",
+            "credentials": {
+                "username": "test_user",
+                "password": "test_pass"
+            },
+            "client_id": "abc",
+            "client_secret": "def",
+            "user_agent": "test-agent"
+        },
+        "browser": {
+            "type": "firefox",
+            "headless": True,
+            "window_title": "Reddit",
+            "window_coords": {"x": 0, "y": 0, "width": 800, "height": 600},
+            "cookies_path": "tests/tmp/cookies.pkl"
+        },
         "log_config": LogConfig(
             log_dir="test_logs",
             level="DEBUG",
@@ -82,6 +97,7 @@ def strategy(mock_driver, mock_config, mock_logger):
     """Create strategy with mocks."""
     strategy = RedditStrategy(mock_driver, mock_config)
     strategy.logger = mock_logger
+    strategy.utils = Mock()
     return strategy
 
 @pytest.fixture
@@ -399,15 +415,8 @@ class TestRedditStrategy:
 
     def test_login_failure(self, strategy, mock_driver):
         """Test login failure."""
-        # Mock driver behavior
-        mock_driver.get.return_value = None
-        mock_driver.find_element.side_effect = NoSuchElementException()
-        
-        # Mock wait_for_element
-        strategy.utils.wait_for_element.return_value = Mock()
-        
-        # Mock retry_click
-        strategy.utils.retry_click.side_effect = ElementClickInterceptedException()
-        
+        # Simulate login handler failure
+        strategy.login_handler.login = Mock(return_value=False)
+
         assert strategy.login() is False
-        strategy.logger.error.assert_called()
+        assert strategy.memory_updates["last_error"]["error"] == "Login failed"

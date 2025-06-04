@@ -1,8 +1,8 @@
 {
     "test_status": {
-        "total_tests": 33,
-        "passed_tests": 3,
-        "failed_tests": 14,
+        "total_tests": 74,
+        "passed_tests": 27,
+        "failed_tests": 38,
         "quarantined_tests": 16
     },
     "test_details": {
@@ -233,11 +233,19 @@
         }
     },
     "last_run": {
-        "timestamp": "2024-06-03T07:00:00Z",
+        "timestamp": "2025-06-04T15:53:30Z",
         "status": "completed",
-        "notes": "Quarantined additional tests due to Windows-specific file handling issues. Focus on file handle management and locking mechanisms."
+        "notes": "Updated config fixtures and installed pytest-mock. Login tests now pass, but strategy base tests still failing."
     },
     "test_history": [
+        {
+            "timestamp": "2025-06-04T15:53:30Z",
+            "total_tests": 74,
+            "passed": 27,
+            "failed": 38,
+            "quarantined": 16,
+            "notes": "Partial improvements after updating fixtures and installing pytest-mock."
+        },
         {
             "timestamp": "2024-06-03T06:45:00Z",
             "total_tests": 33,
