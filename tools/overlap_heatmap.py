@@ -11,7 +11,12 @@ import pyautogui
 from typing import Dict, List, Tuple
 import argparse
 
-from .coordinate_utils import load_coordinates, regions_overlap, calculate_overlap, validate_coordinates
+from dreamos.core.coordinate_utils import (
+    load_coordinates,
+    regions_overlap,
+    calculate_overlap,
+    validate_coordinates,
+)
 
 # Configure logging
 logging.basicConfig(

@@ -13,7 +13,7 @@ import pyautogui
 import pygetwindow as gw
 from typing import Dict, Tuple, Optional
 
-from tools.coordinate_utils import load_coordinates, validate_coordinates
+from dreamos.core.coordinate_utils import load_coordinates, validate_coordinates
 
 # Configure logging
 logging.basicConfig(
