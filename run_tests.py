@@ -24,7 +24,8 @@ def run_test(test_path, test_name=None):
     return result
 
 if __name__ == '__main__':
-    # Get test path from command line or default to the entire suite
+
+    # Get test path from command line or default to the full test suite
     test_path = sys.argv[1] if len(sys.argv) > 1 else 'tests'
     test_name = sys.argv[2] if len(sys.argv) > 2 else None
 
