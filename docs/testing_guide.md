@@ -159,6 +159,13 @@ pytest --cov=.
 pytest tests/test_file.py::test_function
 ```
 
+Alternatively you can execute the provided convenience script which uses a
+short timeout and cleans the pytest cache before running:
+
+```bash
+python run_tests.py
+```
+
 ### Test Configuration
 1. Pytest Configuration
    ```ini
