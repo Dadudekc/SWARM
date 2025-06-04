@@ -23,8 +23,12 @@ def run_test(test_path="tests", test_name=None):
 
 
 if __name__ == "__main__":
-    # Get test path and name from CLI args if provided
-    test_path = sys.argv[1] if len(sys.argv) > 1 else "tests"
+    # Prefer specific test path if not provided
+    test_path = (
+        sys.argv[1]
+        if len(sys.argv) > 1
+        else 'tests/social/core/test_log_manager.py'
+    )
     test_name = sys.argv[2] if len(sys.argv) > 2 else None
 
     result = run_test(test_path, test_name)
