@@ -1,38 +1,35 @@
 import pytest
 import sys
-import os
-import time
+import shutil
+from pathlib import Path
 
-def run_test(test_path, test_name=None):
-    """Run a specific test with proper cleanup and timeout."""
-    # Clear any existing test cache
-    pytest.main(['--cache-clear'])
-    
-    # Build test path
+
+def run_test(test_path="tests", test_name=None):
+    """Run tests with a timeout and short traceback."""
+    cache_dir = Path(".pytest_cache")
+    if cache_dir.exists():
+        shutil.rmtree(cache_dir)
+
     if test_name:
         test_path = f"{test_path}::{test_name}"
-    
-    # Run test with timeout and short traceback
-    result = pytest.main([
-        test_path,
-        '-v',
-        '--tb=short',
-        '--timeout=30',
-        '-xvs'
-    ])
-    
-    return result
 
-if __name__ == '__main__':
-    # Get test path from command line. Default to current log manager test
-    # location within the social core tests.
+    return pytest.main([
+        test_path,
+        "-v",
+        "--tb=short",
+        "--timeout=30",
+        "-xvs"
+    ])
+
+
+if __name__ == "__main__":
+    # Prefer specific test path if not provided
     test_path = (
         sys.argv[1]
         if len(sys.argv) > 1
         else 'tests/social/core/test_log_manager.py'
     )
     test_name = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    # Run the test
+
     result = run_test(test_path, test_name)
-    sys.exit(result) 
+    sys.exit(result)
