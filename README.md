@@ -14,6 +14,8 @@ For a quick reference of the repository layout, see [docs/directory_overview.md]
 - Social media integration
 - UI automation and interaction
 - Trading bot integration
+- Stealth browser automation for low-detection web tasks
+- Dreamscribe narrative memory system
 
 ## Repository Structure
 
@@ -842,6 +844,7 @@ Dream.OS/
 - [Autonomous Operations](docs/onboarding/02_autonomous_operations.md)
 - [System Integration](docs/onboarding/03_system_integration.md)
 - [Advanced Topics](docs/onboarding/04_advanced_topics.md)
+- [Architecture Overview](docs/architecture_overview.md)
 - [Content Loop Framework](docs/onboarding/05_content_loop.md)
 
 ### 2. Development
@@ -849,6 +852,7 @@ Dream.OS/
 - [Testing Guide](docs/testing_guide.md)
 - [Testing Strategy](docs/testing_strategy.md)
 - [Project Setup](docs/project_setup_guide.md)
+- [User Guide](docs/user_guide.md)
 - [Contribution Guide](docs/contribution_guide.md)
 
 ### 3. API Reference
@@ -856,6 +860,8 @@ Dream.OS/
 - [Agent API](docs/api/agents.md)
 - [Messaging API](docs/api/messaging.md)
 - [Trading API](docs/api/trading.md)
+- [StealthBrowser API](docs/api/stealth_browser.md)
+- [Dreamscribe API](docs/api/dreamscribe.md)
 
 ## Features
 
