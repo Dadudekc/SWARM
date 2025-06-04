@@ -11,7 +11,7 @@ from . import menu
 from . import messaging
 from . import persistent_queue
 from . import system_init
-from .cell_phone import CellPhone, send_message
+from .messaging.cell_phone import CellPhone, send_message
 from .messaging.types import Message, MessageMode
 from .persistent_queue import PersistentQueue
 
