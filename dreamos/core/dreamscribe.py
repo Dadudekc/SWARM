@@ -159,11 +159,18 @@ class Dreamscribe:
         """
         connections = []
         
-        # Look for related memories based on content
+        # Look for related memories based on content, time, and task_id
         for mem_id, existing_mem in self.memory_corpus.items():
+            # Check if memories are from same agent and within time window
             if (memory.agent_id == existing_mem.agent_id and
                 abs(memory.timestamp - existing_mem.timestamp) < 3600):  # Within 1 hour
-                connections.append(mem_id)
+                
+                # Check if they share the same task_id
+                memory_task_id = memory.context.get('task_id')
+                existing_task_id = existing_mem.context.get('task_id')
+                
+                if memory_task_id and existing_task_id and memory_task_id == existing_task_id:
+                    connections.append(mem_id)
                 
         return connections
     
@@ -252,6 +259,14 @@ class Dreamscribe:
         
         # Add to memory corpus
         self.memory_corpus[memory.memory_id] = memory
+        
+        # Update connections bidirectionally
+        for connected_id in memory.connections:
+            if connected_id in self.memory_corpus:
+                connected_memory = self.memory_corpus[connected_id]
+                if memory.memory_id not in connected_memory.connections:
+                    connected_memory.connections.append(memory.memory_id)
+                    self.memory_corpus[connected_id] = connected_memory
         
         # Update narratives
         self._update_narratives(memory)
