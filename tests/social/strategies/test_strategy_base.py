@@ -4,7 +4,7 @@ from unittest.mock import Mock, patch, MagicMock
 from selenium.common.exceptions import TimeoutException, WebDriverException, ElementClickInterceptedException, ElementNotInteractableException, NoSuchElementException
 from selenium.webdriver.common.by import By
 from social.utils.social_common import SocialMediaUtils
-from social.utils.devlog_manager import DevlogManager
+from dreamos.core.agent_control.devlog_manager import DevLogManager
 from datetime import datetime
 
 from social.strategies.platform_strategy_base import PlatformStrategy
