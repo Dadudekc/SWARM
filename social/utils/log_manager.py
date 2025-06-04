@@ -6,6 +6,7 @@ Provides centralized logging with basic rotation and metrics.
 
 import logging
 import json
+import os
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timedelta
@@ -13,6 +14,9 @@ import threading
 from logging.handlers import RotatingFileHandler
 from dataclasses import dataclass
 from enum import Enum
+
+from .log_rotator import LogRotator
+from .log_types import RotationConfig
 
 class LogLevel(Enum):
     """Log levels."""
@@ -68,6 +72,13 @@ class LogManager:
             'entries_by_platform': {},
             'errors': 0
         }
+        rotation_config = RotationConfig(
+            max_size_mb=max(1, self._config.max_bytes // (1024 * 1024)),
+            max_files=self._config.backup_count,
+            max_age_days=self._config.max_age_days,
+            backup_dir=str(Path(self._config.log_dir) / "backups"),
+        )
+        self._rotator = LogRotator(rotation_config)
         self._setup_logging()
         self._initialized = True
     
@@ -75,6 +86,8 @@ class LogManager:
         """Set up logging configuration."""
         root_logger = logging.getLogger()
         root_logger.setLevel(self._config.level.value)
+
+        self._handlers: Dict[str, RotatingFileHandler] = {}
         
         # Remove existing handlers
         for handler in root_logger.handlers[:]:
@@ -103,6 +116,7 @@ class LogManager:
             )
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
+            self._handlers[platform] = file_handler
     
     def write_log(self, message: str, level: str = "INFO", platform: str = "system", **kwargs) -> None:
         """Write a log entry."""
@@ -189,6 +203,40 @@ class LogManager:
                         logging.error(f"Error removing old log file {log_file}: {e}")
         except Exception as e:
             logging.error(f"Error during cleanup: {e}")
+
+    def rotate(self, platform: str) -> Optional[str]:
+        """Rotate the log file for a given platform."""
+        if platform not in self._config.platforms:
+            raise ValueError(f"Invalid platform: {platform}")
+
+        handler = self._handlers.get(platform)
+        if not handler:
+            return None
+
+        # Ensure handler is flushed and closed before rotation
+        handler.flush()
+        handler.close()
+        logging.getLogger().removeHandler(handler)
+
+        log_file = Path(handler.baseFilename)
+
+        rotated_path = self._rotator.rotate(str(log_file))
+
+        # Recreate handler after rotation
+        new_handler = RotatingFileHandler(
+            log_file,
+            maxBytes=self._config.max_bytes,
+            backupCount=self._config.backup_count,
+        )
+        formatter = logging.Formatter(
+            self._config.log_format,
+            self._config.date_format,
+        )
+        new_handler.setFormatter(formatter)
+        logging.getLogger().addHandler(new_handler)
+        self._handlers[platform] = new_handler
+
+        return rotated_path
     
     def debug(self, platform: str, message: str, **kwargs) -> None:
         """Write debug log entry."""
