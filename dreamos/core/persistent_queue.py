@@ -10,9 +10,11 @@ import time
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
+from enum import Enum
 from datetime import datetime
 from dreamos.core.messaging.common import Message
 from dreamos.core.message import Message as LegacyMessage
+from filelock import FileLock, Timeout
 
 logger = logging.getLogger('persistent_queue')
 
@@ -28,6 +30,7 @@ class PersistentQueue:
         self.queue_file = Path(queue_file)
         self.queue_path = str(self.queue_file)  # Store path as string for compatibility
         self.lock_file = self.queue_file.with_suffix('.lock')
+        self.file_lock = FileLock(str(self.lock_file))
         self.max_size = 1000  # Maximum number of messages in queue
         self.max_history = 1000  # Maximum number of messages in history
         self.message_history = []  # Track message history
@@ -54,23 +57,21 @@ class PersistentQueue:
         Returns:
             bool: True if lock was acquired, False if timeout
         """
-        start_time = time.time()
-        while time.time() - start_time < timeout:
-            if not self.lock_file.exists():
-                try:
-                    with open(self.lock_file, 'w') as f:
-                        f.write(str(os.getpid()))
-                    return True
-                except Exception as e:
-                    logger.error(f"Error acquiring lock: {e}")
-            time.sleep(0.1)
-        return False
+        try:
+            self.file_lock.acquire(timeout=timeout)
+            return True
+        except Timeout:
+            logger.error("Lock acquisition timed out")
+            return False
+        except Exception as e:
+            logger.error(f"Error acquiring lock: {e}")
+            return False
     
     def _release_lock(self):
         """Release the lock file."""
         try:
-            if self.lock_file.exists():
-                self.lock_file.unlink()
+            if self.file_lock.is_locked:
+                self.file_lock.release()
         except Exception as e:
             logger.error(f"Error releasing lock: {e}")
     
@@ -208,7 +209,12 @@ class PersistentQueue:
                     return False
             # Add message with priority
             message_dict = message.to_dict()
-            message_dict['priority'] = getattr(message, 'priority', 0)  # Default to 0 if no priority
+            # Ensure priority is stored as string name for JSON serialization
+            message_priority = getattr(message, 'priority', None)
+            if isinstance(message_priority, Enum):
+                message_dict['priority'] = message_priority.name
+            else:
+                message_dict['priority'] = message_priority if message_priority is not None else 'NORMAL'
             # Insert message in priority order
             inserted = False
             for i, existing in enumerate(queue):
