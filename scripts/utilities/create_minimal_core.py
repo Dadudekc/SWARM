@@ -1,3 +1,5 @@
+"""Utility script for generating a minimal Dream.OS distribution."""
+
 import shutil
 from pathlib import Path
 

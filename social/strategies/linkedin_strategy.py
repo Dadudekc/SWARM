@@ -1,3 +1,5 @@
+"""Implementation of the LinkedIn posting strategy."""
+
 from .platform_strategy_base import PlatformStrategy
 
 class LinkedInStrategy(PlatformStrategy):

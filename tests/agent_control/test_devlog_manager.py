@@ -1,3 +1,5 @@
+"""Tests for the DevLog manager component."""
+
 from pathlib import Path
 from unittest.mock import AsyncMock
 import sys

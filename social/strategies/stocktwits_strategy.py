@@ -1,3 +1,5 @@
+"""Implementation of the StockTwits posting strategy."""
+
 from .platform_strategy_base import PlatformStrategy
 
 class StockTwitsStrategy(PlatformStrategy):

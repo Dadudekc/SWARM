@@ -1,3 +1,5 @@
+"""Tests for the self_discovery journal utilities."""
+
 import sqlite3
 from pathlib import Path
 

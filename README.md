@@ -15,6 +15,23 @@ For a quick reference of the repository layout, see [docs/directory_overview.md]
 - UI automation and interaction
 - Trading bot integration
 
+## Repository Structure
+
+The project is organized into feature-oriented folders. Below is a brief summary
+of the most important directories:
+
+- `dreamos/` – Core system implementation and agent orchestration logic.
+- `agent_tools/` – Utilities for managing agents and scanning projects.
+- `discord_bot/` – Discord integration and bot commands.
+- `crime_report_generator/` – Stand‑alone module for generating crime reports.
+- `tools/` and `scripts/` – Assorted helper scripts and automation utilities.
+- `config/` – Configuration templates and environment files.
+- `runtime/` – Temporary runtime files such as queues and logs.
+- `data/` and `reports/` – Generated data artifacts and reports.
+- `tests/` – Unit and integration tests.
+- `docs/` – Additional documentation including this overview.
+
+
 ## Product Offerings
 
 The Dream.OS platform can be packaged in several ways to fit different business needs. See [docs/product_offerings.md](docs/product_offerings.md) for details on SaaS, social-media automation, trading bots, on-premise deployments, and a custom agent SDK.

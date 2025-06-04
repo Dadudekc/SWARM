@@ -1,3 +1,5 @@
+"""Integration tests for the UnifiedMessageSystem."""
+
 import asyncio
 import pytest
 import sys

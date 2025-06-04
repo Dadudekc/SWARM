@@ -1,3 +1,5 @@
+"""Helper utilities for Discord-related test mocks."""
+
 from tests.utils import (
     MockMessage, MockMember, MockChannel, MockGuild,
     MockContext, MockBot, create_mock_embed, run_async_test,

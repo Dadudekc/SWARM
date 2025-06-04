@@ -1,6 +1,8 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
+"""Top-level package for Dream.OS tests."""
+
 # from . import conftest
 # from . import run_tests
 # from . import test_agent_captain
