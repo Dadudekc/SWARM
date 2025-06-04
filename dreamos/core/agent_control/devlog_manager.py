@@ -7,6 +7,7 @@ and collaboration between agents.
 
 import logging
 import json
+import os
 import asyncio
 from typing import Dict, List, Optional, Any
 from datetime import datetime
@@ -23,17 +24,28 @@ logger = logging.getLogger('devlog_manager')
 
 class DevLogManager:
     """Manages agent development logs and Discord integration."""
-    
-    def __init__(self, discord_token: str, channel_id: int):
+
+    def __init__(
+        self,
+        discord_token: Optional[str] = None,
+        channel_id: Optional[int] = None,
+        webhook_url: Optional[str] = None,
+        runtime_dir: Path = Path("runtime"),
+    ):
         """Initialize devlog manager.
-        
+
         Args:
             discord_token: Discord bot token
             channel_id: ID of Discord channel for devlogs
+            webhook_url: Optional Discord webhook URL
+            runtime_dir: Base runtime directory for logs
         """
-        self.discord_token = discord_token
-        self.channel_id = channel_id
-        self.bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+        self.discord_token = discord_token or os.getenv("DISCORD_BOT_TOKEN")
+        self.channel_id = channel_id or int(os.getenv("DISCORD_DEVLOG_CHANNEL", "0"))
+        self.webhook_url = webhook_url or os.getenv("DISCORD_WEBHOOK_URL")
+        self.runtime_dir = Path(runtime_dir)
+        self.log_path = self.runtime_dir / "agent_memory"
+        self.bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
         self.task_manager = TaskManager()
         self.captain_phone = CaptainPhone()
         
@@ -41,7 +53,7 @@ class DevLogManager:
         self.agent_channels: Dict[str, int] = {}
         
         # Load configuration
-        self.config_path = Path("config/devlog_config.yaml")
+        self.config_path = self.runtime_dir / "config" / "devlog_config.yaml"
         self._load_config()
         
         # Set up Discord bot
@@ -189,9 +201,88 @@ class DevLogManager:
                 await channel.send(embed=embed)
                 
             logger.info(f"Added devlog entry for {agent_id}")
-            
+
         except Exception as e:
             logger.error(f"Error adding devlog entry: {e}")
+
+    async def add_entry(self, agent_id: str, message: str, source: str = "manual") -> bool:
+        """Add a simple log entry and notify Discord.
+
+        Args:
+            agent_id: ID of the agent
+            message: Log message
+            source: Source of the update
+
+        Returns:
+            bool: True if the entry was added
+        """
+        try:
+            log_file = self.log_path / agent_id / "devlog.md"
+            log_file.parent.mkdir(parents=True, exist_ok=True)
+
+            timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M]")
+            entry = f"{timestamp} [{source.upper()}] {message}\n"
+
+            with open(log_file, "a") as f:
+                f.write(entry)
+
+            await self._notify_discord(agent_id, entry.strip(), source)
+            return True
+        except Exception as e:
+            logger.error(f"Error updating devlog: {e}")
+            return False
+
+    async def _notify_discord(self, agent_id: str, message: str, source: str) -> None:
+        """Send a devlog update to Discord."""
+        try:
+            embed = discord.Embed(
+                title=f"📜 {agent_id} Devlog Update",
+                description=message,
+                color=discord.Color.blue(),
+            )
+            embed.set_footer(text=f"Source: {source}")
+
+            if self.webhook_url:
+                async with aiohttp.ClientSession() as session:
+                    webhook = discord.Webhook.from_url(self.webhook_url, session=session)
+                    await webhook.send(embed=embed)
+            elif self.channel_id:
+                channel = self.bot.get_channel(self.channel_id)
+                if channel:
+                    await channel.send(embed=embed)
+        except Exception as e:
+            logger.error(f"Error notifying Discord: {e}")
+
+    async def get_log(self, agent_id: str) -> Optional[str]:
+        """Return the contents of an agent's devlog."""
+        try:
+            log_file = self.log_path / agent_id / "devlog.md"
+            if not log_file.exists():
+                return None
+            return log_file.read_text()
+        except Exception as e:
+            logger.error(f"Error reading devlog: {e}")
+            return None
+
+    async def clear_log(self, agent_id: str) -> bool:
+        """Clear an agent devlog with backup."""
+        try:
+            log_file = self.log_path / agent_id / "devlog.md"
+            if not log_file.exists():
+                return False
+
+            backup_path = log_file.with_suffix(".md.backup")
+            with open(log_file, "r") as src, open(backup_path, "w") as dst:
+                dst.write(src.read())
+
+            with open(log_file, "w") as f:
+                f.write(f"# {agent_id} Devlog\n\n")
+                f.write(f"Log cleared at {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
+
+            return True
+        except Exception as e:
+            logger.error(f"Error clearing devlog: {e}")
+            return False
             
     async def generate_agent_summary(self, agent_id: str) -> str:
         """Generate summary of agent's devlog entries.
