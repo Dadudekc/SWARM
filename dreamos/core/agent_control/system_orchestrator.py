@@ -22,7 +22,7 @@ from ..cell_phone import CellPhone, CaptainPhone
 from .periodic_restart import AgentManager
 from .task_manager import TaskManager, TaskStatus, TaskPriority
 from .devlog_manager import DevLogManager
-from ..messaging.agent_bus import AgentBus
+from ..messaging.unified_message_system import UnifiedMessageSystem
 from social.utils.log_manager import LogManager, LogLevel
 
 logger = logging.getLogger('dreamos.orchestrator')
@@ -103,7 +103,7 @@ class SystemOrchestrator:
         # Initialize components
         self.cell_phone = CellPhone()
         self.captain_phone = CaptainPhone()
-        self.agent_bus = AgentBus(runtime_dir=runtime_dir)
+        self.message_system = UnifiedMessageSystem(runtime_dir=runtime_dir)
         self.task_manager = TaskManager(runtime_dir=runtime_dir)
         self.devlog_manager = DevLogManager(
             discord_token=discord_token,
@@ -319,8 +319,7 @@ class SystemOrchestrator:
             # Connect task manager to devlog
             self.task_manager.devlog_manager = self.devlog_manager
             
-            # Connect agent bus to cell phone
-            self.cell_phone.agent_bus = self.agent_bus
+
             
             self.log_manager.info(
                 platform="system",

@@ -2,7 +2,7 @@
 Unified Message System
 ---------------------
 Provides a single source of truth for all message handling in Dream.OS.
-Consolidates functionality from:
+Consolidates functionality from and supersedes:
 - MessageSystem
 - AgentBus
 - CellPhone

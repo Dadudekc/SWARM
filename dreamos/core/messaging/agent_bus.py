@@ -1,9 +1,13 @@
 """
-AgentBus - A message bus implementation for agent communication.
+AgentBus - A legacy message bus implementation for agent communication.
 
-This module provides a centralized message bus for agent communication,
-allowing agents to publish and subscribe to messages in a decoupled manner.
-Supports swarm-like behavior through advanced routing and pattern matching.
+.. deprecated:: 1.0
+   Use :mod:`dreamos.core.messaging.unified_message_system` instead.
+
+This module provided a centralized bus allowing agents to publish and subscribe
+to messages in a decoupled manner and supported swarm-like behavior through
+advanced routing and pattern matching. It is retained for backward
+compatibility but no longer used by the core system.
 """
 
 from typing import Any, Callable, Dict, List, Optional, Set, Pattern
