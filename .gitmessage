@@ -40,3 +40,49 @@ Testing:
 - [x] Resource cleanup
 
 Related Issues: #123, #124, #125 
+
+feat(browser): Add StealthBrowser integration with Codex
+
+This commit adds a powerful StealthBrowser integration that enables the swarm to interact with Codex through browser automation. The integration includes:
+
+1. StealthBrowser Implementation
+- Undetected login with persistent sessions
+- Anti-detection measures
+- Cookie management
+- Platform-specific message handling
+
+2. Integration with Dream.OS
+- Compatible with existing BrowserControl
+- Uses RequestQueue for message handling
+- Integrates with BridgeHealthMonitor
+- Follows standard configuration patterns
+
+3. New Capabilities
+- Automated code review
+- Code generation
+- Vulnerability scanning
+- Cross-agent QA
+- Feedback loop integration
+
+4. Documentation
+- Comprehensive YAML specification
+- Integration guide
+- Security considerations
+- Performance optimizations
+
+Technical Details:
+- Async/await patterns
+- Error handling with retries
+- Resource cleanup
+- Security measures
+- Performance monitoring
+
+Next Steps:
+- Integration tests
+- CodexHandler agent
+- Platform router extension
+- Login hardening
+- Memory layer implementation
+
+Breaking Changes: None
+Migration Guide: Not required 

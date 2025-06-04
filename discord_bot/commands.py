@@ -18,9 +18,10 @@ import yaml
 import io
 from pathlib import Path
 
-from dreamos.core.messaging.common import Message, MessageMode
+from dreamos.core.messaging.common import Message
 from dreamos.core.messaging.message_processor import MessageProcessor
 from dreamos.core.messaging.cell_phone import CellPhone
+from dreamos.core.messaging.enums import MessageMode
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
 from dreamos.core.log_manager import LogManager
@@ -376,22 +377,43 @@ class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
 
-class AgentCommands(commands.Cog):
-    """Handles agent-related commands."""
+class AgentCommands:
+    """Commands for managing agents."""
     
-    def __init__(self, bot):
-        """Initialize the commands.
-        
-        Args:
-            bot: Discord bot instance
-        """
+    def __init__(self, bot: commands.Bot):
         self.bot = bot
+        self.log_manager = LogManager()
         self.devlog_manager = DevLogManager()
         self.message_processor = MessageProcessor()
         self.cell_phone = CellPhone()
         self.agent_interface = AgentInterface()
-        self.metrics = CommandMetrics()
-        self.log_manager = LogManager()  # Initialize LogManager
+        self.command_metrics = CommandMetrics()
+        self.config = self._load_config()
+        logger.info("Agent commands initialized")
+        
+        # Register commands
+        self.bot.add_command(commands.Command(self.show_help, name="help"))
+        self.bot.add_command(commands.Command(self.list_agents, name="list_agents"))
+        self.bot.add_command(commands.Command(self.list_channels, name="list_channels"))
+        self.bot.add_command(commands.Command(self.send_prompt, name="send_prompt"))
+        self.bot.add_command(commands.Command(self.update_devlog, name="update_devlog"))
+        self.bot.add_command(commands.Command(self.view_devlog, name="view_devlog"))
+        self.bot.add_command(commands.Command(self.clear_devlog, name="clear_devlog"))
+        self.bot.add_command(commands.Command(self.resume_agent, name="resume_agent"))
+        self.bot.add_command(commands.Command(self.verify_agent, name="verify_agent"))
+        self.bot.add_command(commands.Command(self.send_message, name="send_message"))
+        self.bot.add_command(commands.Command(self.restore_agent, name="restore_agent"))
+        self.bot.add_command(commands.Command(self.sync_agent, name="sync_agent"))
+        self.bot.add_command(commands.Command(self.cleanup_agent, name="cleanup_agent"))
+        self.bot.add_command(commands.Command(self.multi_command, name="multi_command"))
+        self.bot.add_command(commands.Command(self.system_command, name="system_command"))
+        self.bot.add_command(commands.Command(self.assign_channel, name="assign_channel"))
+        self.bot.add_command(commands.Command(self.show_logs, name="logs"))
+
+    def _load_config(self):
+        # Implement the logic to load configuration from the file
+        # This is a placeholder and should be replaced with actual implementation
+        return {}
     
     async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
         """Send a command to an agent."""
@@ -410,7 +432,6 @@ class AgentCommands(commands.Cog):
             logger.error(f"Failed to send command: {e}")
             return False
     
-    @commands.command(name="help")
     async def show_help(self, ctx):
         """Show the help menu."""
         try:
@@ -419,7 +440,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error showing help menu: {str(e)}")
     
-    @commands.command(name="list_agents")
     async def list_agents(self, ctx):
         """List all available agents."""
         try:
@@ -445,7 +465,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error listing agents: {str(e)}")
     
-    @commands.command(name="list_channels")
     async def list_channels(self, ctx):
         """List all available channels."""
         try:
@@ -471,7 +490,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error listing channels: {str(e)}")
     
-    @commands.command(name="send_prompt")
     async def send_prompt(self, ctx, agent_id: str, prompt_text: str):
         """Send a prompt to an agent."""
         try:
@@ -491,7 +509,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error sending prompt: {str(e)}")
     
-    @commands.command(name="update_devlog")
     async def update_devlog(self, ctx, agent_id: str, message: str):
         """Update the development log."""
         try:
@@ -511,7 +528,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Failed to update devlog: {str(e)}")
     
-    @commands.command(name="view_devlog")
     async def view_devlog(self, ctx, agent_id: str):
         """View an agent's devlog."""
         try:
@@ -531,7 +547,6 @@ class AgentCommands(commands.Cog):
             logger.error(f"Error viewing devlog for agent {agent_id}: {str(e)}")
             await ctx.send(f"Error viewing devlog for agent {agent_id}: {str(e)}")
     
-    @commands.command(name="clear_devlog")
     async def clear_devlog(self, ctx, agent_id: str):
         """Clear an agent's development log."""
         try:
@@ -547,7 +562,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Failed to clear devlog: {str(e)}")
     
-    @commands.command(name="resume_agent")
     async def resume_agent(self, ctx, agent_id: str):
         """Resume an agent's operation."""
         try:
@@ -563,7 +577,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error resuming agent: {str(e)}")
     
-    @commands.command(name="verify_agent")
     async def verify_agent(self, ctx, agent_id: str):
         """Verify an agent's state."""
         try:
@@ -579,7 +592,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error verifying agent: {str(e)}")
     
-    @commands.command(name="send_message")
     async def send_message(self, ctx, agent_id: str, message: str):
         """Send a message to an agent."""
         try:
@@ -599,7 +611,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error sending message: {str(e)}")
     
-    @commands.command(name="restore_agent")
     async def restore_agent(self, ctx, agent_id: str):
         """Restore an agent's state."""
         try:
@@ -615,7 +626,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error restoring agent: {str(e)}")
     
-    @commands.command(name="sync_agent")
     async def sync_agent(self, ctx, agent_id: str):
         """Synchronize an agent's state."""
         try:
@@ -631,7 +641,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error synchronizing agent: {str(e)}")
     
-    @commands.command(name="cleanup_agent")
     async def cleanup_agent(self, ctx, agent_id: str):
         """Clean up an agent's resources."""
         try:
@@ -647,7 +656,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error cleaning up agent: {str(e)}")
     
-    @commands.command(name="multi_command")
     async def multi_command(self, ctx, agent_id: str, command: str):
         """Execute a command on multiple agents."""
         try:
@@ -667,7 +675,6 @@ class AgentCommands(commands.Cog):
         except Exception as e:
             await ctx.send(f"Error executing multi-command: {str(e)}")
     
-    @commands.command(name="system_command")
     async def system_command(self, ctx, agent_id: str, command: str):
         """Send a system command to an agent."""
         try:
@@ -692,7 +699,6 @@ class AgentCommands(commands.Cog):
             logger.error(f"Error in system command for agent {agent_id}: {str(e)}", exc_info=True)
             await ctx.send(f"Error executing system command: {str(e)}")
     
-    @commands.command(name="assign_channel")
     async def assign_channel(self, ctx, agent_id: str, channel_id: str):
         """Assign a channel to an agent."""
         try:
@@ -744,7 +750,6 @@ class AgentCommands(commands.Cog):
             logger.error(f"Error assigning channel: {e}")
             await ctx.send(f"❌ Error assigning channel: {str(e)}")
     
-    @commands.command(name="logs")
     async def show_logs(self, ctx, agent_id: str = None, level: str = "info", limit: int = 10):
         """Show logs for an agent or all agents.
         

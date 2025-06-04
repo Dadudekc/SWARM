@@ -26,8 +26,8 @@ wheels/
 *.egg
 
 # Virtual Environment
+.venv/
 venv/
-env/
 ENV/
 
 # IDE
@@ -150,4 +150,9 @@ Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
 
 # Bridge runtime files
 runtime/bridge_inbox/pending_requests.json
-runtime/bridge_inbox/bridge.log 
+runtime/bridge_inbox/bridge.log
+
+# Allow our new browser integration
+!agent_tools/general_tools/browser/
+!docs/specs/integrations/
+!config/stealth_bridge.yaml 

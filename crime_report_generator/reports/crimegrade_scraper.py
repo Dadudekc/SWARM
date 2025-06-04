@@ -1,10 +1,13 @@
 import time
 from typing import Dict, Any
-import undetected_chromedriver as uc
+from selenium import webdriver
+from selenium.webdriver.chrome.service import Service as ChromeService
+from selenium.webdriver.chrome.options import Options
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
+from webdriver_manager.chrome import ChromeDriverManager
 
 
 def fetch_crimegrade_data(zip_code: str, headless: bool = True) -> Dict[str, Any]:
@@ -13,7 +16,7 @@ def fetch_crimegrade_data(zip_code: str, headless: bool = True) -> Dict[str, Any
     Returns a dict with safety grade, crime rates, and summary stats.
     """
     url = f"https://crimegrade.org/safest-places-in-{zip_code}/"
-    options = uc.ChromeOptions()
+    options = Options()
     if headless:
         options.add_argument('--headless=new')
         options.add_argument('--disable-gpu')
@@ -21,7 +24,8 @@ def fetch_crimegrade_data(zip_code: str, headless: bool = True) -> Dict[str, Any
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-dev-shm-usage')
 
-    driver = uc.Chrome(options=options)
+    service = ChromeService(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
     driver.set_page_load_timeout(30)
     data = {"zip_code": zip_code, "source": "CrimeGrade.org"}
     
