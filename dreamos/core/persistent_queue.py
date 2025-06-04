@@ -12,7 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from enum import Enum
 from datetime import datetime
-from dreamos.core.messaging.common import Message
+from dreamos.core.messaging.common import Message, MessagePriority
 from dreamos.core.message import Message as LegacyMessage
 from filelock import FileLock, Timeout
 
@@ -209,16 +209,18 @@ class PersistentQueue:
                     return False
             # Add message with priority
             message_dict = message.to_dict()
-            # Ensure priority is stored as string name for JSON serialization
-            message_priority = getattr(message, 'priority', None)
-            if isinstance(message_priority, Enum):
-                message_dict['priority'] = message_priority.name
-            else:
-                message_dict['priority'] = message_priority if message_priority is not None else 'NORMAL'
+            # Preserve the priority name for deserialisation while storing a
+            # numeric value for sorting purposes.
+            priority_enum = getattr(message, 'priority', MessagePriority.NORMAL)
+            priority_value = (
+                priority_enum.value if isinstance(priority_enum, MessagePriority)
+                else int(priority_enum)
+            )
+            message_dict['priority_value'] = priority_value
             # Insert message in priority order
             inserted = False
             for i, existing in enumerate(queue):
-                if message_dict['priority'] < existing.get('priority', 0):
+                if message_dict['priority_value'] < existing.get('priority_value', 0):
                     queue.insert(i, message_dict)
                     inserted = True
                     break
@@ -373,4 +375,4 @@ class PersistentQueue:
         Args:
             enabled: Whether to enable test mode
         """
-        self._is_test_mode = enabled 
+        self._is_test_mode = enabled
