@@ -46,7 +46,6 @@ def cleanup_test_environment() -> None:
 
 def test_config_defaults():
     """Test default configuration values."""
-    setup_test_environment()
     
     # Create config with absolute path
     config = {
@@ -87,7 +86,6 @@ def test_config_defaults():
 
 def test_config_custom_values():
     """Test custom configuration values."""
-    setup_test_environment()
     
     # Create config with custom values using absolute path
     custom_log_dir = str(TEST_RUNTIME_DIR / "custom_logs")
@@ -129,7 +127,6 @@ def test_config_custom_values():
 
 def test_invalid_log_dir():
     """Test handling of invalid log directory."""
-    setup_test_environment()
     
     # Try to create config with invalid log directory
     invalid_log_dir = str(TEST_RUNTIME_DIR / "invalid" / "log" / "dir")
@@ -160,14 +157,19 @@ def test_invalid_log_dir():
         # Verify invalid log directory is not created
         log_dir = Path(loaded_config["log_dir"])
         assert not log_dir.exists(), "Invalid log directory should not exist"
-        
+
+        # Create a file where the log directory should be to simulate an invalid path
+        invalid_parent = log_dir.parent.parent
+        if invalid_parent.exists():
+            safe_remove(invalid_parent)
+        invalid_parent.touch()
+
         # Test that attempting to create the directory fails
         with pytest.raises((OSError, PermissionError)):
             log_dir.mkdir(parents=True, exist_ok=True)
 
 def test_log_level():
     """Test log level configuration and entry counting."""
-    setup_test_environment()
     
     # Create config with log level
     config = {
@@ -197,7 +199,8 @@ def test_log_level():
     logging.basicConfig(
         level=config["log_level"],
         format='%(asctime)s - %(levelname)s - %(message)s',
-        filename=str(log_file)
+        filename=str(log_file),
+        force=True
     )
     
     # Write test log entries
@@ -212,6 +215,8 @@ def test_log_level():
     logging.info(test_messages[1])
     logging.warning(test_messages[2])
     logging.error(test_messages[3])
+
+    logging.shutdown()
     
     # Verify log file exists and contains entries
     assert log_file.exists(), "Log file should exist"
@@ -219,7 +224,7 @@ def test_log_level():
     # Count log entries
     with open(log_file) as f:
         log_content = f.read()
-        entry_count = log_content.count(" - ")
+        entry_count = len(log_content.strip().splitlines())
         assert entry_count == 3, f"Should have 3 log entries (INFO and above), got {entry_count}"
         
         # Verify specific messages are present/absent based on log level
