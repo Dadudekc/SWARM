@@ -22,6 +22,7 @@ from pathlib import Path
 import json
 
 from .common import Message, MessageMode, MessagePriority
+from .base import BaseMessagingComponent
 
 logger = logging.getLogger(__name__)
 
@@ -39,7 +40,7 @@ class BusMessage:
     pattern: Optional[str] = None
     mode: MessageMode = MessageMode.NORMAL
 
-class AgentBus:
+class AgentBus(BaseMessagingComponent):
     """
     A message bus implementation for agent communication with swarm support.
     
@@ -59,12 +60,8 @@ class AgentBus:
         Args:
             runtime_dir: Optional runtime directory for message persistence
         """
-        self._subscribers: Dict[str, Set[Callable]] = {}
-        self._pattern_subscribers: Dict[Pattern, Set[Callable]] = {}
+        super().__init__()
         self._message_history: List[BusMessage] = []
-        self._message_queue: PriorityQueue = PriorityQueue()
-        self._lock = asyncio.Lock()
-        self._processing = False
         self._runtime_dir = runtime_dir
         
         if runtime_dir:
@@ -72,52 +69,22 @@ class AgentBus:
             self._load_history()
         
     def _load_history(self) -> None:
-        """Load message history from disk."""
+        """Load message history from file."""
         try:
             if self._history_file.exists():
-                with open(self._history_file) as f:
-                    history_data = json.load(f)
-                    self._message_history = [
-                        BusMessage(
-                            id=msg["id"],
-                            topic=msg["topic"],
-                            content=msg["content"],
-                            sender=msg["sender"],
-                            timestamp=datetime.fromisoformat(msg["timestamp"]),
-                            metadata=msg["metadata"],
-                            priority=MessagePriority[msg["priority"]],
-                            pattern=msg.get("pattern"),
-                            mode=MessageMode[msg.get("mode", "NORMAL")]
-                        )
-                        for msg in history_data
-                    ]
+                with open(self._history_file, 'r') as f:
+                    data = json.load(f)
+                    for msg_data in data:
+                        message = BusMessage.from_dict(msg_data)
+                        self._message_history.append(message)
         except Exception as e:
             logger.error(f"Error loading message history: {e}")
             
     def _save_history(self) -> None:
-        """Save message history to disk."""
-        if not self._runtime_dir:
-            return
-            
+        """Save message history to file."""
         try:
-            history_data = [
-                {
-                    "id": msg.id,
-                    "topic": msg.topic,
-                    "content": msg.content,
-                    "sender": msg.sender,
-                    "timestamp": msg.timestamp.isoformat(),
-                    "metadata": msg.metadata,
-                    "priority": msg.priority.name,
-                    "pattern": msg.pattern,
-                    "mode": msg.mode.name
-                }
-                for msg in self._message_history
-            ]
-            
             with open(self._history_file, 'w') as f:
-                json.dump(history_data, f, indent=2)
-                
+                json.dump([msg.to_dict() for msg in self._message_history], f)
         except Exception as e:
             logger.error(f"Error saving message history: {e}")
         
@@ -126,31 +93,29 @@ class AgentBus:
                      priority: MessagePriority = MessagePriority.NORMAL,
                      pattern: Optional[str] = None,
                      mode: MessageMode = MessageMode.NORMAL) -> str:
-        """
-        Publish a message to a specific topic with priority and pattern support.
+        """Publish a message to a topic.
         
         Args:
-            topic: The topic to publish to
-            content: The message content
-            sender: The ID of the agent sending the message
-            metadata: Optional metadata to attach to the message
-            priority: Message priority level
+            topic: Topic to publish to
+            content: Message content
+            sender: Sender identifier
+            metadata: Optional message metadata
+            priority: Message priority
             pattern: Optional pattern for routing
-            mode: Message mode for processing
+            mode: Message mode
             
         Returns:
-            str: The ID of the published message
+            str: Message ID
         """
         message = BusMessage(
             id=str(uuid4()),
             topic=topic,
             content=content,
             sender=sender,
-            timestamp=datetime.utcnow(),
             metadata=metadata or {},
             priority=priority,
-            pattern=pattern,
-            mode=mode
+            mode=mode,
+            timestamp=datetime.now()
         )
         
         async with self._lock:
@@ -158,21 +123,7 @@ class AgentBus:
             self._message_queue.put((-priority.value, message))
             
             # Process subscribers
-            if topic in self._subscribers:
-                for callback in self._subscribers[topic]:
-                    try:
-                        await callback(message)
-                    except Exception as e:
-                        logger.error(f"Error in subscriber callback for topic {topic}: {e}")
-            
-            # Process pattern subscribers
-            for pattern, callbacks in self._pattern_subscribers.items():
-                if pattern.match(topic):
-                    for callback in callbacks:
-                        try:
-                            await callback(message)
-                        except Exception as e:
-                            logger.error(f"Error in pattern subscriber callback for topic {topic}: {e}")
+            await self._notify_subscribers(message)
             
             # Save history if runtime directory is configured
             if self._runtime_dir:
@@ -280,7 +231,7 @@ class AgentBus:
         """Stop processing the message queue."""
         self._processing = False
         
-    async def _process_message(self, message: BusMessage):
+    async def _process_message(self, message: BusMessage) -> None:
         """Process a single message.
         
         Args:
@@ -310,7 +261,7 @@ class AgentBus:
         except Exception as e:
             logger.error(f"Error processing message {message.id}: {e}")
             
-    def cleanup(self):
+    def cleanup(self) -> None:
         """Clean up resources."""
         self._processing = False
         if self._runtime_dir:

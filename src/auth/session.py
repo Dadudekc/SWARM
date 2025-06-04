@@ -8,31 +8,14 @@ import threading
 from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 from dataclasses import dataclass
+from .base import ExpirableMixin
 
 logger = logging.getLogger(__name__)
 
 @dataclass
-class Session:
+class Session(ExpirableMixin):
     """Represents an active user session."""
     user_id: str
-    created_at: datetime
-    expires_at: datetime
-    data: Dict[str, Any] = None
-    
-    def __post_init__(self):
-        """Initialize default values."""
-        if self.data is None:
-            self.data = {}
-    
-    @property
-    def is_valid(self) -> bool:
-        """Check if the session is still valid."""
-        return datetime.now() < self.expires_at
-    
-    @property
-    def time_remaining(self) -> float:
-        """Get remaining time in seconds."""
-        return max(0, (self.expires_at - datetime.now()).total_seconds())
     
     def extend(self, seconds: int) -> None:
         """Extend session lifetime.

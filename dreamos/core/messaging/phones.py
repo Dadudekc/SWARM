@@ -12,24 +12,26 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List, Union, Callable
 from datetime import datetime
 
-from .unified_message_system import UnifiedMessageSystem
+from .unified_message_system import MessageSystem
 from .common import Message
 from .enums import MessageMode, MessagePriority, MessageType
+from .base import BaseMessagingComponent
 
 logger = logging.getLogger("dreamos.messaging.phones")
 
-class Phone:
+class Phone(BaseMessagingComponent):
     """Base phone interface for agent communication."""
     
-    def __init__(self, runtime_dir: Optional[Path] = None):
+    def __init__(self, agent_id: str, ums: Any):
         """Initialize phone interface.
         
         Args:
-            runtime_dir: Optional runtime directory
+            agent_id: Agent identifier
+            ums: Unified message system instance
         """
-        self.ums = UnifiedMessageSystem.instance()
-        self.runtime_dir = runtime_dir
-        self.agent_id = "system"
+        super().__init__()
+        self.agent_id = agent_id
+        self.ums = ums
     
     async def send_message(
         self,
@@ -171,6 +173,17 @@ class Phone:
             await self.ums.unsubscribe_pattern(pattern, handler)
         except Exception as e:
             logger.error(f"Error unsubscribing from pattern {pattern}: {e}")
+    
+    async def _process_message(self, message: Message) -> None:
+        """Process a single message.
+        
+        Args:
+            message: Message to process
+        """
+        try:
+            await self.ums.process_message(message)
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
     
     async def cleanup(self) -> None:
         """Clean up resources."""

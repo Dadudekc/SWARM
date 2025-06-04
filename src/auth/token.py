@@ -9,17 +9,15 @@ import hashlib
 from typing import Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 from dataclasses import dataclass
+from .base import ExpirableMixin
 
 logger = logging.getLogger(__name__)
 
 @dataclass
-class TokenInfo:
+class TokenInfo(ExpirableMixin):
     """Represents token metadata."""
     user_id: str
-    created_at: datetime
-    expires_at: datetime
     scope: str = "default"
-    data: Dict[str, Any] = None
     
     def __post_init__(self):
         """Initialize default values."""

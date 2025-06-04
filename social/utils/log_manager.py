@@ -8,9 +8,40 @@ import logging
 import json
 from pathlib import Path
 from typing import Optional, Dict, Any, List
-from datetime import datetime
+from datetime import datetime, timedelta
 import threading
 from logging.handlers import RotatingFileHandler
+from dataclasses import dataclass
+from enum import Enum
+
+class LogLevel(Enum):
+    """Log levels."""
+    DEBUG = logging.DEBUG
+    INFO = logging.INFO
+    WARNING = logging.WARNING
+    ERROR = logging.ERROR
+    CRITICAL = logging.CRITICAL
+
+@dataclass
+class LogConfig:
+    """Log configuration."""
+    level: LogLevel = LogLevel.INFO
+    log_dir: str = "logs"
+    log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+    date_format: str = "%Y-%m-%d %H:%M:%S"
+    max_bytes: int = 10 * 1024 * 1024  # 10MB
+    backup_count: int = 5
+    max_age_days: int = 30
+    platforms: Dict[str, str] = None
+    
+    def __post_init__(self):
+        if self.platforms is None:
+            self.platforms = {
+                "system": "system.log",
+                "discord": "discord.log",
+                "voice": "voice.log",
+                "agent": "agent.log"
+            }
 
 class LogManager:
     """Simplified log manager implementation."""
@@ -18,7 +49,7 @@ class LogManager:
     _instance = None
     _lock = threading.Lock()
     
-    def __new__(cls, config: Optional[Dict[str, Any]] = None):
+    def __new__(cls, config: Optional[LogConfig] = None):
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -26,11 +57,11 @@ class LogManager:
                     cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
+    def __init__(self, config: Optional[LogConfig] = None):
         if self._initialized:
             return
             
-        self._config = config or {}
+        self._config = config or LogConfig()
         self._metrics = {
             'total_entries': 0,
             'entries_by_level': {},
@@ -43,7 +74,7 @@ class LogManager:
     def _setup_logging(self):
         """Set up logging configuration."""
         root_logger = logging.getLogger()
-        root_logger.setLevel(self._config.get('level', logging.INFO))
+        root_logger.setLevel(self._config.level.value)
         
         # Remove existing handlers
         for handler in root_logger.handlers[:]:
@@ -51,8 +82,8 @@ class LogManager:
         
         # Create formatter
         formatter = logging.Formatter(
-            self._config.get('log_format', '%(asctime)s - %(name)s - %(levelname)s - %(message)s'),
-            self._config.get('date_format', '%Y-%m-%d %H:%M:%S')
+            self._config.log_format,
+            self._config.date_format
         )
         
         # Add console handler
@@ -61,14 +92,14 @@ class LogManager:
         root_logger.addHandler(console_handler)
         
         # Add file handlers for each platform
-        log_dir = Path(self._config.get('log_dir', 'logs'))
+        log_dir = Path(self._config.log_dir)
         log_dir.mkdir(exist_ok=True)
         
-        for platform, log_file in self._config.get('platforms', {}).items():
+        for platform, log_file in self._config.platforms.items():
             file_handler = RotatingFileHandler(
                 log_dir / log_file,
-                maxBytes=10 * 1024 * 1024,  # 10MB
-                backupCount=5
+                maxBytes=self._config.max_bytes,
+                backupCount=self._config.backup_count
             )
             file_handler.setFormatter(formatter)
             root_logger.addHandler(file_handler)
@@ -106,14 +137,14 @@ class LogManager:
     ) -> List[Dict[str, Any]]:
         """Read log entries with optional filtering."""
         try:
-            log_dir = Path(self._config.get('log_dir', 'logs'))
+            log_dir = Path(self._config.log_dir)
             entries = []
             
             # Get log file for platform
-            if platform and platform not in self._config.get('platforms', {}):
+            if platform and platform not in self._config.platforms:
                 raise ValueError(f"Invalid platform: {platform}")
                 
-            log_file = log_dir / self._config.get('platforms', {}).get(platform, "system.log")
+            log_file = log_dir / self._config.platforms[platform]
             
             # Read and parse log file
             with open(log_file, 'r') as f:
@@ -145,8 +176,8 @@ class LogManager:
     def cleanup(self) -> None:
         """Clean up old log files."""
         try:
-            log_dir = Path(self._config.get('log_dir', 'logs'))
-            max_age_days = self._config.get('max_age_days', 30)
+            log_dir = Path(self._config.log_dir)
+            max_age_days = self._config.max_age_days
             
             if max_age_days > 0:
                 cutoff = datetime.now() - timedelta(days=max_age_days)

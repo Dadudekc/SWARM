@@ -21,7 +21,10 @@ from abc import ABC, abstractmethod
 from queue import PriorityQueue
 import re
 from uuid import uuid4
-from .common import Message, MessageMode, MessagePriority
+
+from .base import BaseMessagingComponent
+from .enums import MessageMode, MessagePriority
+from .common import Message
 
 logger = logging.getLogger('dreamos.messaging')
 
@@ -128,7 +131,7 @@ class SimpleHistory(MessageHistory):
             filtered = filtered[-limit:]
         return filtered
 
-class UnifiedMessageSystem:
+class MessageSystem(BaseMessagingComponent):
     """Unified message handling system for Dream.OS."""
     
     _instance = None
@@ -161,16 +164,11 @@ class UnifiedMessageSystem:
         if hasattr(self, 'initialized'):
             return
             
+        super().__init__()
         self.runtime_dir = runtime_dir
         self.queue = queue or SimpleQueue()
         self.history = history or SimpleHistory()
         self.router = router or SimpleRouter()
-        
-        # Message bus functionality
-        self._subscribers: Dict[str, Set[Callable]] = {}
-        self._pattern_subscribers: Dict[Pattern, Set[Callable]] = {}
-        self._message_queue: PriorityQueue = PriorityQueue()
-        self._processing = False
         
         # Initialize components
         self._setup_components()
@@ -200,15 +198,15 @@ class UnifiedMessageSystem:
         """Send a message through the system.
         
         Args:
-            to_agent: Target agent ID
+            to_agent: Recipient agent ID
             content: Message content
             mode: Message mode
             priority: Message priority
             from_agent: Sender agent ID
-            metadata: Additional message metadata
+            metadata: Optional message metadata
             
         Returns:
-            bool: True if message was successfully processed
+            bool: True if message was sent successfully
         """
         try:
             # Create message
@@ -265,49 +263,6 @@ class UnifiedMessageSystem:
             logger.error(f"Error receiving messages for {agent_id}: {e}")
             return []
     
-    async def subscribe(self, topic: str, handler: Callable) -> None:
-        """Subscribe to a topic.
-        
-        Args:
-            topic: Topic to subscribe to
-            handler: Callback function to handle messages
-        """
-        if topic not in self._subscribers:
-            self._subscribers[topic] = set()
-        self._subscribers[topic].add(handler)
-    
-    async def subscribe_pattern(self, pattern: str, handler: Callable) -> None:
-        """Subscribe to messages matching a pattern.
-        
-        Args:
-            pattern: Regex pattern to match
-            handler: Callback function to handle messages
-        """
-        compiled_pattern = re.compile(pattern)
-        self._pattern_subscribers[compiled_pattern] = set()
-        self._pattern_subscribers[compiled_pattern].add(handler)
-    
-    async def unsubscribe(self, topic: str, handler: Callable) -> None:
-        """Unsubscribe from a topic.
-        
-        Args:
-            topic: Topic to unsubscribe from
-            handler: Handler to remove
-        """
-        if topic in self._subscribers:
-            self._subscribers[topic].discard(handler)
-    
-    async def unsubscribe_pattern(self, pattern: str, handler: Callable) -> None:
-        """Unsubscribe from a pattern.
-        
-        Args:
-            pattern: Pattern to unsubscribe from
-            handler: Handler to remove
-        """
-        compiled_pattern = re.compile(pattern)
-        if compiled_pattern in self._pattern_subscribers:
-            self._pattern_subscribers[compiled_pattern].discard(handler)
-    
     async def get_history(
         self,
         agent_id: Optional[str] = None,
@@ -337,28 +292,26 @@ class UnifiedMessageSystem:
             logger.error(f"Error getting message history: {e}")
             return []
     
-    async def _notify_subscribers(self, message: Message) -> None:
-        """Notify subscribers of a new message.
+    async def _process_message(self, message: Message) -> None:
+        """Process a single message.
         
         Args:
-            message: Message to notify about
+            message: Message to process
         """
-        # Notify direct subscribers
-        if message.to_agent in self._subscribers:
-            for handler in self._subscribers[message.to_agent]:
-                try:
-                    await handler(message)
-                except Exception as e:
-                    logger.error(f"Error in subscriber handler: {e}")
-        
-        # Notify pattern subscribers
-        for pattern, handlers in self._pattern_subscribers.items():
-            if pattern.match(message.to_agent):
-                for handler in handlers:
-                    try:
-                        await handler(message)
-                    except Exception as e:
-                        logger.error(f"Error in pattern subscriber handler: {e}")
+        try:
+            # Process based on mode
+            if message.mode == MessageMode.COMMAND:
+                # Handle command processing
+                pass
+            elif message.mode == MessageMode.SYSTEM:
+                # Handle system message processing
+                pass
+            else:
+                # Handle normal message processing
+                pass
+                
+        except Exception as e:
+            logger.error(f"Error processing message {message.message_id}: {e}")
     
     def _load_history(self) -> None:
         """Load message history from file."""
@@ -380,45 +333,6 @@ class UnifiedMessageSystem:
                 json.dump([msg.to_dict() for msg in history], f)
         except Exception as e:
             logger.error(f"Error saving message history: {e}")
-    
-    async def start_processing(self) -> None:
-        """Start processing the message queue."""
-        self._processing = True
-        while self._processing:
-            try:
-                _, message = self._message_queue.get_nowait()
-                await self._process_message(message)
-            except asyncio.QueueEmpty:
-                await asyncio.sleep(0.1)
-            except Exception as e:
-                logger.error(f"Error processing message: {e}")
-    
-    async def stop_processing(self) -> None:
-        """Stop processing the message queue."""
-        self._processing = False
-        if self.runtime_dir:
-            self._save_history()
-    
-    async def _process_message(self, message: Message) -> None:
-        """Process a single message.
-        
-        Args:
-            message: Message to process
-        """
-        try:
-            # Process based on mode
-            if message.mode == MessageMode.COMMAND:
-                # Handle command processing
-                pass
-            elif message.mode == MessageMode.SYSTEM:
-                # Handle system message processing
-                pass
-            else:
-                # Handle normal message processing
-                pass
-                
-        except Exception as e:
-            logger.error(f"Error processing message {message.message_id}: {e}")
     
     async def cleanup(self) -> None:
         """Clean up resources."""
