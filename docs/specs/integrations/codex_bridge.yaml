@@ -1,0 +1,204 @@
+# Codex Swarm Integration Specification
+# Version: 1.0.0
+# Status: Active Development
+
+spec:
+  name: "Codex Swarm Integration"
+  version: "1.0.0"
+  status: "active"
+  last_updated: "2024-03-19"
+  maintainers:
+    - "Dream.OS Core Team"
+
+purpose:
+  primary: "Enable autonomous code understanding, review, and generation for Dream.OS swarm"
+  objectives:
+    - "Create resilient AI quality control layer"
+    - "Enable automated code review and improvement"
+    - "Enforce swarm consistency through AI validation"
+    - "Provide scalable code generation capabilities"
+
+capabilities:
+  web_native:
+    - name: "Undetected Login"
+      status: "implemented"
+      features:
+        - "Persistent session management"
+        - "Encrypted cookie storage"
+        - "Session continuity"
+    - name: "Browser Control"
+      status: "implemented"
+      features:
+        - "Headless/hybrid operation"
+        - "Stealth mode"
+        - "Anti-detection measures"
+
+  swarm_intelligence:
+    - name: "Code Review"
+      status: "implemented"
+      description: "Agents can send live code snippets to Codex and parse recommendations"
+      features:
+        - "Live code analysis"
+        - "Recommendation parsing"
+        - "Automated feedback"
+    - name: "Code Generation"
+      status: "implemented"
+      description: "Context-aware generation of documentation and code"
+      features:
+        - "Docstring generation"
+        - "Test generation"
+        - "Module generation"
+    - name: "Vulnerability Scanning"
+      status: "implemented"
+      description: "Security analysis via Codex"
+      features:
+        - "Buffer overflow detection"
+        - "Security best practices"
+        - "Vulnerability assessment"
+    - name: "Cross-Agent QA"
+      status: "implemented"
+      description: "Codex as judge/referee across agents"
+      features:
+        - "Code quality assessment"
+        - "Style consistency"
+        - "Best practices enforcement"
+    - name: "Feedback Loop"
+      status: "implemented"
+      description: "Agents evolve through Codex critiques"
+      features:
+        - "PR regeneration"
+        - "Code improvement"
+        - "Learning from feedback"
+
+compatibility:
+  subsystems:
+    - name: "BrowserControl"
+      status: "active"
+      integration: "Base class extended"
+      verification: "✅"
+    - name: "BridgeHealthMonitor"
+      status: "synced"
+      integration: "Status reporting + retries"
+      verification: "✅"
+    - name: "RequestQueue"
+      status: "stable"
+      integration: "Async injection compatible"
+      verification: "✅"
+    - name: "with_retry"
+      status: "active"
+      integration: "Preserved for browser ops"
+      verification: "✅"
+    - name: "YAML Config"
+      status: "synced"
+      integration: "Standard runtime patterns"
+      verification: "✅"
+    - name: "Logging"
+      status: "unified"
+      integration: "Standard formatter"
+      verification: "✅"
+
+security:
+  features:
+    - name: "Rate Limiting"
+      status: "implemented"
+      mechanism: "Retry backoff"
+    - name: "Session Storage"
+      status: "implemented"
+      mechanism: "Encrypted cookies"
+    - name: "Browser Shutdown"
+      status: "implemented"
+      mechanism: "Clean error handling"
+    - name: "Anti-Detection"
+      status: "implemented"
+      mechanism: "Header/timing randomization"
+
+preserved_features:
+  - "Session handling across runs"
+  - "Async-compatible browser usage"
+  - "Agent-task loop integration"
+  - "Modular agent access"
+
+new_features:
+  - name: "Stealth Mode Browser"
+    status: "implemented"
+    description: "Evades bot detection"
+  - name: "Codex Bridge Prompt Cycle"
+    status: "implemented"
+    description: "Inbound→Prompt→Reply→Parse"
+  - name: "Cookie Persistence"
+    status: "implemented"
+    description: "Auto reuses session state"
+  - name: "Platform Router"
+    status: "planned"
+    description: "Route to Codex, Bard, etc."
+  - name: "Interactive Login"
+    status: "implemented"
+    description: "Manual-first login fallback"
+  - name: "Enhanced Retry Logic"
+    status: "implemented"
+    description: "Tiered failover & backoff"
+
+verification:
+  test_suite:
+    - name: "Browser Control"
+      status: "implemented"
+      test: "test_existing_browser_control"
+    - name: "Request Queue"
+      status: "implemented"
+      test: "test_existing_request_queue"
+    - name: "Codex Prompt Cycle"
+      status: "implemented"
+      test: "test_codex_prompt_cycle"
+    - name: "Cookie Restore"
+      status: "implemented"
+      test: "test_cookie_restore"
+    - name: "Login Fallback"
+      status: "implemented"
+      test: "test_login_fallback"
+
+  config_validation:
+    - name: "Structure Check"
+      status: "implemented"
+      validation: "codex_config.structure == base_bridge_config.structure"
+    - name: "Security Check"
+      status: "implemented"
+      validation: "codex_config.security.encryption == True"
+    - name: "Rate Limit Check"
+      status: "implemented"
+      validation: "codex_config.rate_limit.window <= 60"
+
+  monitoring:
+    - name: "CPU Usage"
+      status: "implemented"
+      hook: "monitor_cpu_usage"
+    - name: "Session Reuse"
+      status: "implemented"
+      hook: "monitor_session_reuse"
+    - name: "Request Tracking"
+      status: "implemented"
+      hook: "track_agent_codex_requests"
+
+next_steps:
+  options:
+    - name: "Integration Tests"
+      priority: "high"
+      description: "Create full integration tests across login/prompt/response loop"
+    - name: "CodexHandler Agent"
+      priority: "medium"
+      description: "Assign dedicated agent for QA & patch generation"
+    - name: "Platform Router"
+      priority: "medium"
+      description: "Extend to include Anthropic, Gemini, etc."
+    - name: "Login Hardening"
+      priority: "high"
+      description: "Implement OTP/email fallback flow"
+    - name: "Memory Layer"
+      priority: "medium"
+      description: "Track Codex insights across tasks"
+
+status_summary:
+  integration: "active"
+  codex_injection: "tested"
+  cookie_system: "working"
+  otp_2fa: "needs_implementation"
+  devlog_bridge: "needs_implementation" 
