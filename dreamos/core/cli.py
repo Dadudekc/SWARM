@@ -8,8 +8,13 @@ import logging
 import argparse
 import sys
 import os
+import asyncio
+import json
+import time
 from typing import Optional
 from datetime import datetime
+from pathlib import Path
+import pyautogui
 
 # Add the project root to Python path when running as standalone script
 if __name__ == "__main__":
@@ -17,9 +22,11 @@ if __name__ == "__main__":
     sys.path.insert(0, project_root)
     from dreamos.core.message_processor import MessageProcessor
     from dreamos.core.messaging.types import Message, MessageMode
+    from dreamos.core.messaging.agent_bus import AgentBus, MessagePriority
 else:
     from .message_processor import MessageProcessor
     from .messaging.types import Message, MessageMode
+    from .messaging.agent_bus import AgentBus, MessagePriority
 
 # Version information
 __version__ = "1.0.0"
@@ -81,6 +88,56 @@ class MessageCLI:
         self.processor.shutdown()
         logger.info("CLI interface shut down")
 
+
+def direct_send_message(to_agent: str, message: str, mode: str = "NORMAL") -> bool:
+    """Send a message directly to the UI using automation."""
+    try:
+        coords_file = Path("runtime/config/cursor_agent_coords.json")
+        with open(coords_file, "r") as f:
+            coordinates = json.load(f)
+
+        if to_agent not in coordinates:
+            logger.error(f"No coordinates found for {to_agent}")
+            print(f"[ERROR] No coordinates found for {to_agent}")
+            return False
+
+        coords = coordinates[to_agent]
+        input_box = (coords["input_box"]["x"], coords["input_box"]["y"])
+        pyautogui.moveTo(input_box[0], input_box[1])
+        pyautogui.click()
+        time.sleep(0.5)
+        pyautogui.write(message)
+        time.sleep(0.5)
+        pyautogui.press("enter")
+        time.sleep(0.5)
+        logger.info(f"Message sent directly to {to_agent}")
+        return True
+
+    except Exception as e:
+        logger.error(f"Error sending message: {e}")
+        print(f"Error: {e}")
+        return False
+
+
+async def _bus_publish(topic: str, content: str, sender: str,
+                       priority: MessagePriority, mode: MessageMode) -> str:
+    bus = AgentBus()
+    return await bus.publish(
+        topic=topic,
+        content=content,
+        sender=sender,
+        priority=priority,
+        mode=mode,
+    )
+
+
+def bus_send_message(to_agent: str, message: str,
+                     priority: MessagePriority = MessagePriority.NORMAL,
+                     mode: MessageMode = MessageMode.NORMAL,
+                     sender: str = "system") -> str:
+    """Publish a message to the AgentBus synchronously."""
+    return asyncio.run(_bus_publish(to_agent, message, sender, priority, mode))
+
 def parse_args():
     """Parse command line arguments."""
     parser = argparse.ArgumentParser(description="Send messages to agents")
@@ -90,6 +147,8 @@ def parse_args():
     parser.add_argument("--mode", choices=[m.name for m in MessageMode], default="NORMAL", help="Message mode")
     parser.add_argument("--welcome", action="store_true", help="Send welcome message")
     parser.add_argument("--version", action="store_true", help="Show version information")
+    parser.add_argument("--direct", action="store_true", help="Send using direct automation")
+    parser.add_argument("--bus", action="store_true", help="Send via AgentBus")
     return parser.parse_args()
 
 def validate_priority(priority: int) -> bool:
@@ -132,22 +191,36 @@ Let's begin your integration into the Dream.OS ecosystem."""
         print("Error: Either --message or --welcome must be specified", file=sys.stderr)
         sys.exit(1)
     
-    # Send message
+    # Send message using selected method
     try:
-        mode = MessageMode[args.mode]
+        mode_enum = MessageMode[args.mode]
+
+        if args.direct:
+            success = direct_send_message(args.to, message, args.mode)
+            if success:
+                print(f"Direct message sent to {args.to}")
+            else:
+                print("Error: Message could not be sent", file=sys.stderr)
+                sys.exit(1)
+            return
+
+        if args.bus:
+            priority_enum = MessagePriority(min(args.priority, 3))
+            msg_id = bus_send_message(args.to, message, priority_enum, mode_enum)
+            print(f"Bus message sent with ID: {msg_id}")
+            return
+
         cli = MessageCLI()
-        success = cli.send_message(args.to, message, mode)
+        success = cli.send_message(args.to, message, mode_enum)
         if not success:
-            print(f"Error: Message could not be sent", file=sys.stderr)
+            print("Error: Message could not be sent", file=sys.stderr)
             sys.exit(1)
         print(f"Message sent to {args.to}")
-        # Print message content
         print(message)
-        # Print mode if not NORMAL
-        if mode != MessageMode.NORMAL:
-            print(f"[{mode.name}]")
-        # Print Status line (placeholder)
+        if mode_enum != MessageMode.NORMAL:
+            print(f"[{mode_enum.name}]")
         print("Status: queued")
+
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
