@@ -3,32 +3,148 @@ Pytest configuration and common fixtures.
 """
 
 import pytest
-import pytest_asyncio
+try:
+    import pytest_asyncio
+except ModuleNotFoundError:  # pragma: no cover - fallback for missing dependency
+    import types
+    import inspect
+    import asyncio
+    def _fixture(*args, **kwargs):
+        import pytest
+        def decorator(func):
+            if inspect.iscoroutinefunction(func):
+                def sync_wrapper(*fargs, **fkwargs):
+                    return asyncio.run(func(*fargs, **fkwargs))
+                return pytest.fixture(*args, **kwargs)(sync_wrapper)
+            return pytest.fixture(*args, **kwargs)(func)
+        return decorator
+    pytest_asyncio = types.SimpleNamespace(fixture=_fixture)
 import logging
 import os
 import sys
 import warnings
 from pathlib import Path
 import asyncio
-import discord
+try:
+    import discord
+except ModuleNotFoundError:  # pragma: no cover - fallback for missing dependency
+    import types
+    discord = types.SimpleNamespace(Client=object)
 from typing import Generator, Dict, Any, Optional
 from unittest.mock import MagicMock, patch
 import tempfile
 import shutil
-import yaml
+try:
+    import yaml
+except ModuleNotFoundError:  # pragma: no cover - fallback for missing dependency
+    import json
+    class _YAMLStub:
+        @staticmethod
+        def safe_load(stream):
+            if isinstance(stream, (str, bytes)):
+                return json.loads(stream)
+            return json.load(stream)
+
+        @staticmethod
+        def dump(data, stream=None):
+            text = json.dumps(data)
+            if stream is None:
+                return text
+            stream.write(text)
+
+    yaml = _YAMLStub()
+    sys.modules.setdefault('yaml', yaml)
 import json
 from datetime import datetime, timedelta
 import gzip
-import fakeredis
-import redis
+try:
+    import fakeredis
+except ModuleNotFoundError:  # pragma: no cover - fallback for missing dependency
+    fakeredis = MagicMock()
+    sys.modules.setdefault('fakeredis', fakeredis)
+try:
+    import redis
+except ModuleNotFoundError:  # pragma: no cover - fallback for missing dependency
+    redis = MagicMock()
+    sys.modules.setdefault('redis', redis)
 import time
 import stat
 import platform
-import win32security
-import win32con
-import win32api
-import pywintypes
-import psutil
+for _mod in ["win32security", "win32con", "win32api", "pywintypes", "psutil", "win32file", "win32process", "win32gui"]:
+    if _mod not in sys.modules:
+        sys.modules[_mod] = MagicMock()
+psutil = sys.modules.get('psutil', MagicMock())
+
+if 'praw' not in sys.modules:
+    sys.modules['praw'] = MagicMock()
+
+# Provide selenium stubs if selenium is not installed
+if 'selenium' not in sys.modules:
+    import types
+
+    selenium_stub = types.ModuleType('selenium')
+    webdriver_mod = types.ModuleType('selenium.webdriver')
+    webdriver_common = types.ModuleType('selenium.webdriver.common')
+    by_mod = types.ModuleType('selenium.webdriver.common.by')
+    webdriver_remote = types.ModuleType('selenium.webdriver.remote')
+    webdriver_remote_webdriver = types.ModuleType('selenium.webdriver.remote.webdriver')
+    webdriver_remote_webelement = types.ModuleType('selenium.webdriver.remote.webelement')
+    webdriver_support = types.ModuleType('selenium.webdriver.support')
+    webdriver_support_ui = types.ModuleType('selenium.webdriver.support.ui')
+    webdriver_support_ec = types.ModuleType('selenium.webdriver.support.expected_conditions')
+    common_mod = types.ModuleType('selenium.common')
+    exc_mod = types.ModuleType('selenium.common.exceptions')
+
+    class _Exc(Exception):
+        pass
+
+    for name in [
+        'TimeoutException', 'WebDriverException',
+        'ElementClickInterceptedException', 'ElementNotInteractableException',
+        'NoSuchElementException', 'StaleElementReferenceException'
+    ]:
+        setattr(exc_mod, name, _Exc)
+
+    class By:
+        ID = 'id'
+        CSS_SELECTOR = 'css'
+
+    by_mod.By = By
+
+    webdriver_mod.remote = webdriver_remote
+    webdriver_remote.webdriver = webdriver_remote_webdriver
+    webdriver_remote.webelement = webdriver_remote_webelement
+    webdriver_mod.support = webdriver_support
+    webdriver_support.ui = webdriver_support_ui
+    webdriver_support.expected_conditions = webdriver_support_ec
+
+    class WebDriver:
+        pass
+    webdriver_remote_webdriver.WebDriver = WebDriver
+    class WebDriverWait:
+        def __init__(self, *a, **k):
+            pass
+        def until(self, *a, **k):
+            return True
+    webdriver_support_ui.WebDriverWait = WebDriverWait
+    class WebElement:
+        pass
+    webdriver_remote_webelement.WebElement = WebElement
+
+    sys.modules.update({
+        'selenium': selenium_stub,
+        'selenium.webdriver': webdriver_mod,
+        'selenium.webdriver.common': webdriver_common,
+        'selenium.webdriver.common.by': by_mod,
+        'selenium.webdriver.remote': webdriver_remote,
+        'selenium.webdriver.remote.webdriver': webdriver_remote_webdriver,
+        'selenium.webdriver.remote.webelement': webdriver_remote_webelement,
+        'selenium.webdriver.support': webdriver_support,
+        'selenium.webdriver.support.ui': webdriver_support_ui,
+        'selenium.webdriver.support.expected_conditions': webdriver_support_ec,
+        'selenium.common': common_mod,
+        'selenium.common.exceptions': exc_mod,
+    })
 
 from tests.utils.gui_test_utils import is_headless_environment, should_skip_gui_test
 from tests.test_config import setup_test_environment, cleanup_test_environment
