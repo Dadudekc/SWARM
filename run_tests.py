@@ -9,8 +9,10 @@ def run_test(test_path="tests", test_name=None):
     cache_dir = Path(".pytest_cache")
     if cache_dir.exists():
         shutil.rmtree(cache_dir)
+
     if test_name:
         test_path = f"{test_path}::{test_name}"
+
     return pytest.main([
         test_path,
         "-v",
@@ -21,7 +23,9 @@ def run_test(test_path="tests", test_name=None):
 
 
 if __name__ == "__main__":
-    path = sys.argv[1] if len(sys.argv) > 1 else "tests"
-    name = sys.argv[2] if len(sys.argv) > 2 else None
-    result = run_test(path, name)
+    # Get test path and name from CLI args if provided
+    test_path = sys.argv[1] if len(sys.argv) > 1 else "tests"
+    test_name = sys.argv[2] if len(sys.argv) > 2 else None
+
+    result = run_test(test_path, test_name)
     sys.exit(result)
