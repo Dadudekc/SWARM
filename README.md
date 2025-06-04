@@ -754,6 +754,7 @@ Dream.OS/
 ├── agent_cellphone.py        # Cell phone communication system
 ├── message_processor.py      # Message handling system
 ├── run_menu.py              # CLI menu interface
+├── tools/life_os_dashboard.py   # Personal dashboard
 └── setup.py                 # Package setup
 ```
 
