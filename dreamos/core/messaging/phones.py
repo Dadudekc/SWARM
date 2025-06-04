@@ -363,5 +363,21 @@ class CaptainPhone(Phone):
         Returns:
             List[str]: List of agent IDs
         """
-        # TODO: Implement agent discovery
-        return ["Agent-1", "Agent-2", "Agent-3"]  # Placeholder 
+        try:
+            coords_file = Path("runtime/config/cursor_agent_coords.json")
+            if coords_file.exists():
+                with open(coords_file, "r") as f:
+                    data = json.load(f)
+                return [a for a in data.keys() if a != "global_ui"]
+
+            config_file = Path("config/agent_config.yaml")
+            if config_file.exists():
+                with open(config_file, "r") as f:
+                    cfg = yaml.safe_load(f) or {}
+                if "channel_assignments" in cfg:
+                    return list(cfg["channel_assignments"].keys())
+
+            return []
+        except Exception as e:
+            logger.error(f"Agent discovery failed: {e}")
+            return []
