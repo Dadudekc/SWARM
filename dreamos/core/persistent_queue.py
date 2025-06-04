@@ -287,11 +287,11 @@ class PersistentQueue:
             queue = self._read_queue()
             queue = [msg for msg in queue if msg.get('to_agent') != agent_id]
             self._write_queue(queue)
-            
+
             # Also clear from message history
             self.message_history = [
-                msg for msg in self.message_history 
-                if msg.get('to_agent') != agent_id
+                msg for msg in self.message_history
+                if msg.get('message', {}).get('to_agent') != agent_id
             ]
             
             # Clear rate limiting counters for this agent
@@ -347,8 +347,8 @@ class PersistentQueue:
         try:
             if agent_id:
                 self.message_history = [
-                    msg for msg in self.message_history 
-                    if msg.get('to_agent') != agent_id
+                    msg for msg in self.message_history
+                    if msg.get('message', {}).get('to_agent') != agent_id
                 ]
                 if agent_id in self.message_counts:
                     del self.message_counts[agent_id]
