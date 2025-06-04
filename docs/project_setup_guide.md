@@ -130,7 +130,7 @@ SWARM/
 ### Start Development Server
 1. Start the core system
    ```bash
-   python core/main.py
+   python tools/run_menu.py
    ```
 
 2. Start the Discord bot
