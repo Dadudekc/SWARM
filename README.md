@@ -15,6 +15,21 @@ For a quick reference of the repository layout, see [docs/directory_overview.md]
 - UI automation and interaction
 - Trading bot integration
 
+### Directory Overview
+
+| Folder | Description |
+| ------ | ----------- |
+| `agent_tools/` | Utilities for scanning projects and managing agents |
+| `config/` | Configuration templates and environment files |
+| `crime_report_generator/` | Stand‑alone crime report generation module |
+| `discord_bot/` | Discord bot implementation and commands |
+| `docs/` | Project documentation |
+| `dreamos/` | Core system code for orchestrating agents |
+| `examples/` | Small usage examples |
+| `runtime/` | Temporary runtime files like queues and logs |
+| `scripts/` | Automation scripts for maintenance tasks |
+| `tests/` | Unit and integration test suite |
+
 ## Product Offerings
 
 The Dream.OS platform can be packaged in several ways to fit different business needs. See [docs/product_offerings.md](docs/product_offerings.md) for details on SaaS, social-media automation, trading bots, on-premise deployments, and a custom agent SDK.

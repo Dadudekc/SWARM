@@ -1,3 +1,5 @@
+"""Scans project directories and gathers code metrics."""
+
 import os
 import ast
 import json

@@ -1,3 +1,5 @@
+"""Instagram posting strategy implementation."""
+
 from .platform_strategy_base import PlatformStrategy
 
 class InstagramStrategy(PlatformStrategy):

@@ -1,5 +1,6 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
+"""Discord bot integration package."""
 
 from . import agent_interface
 from . import bot

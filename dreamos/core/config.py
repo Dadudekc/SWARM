@@ -1,3 +1,5 @@
+"""Configuration utilities for Dream.OS."""
+
 import os
 import yaml
 import logging

@@ -1,4 +1,6 @@
 #!/usr/bin/env python3
+"""Initialize and manage agent mailboxes."""
+
 import os
 import json
 import argparse
