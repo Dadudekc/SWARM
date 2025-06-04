@@ -3,6 +3,7 @@ Report generator module for creating crime reports in various formats.
 """
 
 import os
+import json
 from typing import Dict, Optional
 import pandas as pd
 from datetime import datetime
@@ -246,6 +247,26 @@ Crime Trend: {{ crime_trend }}
         
         # Clean up temporary HTML file
         os.remove(html_path)
+
+    def generate_json_report(
+        self,
+        data: pd.DataFrame,
+        output_path: str,
+        month: str,
+        year: int,
+    ) -> None:
+        """Generate a JSON report containing summary statistics."""
+        self._validate_dataframe(data)
+
+        summary = self.generate_summary_statistics(data)
+        report = {
+            "month": month,
+            "year": year,
+            **summary,
+        }
+        os.makedirs(os.path.dirname(output_path), exist_ok=True)
+        with open(output_path, "w", encoding="utf-8") as f:
+            json.dump(report, f, indent=2)
     
     def generate_summary_statistics(self, data: pd.DataFrame) -> Dict:
         """Generate summary statistics for the report.

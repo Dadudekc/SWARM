@@ -77,6 +77,14 @@ To generate a report for a specific month:
 python main.py --month 01 --year 2024
 ```
 
+Generate reports for a range of months in a single year:
+
+```bash
+python main.py --year 2024 --range 1 3
+```
+
+This command will create reports for January through March.
+
 ### Automated Execution
 
 The report can be automatically generated on the first day of each month using the scheduler:
