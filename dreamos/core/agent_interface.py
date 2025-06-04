@@ -7,7 +7,7 @@ Provides an interface between Discord commands and the Dream.OS Cell Phone syste
 import logging
 from typing import Dict, List, Optional, Any
 from pathlib import Path
-from .cell_phone import CellPhone
+from .messaging.cell_phone import CellPhone
 from .messaging.types import MessageMode
 from .messaging.agent_bus import AgentBus, MessagePriority
 

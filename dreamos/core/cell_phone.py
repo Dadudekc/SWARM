@@ -1,4 +1,12 @@
-"""Compatibility wrapper for the messaging ``CellPhone`` implementation."""
+"""Deprecated compatibility wrapper for ``dreamos.core.messaging.cell_phone``."""
+
+from warnings import warn
+
+warn(
+    "dreamos.core.cell_phone is deprecated; use dreamos.core.messaging.cell_phone instead",
+    DeprecationWarning,
+    stacklevel=2,
+)
 
 from .messaging.cell_phone import (
     CellPhone,

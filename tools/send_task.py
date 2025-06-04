@@ -3,7 +3,8 @@ Send a system optimization task to an agent.
 """
 
 import logging
-from dreamos.core import CellPhone, MessageMode
+from dreamos.core.messaging.cell_phone import CellPhone
+from dreamos.core.messaging.message import MessageMode
 
 # Configure logging
 logging.basicConfig(

@@ -20,7 +20,7 @@ from pathlib import Path
 
 from dreamos.core.messaging.message import Message, MessageMode
 from dreamos.core.messaging.message_processor import MessageProcessor
-from dreamos.core import CellPhone
+from dreamos.core.messaging.cell_phone import CellPhone
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
 from dreamos.core.log_manager import LogManager

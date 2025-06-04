@@ -11,7 +11,7 @@ from typing import Dict, Optional
 
 from .message_processor import MessageProcessor
 from .coordinate_manager import CoordinateManager
-from .cell_phone import CellPhone
+from .messaging.cell_phone import CellPhone
 from .agent_logger import AgentLogger
 
 logger = logging.getLogger('system_init')
