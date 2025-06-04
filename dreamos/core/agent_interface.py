@@ -8,7 +8,7 @@ import logging
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 from .cell_phone import CellPhone
-from .messaging.types import MessageMode
+from .messaging.common import MessageMode
 from .messaging.agent_bus import AgentBus, MessagePriority
 
 logger = logging.getLogger('discord_bot.agent_interface')

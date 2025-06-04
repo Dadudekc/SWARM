@@ -11,7 +11,8 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from queue import PriorityQueue
-from .unified_message_system import Message, MessageQueue, MessagePriority
+from .unified_message_system import MessageQueue
+from .common import Message, MessagePriority
 
 logger = logging.getLogger('dreamos.messaging.queue')
 
@@ -91,7 +92,7 @@ class PersistentMessageQueue(MessageQueue):
             bool: True if message was successfully queued
         """
         try:
-            agent_id = message.recipient_id
+            agent_id = message.to_agent
             
             # Create queue if needed
             if agent_id not in self._queues:

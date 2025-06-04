@@ -68,17 +68,17 @@ class MessageRouter(MessageRouter):
         targets = set()
         
         # Check direct routes
-        if message.recipient_id in self._routes:
-            targets.update(self._routes[message.recipient_id])
+        if message.to_agent in self._routes:
+            targets.update(self._routes[message.to_agent])
         
         # Check pattern routes
         for pattern, route_targets in self._pattern_routes.items():
-            if pattern.match(message.recipient_id):
+            if pattern.match(message.to_agent):
                 targets.update(route_targets)
         
         # If no routes found, use recipient directly
         if not targets:
-            targets.add(message.recipient_id)
+            targets.add(message.to_agent)
         
         return targets
     
