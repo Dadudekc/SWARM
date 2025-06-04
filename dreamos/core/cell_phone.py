@@ -15,7 +15,10 @@ from .messaging.cell_phone import (
     validate_priority,
     cli_main,
 )
-from .messaging.captain_phone import CaptainPhone
+try:
+    from .messaging.captain_phone import CaptainPhone
+except Exception:  # pragma: no cover - optional dependency
+    CaptainPhone = None
 
 __all__ = [
     "CellPhone",

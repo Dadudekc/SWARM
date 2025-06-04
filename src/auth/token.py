@@ -16,23 +16,9 @@ logger = logging.getLogger(__name__)
 @dataclass
 class TokenInfo(ExpirableMixin):
     """Represents token metadata."""
+
     user_id: str
     scope: str = "default"
-    
-    def __post_init__(self):
-        """Initialize default values."""
-        if self.data is None:
-            self.data = {}
-    
-    @property
-    def is_valid(self) -> bool:
-        """Check if the token is still valid."""
-        return datetime.now() < self.expires_at
-    
-    @property
-    def time_remaining(self) -> float:
-        """Get remaining time in seconds."""
-        return max(0, (self.expires_at - datetime.now()).total_seconds())
 
 class TokenHandler:
     """Handles token generation, validation, and refresh."""

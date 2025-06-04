@@ -4,13 +4,34 @@ Core Package
 Provides core functionality for the Dream.OS system.
 """
 
-from . import agent_logger
-from . import coordinate_manager
-from . import cursor_controller
-from . import menu
-from . import messaging
-from . import persistent_queue
-from . import system_init
+try:
+    from . import agent_logger
+except Exception:  # pragma: no cover - optional dependency
+    agent_logger = None
+try:
+    from . import coordinate_manager
+except Exception:  # pragma: no cover - optional dependency
+    coordinate_manager = None
+try:
+    from . import cursor_controller
+except Exception:  # pragma: no cover - optional dependency
+    cursor_controller = None
+try:
+    from . import menu
+except Exception:  # pragma: no cover - optional dependency
+    menu = None
+try:
+    from . import messaging
+except Exception:  # pragma: no cover - optional dependency
+    messaging = None
+try:
+    from . import persistent_queue
+except Exception:  # pragma: no cover - optional dependency
+    persistent_queue = None
+try:
+    from . import system_init
+except Exception:  # pragma: no cover - optional dependency
+    system_init = None
 
 from .cell_phone import CellPhone, send_message
 from .messaging.common import Message, MessageMode, MessagePriority
