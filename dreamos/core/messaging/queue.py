@@ -11,8 +11,8 @@ from pathlib import Path
 from typing import List, Dict, Any, Optional
 from datetime import datetime
 from queue import PriorityQueue
-from .unified_message_system import MessageQueue
 from .common import Message, MessagePriority
+from .unified_message_system import MessageQueue
 
 logger = logging.getLogger('dreamos.messaging.queue')
 

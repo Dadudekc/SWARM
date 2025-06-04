@@ -11,7 +11,6 @@ from uuid import uuid4
 from .enums import MessageMode, MessagePriority, MessageType
 import logging
 
-
 @dataclass
 class Message:
     """Base message structure."""

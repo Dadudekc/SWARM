@@ -13,7 +13,7 @@ from . import persistent_queue
 from . import system_init
 
 from .cell_phone import CellPhone, send_message
-from .messaging.common import Message, MessageMode
+from .messaging.common import Message, MessageMode, MessagePriority
 from .persistent_queue import PersistentQueue
 
 __all__ = [
@@ -27,6 +27,7 @@ __all__ = [
     'CellPhone',
     'Message',
     'MessageMode',
+    'MessagePriority',
     'PersistentQueue',
     'send_message'
 ]

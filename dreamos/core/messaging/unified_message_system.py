@@ -25,7 +25,6 @@ from .common import Message, MessageMode, MessagePriority
 
 logger = logging.getLogger('dreamos.messaging')
 
-
 class MessageQueue(ABC):
     """Abstract base class for message queue implementations."""
     
