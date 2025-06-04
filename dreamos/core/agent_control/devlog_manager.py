@@ -18,7 +18,7 @@ import aiohttp
 import yaml
 
 from .task_manager import TaskManager, TaskStatus
-from ..cell_phone import CaptainPhone
+from ..messaging.captain_phone import CaptainPhone
 
 logger = logging.getLogger('devlog_manager')
 

@@ -18,7 +18,8 @@ import json
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime, timezone, timedelta
-from ..cell_phone import CellPhone, CaptainPhone
+from ..messaging.cell_phone import CellPhone
+from ..messaging.captain_phone import CaptainPhone
 from .periodic_restart import AgentManager
 from .task_manager import TaskManager, TaskStatus, TaskPriority
 from .devlog_manager import DevLogManager

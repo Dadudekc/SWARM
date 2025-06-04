@@ -6,8 +6,8 @@ Provides an interface between Discord commands and the Dream.OS Cell Phone syste
 
 import logging
 from typing import Dict, List, Optional, Any
-from dreamos.core.cell_phone import CellPhone
-from dreamos.core.messaging.common import MessageMode
+from dreamos.core.messaging.cell_phone import CellPhone
+from dreamos.core.messaging.types import MessageMode
 
 logger = logging.getLogger('discord_bot.agent_interface')
 
