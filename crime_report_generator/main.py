@@ -10,6 +10,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
+import argparse
 
 # Add project root to Python path
 project_root = Path(__file__).parent
@@ -216,18 +217,43 @@ class CrimeReportGenerator:
             logger.error(f"Pipeline failed: {str(e)}")
             raise
 
+    def run_range(self, months: List[str]) -> List[str]:
+        """Run the pipeline for multiple months in the configured year."""
+        results = []
+        for m in months:
+            self.month = m
+            try:
+                results.append(self.run_pipeline())
+            except Exception as e:
+                logger.error(f"Failed pipeline for {m}/{self.year}: {e}")
+        return results
+
 def main():
     """Main entry point for the crime report generator."""
+    parser = argparse.ArgumentParser(description="Generate monthly crime reports")
+    parser.add_argument("--month", help="Month as MM")
+    parser.add_argument("--year", type=int, help="Year")
+    parser.add_argument(
+        "--range",
+        nargs=2,
+        metavar=("START", "END"),
+        help="Generate reports for a range of months",
+    )
+    args = parser.parse_args()
+
+    generator = CrimeReportGenerator(month=args.month, year=args.year)
+
     try:
-        # Initialize generator
-        generator = CrimeReportGenerator()
-        
-        # Run pipeline
-        report_path = generator.run_pipeline()
-        
-        print(f"Report generated successfully: {report_path}")
+        if args.range:
+            start, end = [int(m) for m in args.range]
+            months = [f"{m:02d}" for m in range(start, end + 1)]
+            paths = generator.run_range(months)
+            for p in paths:
+                print(f"Generated {p}")
+        else:
+            path = generator.run_pipeline()
+            print(f"Report generated successfully: {path}")
         sys.exit(0)
-        
     except Exception as e:
         logger.error(f"Fatal error: {str(e)}")
         sys.exit(1)

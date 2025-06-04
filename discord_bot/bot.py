@@ -8,6 +8,7 @@ import os
 import logging
 import discord
 from discord.ext import commands
+from .cogs import BasicCommands
 from pathlib import Path
 from dreamos.core.agent_control.system_orchestrator import SystemOrchestrator
 from social.utils.log_manager import LogManager, LogLevel
@@ -64,11 +65,8 @@ class DreamOSBot(commands.Bot):
             # Start system orchestrator
             await self.orchestrator.start()
             
-            # Add commands
-            self.add_command(commands.Command(self.cmd_help, name="help"))
-            self.add_command(commands.Command(self.cmd_status, name="status"))
-            self.add_command(commands.Command(self.cmd_task, name="task"))
-            self.add_command(commands.Command(self.cmd_devlog, name="devlog"))
+            # Add command cog
+            await self.add_cog(BasicCommands(self.orchestrator, self.log_manager))
             
             self.log_manager.info(
                 platform="discord",
@@ -95,128 +93,6 @@ class DreamOSBot(commands.Bot):
             tags=["startup", "ready"]
         )
         
-    async def cmd_help(self, ctx):
-        """Show help information."""
-        try:
-            help_text = """
-**Dream.OS Bot Commands**
-
-`!help` - Show this help message
-`!status <agent_id>` - Show agent status
-`!task <agent_id> <title> <description>` - Create new task
-`!devlog <agent_id> <category> <content>` - Add devlog entry
-            """
-            await ctx.send(help_text)
-            
-            self.log_manager.info(
-                platform="commands",
-                status="success",
-                message=f"Help command executed by {ctx.author}",
-                tags=["command", "help"]
-            )
-            
-        except Exception as e:
-            self.log_manager.error(
-                platform="commands",
-                status="error",
-                message=f"Error in help command: {str(e)}",
-                tags=["command", "help", "error"]
-            )
-            await ctx.send("Error showing help information")
-        
-    async def cmd_status(self, ctx, agent_id: str):
-        """Show agent status."""
-        try:
-            status = await self.orchestrator.get_agent_status(agent_id)
-            
-            # Format status message
-            msg = f"**Status for Agent {agent_id}**\n\n"
-            
-            # Tasks section
-            msg += "**Tasks**\n"
-            msg += f"Total: {status['tasks']['total']}\n"
-            msg += f"Summary: {status['tasks']['summary']}\n\n"
-            
-            # Devlog section
-            msg += "**DevLog**\n"
-            msg += f"Total Entries: {status['devlog']['total_entries']}\n\n"
-            
-            # Messages section
-            msg += "**Messages**\n"
-            msg += f"Total: {status['messages']['total']}\n"
-            
-            await ctx.send(msg)
-            
-            self.log_manager.info(
-                platform="commands",
-                status="success",
-                message=f"Status command executed for agent {agent_id} by {ctx.author}",
-                tags=["command", "status"]
-            )
-            
-        except Exception as e:
-            self.log_manager.error(
-                platform="commands",
-                status="error",
-                message=f"Error in status command for agent {agent_id}: {str(e)}",
-                tags=["command", "status", "error"]
-            )
-            await ctx.send(f"Error getting status: {str(e)}")
-            
-    async def cmd_task(self, ctx, agent_id: str, title: str, *, description: str):
-        """Create new task."""
-        try:
-            task_id = await self.orchestrator.create_agent_task(
-                agent_id=agent_id,
-                title=title,
-                description=description
-            )
-            
-            await ctx.send(f"Task created with ID: {task_id}")
-            
-            self.log_manager.info(
-                platform="commands",
-                status="success",
-                message=f"Task command executed for agent {agent_id} by {ctx.author}",
-                tags=["command", "task"]
-            )
-            
-        except Exception as e:
-            self.log_manager.error(
-                platform="commands",
-                status="error",
-                message=f"Error in task command for agent {agent_id}: {str(e)}",
-                tags=["command", "task", "error"]
-            )
-            await ctx.send(f"Error creating task: {str(e)}")
-            
-    async def cmd_devlog(self, ctx, agent_id: str, category: str, *, content: str):
-        """Add devlog entry."""
-        try:
-            await self.orchestrator.devlog_manager.add_devlog_entry(
-                agent_id=agent_id,
-                category=category,
-                content=content,
-                author=str(ctx.author)
-            )
-            
-            await ctx.send("Devlog entry added successfully")
-            
-            self.log_manager.info(
-                platform="commands",
-                status="success",
-                message=f"Devlog command executed for agent {agent_id} by {ctx.author}",
-                tags=["command", "devlog"]
-            )
-            
-        except Exception as e:
-            self.log_manager.error(
-                platform="commands",
-                status="error",
-                message=f"Error in devlog command for agent {agent_id}: {str(e)}",
-                tags=["command", "devlog", "error"]
-            )
-            await ctx.send(f"Error adding devlog entry: {str(e)}")
             
     async def close(self):
         """Clean up resources when bot is shutting down."""

@@ -91,6 +91,14 @@ class LogManager:
         self._rotator = LogRotator(rotation_config)
         self._setup_logging()
         self._initialized = True
+
+    def set_level(self, level: LogLevel) -> None:
+        """Dynamically update the log level for all handlers."""
+        self._config.level = level
+        root_logger = logging.getLogger()
+        root_logger.setLevel(level.value)
+        for handler in root_logger.handlers:
+            handler.setLevel(level.value)
     
     def _setup_logging(self):
         """Set up logging configuration."""
