@@ -117,7 +117,7 @@ class PersistentMessageHistory(MessageHistory):
             if agent_id:
                 filtered = [
                     msg for msg in filtered
-                    if msg.sender_id == agent_id or msg.recipient_id == agent_id
+                    if msg.from_agent == agent_id or msg.to_agent == agent_id
                 ]
             
             if start_time:

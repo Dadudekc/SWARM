@@ -115,7 +115,7 @@ class CaptainPhone(CellPhone):
             if len(history) > last_message_count:
                 # Found a response
                 response = history[-1]
-                if response.sender_id == to_agent:
+                if response.get("from_agent") == to_agent:
                     # Save the response
                     self._save_response(to_agent, response)
                     return True

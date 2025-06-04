@@ -92,7 +92,7 @@ class PersistentMessageQueue(MessageQueue):
             bool: True if message was successfully queued
         """
         try:
-            agent_id = message.recipient_id
+            agent_id = message.to_agent
             
             # Create queue if needed
             if agent_id not in self._queues:

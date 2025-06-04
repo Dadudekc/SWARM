@@ -87,7 +87,7 @@ class CellPhone:
             return [
                 {
                     "message_id": msg.message_id,
-                    "sender_id": msg.sender_id,
+                    "from_agent": msg.from_agent,
                     "content": msg.content,
                     "mode": msg.mode.value,
                     "priority": msg.priority.value,
@@ -128,8 +128,8 @@ class CellPhone:
             return [
                 {
                     "message_id": msg.message_id,
-                    "sender_id": msg.sender_id,
-                    "recipient_id": msg.recipient_id,
+                    "from_agent": msg.from_agent,
+                    "to_agent": msg.to_agent,
                     "content": msg.content,
                     "mode": msg.mode.value,
                     "priority": msg.priority.value,
