@@ -9,47 +9,80 @@ import json
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pathlib import Path
-from dataclasses import dataclass, asdict
+from dataclasses import dataclass, asdict, field
 from enum import Enum
+from uuid import uuid4
+from dreamos.core.messaging.enums import TaskStatus, TaskPriority
 
 logger = logging.getLogger('task_manager')
 
-class TaskStatus(Enum):
-    """Task status enumeration."""
-    PENDING = "pending"
-    IN_PROGRESS = "in_progress"
-    COMPLETED = "completed"
-    BLOCKED = "blocked"
-    FAILED = "failed"
-
-class TaskPriority(Enum):
-    """Task priority enumeration."""
-    LOW = 0
-    MEDIUM = 1
-    HIGH = 2
-    CRITICAL = 3
-
 @dataclass
 class Task:
-    """Task data structure."""
-    id: str
-    title: str
+    """Task structure for agent operations."""
+    name: str
     description: str
-    assigned_to: str
-    status: TaskStatus
-    priority: TaskPriority
-    created_at: datetime
-    updated_at: datetime
-    dependencies: List[str]
-    tags: List[str]
-    context: Dict[str, Any]
+    agent_id: str
+    status: TaskStatus = TaskStatus.PENDING
+    priority: TaskPriority = TaskPriority.NORMAL
+    created_at: datetime = field(default_factory=datetime.now)
+    started_at: Optional[datetime] = None
+    completed_at: Optional[datetime] = None
+    task_id: str = field(default_factory=lambda: str(uuid4()))
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    result: Optional[Any] = None
+    error: Optional[str] = None
+    
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert task to dictionary."""
+        return {
+            "name": self.name,
+            "description": self.description,
+            "agent_id": self.agent_id,
+            "status": self.status.name,
+            "priority": self.priority.name,
+            "created_at": self.created_at.isoformat(),
+            "started_at": self.started_at.isoformat() if self.started_at else None,
+            "completed_at": self.completed_at.isoformat() if self.completed_at else None,
+            "task_id": self.task_id,
+            "metadata": self.metadata,
+            "result": self.result,
+            "error": self.error
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'Task':
+        """Create task from dictionary."""
+        return cls(
+            name=data["name"],
+            description=data["description"],
+            agent_id=data["agent_id"],
+            status=TaskStatus[data.get("status", "PENDING")],
+            priority=TaskPriority[data.get("priority", "NORMAL")],
+            created_at=datetime.fromisoformat(data["created_at"]),
+            started_at=datetime.fromisoformat(data["started_at"]) if data.get("started_at") else None,
+            completed_at=datetime.fromisoformat(data["completed_at"]) if data.get("completed_at") else None,
+            task_id=data["task_id"],
+            metadata=data.get("metadata", {}),
+            result=data.get("result"),
+            error=data.get("error")
+        )
+    
+    def validate(self) -> bool:
+        """Validate task fields."""
+        if not self.name or not self.description or not self.agent_id:
+            return False
+        if not isinstance(self.status, TaskStatus):
+            return False
+        if not isinstance(self.priority, TaskPriority):
+            return False
+        return True
 
 class TaskManager:
     """Manages task distribution and tracking between agents."""
     
     def __init__(self):
         """Initialize task manager."""
-        self.tasks: Dict[str, Task] = {}
+        self._tasks: Dict[str, Task] = {}
         self.task_file = Path("runtime/tasks.json")
         self.task_file.parent.mkdir(parents=True, exist_ok=True)
         self._load_tasks()
@@ -62,104 +95,89 @@ class TaskManager:
                     data = json.load(f)
                     for task_data in data:
                         task = Task(
-                            id=task_data['id'],
-                            title=task_data['title'],
+                            name=task_data['name'],
                             description=task_data['description'],
-                            assigned_to=task_data['assigned_to'],
+                            agent_id=task_data['agent_id'],
                             status=TaskStatus(task_data['status']),
                             priority=TaskPriority(task_data['priority']),
                             created_at=datetime.fromisoformat(task_data['created_at']),
-                            updated_at=datetime.fromisoformat(task_data['updated_at']),
-                            dependencies=task_data['dependencies'],
-                            tags=task_data['tags'],
-                            context=task_data['context']
+                            started_at=datetime.fromisoformat(task_data['started_at']) if task_data.get('started_at') else None,
+                            completed_at=datetime.fromisoformat(task_data['completed_at']) if task_data.get('completed_at') else None,
+                            task_id=task_data['task_id'],
+                            metadata=task_data['metadata'],
+                            result=task_data.get('result'),
+                            error=task_data.get('error')
                         )
-                        self.tasks[task.id] = task
+                        self._tasks[task.task_id] = task
         except Exception as e:
             logger.error(f"Error loading tasks: {e}")
             
     def _save_tasks(self) -> None:
         """Save tasks to persistent storage."""
         try:
-            tasks_data = [asdict(task) for task in self.tasks.values()]
+            tasks_data = [task.to_dict() for task in self._tasks.values()]
             with open(self.task_file, 'w') as f:
                 json.dump(tasks_data, f, indent=2, default=str)
         except Exception as e:
             logger.error(f"Error saving tasks: {e}")
             
-    def create_task(self, title: str, description: str, assigned_to: str,
-                   priority: TaskPriority = TaskPriority.MEDIUM,
-                   dependencies: List[str] = None,
-                   tags: List[str] = None,
-                   context: Dict[str, Any] = None) -> Task:
-        """Create a new task.
-        
-        Args:
-            title: Task title
-            description: Task description
-            assigned_to: Agent ID to assign task to
-            priority: Task priority
-            dependencies: List of task IDs this task depends on
-            tags: List of tags for the task
-            context: Additional context for the task
-            
-        Returns:
-            Created Task object
-        """
-        task_id = f"task_{len(self.tasks) + 1}"
-        now = datetime.now()
-        
+    def create_task(
+        self,
+        name: str,
+        description: str,
+        agent_id: str,
+        priority: TaskPriority = TaskPriority.NORMAL,
+        metadata: Optional[Dict[str, Any]] = None
+    ) -> Task:
+        """Create a new task."""
         task = Task(
-            id=task_id,
-            title=title,
+            name=name,
             description=description,
-            assigned_to=assigned_to,
-            status=TaskStatus.PENDING,
+            agent_id=agent_id,
             priority=priority,
-            created_at=now,
-            updated_at=now,
-            dependencies=dependencies or [],
-            tags=tags or [],
-            context=context or {}
+            metadata=metadata or {}
         )
-        
-        self.tasks[task_id] = task
+        self._tasks[task.task_id] = task
         self._save_tasks()
-        logger.info(f"Created task {task_id} for {assigned_to}")
+        logger.info(f"Created task {task.task_id} for {agent_id}")
         return task
         
-    def update_task_status(self, task_id: str, status: TaskStatus) -> bool:
-        """Update task status.
+    def get_task(self, task_id: str) -> Optional[Task]:
+        """Get task by ID."""
+        return self._tasks.get(task_id)
         
-        Args:
-            task_id: ID of task to update
-            status: New status
-            
-        Returns:
-            bool: True if update was successful
-        """
-        if task_id not in self.tasks:
+    def update_task_status(
+        self,
+        task_id: str,
+        status: TaskStatus,
+        result: Optional[Any] = None,
+        error: Optional[str] = None
+    ) -> bool:
+        """Update task status and result."""
+        task = self._tasks.get(task_id)
+        if not task:
             logger.error(f"Task {task_id} not found")
             return False
-            
-        task = self.tasks[task_id]
+        
         task.status = status
-        task.updated_at = datetime.now()
+        if status == TaskStatus.RUNNING:
+            task.started_at = datetime.now()
+        elif status in (TaskStatus.COMPLETED, TaskStatus.FAILED):
+            task.completed_at = datetime.now()
+            task.result = result
+            task.error = error
+        
         self._save_tasks()
         logger.info(f"Updated task {task_id} status to {status}")
         return True
         
-    def get_agent_tasks(self, agent_id: str, status: Optional[TaskStatus] = None) -> List[Task]:
-        """Get tasks assigned to an agent.
-        
-        Args:
-            agent_id: Agent ID to get tasks for
-            status: Optional status filter
-            
-        Returns:
-            List of tasks assigned to agent
-        """
-        tasks = [task for task in self.tasks.values() if task.assigned_to == agent_id]
+    def get_agent_tasks(
+        self,
+        agent_id: str,
+        status: Optional[TaskStatus] = None
+    ) -> List[Task]:
+        """Get all tasks for an agent."""
+        tasks = [task for task in self._tasks.values() if task.agent_id == agent_id]
         if status:
             tasks = [task for task in tasks if task.status == status]
         return tasks
@@ -170,7 +188,7 @@ class TaskManager:
         Returns:
             List of blocked tasks
         """
-        return [task for task in self.tasks.values() if task.status == TaskStatus.BLOCKED]
+        return [task for task in self._tasks.values() if task.status == TaskStatus.BLOCKED]
         
     def get_high_priority_tasks(self) -> List[Task]:
         """Get all high priority tasks.
@@ -178,7 +196,7 @@ class TaskManager:
         Returns:
             List of high priority tasks
         """
-        return [task for task in self.tasks.values() 
+        return [task for task in self._tasks.values() 
                 if task.priority in (TaskPriority.HIGH, TaskPriority.CRITICAL)]
                 
     def get_task_context(self) -> Dict[str, Any]:
@@ -188,25 +206,25 @@ class TaskManager:
             Dict containing task management context
         """
         return {
-            "total_tasks": len(self.tasks),
+            "total_tasks": len(self._tasks),
             "tasks_by_status": {
-                status.value: len([t for t in self.tasks.values() if t.status == status])
+                status.name: len([t for t in self._tasks.values() if t.status == status])
                 for status in TaskStatus
             },
             "tasks_by_priority": {
-                priority.value: len([t for t in self.tasks.values() if t.priority == priority])
+                priority.name: len([t for t in self._tasks.values() if t.priority == priority])
                 for priority in TaskPriority
             },
             "recent_updates": [
                 {
-                    "task_id": task.id,
-                    "title": task.title,
-                    "status": task.status.value,
-                    "updated_at": task.updated_at.isoformat()
+                    "task_id": task.task_id,
+                    "name": task.name,
+                    "status": task.status.name,
+                    "updated_at": task.completed_at.isoformat() if task.completed_at else task.created_at.isoformat()
                 }
                 for task in sorted(
-                    self.tasks.values(),
-                    key=lambda t: t.updated_at,
+                    self._tasks.values(),
+                    key=lambda t: t.completed_at or t.created_at,
                     reverse=True
                 )[:5]
             ]
@@ -236,9 +254,27 @@ class TaskManager:
                 
         # Add each status group to summary
         for status, status_tasks in tasks_by_status.items():
-            summary += f"{status.value.upper()} Tasks:\n"
+            summary += f"{status.name.upper()} Tasks:\n"
             for task in status_tasks:
-                summary += f"• {task.title} (Priority: {task.priority.name})\n"
+                summary += f"• {task.name} (Priority: {task.priority.name})\n"
             summary += "\n"
             
-        return summary 
+        return summary
+
+    def cleanup_completed_tasks(self, max_age_days: int = 7) -> int:
+        """Remove old completed tasks."""
+        now = datetime.now()
+        to_remove = []
+        
+        for task_id, task in self._tasks.items():
+            if task.status in (TaskStatus.COMPLETED, TaskStatus.FAILED):
+                if task.completed_at:
+                    age = (now - task.completed_at).days
+                    if age > max_age_days:
+                        to_remove.append(task_id)
+        
+        for task_id in to_remove:
+            del self._tasks[task_id]
+        
+        self._save_tasks()
+        return len(to_remove) 

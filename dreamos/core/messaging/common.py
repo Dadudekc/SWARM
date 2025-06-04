@@ -1,110 +1,72 @@
 from __future__ import annotations
 
-"""Shared messaging definitions."""
+"""
+Common messaging structures for Dream.OS.
+"""
 
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from datetime import datetime
-from enum import Enum
 from typing import Dict, Any, Optional
 from uuid import uuid4
+from .enums import MessageMode, MessagePriority, MessageType
 import logging
-
-
-class MessageMode(Enum):
-    """Message delivery modes."""
-    RESUME = "[RESUME]"
-    SYNC = "[SYNC]"
-    VERIFY = "[VERIFY]"
-    REPAIR = "[REPAIR]"
-    BACKUP = "[BACKUP]"
-    RESTORE = "[RESTORE]"
-    CLEANUP = "[CLEANUP]"
-    CAPTAIN = "[CAPTAIN]"
-    TASK = "[TASK]"
-    INTEGRATE = "[INTEGRATE]"
-    NORMAL = "[NORMAL]"
-    PRIORITY = "[PRIORITY]"
-    BULK = "[BULK]"
-    SELF_TEST = "[SELF_TEST]"
-    PROMPT = "[PROMPT]"
-    DEVLOG = "[DEVLOG]"
-    SYSTEM = "[SYSTEM]"
-    COMMAND = "[COMMAND]"
-
-
-class MessagePriority(Enum):
-    """Message priority levels."""
-    LOWEST = 0
-    LOW = 1
-    NORMAL = 2
-    HIGH = 3
-    HIGHEST = 4
-    CRITICAL = 5
 
 
 @dataclass
 class Message:
-    """Unified message structure."""
-
-    from_agent: str
-    to_agent: str
+    """Base message structure."""
     content: str
+    to_agent: str
+    from_agent: str = "system"
     mode: MessageMode = MessageMode.NORMAL
     priority: MessagePriority = MessagePriority.NORMAL
-    message_id: Optional[str] = None
-    timestamp: datetime = None
-    metadata: Optional[Dict[str, Any]] = None
-    status: str = "queued"
-
-    def __post_init__(self) -> None:
-        if self.timestamp is None:
-            self.timestamp = datetime.now()
-        if self.metadata is None:
-            self.metadata = {}
-        if self.message_id is None:
-            self.message_id = str(uuid4())
-
-    def format_content(self) -> str:
-        return f"{self.mode.value} {self.content}" if self.content else self.mode.value
-
+    type: MessageType = MessageType.COMMAND
+    timestamp: datetime = field(default_factory=datetime.now)
+    message_id: str = field(default_factory=lambda: str(uuid4()))
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    response_to: Optional[str] = None
+    
     def to_dict(self) -> Dict[str, Any]:
+        """Convert message to dictionary."""
         return {
-            "message_id": self.message_id,
-            "from_agent": self.from_agent,
-            "to_agent": self.to_agent,
             "content": self.content,
-            "mode": self.mode.value,
-            "priority": self.priority.value,
+            "to_agent": self.to_agent,
+            "from_agent": self.from_agent,
+            "mode": self.mode.name,
+            "priority": self.priority.name,
+            "type": self.type.name,
             "timestamp": self.timestamp.isoformat(),
+            "message_id": self.message_id,
             "metadata": self.metadata,
-            "status": self.status,
+            "response_to": self.response_to
         }
-
+    
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Message":
+    def from_dict(cls, data: Dict[str, Any]) -> 'Message':
+        """Create message from dictionary."""
         return cls(
-            from_agent=data.get("from_agent") or data.get("sender_id"),
-            to_agent=data.get("to_agent") or data.get("recipient_id"),
             content=data["content"],
-            mode=MessageMode(data["mode"] if not isinstance(data["mode"], int) else MessageMode(data["mode"])),
-            priority=MessagePriority(data["priority"] if not isinstance(data["priority"], str) else MessagePriority[data["priority"]]),
-            message_id=data.get("message_id"),
+            to_agent=data["to_agent"],
+            from_agent=data.get("from_agent", "system"),
+            mode=MessageMode[data.get("mode", "NORMAL")],
+            priority=MessagePriority[data.get("priority", "NORMAL")],
+            type=MessageType[data.get("type", "COMMAND")],
             timestamp=datetime.fromisoformat(data["timestamp"]),
-            metadata=data.get("metadata"),
-            status=data.get("status", "queued"),
+            message_id=data["message_id"],
+            metadata=data.get("metadata", {}),
+            response_to=data.get("response_to")
         )
-
+    
     def validate(self) -> bool:
-        try:
-            if not self.content:
-                raise ValueError("Message content cannot be empty")
-            if not isinstance(self.priority, MessagePriority):
-                raise ValueError("Invalid priority type")
-            if not self.from_agent or not self.to_agent:
-                raise ValueError("Both from_agent and to_agent must be specified")
-            return True
-        except Exception as exc:
-            logging.getLogger(__name__).error("Message validation failed: %s", exc)
+        """Validate message fields."""
+        if not self.content or not self.to_agent:
             return False
+        if not isinstance(self.mode, MessageMode):
+            return False
+        if not isinstance(self.priority, MessagePriority):
+            return False
+        if not isinstance(self.type, MessageType):
+            return False
+        return True
 
-__all__ = ["Message", "MessageMode", "MessagePriority"]
+__all__ = ["Message", "MessageMode", "MessagePriority", "MessageType"]
