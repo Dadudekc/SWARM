@@ -11,7 +11,10 @@ import hashlib
 from typing import Dict, List, Optional, Any, Tuple
 from queue import PriorityQueue
 from datetime import datetime
-from .common import MessageMode
+from pathlib import Path
+
+from ..persistent_queue import PersistentQueue
+from .common import Message, MessageMode, MessagePriority
 
 logger = logging.getLogger('message_processor')
 
@@ -20,6 +23,12 @@ class MessageProcessor:
     """Handles message processing and delivery for the cell phone interface."""
     
     def __init__(self, runtime_dir: Optional[str] = None):
+        self.runtime_dir = Path(runtime_dir) if runtime_dir else Path("runtime")
+        self.runtime_dir.mkdir(parents=True, exist_ok=True)
+
+        queue_file = self.runtime_dir / "queue" / "messages.json"
+        self.persistent_queue = PersistentQueue(queue_file=str(queue_file))
+
         self._queue = PriorityQueue()
         self._running = False
         self._processing_thread: Optional[threading.Thread] = None
@@ -273,12 +282,27 @@ Proceed with system integration operations.""",
                 # Add integration operation delay
                 time.sleep(2)
             
-            # TODO: Implement actual message delivery
-            # This would integrate with the agent system's message delivery
-            # For now, we just simulate delivery
-            
-            time.sleep(0.1)  # Base delivery time
-            return True
+            priority_val = message.get('priority', MessagePriority.NORMAL)
+            if isinstance(priority_val, int):
+                priority_enum = MessagePriority(priority_val)
+            elif isinstance(priority_val, str):
+                priority_enum = MessagePriority[priority_val.upper()]
+            else:
+                priority_enum = priority_val
+
+            msg_obj = Message(
+                content=content,
+                to_agent=to_agent,
+                from_agent=from_agent,
+                mode=mode,
+                priority=priority_enum,
+                metadata=message.get('metadata', {})
+            )
+
+            success = self.persistent_queue.enqueue(msg_obj)
+
+            time.sleep(0.1)
+            return success
             
         except Exception as e:
             logger.error(f"Failed to deliver message: {e}")
