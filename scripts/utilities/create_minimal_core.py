@@ -1,3 +1,5 @@
+"""Generate a trimmed-down copy of Dream.OS for demos."""
+
 import shutil
 from pathlib import Path
 
