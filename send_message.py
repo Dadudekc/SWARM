@@ -1,6 +1,6 @@
 import asyncio
 from dreamos.core.messaging.agent_bus import AgentBus, MessagePriority
-from dreamos.core.messaging.message import MessageMode
+from dreamos.core.messaging.common import MessageMode
 
 async def send_message():
     # Initialize the agent bus

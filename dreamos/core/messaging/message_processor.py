@@ -11,25 +11,10 @@ import hashlib
 from typing import Dict, List, Optional, Any, Tuple
 from queue import PriorityQueue
 from datetime import datetime
-from enum import Enum
+from .common import MessageMode
 
 logger = logging.getLogger('message_processor')
 
-class MessageMode(Enum):
-    """Message delivery modes."""
-    RESUME = "[RESUME]"
-    SYNC = "[SYNC]"
-    VERIFY = "[VERIFY]"
-    REPAIR = "[REPAIR]"
-    BACKUP = "[BACKUP]"
-    RESTORE = "[RESTORE]"
-    CLEANUP = "[CLEANUP]"
-    CAPTAIN = "[CAPTAIN]"
-    TASK = "[TASK]"
-    INTEGRATE = "[INTEGRATE]"
-    NORMAL = ""  # No additional tags
-    PRIORITY = "priority"
-    BULK = "bulk"
 
 class MessageProcessor:
     """Handles message processing and delivery for the cell phone interface."""
