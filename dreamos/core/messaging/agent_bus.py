@@ -215,21 +215,6 @@ class AgentBus(BaseMessagingComponent):
                 count += len(self._pattern_subscribers[pattern])
         return count
         
-    async def start_processing(self):
-        """Start processing the message queue."""
-        self._processing = True
-        while self._processing:
-            try:
-                _, message = self._message_queue.get_nowait()
-                await self._process_message(message)
-            except asyncio.QueueEmpty:
-                await asyncio.sleep(0.1)
-            except Exception as e:
-                logger.error(f"Error processing message: {e}")
-                
-    async def stop_processing(self):
-        """Stop processing the message queue."""
-        self._processing = False
         
     async def _process_message(self, message: BusMessage) -> None:
         """Process a single message.

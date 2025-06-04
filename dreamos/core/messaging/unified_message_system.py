@@ -22,9 +22,14 @@ from queue import PriorityQueue
 import re
 from uuid import uuid4
 
-from .base import BaseMessagingComponent
-from .enums import MessageMode, MessagePriority
-from .common import Message
+try:
+    from .base import BaseMessagingComponent
+    from .enums import MessageMode, MessagePriority
+    from .common import Message
+except Exception:  # pragma: no cover - support direct execution
+    from dreamos.core.messaging.base import BaseMessagingComponent
+    from dreamos.core.messaging.enums import MessageMode, MessagePriority
+    from dreamos.core.messaging.common import Message
 
 logger = logging.getLogger('dreamos.messaging')
 
@@ -338,4 +343,7 @@ class MessageSystem(BaseMessagingComponent):
         """Clean up resources."""
         self._processing = False
         if self.runtime_dir:
-            self._save_history() 
+            self._save_history()
+
+# Backwards compatibility alias
+UnifiedMessageSystem = MessageSystem

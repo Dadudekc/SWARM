@@ -24,6 +24,12 @@ class Message:
     message_id: str = field(default_factory=lambda: str(uuid4()))
     metadata: Dict[str, Any] = field(default_factory=dict)
     response_to: Optional[str] = None
+
+    # Backwards compatibility property
+    @property
+    def sender_id(self) -> str:
+        """Alias for ``from_agent`` used in older code."""
+        return self.from_agent
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert message to dictionary."""
