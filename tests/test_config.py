@@ -193,9 +193,11 @@ def test_log_level():
     # Create log directory
     log_dir = TEST_RUNTIME_DIR / config["log_dir"]
     log_dir.mkdir(parents=True, exist_ok=True)
-    
+
     # Configure logging
     log_file = log_dir / "test.log"
+    # Ensure any previous log data is removed so tests run in isolation
+    log_file.unlink(missing_ok=True)
     logging.basicConfig(
         level=config["log_level"],
         format='%(asctime)s - %(levelname)s - %(message)s',
