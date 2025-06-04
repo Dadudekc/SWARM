@@ -14,9 +14,7 @@ import os
 import json
 import time
 import yaml
-import aiohttp
-import pyautogui
-import threading
+
 import io
 from pathlib import Path
 
@@ -26,6 +24,7 @@ from dreamos.core import CellPhone
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
 from dreamos.core.log_manager import LogManager
+from dreamos.core.agent_control.devlog_manager import DevLogManager
 
 logger = logging.getLogger('discord_bot')
 
@@ -376,107 +375,6 @@ class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
             )
             await interaction.response.send_message(embed=embed, ephemeral=True)
 
-class AgentDevLogManager:
-    """Manages agent development logs and Discord notifications."""
-    
-    def __init__(self):
-        self.log_path = "runtime/agent_memory"
-        self.webhook_url = os.getenv('DISCORD_WEBHOOK_URL')
-        self.channel_id = int(os.getenv('DISCORD_DEVLOG_CHANNEL', 0))
-        
-    async def add_entry(self, agent_id: str, message: str, source: str = "manual") -> bool:
-        """Update an agent's devlog and notify Discord.
-        
-        Args:
-            agent_id: The ID of the agent
-            message: The log message
-            source: Source of the update (manual/agent/system)
-            
-        Returns:
-            bool: True if successful, False otherwise
-        """
-        try:
-            # Create agent memory directory if it doesn't exist
-            log_path = f"{self.log_path}/{agent_id}/devlog.md"
-            os.makedirs(os.path.dirname(log_path), exist_ok=True)
-
-            # Format log entry
-            timestamp = datetime.now().strftime("[%Y-%m-%d %H:%M]")
-            entry = f"{timestamp} [{source.upper()}] {message}\n"
-
-            # Append to devlog
-            with open(log_path, "a") as f:
-                f.write(entry)
-
-            # Notify Discord
-            await self._notify_discord(agent_id, entry.strip(), source)
-            return True
-
-        except Exception as e:
-            logger.error(f"Error updating devlog: {e}")
-            return False
-
-    async def _notify_discord(self, agent_id: str, message: str, source: str):
-        """Send devlog update to Discord."""
-        try:
-            # Create embed
-            embed = discord.Embed(
-                title=f"📜 {agent_id} Devlog Update",
-                description=message,
-                color=discord.Color.blue()
-            )
-            embed.set_footer(text=f"Source: {source}")
-
-            # Try webhook first
-            if self.webhook_url:
-                async with aiohttp.ClientSession() as session:
-                    webhook = discord.Webhook.from_url(self.webhook_url, session=session)
-                    await webhook.send(embed=embed)
-            # Fallback to channel
-            elif self.channel_id:
-                channel = self.bot.get_channel(self.channel_id)
-                if channel:
-                    await channel.send(embed=embed)
-
-        except Exception as e:
-            logger.error(f"Error notifying Discord: {e}")
-
-    async def get_log(self, agent_id: str) -> Optional[str]:
-        """Get the contents of an agent's devlog."""
-        try:
-            log_path = f"{self.log_path}/{agent_id}/devlog.md"
-            if not os.path.exists(log_path):
-                return None
-
-            with open(log_path, 'r') as f:
-                return f.read()
-
-        except Exception as e:
-            logger.error(f"Error reading devlog: {e}")
-            return None
-
-    async def clear_log(self, agent_id: str) -> bool:
-        """Clear an agent's devlog with backup."""
-        try:
-            log_path = f"{self.log_path}/{agent_id}/devlog.md"
-            if not os.path.exists(log_path):
-                return False
-
-            # Create backup
-            backup_path = f"{log_path}.backup"
-            with open(log_path, 'r') as src, open(backup_path, 'w') as dst:
-                dst.write(src.read())
-
-            # Clear the log
-            with open(log_path, 'w') as f:
-                f.write(f"# {agent_id} Devlog\n\n")
-                f.write(f"Log cleared at {datetime.now().strftime('%Y-%m-%d %H:%M')}\n\n")
-
-            return True
-
-        except Exception as e:
-            logger.error(f"Error clearing devlog: {e}")
-            return False
 
 class AgentCommands(commands.Cog):
     """Handles agent-related commands."""
@@ -488,7 +386,7 @@ class AgentCommands(commands.Cog):
             bot: Discord bot instance
         """
         self.bot = bot
-        self.devlog_manager = AgentDevLogManager()
+        self.devlog_manager = DevLogManager()
         self.message_processor = MessageProcessor()
         self.cell_phone = CellPhone()
         self.agent_interface = AgentInterface()
