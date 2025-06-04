@@ -5,7 +5,7 @@
 
 ## Overview
 
-Dream.OS is not your grandma's operating system. It's a swarm-driven AI platform where agents run full tilt, autorouting tasks, posting logs to Discord, and even trading TSLA if you let them. The system provides:
+Dream.OS is a swarm-driven platform for coordinating autonomous agents. It aims to provide a reliable operating environment where multiple agents can collaborate on complex tasks across domains such as content generation, data analysis and trading automation. The system currently offers:
 
 - Agent control and coordination
 - Message processing and routing
@@ -16,6 +16,33 @@ Dream.OS is not your grandma's operating system. It's a swarm-driven AI platform
 ## Product Offerings
 
 The Dream.OS platform can be packaged in several ways to fit different business needs. See [docs/product_offerings.md](docs/product_offerings.md) for details on SaaS, social-media automation, trading bots, on-premise deployments, and a custom agent SDK.
+
+## Project Goals
+
+Dream.OS seeks to be a comprehensive operating system for AI agents. Our primary goals are:
+
+- Create a unified framework for orchestrating many autonomous agents.
+- Provide standard messaging, logging and monitoring utilities.
+- Offer modular integrations such as trading bots, Discord interfaces and a ChatGPT bridge.
+- Enable reproducible, automated workflows for research and production environments.
+
+## Development Roadmap
+
+The project is progressing through several planned phases. We are currently in **Phase 2 – Feature Expansion**.
+
+1. **Phase 1 – Core Architecture (complete)**
+   - Implemented agent lifecycle management, unified messaging and basic logging.
+   - Introduced initial CLI and Discord tools.
+2. **Phase 2 – Feature Expansion (current)**
+   - Integrating trading agents and content loops.
+   - Enhancing Discord and ChatGPT bridges.
+   - Expanding tests and documentation.
+3. **Phase 3 – Scalability & Hardening (planned)**
+   - Containerization and distributed agent coordination.
+   - Improved security, metrics and dashboards.
+4. **Phase 4 – Production Release (planned)**
+   - Stable release with plugin ecosystem.
+   - Formal support channels and deployment guides.
 
 ## Installation
 
