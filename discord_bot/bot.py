@@ -65,10 +65,10 @@ class DreamOSBot(commands.Bot):
             await self.orchestrator.start()
             
             # Add commands
-            self.add_command(self.cmd_help)
-            self.add_command(self.cmd_status)
-            self.add_command(self.cmd_task)
-            self.add_command(self.cmd_devlog)
+            self.add_command(commands.Command(self.cmd_help, name="help"))
+            self.add_command(commands.Command(self.cmd_status, name="status"))
+            self.add_command(commands.Command(self.cmd_task, name="task"))
+            self.add_command(commands.Command(self.cmd_devlog, name="devlog"))
             
             self.log_manager.info(
                 platform="discord",
@@ -95,7 +95,6 @@ class DreamOSBot(commands.Bot):
             tags=["startup", "ready"]
         )
         
-    @commands.command(name="help")
     async def cmd_help(self, ctx):
         """Show help information."""
         try:
@@ -125,7 +124,6 @@ class DreamOSBot(commands.Bot):
             )
             await ctx.send("Error showing help information")
         
-    @commands.command(name="status")
     async def cmd_status(self, ctx, agent_id: str):
         """Show agent status."""
         try:
@@ -165,7 +163,6 @@ class DreamOSBot(commands.Bot):
             )
             await ctx.send(f"Error getting status: {str(e)}")
             
-    @commands.command(name="task")
     async def cmd_task(self, ctx, agent_id: str, title: str, *, description: str):
         """Create new task."""
         try:
@@ -193,14 +190,14 @@ class DreamOSBot(commands.Bot):
             )
             await ctx.send(f"Error creating task: {str(e)}")
             
-    @commands.command(name="devlog")
     async def cmd_devlog(self, ctx, agent_id: str, category: str, *, content: str):
         """Add devlog entry."""
         try:
             await self.orchestrator.devlog_manager.add_devlog_entry(
                 agent_id=agent_id,
                 category=category,
-                content=content
+                content=content,
+                author=str(ctx.author)
             )
             
             await ctx.send("Devlog entry added successfully")
@@ -222,26 +219,28 @@ class DreamOSBot(commands.Bot):
             await ctx.send(f"Error adding devlog entry: {str(e)}")
             
     async def close(self):
-        """Handle bot shutdown."""
+        """Clean up resources when bot is shutting down."""
         try:
+            # Stop system orchestrator
             await self.orchestrator.stop()
-            await super().close()
             
             self.log_manager.info(
                 platform="discord",
                 status="success",
-                message="Discord bot shut down successfully",
-                tags=["shutdown", "complete"]
+                message="Bot shutting down",
+                tags=["shutdown"]
             )
             
         except Exception as e:
             self.log_manager.error(
                 platform="discord",
                 status="error",
-                message=f"Error during bot shutdown: {str(e)}",
+                message=f"Error during shutdown: {str(e)}",
                 tags=["shutdown", "error"]
             )
-            raise
+            
+        finally:
+            await super().close()
 
 def main():
     """Run the bot."""

@@ -14,6 +14,16 @@ class MessageMode(Enum):
     PRIORITY = auto()    # High-priority delivery
     BULK = auto()        # Batch delivery
     SYSTEM = auto()      # System-level message
+    RESUME = auto()      # Resume operation
+    SYNC = auto()        # Synchronize state
+    VERIFY = auto()      # Verify operation
+    REPAIR = auto()      # Repair operation
+    BACKUP = auto()      # Backup operation
+    RESTORE = auto()     # Restore operation
+    CLEANUP = auto()     # Cleanup operation
+    CAPTAIN = auto()     # Captain operation
+    TASK = auto()        # Task operation
+    INTEGRATE = auto()   # Integration operation
 
 class MessagePriority(Enum):
     """Message priority levels."""
@@ -36,10 +46,11 @@ class TaskStatus(Enum):
 class TaskPriority(Enum):
     """Task priority levels."""
     LOW = 0
-    NORMAL = 1
-    HIGH = 2
-    URGENT = 3
-    CRITICAL = 4
+    MEDIUM = 1
+    NORMAL = 2
+    HIGH = 3
+    URGENT = 4
+    CRITICAL = 5
 
 class MessageType(Enum):
     """Types of messages in the system."""

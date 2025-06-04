@@ -27,6 +27,16 @@ class LogLevel(Enum):
     CRITICAL = logging.CRITICAL
 
 @dataclass
+class LogEntry:
+    """Represents a log entry."""
+    timestamp: datetime
+    level: str
+    platform: str
+    message: str
+    tags: List[str] = None
+    metadata: Dict[str, Any] = None
+
+@dataclass
 class LogConfig:
     """Log configuration."""
     level: LogLevel = LogLevel.INFO

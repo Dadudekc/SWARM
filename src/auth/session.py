@@ -13,9 +13,12 @@ from .base import ExpirableMixin
 logger = logging.getLogger(__name__)
 
 @dataclass
-class Session(ExpirableMixin):
+class Session:
     """Represents an active user session."""
     user_id: str
+    created_at: datetime
+    expires_at: datetime
+    data: Optional[Dict[str, Any]] = None
     
     def extend(self, seconds: int) -> None:
         """Extend session lifetime.
@@ -25,6 +28,16 @@ class Session(ExpirableMixin):
         """
         self.expires_at += timedelta(seconds=seconds)
         logger.debug(f"Extended session for user {self.user_id} by {seconds}s")
+        
+    @property
+    def is_valid(self) -> bool:
+        """Check if the session is still valid."""
+        return datetime.now() < self.expires_at
+    
+    @property
+    def time_remaining(self) -> float:
+        """Get remaining time in seconds."""
+        return max(0, (self.expires_at - datetime.now()).total_seconds())
 
 class SessionManager:
     """Manages user sessions with automatic cleanup."""

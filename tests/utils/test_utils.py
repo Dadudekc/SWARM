@@ -20,6 +20,19 @@ MOCK_AGENT_CONFIG = {
     }
 }
 
+MOCK_PROMPT = "This is a test prompt for unit testing purposes."
+
+MOCK_DEVLOG = {
+    "title": "Test Devlog",
+    "content": "This is a test devlog entry",
+    "author": "test_user",
+    "tags": ["test", "unit"],
+    "metadata": {
+        "version": "1.0.0",
+        "type": "test"
+    }
+}
+
 
 def safe_remove(path: Path) -> bool:
     """Remove a file or directory, ignoring errors."""

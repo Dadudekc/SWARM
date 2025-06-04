@@ -14,11 +14,23 @@ from .base import ExpirableMixin
 logger = logging.getLogger(__name__)
 
 @dataclass
-class TokenInfo(ExpirableMixin):
+class TokenInfo:
     """Represents token metadata."""
-
     user_id: str
+    created_at: datetime
+    expires_at: datetime
     scope: str = "default"
+    data: Dict[str, Any] = None
+
+    @property
+    def is_valid(self) -> bool:
+        """Check if token is still valid."""
+        return datetime.now() < self.expires_at
+
+    @property
+    def time_remaining(self) -> timedelta:
+        """Get remaining time until expiration."""
+        return self.expires_at - datetime.now()
 
 class TokenHandler:
     """Handles token generation, validation, and refresh."""
