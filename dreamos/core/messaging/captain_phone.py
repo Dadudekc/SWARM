@@ -11,8 +11,9 @@ import time
 import yaml
 import json
 
+import asyncio
 from .cell_phone import CellPhone
-from .message_system import MessageRecord, MessageMode
+from .unified_message_system import MessagePriority
 
 logger = logging.getLogger('dreamos.messaging.captain_phone')
 
@@ -69,13 +70,21 @@ class CaptainPhone(CellPhone):
             bool: True if message was sent successfully and response received (if waiting)
         """
         try:
-            # Send the message
-            success = super().send_message(
-                to_agent=to_agent,
-                content=content,
-                mode=mode,
-                priority=priority,
-                from_agent=self.captain_id
+            # Map numeric priority to enum name if needed
+            try:
+                priority_name = MessagePriority(priority).name
+            except ValueError:
+                priority_name = "NORMAL"
+
+            # Send the message using the async interface
+            success = asyncio.run(
+                super().send_message(
+                    to_agent=to_agent,
+                    content=content,
+                    mode=mode,
+                    priority=priority_name,
+                    from_agent=self.captain_id
+                )
             )
             
             if not success:
@@ -107,15 +116,15 @@ class CaptainPhone(CellPhone):
             bool: True if response received within timeout
         """
         start_time = time.time()
-        last_message_count = len(self.get_message_history())
+        last_message_count = len(asyncio.run(self.get_message_history()))
         
         while time.time() - start_time < self.response_timeout:
             # Check for new messages
-            history = self.get_message_history()
+            history = asyncio.run(self.get_message_history())
             if len(history) > last_message_count:
                 # Found a response
                 response = history[-1]
-                if response.sender_id == to_agent:
+                if response.get("sender_id") == to_agent:
                     # Save the response
                     self._save_response(to_agent, response)
                     return True
@@ -130,7 +139,7 @@ class CaptainPhone(CellPhone):
         )
         return False
     
-    def _save_response(self, agent_id: str, response: MessageRecord) -> None:
+    def _save_response(self, agent_id: str, response: Dict[str, Any]) -> None:
         """Save agent response to file.
         
         Args:
@@ -139,15 +148,15 @@ class CaptainPhone(CellPhone):
         """
         try:
             # Create response file
-            response_file = self.response_dir / f"{agent_id}_{response.timestamp.isoformat()}.json"
+            response_file = self.response_dir / f"{agent_id}_{response['timestamp']}.json"
             
             # Save response data
             response_data = {
                 "agent_id": agent_id,
-                "timestamp": response.timestamp.isoformat(),
-                "content": response.content,
-                "mode": response.mode.name,
-                "metadata": response.metadata
+                "timestamp": response["timestamp"],
+                "content": response["content"],
+                "mode": response["mode"],
+                "metadata": response.get("metadata")
             }
             
             with open(response_file, 'w') as f:

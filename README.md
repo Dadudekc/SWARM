@@ -116,15 +116,18 @@ logging:
     captain: captain.log
 ```
 
-### 5. Communication Infrastructure
-- **MessageRecord** (`dreamos.core.messaging.message_record`):
+-### 5. Communication Infrastructure
+- **Message** (`dreamos.core.messaging.unified_message_system`):
   ```json
   {
+    "message_id": "abc123",
+    "sender_id": "agent_3",
+    "recipient_id": "agent_5",
+    "content": "Fix parser bug",
+    "mode": "[TASK]",
+    "priority": 2,
     "timestamp": "2025-06-01T14:23:00Z",
-    "from_agent": "agent_3",
-    "to_agent": "agent_5",
-    "payload": "Fix parser bug",
-    "tags": ["task_update"]
+    "metadata": {}
   }
   ```
 - **Message History**: Persistent storage in `dreamos/data/message_history.json`
@@ -150,26 +153,24 @@ cp.send(to_agent="agent_2", message="Please run tests on module X")
 Example ChatGPT request:
 ```python
 from dreamos.core.messaging.cell_phone import CellPhone
-from dreamos.core.messaging.message_record import MessageRecord
+import asyncio
 
 # Initialize cell phone
 cp = CellPhone()
 
-# Create ChatGPT request
-message = MessageRecord(
-    from_agent="agent_1",
-    to_agent="chatgpt_bridge",
-    payload="What's the best way to optimize this code?",
-    tags=["chatgpt_request"]
+# Send ChatGPT request
+asyncio.run(
+    cp.send_message(
+        to_agent="chatgpt_bridge",
+        content="What's the best way to optimize this code?",
+        from_agent="agent_1"
+    )
 )
 
-# Send request
-cp.send(message)
-
 # Receive response
-response = cp.receive("agent_1")
-if response and "chatgpt_response" in response.tags:
-    print(f"ChatGPT says: {response.payload}")
+messages = asyncio.run(cp.receive_messages("agent_1"))
+for msg in messages:
+    print(f"ChatGPT says: {msg['content']}")
 ```
 
 Configuration (`config/chatgpt_bridge.yaml`):
@@ -291,7 +292,7 @@ The central control unit that coordinates all system components:
 - Provides structured logging with tags and levels
 
 ### 5. Communication Infrastructure
-- **MessageRecord**: Structured message format for agent communication
+- **Message**: Structured message format for agent communication
 - **Message History**: Persistent storage of all communications
 - **DevLog**: Integration with Discord for external logging
 - **CellPhone/CaptainPhone**: Specialized communication channels
