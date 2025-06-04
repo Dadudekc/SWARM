@@ -1,21 +1,24 @@
 import asyncio
-from dreamos.core.messaging.agent_bus import AgentBus, MessagePriority
-from dreamos.core.messaging.common import MessageMode
+from dreamos.core.messaging.unified_message_system import (
+    UnifiedMessageSystem,
+    MessagePriority,
+    MessageMode,
+)
 
 async def send_message():
-    # Initialize the agent bus
-    bus = AgentBus()
+    # Initialize the unified message system
+    ums = UnifiedMessageSystem()
     
     # Send the message
-    message_id = await bus.publish(
-        topic="Agent-3",
+    success = await ums.send(
+        to_agent="Agent-3",
         content="success",
-        sender="system",
+        from_agent="system",
         priority=MessagePriority.NORMAL,
-        mode=MessageMode.NORMAL
+        mode=MessageMode.NORMAL,
     )
-    
-    print(f"Message sent with ID: {message_id}")
+
+    print(f"Message sent: {success}")
 
 if __name__ == "__main__":
     asyncio.run(send_message()) 

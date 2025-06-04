@@ -63,9 +63,9 @@ The central control unit that coordinates all system components:
 - **AgentManager** (`dreamos.core.agent_control.agent_manager`)
   - Handles agent lifecycle (creation, monitoring, restart)
   - Implements auto-resume after idle timeout
-- **AgentBus** (`dreamos.core.messaging.agent_bus`)
-  - Provides communication infrastructure between agents
-  - Handles message routing and delivery
+- **UnifiedMessageSystem** (`dreamos.core.messaging.unified_message_system`)
+  - Centralized messaging hub for all agents
+  - Handles routing, history, and priority delivery
 - **CellPhone** (`dreamos.core.messaging.cell_phone`)
   - Manages direct agent-to-agent messaging
   - Implements retry logic for failed deliveries
@@ -273,9 +273,9 @@ The central control unit that coordinates all system components:
 
 ### 2. Agent Management
 - **AgentManager**: Handles agent lifecycle (creation, monitoring, restart)
-- **AgentBus**: Provides communication infrastructure between agents
-- **CellPhone**: Manages direct agent-to-agent messaging
-- **CaptainPhone**: Specialized communication channel for Captain-agent interactions
+ - **UnifiedMessageSystem**: Centralized hub for agent communication
+ - **CellPhone**: Manages direct agent-to-agent messaging
+ - **CaptainPhone**: Specialized communication channel for Captain-agent interactions
 
 ### 3. Task Management
 - **TaskManager**: Handles task creation, assignment, and tracking
@@ -306,7 +306,7 @@ The central control unit that coordinates all system components:
 ```mermaid
 graph LR
     A[Agent] -->|Message| B[CellPhone]
-    B -->|Route| C[AgentBus]
+    B -->|Route| C[UnifiedMessageSystem]
     C -->|Deliver| D[Target Agent]
     C -->|Broadcast| A
     E[Captain] -->|Monitor| C
