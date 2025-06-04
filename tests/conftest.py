@@ -270,7 +270,8 @@ def setup_logging():
     """Configure logging for all tests."""
     logging.basicConfig(
         level=logging.INFO,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+        force=True
     )
     yield
 

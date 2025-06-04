@@ -24,10 +24,10 @@ def run_test(test_path, test_name=None):
     return result
 
 if __name__ == '__main__':
-    # Get test path from command line
-    test_path = sys.argv[1] if len(sys.argv) > 1 else 'tests/test_log_manager.py'
+    # Get test path from command line or default to the entire suite
+    test_path = sys.argv[1] if len(sys.argv) > 1 else 'tests'
     test_name = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    # Run the test
+
+    # Run the tests and exit with the result code
     result = run_test(test_path, test_name)
-    sys.exit(result) 
+    sys.exit(result)

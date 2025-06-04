@@ -16,6 +16,7 @@ MessagePriority = ums_module.MessagePriority
 
 
 def test_send_and_receive(tmp_path):
+    UnifiedMessageSystem._instance = None
     ums = UnifiedMessageSystem(runtime_dir=tmp_path)
     asyncio.run(ums.send(
         to_agent="Agent-Test",
