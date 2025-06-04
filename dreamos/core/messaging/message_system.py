@@ -203,6 +203,7 @@ class JsonMessageHistory(MessageHistory):
             logger.error(f"Failed to get history for {agent_id}: {e}")
             return []
 
+
 class MessageRouter(ABC):
     """Abstract base class for message routing implementations."""
     
