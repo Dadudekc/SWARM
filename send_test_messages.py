@@ -1,7 +1,7 @@
 import json
 import time
 from pathlib import Path
-from agent_tools.agent_cellphone import direct_send_message
+from dreamos.core.cli import direct_send_message
 
 def send_test_messages():
     """Send test messages to all agents."""
