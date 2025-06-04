@@ -1,33 +1,27 @@
 import pytest
 import sys
-import os
-import time
+import shutil
+from pathlib import Path
 
-def run_test(test_path, test_name=None):
-    """Run a specific test with proper cleanup and timeout."""
-    # Clear any existing test cache
-    pytest.main(['--cache-clear'])
-    
-    # Build test path
+
+def run_test(test_path="tests", test_name=None):
+    """Run tests with a timeout and short traceback."""
+    cache_dir = Path(".pytest_cache")
+    if cache_dir.exists():
+        shutil.rmtree(cache_dir)
     if test_name:
         test_path = f"{test_path}::{test_name}"
-    
-    # Run test with timeout and short traceback
-    result = pytest.main([
+    return pytest.main([
         test_path,
-        '-v',
-        '--tb=short',
-        '--timeout=30',
-        '-xvs'
+        "-v",
+        "--tb=short",
+        "--timeout=30",
+        "-xvs"
     ])
-    
-    return result
 
-if __name__ == '__main__':
-    # Get test path from command line
-    test_path = sys.argv[1] if len(sys.argv) > 1 else 'tests/test_log_manager.py'
-    test_name = sys.argv[2] if len(sys.argv) > 2 else None
-    
-    # Run the test
-    result = run_test(test_path, test_name)
-    sys.exit(result) 
+
+if __name__ == "__main__":
+    path = sys.argv[1] if len(sys.argv) > 1 else "tests"
+    name = sys.argv[2] if len(sys.argv) > 2 else None
+    result = run_test(path, name)
+    sys.exit(result)

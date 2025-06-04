@@ -268,11 +268,17 @@ def clean_test_dirs() -> Generator[None, None, None]:
 @pytest.fixture(autouse=True)
 def setup_logging():
     """Configure logging for all tests."""
+    logging.shutdown()
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
     logging.basicConfig(
         level=logging.INFO,
         format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
     )
     yield
+    logging.shutdown()
+    for handler in logging.root.handlers[:]:
+        logging.root.removeHandler(handler)
 
 @pytest.fixture(autouse=True)
 def mock_pyautogui() -> Generator[None, None, None]:
