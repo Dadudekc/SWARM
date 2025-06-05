@@ -1,12 +1,14 @@
-"""Tests for the social module's logging manager."""
+"""Tests for the social module's logging manager and metrics."""
 
 import os
 import logging
 from pathlib import Path
+from datetime import datetime
 
 import pytest
 
 from social.utils.log_manager import LogManager, LogConfig
+from social.utils.log_metrics import LogMetrics
 
 
 def reset_log_manager():
@@ -21,21 +23,103 @@ def cleanup():
     reset_log_manager()
 
 
-def test_log_rotation(tmp_path):
-    config = LogConfig(
-        log_dir=str(tmp_path),
-        max_bytes=200,
-        backup_count=1,
-        platforms={"system": "system.log"},
-    )
-    manager = LogManager(config)
+@pytest.fixture
+def metrics():
+    """Create a fresh metrics instance for each test."""
+    return LogMetrics()
 
-    # Write enough data to ensure file is created
-    for _ in range(25):
-        manager.info("system", "x" * 10)
 
-    rotated = manager.rotate("system")
-    assert rotated is not None
-    rotated_path = Path(rotated)
-    assert rotated_path.exists()
-    assert rotated_path.name != "system.log"
+class TestLogMetrics:
+    """Test suite for log metrics functionality."""
+    
+    def test_metrics_initialization(self, metrics):
+        """Test metrics initialization."""
+        assert metrics.total_logs == 0
+        assert metrics.total_bytes == 0
+        assert metrics.error_count == 0
+        assert metrics.last_error is None
+        assert metrics.last_error_message is None
+        assert metrics.last_rotation is None
+        assert len(metrics.platform_counts) == 0
+        assert len(metrics.level_counts) == 0
+        assert len(metrics.status_counts) == 0
+        assert len(metrics.format_counts) == 0
+
+    def test_metrics_increment_logs(self, metrics):
+        """Test incrementing log counts."""
+        metrics.increment_logs(
+            platform="test",
+            level="INFO",
+            status="success",
+            format_type="json",
+            bytes_written=100
+        )
+        
+        assert metrics.total_logs == 1
+        assert metrics.total_bytes == 100
+        assert metrics.platform_counts["test"] == 1
+        assert metrics.level_counts["INFO"] == 1
+        assert metrics.status_counts["success"] == 1
+        assert metrics.format_counts["json"] == 1
+
+    def test_metrics_record_error(self, metrics):
+        """Test recording errors."""
+        error_message = "Test error"
+        metrics.record_error(error_message)
+        
+        assert metrics.error_count == 1
+        assert metrics.last_error is not None
+        assert metrics.last_error_message == error_message
+        assert isinstance(metrics.last_error, datetime)
+
+    def test_metrics_record_rotation(self, metrics):
+        """Test recording rotations."""
+        metrics.record_rotation()
+        
+        assert metrics.last_rotation is not None
+        assert isinstance(metrics.last_rotation, datetime)
+
+    def test_metrics_reset(self, metrics):
+        """Test resetting metrics."""
+        # Add some data
+        metrics.increment_logs("test", "INFO", "success", "json", 100)
+        metrics.record_error("test error")
+        metrics.record_rotation()
+        
+        # Reset
+        metrics.reset()
+        
+        # Verify reset
+        assert metrics.total_logs == 0
+        assert metrics.total_bytes == 0
+        assert metrics.error_count == 0
+        assert metrics.last_error is None
+        assert metrics.last_error_message is None
+        assert metrics.last_rotation is None
+        assert len(metrics.platform_counts) == 0
+        assert len(metrics.level_counts) == 0
+        assert len(metrics.status_counts) == 0
+        assert len(metrics.format_counts) == 0
+
+
+class TestLogManager:
+    """Test suite for log manager functionality."""
+    
+    def test_log_rotation(self, tmp_path):
+        config = LogConfig(
+            log_dir=str(tmp_path),
+            max_bytes=200,
+            backup_count=1,
+            platforms={"system": "system.log"},
+        )
+        manager = LogManager(config)
+
+        # Write enough data to ensure file is created
+        for _ in range(25):
+            manager.info("system", "x" * 10)
+
+        rotated = manager.rotate("system")
+        assert rotated is not None
+        rotated_path = Path(rotated)
+        assert rotated_path.exists()
+        assert rotated_path.name != "system.log"
