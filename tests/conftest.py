@@ -687,7 +687,7 @@ def clean_runtime_dir():
             logging.warning(f"Failed to clean up runtime directory: {e}")
 
 @pytest.fixture(autouse=True)
-async def setup_teardown():
+def setup_teardown():
     """Set up and tear down test environment."""
     # Create a temporary directory for all test files
     temp_base = Path(tempfile.mkdtemp(prefix="dream_os_test_"))
