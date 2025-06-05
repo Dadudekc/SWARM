@@ -21,30 +21,31 @@ class MessageMode(Enum):
     SYSTEM = "SYSTEM"
 
 class CellPhone:
-    """Class for handling cell phone messaging operations."""
+    """Handles agent-to-agent messaging with priority queues and status tracking."""
     
     _instance = None
     
     def __new__(cls, *args, **kwargs):
+        """Ensure singleton instance of CellPhone."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the cell phone handler.
-        
-        Args:
-            config: Optional configuration dictionary
-        """
+        """Initialize messaging system with optional configuration."""
         if not hasattr(self, 'initialized'):
             self.config = config or {}
             self.logger = logging.getLogger(__name__)
             self.queue = MessageQueue()
             self.initialized = True
     
+    def _is_valid_agent(self, agent_id: str) -> bool:
+        """Validate that the agent ID is properly formatted (starts with 'Agent-')."""
+        return isinstance(agent_id, str) and agent_id.startswith("Agent-")
+    
     @classmethod
     def reset_singleton(cls):
-        """Reset the singleton instance."""
+        """Reset the singleton instance for testing purposes."""
         cls._instance = None
     
     def send_message(
@@ -56,28 +57,11 @@ class CellPhone:
         from_agent: Optional[str] = None,
         metadata: Optional[Dict[str, Any]] = None
     ) -> bool:
-        """Send a message to an agent.
-        
-        Args:
-            to_agent: Recipient agent ID
-            content: Message content
-            mode: Message mode (NORMAL, PRIORITY, BULK, SYSTEM)
-            priority: Message priority (0-5)
-            from_agent: Optional sender agent ID
-            metadata: Optional message metadata
-            
-        Returns:
-            True if message was queued successfully
-        """
+        """Queue a message for delivery to an agent with specified mode and priority."""
         if not content or not to_agent:
             return False
 
-        # Basic agent name validation.  Agent identifiers are expected to
-        # follow the pattern ``Agent-<name>``.  The previous implementation
-        # accepted any string which allowed tests to send messages to invalid
-        # agents.  ``send_message`` now rejects destinations that do not start
-        # with ``"Agent-"``.
-        if not to_agent.startswith("Agent-"):
+        if not self._is_valid_agent(to_agent):
             return False
 
         if mode not in [m.value for m in MessageMode]:
@@ -98,125 +82,70 @@ class CellPhone:
         
         return self.queue.add_message(message)
     
-    def get_message_status(self, agent_id: str) -> Optional[Dict[str, Any]]:
-        """Get message status for an agent.
-        
-        Args:
-            agent_id: Agent ID to check
-            
-        Returns:
-            Dict containing message status or None if not found
-        """
+    def get_message_status(self, agent_id: str) -> Dict[str, Any]:
+        """Get current message status and history for an agent."""
         return self.queue.get_agent_status(agent_id)
     
     def get_message_history(self, agent_id: str) -> List[Dict[str, Any]]:
-        """Get message history for an agent.
-        
-        Args:
-            agent_id: Agent ID to check
-            
-        Returns:
-            List of message history entries
-        """
+        """Get complete message history for an agent."""
         return self.queue.get_agent_history(agent_id)
     
     def clear_messages(self, agent_id: str) -> None:
-        """Clear messages for an agent.
-        
-        Args:
-            agent_id: Agent ID to clear messages for
-        """
+        """Clear all messages and reset status for an agent."""
         self.queue.clear_agent_messages(agent_id)
     
     def shutdown(self) -> None:
-        """Shutdown the cell phone handler."""
+        """Shutdown messaging system and clear all queues."""
         self.queue.clear_queue()
 
 class MessageQueue:
-    """Message queue for handling agent communications."""
+    """Manages message queues and status tracking for all agents."""
     
     def __init__(self):
-        """Initialize the message queue."""
+        """Initialize empty message queue and status tracking."""
         self.messages = []
         self.agent_status = {}
     
+    def _get_default_status(self) -> Dict[str, Any]:
+        """Get empty status structure for new or reset agents."""
+        return {
+            'message_history': [],
+            'last_message': None
+        }
+    
     def add_message(self, message: Dict[str, Any]) -> bool:
-        """Add a message to the queue.
-        
-        Args:
-            message: Message to add
-            
-        Returns:
-            True if message was added successfully
-        """
+        """Add a message to the queue and update agent status."""
         self.messages.append(message)
         self._update_agent_status(message)
         return True
     
     def get_queue_size(self) -> int:
-        """Get the current queue size.
-        
-        Returns:
-            Number of messages in queue
-        """
+        """Get total number of messages in the queue."""
         return len(self.messages)
     
     def clear_queue(self) -> None:
-        """Clear all messages from the queue."""
+        """Clear all messages and reset all agent statuses."""
         self.messages.clear()
         self.agent_status.clear()
     
-    def get_agent_status(self, agent_id: str) -> Optional[Dict[str, Any]]:
-        """Get status for an agent.
-        
-        Args:
-            agent_id: Agent ID to check
-            
-        Returns:
-            Dict containing agent status or None if not found
-        """
-        return self.agent_status.get(agent_id)
+    def get_agent_status(self, agent_id: str) -> Dict[str, Any]:
+        """Get current status and history for an agent, creating if needed."""
+        return self.agent_status.get(agent_id, self._get_default_status())
     
     def get_agent_history(self, agent_id: str) -> List[Dict[str, Any]]:
-        """Get message history for an agent.
-        
-        Args:
-            agent_id: Agent ID to check
-            
-        Returns:
-            List of message history entries
-        """
+        """Get all messages sent to an agent."""
         return [msg for msg in self.messages if msg['to_agent'] == agent_id]
     
     def clear_agent_messages(self, agent_id: str) -> None:
-        """Clear messages for an agent.
-
-        Args:
-            agent_id: Agent ID to clear messages for
-        """
+        """Clear all messages and reset status for an agent."""
         self.messages = [msg for msg in self.messages if msg['to_agent'] != agent_id]
-        # Instead of dropping the agent status completely, keep an empty status
-        # record so callers can still query the queue.  This ensures that
-        # ``get_message_status`` returns a predictable object after messages are
-        # cleared.
-        if agent_id in self.agent_status:
-            self.agent_status[agent_id] = {
-                'message_history': [],
-                'last_message': None
-            }
+        self.agent_status[agent_id] = self._get_default_status()
     
     def _update_agent_status(self, message: Dict[str, Any]) -> None:
-        """Update agent status with new message.
-        
-        Args:
-            message: Message to update status with
-        """
+        """Update agent status with a new message."""
         agent_id = message['to_agent']
         if agent_id not in self.agent_status:
-            self.agent_status[agent_id] = {
-                'message_history': [],
-                'last_message': None
-            }
+            self.agent_status[agent_id] = self._get_default_status()
         
         self.agent_status[agent_id]['message_history'].append(message)
         self.agent_status[agent_id]['last_message'] = message
