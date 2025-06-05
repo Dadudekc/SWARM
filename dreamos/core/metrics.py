@@ -4,8 +4,13 @@ Command metrics tracking and reporting.
 
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
-import json
 from pathlib import Path
+
+from dreamos.core.utils.file_ops import (
+    read_json, write_json,
+    ensure_dir, rotate_file,
+    FileOpsError, FileOpsIOError
+)
 
 class CommandMetrics:
     """Track and report command usage metrics."""
@@ -17,7 +22,7 @@ class CommandMetrics:
             metrics_dir: Directory to store metrics files
         """
         self.metrics_dir = metrics_dir or Path("metrics")
-        self.metrics_dir.mkdir(exist_ok=True)
+        ensure_dir(str(self.metrics_dir))
         self.command_counts: Dict[str, int] = {}
         self.last_reset = datetime.now()
         
@@ -45,17 +50,24 @@ class CommandMetrics:
     def save_metrics(self) -> None:
         """Save current metrics to file."""
         metrics_file = self.metrics_dir / f"command_metrics_{datetime.now().strftime('%Y%m%d')}.json"
-        with open(metrics_file, "w") as f:
-            json.dump({
+        try:
+            write_json(str(metrics_file), {
                 "last_reset": self.last_reset.isoformat(),
                 "command_counts": self.command_counts
-            }, f, indent=2)
+            })
+            
+            # Rotate old metrics files (keep last 30 days)
+            rotate_file(str(metrics_file), max_files=30)
+        except FileOpsError as e:
+            print(f"Error saving metrics: {e}")
             
     def load_metrics(self) -> None:
         """Load metrics from most recent file."""
         metrics_files = sorted(self.metrics_dir.glob("command_metrics_*.json"))
         if metrics_files:
-            with open(metrics_files[-1]) as f:
-                data = json.load(f)
+            try:
+                data = read_json(str(metrics_files[-1]))
                 self.last_reset = datetime.fromisoformat(data["last_reset"])
-                self.command_counts = data["command_counts"] 
+                self.command_counts = data["command_counts"]
+            except FileOpsError as e:
+                print(f"Error loading metrics: {e}") 

@@ -4,17 +4,21 @@ Persistent Queue
 A file-based persistent queue implementation with file locking to prevent race conditions.
 """
 
-import json
-import os
 import time
 import logging
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from enum import Enum
 from datetime import datetime
+from filelock import FileLock, Timeout
+
 from dreamos.core.messaging.common import Message, MessagePriority
 from dreamos.core.message import Message as LegacyMessage
-from filelock import FileLock, Timeout
+from dreamos.core.utils.file_ops import (
+    read_json, write_json,
+    ensure_dir,
+    FileOpsError, FileOpsIOError
+)
 
 logger = logging.getLogger('persistent_queue')
 
@@ -42,7 +46,7 @@ class PersistentQueue:
         self._is_test_mode = False  # Flag to disable rate limiting in tests
         
         # Create queue directory if it doesn't exist
-        self.queue_file.parent.mkdir(parents=True, exist_ok=True)
+        ensure_dir(str(self.queue_file.parent))
         
         # Initialize queue file if it doesn't exist
         if not self.queue_file.exists():
@@ -78,18 +82,16 @@ class PersistentQueue:
     def _read_queue(self) -> List[Dict]:
         """Read the current queue from file."""
         try:
-            with open(self.queue_file, 'r') as f:
-                return json.load(f)
-        except Exception as e:
+            return read_json(self.queue_path, default=[])
+        except FileOpsError as e:
             logger.error(f"Error reading queue: {e}")
             return []
     
     def _write_queue(self, queue: List[Dict]):
         """Write the queue to file."""
         try:
-            with open(self.queue_file, 'w') as f:
-                json.dump(queue, f, indent=2)
-        except Exception as e:
+            write_json(self.queue_path, queue)
+        except FileOpsError as e:
             logger.error(f"Error writing queue: {e}")
     
     def _check_rate_limit(self, agent_id: str) -> bool:

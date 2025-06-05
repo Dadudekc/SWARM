@@ -1,10 +1,14 @@
 """Configuration utilities for Dream.OS."""
 
-import os
-import yaml
 import logging
 from pathlib import Path
 from typing import Dict, Any
+
+from dreamos.core.utils.file_ops import (
+    read_yaml, write_yaml,
+    ensure_dir, safe_rmdir,
+    FileOpsError, FileOpsPermissionError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -22,16 +26,11 @@ class ConfigManager:
             Dictionary containing configuration
             
         Raises:
-            FileNotFoundError: If config file doesn't exist
-            yaml.YAMLError: If config file is invalid YAML
+            FileOpsError: If config file doesn't exist or is invalid
         """
-        if not os.path.exists(config_path):
-            raise FileNotFoundError(f"Configuration file not found: {config_path}")
-            
         try:
-            with open(config_path, "r") as f:
-                config = yaml.safe_load(f)
-                
+            config = read_yaml(config_path)
+            
             # Validate required fields
             required_fields = ["log_dir", "channel_assignments", "global_ui"]
             for field in required_fields:
@@ -39,15 +38,15 @@ class ConfigManager:
                     raise ValueError(f"Missing required field: {field}")
                     
             return config
-        except yaml.YAMLError as e:
-            raise yaml.YAMLError(f"Invalid YAML in config file: {e}")
+        except FileOpsError as e:
+            raise FileOpsError(f"Failed to load config: {e}")
     
     @staticmethod
     def setup_test_environment() -> None:
         """Set up test environment.
         
         Raises:
-            PermissionError: If unable to create directories
+            FileOpsPermissionError: If unable to create directories
         """
         try:
             # Create test directories
@@ -58,7 +57,7 @@ class ConfigManager:
             ]
             
             for dir_path in test_dirs:
-                Path(dir_path).mkdir(parents=True, exist_ok=True)
+                ensure_dir(dir_path)
                 
             # Create test config file
             config = {
@@ -79,29 +78,28 @@ class ConfigManager:
             }
             
             config_path = Path("tests/test_config/agent_config.yaml")
-            with open(config_path, "w") as f:
-                yaml.dump(config, f)
+            write_yaml(str(config_path), config)
                 
-        except Exception as e:
-            raise PermissionError(f"Failed to set up test environment: {e}")
+        except FileOpsPermissionError as e:
+            raise FileOpsPermissionError(f"Failed to set up test environment: {e}")
     
     @staticmethod
     def cleanup_test_environment() -> None:
         """Clean up test environment.
         
         Raises:
-            PermissionError: If unable to remove directories
+            FileOpsPermissionError: If unable to remove directories
         """
         try:
-            from tests.conftest import safe_remove, TEST_ROOT, TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, TEST_CONFIG_DIR
+            from tests.conftest import TEST_ROOT, TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, TEST_CONFIG_DIR
             
             # Clean up test directories
             for directory in [TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, TEST_CONFIG_DIR]:
                 if directory.exists():
-                    safe_remove(directory)
+                    safe_rmdir(str(directory), recursive=True)
                     
-        except Exception as e:
-            raise PermissionError(f"Failed to clean up test environment: {e}")
+        except FileOpsPermissionError as e:
+            raise FileOpsPermissionError(f"Failed to clean up test environment: {e}")
     
     @staticmethod
     def get_test_config() -> Dict[str, Any]:

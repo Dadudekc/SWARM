@@ -17,7 +17,7 @@ class LLMAgent:
     def __init__(
         self,
         agent_id: str,
-        message_system: UnifiedMessageSystem,
+        message_system: Optional[UnifiedMessageSystem],
         chatgpt_bridge: ChatGPTBridge,
         system_prompt: Optional[str] = None
     ):
@@ -30,16 +30,14 @@ class LLMAgent:
     
     async def _setup_subscriptions(self):
         """Set up message subscriptions."""
+        if self.message_system is None:
+            return  # Skip setup if no messaging system is wired
         await self.message_system.subscribe(
-            self.agent_id,
-            self._handle_message
-        )
-        await self.message_system.subscribe_pattern(
-            f"{self.agent_id}.*",
-            self._handle_message
+            topic=f"agent.{self.agent_id}.commands",
+            handler=self._handle_command
         )
     
-    async def _handle_message(self, message: Message) -> None:
+    async def _handle_command(self, message: Message):
         """Handle incoming messages."""
         try:
             # Add user message to conversation history
@@ -62,37 +60,39 @@ class LLMAgent:
                 self.chatgpt_bridge.format_assistant_message(response_content)
             )
             
-            # Send response back through messaging system
-            response_message = Message(
-                from_agent=self.agent_id,
-                to_agent=message.from_agent,
-                content=response_content,
-                mode=MessageMode.NORMAL,
-                priority=MessagePriority.NORMAL.value,
-                metadata={
-                    "original_message_id": getattr(message, 'message_id', None),
-                    "timestamp": datetime.now().isoformat()
-                }
-            )
-            
-            await self.message_system.send_message(response_message)
+            # Send response back through messaging system if available
+            if self.message_system is not None:
+                response_message = Message(
+                    from_agent=self.agent_id,
+                    to_agent=message.from_agent,
+                    content=response_content,
+                    mode=MessageMode.NORMAL,
+                    priority=MessagePriority.NORMAL.value,
+                    metadata={
+                        "original_message_id": getattr(message, 'message_id', None),
+                        "timestamp": datetime.now().isoformat()
+                    }
+                )
+                
+                await self.message_system.send_message(response_message)
             
         except Exception as e:
-            # Send error response
-            error_message = Message(
-                from_agent=self.agent_id,
-                to_agent=message.from_agent,
-                content=f"Error processing message: {str(e)}",
-                mode=MessageMode.NORMAL,
-                priority=MessagePriority.HIGH.value,
-                metadata={
-                    "original_message_id": getattr(message, 'message_id', None),
-                    "error": str(e),
-                    "timestamp": datetime.now().isoformat()
-                }
-            )
-            
-            await self.message_system.send_message(error_message)
+            # Send error response if messaging system is available
+            if self.message_system is not None:
+                error_message = Message(
+                    from_agent=self.agent_id,
+                    to_agent=message.from_agent,
+                    content=f"Error processing message: {str(e)}",
+                    mode=MessageMode.NORMAL,
+                    priority=MessagePriority.HIGH.value,
+                    metadata={
+                        "original_message_id": getattr(message, 'message_id', None),
+                        "error": str(e),
+                        "timestamp": datetime.now().isoformat()
+                    }
+                )
+                
+                await self.message_system.send_message(error_message)
     
     async def clear_history(self) -> None:
         """Clear conversation history."""
@@ -108,9 +108,10 @@ class LLMAgent:
     
     async def shutdown(self) -> None:
         """Clean up resources."""
-        # Unsubscribe from messages
-        await self.message_system.unsubscribe(self.agent_id, self._handle_message)
-        await self.message_system.unsubscribe_pattern(f"{self.agent_id}.*", self._handle_message)
+        if self.message_system is not None:
+            # Unsubscribe from messages
+            await self.message_system.unsubscribe(self.agent_id, self._handle_command)
+            await self.message_system.unsubscribe_pattern(f"{self.agent_id}.*", self._handle_command)
         
         # Clear history
         await self.clear_history()

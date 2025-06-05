@@ -11,6 +11,7 @@ from pathlib import Path
 from typing import Optional, Dict, Any, List
 import threading
 import queue
+import asyncio
 import undetected_chromedriver as uc
 from selenium.common.exceptions import (
     NoSuchElementException,
@@ -25,8 +26,7 @@ from selenium.webdriver.support import expected_conditions as EC
 import pyautogui
 import pygetwindow as gw
 
-import asyncio
-from ..logging.log_manager import LogManager
+from ..log_manager import LogManager
 from .cell_phone import CellPhone
 
 # Constants
@@ -82,6 +82,21 @@ class ChatGPTBridge:
             tags=["init", "bridge"]
         )
     
+    def _load_health(self) -> Dict[str, Any]:
+        """Load current health status.
+        
+        Returns:
+            Dict containing health status
+        """
+        try:
+            if not self.health_file.exists():
+                return {"ready": False, "error": "Health file not found"}
+            
+            with open(self.health_file, 'r') as f:
+                return json.load(f)
+        except Exception as e:
+            return {"ready": False, "error": str(e)}
+    
     def _update_health(self, ready: bool, error: Optional[str] = None):
         """Update bridge health status.
         
@@ -133,6 +148,196 @@ class ChatGPTBridge:
             tags=["stop", "bridge"]
         )
     
+    async def request_chatgpt_response(self, agent_id: str, prompt: str) -> None:
+        """Request a response from ChatGPT for an agent.
+        
+        Args:
+            agent_id: ID of the requesting agent
+            prompt: Text prompt to send to ChatGPT
+        """
+        if not agent_id.startswith("Agent-"):
+            raise ValueError("Invalid agent ID format")
+            
+        try:
+            request = {
+                "agent_id": agent_id,
+                "prompt": prompt,
+                "timestamp": time.time()
+            }
+            
+            # Add to queue
+            self.pending_queue.put(request)
+            
+            # Save pending requests
+            pending = list(self.pending_queue.queue)
+            self._save_pending_requests(pending)
+            
+            self.logger.info(
+                platform="chatgpt_bridge",
+                status="queued",
+                message=f"Queued request for agent {agent_id}",
+                tags=["request", "queue"]
+            )
+            
+        except Exception as e:
+            error_msg = f"Failed to queue request: {str(e)}"
+            self._update_health(False, error_msg)
+            self.logger.error(
+                platform="chatgpt_bridge",
+                status="error",
+                message=error_msg,
+                tags=["request", "error"]
+            )
+            raise
+
+    async def process_pending(self) -> None:
+        """
+        Process all pending ChatGPT requests in the internal queue.
+
+        This method is intended for test environments or controlled execution flows
+        where background threads are not started. It ensures deterministic
+        processing of queued messages, mimicking bridge thread behavior.
+
+        Logs all handled requests and preserves compatibility with the
+        CellPhone message pipeline.
+
+        Usage:
+            await bridge.process_pending()
+        """
+        while not self.pending_queue.empty():
+            request = self.pending_queue.get()
+            self._process_request(request)
+            
+        # Update pending requests file
+        pending = list(self.pending_queue.queue)
+        self._save_pending_requests(pending)
+        
+        self.logger.info(
+            platform="chatgpt_bridge",
+            status="processed",
+            message="Processed all pending requests",
+            tags=["process", "queue"]
+        )
+    
+    def _process_request(self, request):
+        """Process a single request from the queue."""
+        try:
+            # Get agent ID and prompt from request
+            agent_id = request.get("agent_id", "agent-unknown")
+            prompt = request.get("prompt", "")
+            
+            if not prompt:
+                return
+            
+            self.logger.info(
+                platform="chatgpt_bridge",
+                status="processing",
+                message=f"Processing request from {agent_id}",
+                tags=["process", "request"]
+            )
+            
+            # Send prompt to ChatGPT
+            response = self._send_prompt(prompt)
+            
+            # Send response back to agent
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If we're in an async context, create a task
+                asyncio.create_task(
+                    self.cell_phone.send_message(
+                        to_agent=agent_id,
+                        content=response,
+                        mode="SYSTEM",
+                        from_agent="chatgpt_bridge",
+                        metadata={"tags": ["bridge_response"]}
+                    )
+                )
+            else:
+                # If we're not in an async context, run the coroutine
+                loop.run_until_complete(
+                    self.cell_phone.send_message(
+                        to_agent=agent_id,
+                        content=response,
+                        mode="SYSTEM",
+                        from_agent="chatgpt_bridge",
+                        metadata={"tags": ["bridge_response"]}
+                    )
+                )
+            
+            self.logger.info(
+                platform="chatgpt_bridge",
+                status="success",
+                message=f"Successfully processed request from {agent_id}",
+                tags=["process", "success"]
+            )
+            
+        except Exception as e:
+            error_msg = f"Error processing request: {str(e)}"
+            loop = asyncio.get_event_loop()
+            if loop.is_running():
+                # If we're in an async context, create a task
+                asyncio.create_task(
+                    self.cell_phone.send_message(
+                        to_agent=agent_id,
+                        content=f"Error: {error_msg}",
+                        mode="SYSTEM",
+                        from_agent="chatgpt_bridge",
+                        metadata={"tags": ["bridge_error"]}
+                    )
+                )
+            else:
+                # If we're not in an async context, run the coroutine
+                loop.run_until_complete(
+                    self.cell_phone.send_message(
+                        to_agent=agent_id,
+                        content=f"Error: {error_msg}",
+                        mode="SYSTEM",
+                        from_agent="chatgpt_bridge",
+                        metadata={"tags": ["bridge_error"]}
+                    )
+                )
+            
+            self.logger.error(
+                platform="chatgpt_bridge",
+                status="error",
+                message=error_msg,
+                tags=["process", "error"]
+            )
+            # Re-queue failed request
+            self.pending_queue.put(request)
+    
+    def _worker_loop(self):
+        """Main worker loop for processing requests."""
+        while self.is_running:
+            try:
+                # Check for pending requests
+                if not self.pending_queue.empty():
+                    request = self.pending_queue.get()
+                    self._process_request(request)
+                    self.pending_queue.task_done()
+                
+                # Save current queue state
+                pending = list(self.pending_queue.queue)
+                if pending:
+                    self._save_pending_requests(pending)
+                
+                # Update health check
+                self._update_health(True)
+                
+                # Small sleep to prevent CPU spinning
+                time.sleep(0.1)
+                
+            except Exception as e:
+                error_msg = f"Error in worker loop: {str(e)}"
+                self._update_health(False, error_msg)
+                self.logger.error(
+                    platform="chatgpt_bridge",
+                    status="error",
+                    message=error_msg,
+                    tags=["worker", "error"]
+                )
+                time.sleep(1)  # Back off on error
+
     def _ensure_valid_session(self):
         """Ensure we have a valid ChatGPT session."""
         current_time = time.time()
@@ -409,59 +614,6 @@ class ChatGPTBridge:
                 tags=["save", "error"]
             )
 
-    def _process_request(self, request: Dict[str, Any]):
-        """Process a single ChatGPT request."""
-        try:
-            agent_id = request.get("agent_id")
-            prompt = request.get("prompt")
-            
-            if not agent_id or not prompt:
-                raise ValueError("Missing required fields in request")
-            
-            # Get ChatGPT response
-            response = self._send_prompt(prompt)
-            
-            # Send response back to agent
-            asyncio.run(
-                self.cell_phone.send_message(
-                    to_agent=agent_id,
-                    content=response,
-                    mode="NORMAL",
-                    from_agent="chatgpt_bridge"
-                )
-            )
-            
-            self.logger.info(
-                platform="chatgpt_bridge",
-                status="success",
-                message=f"Processed request for agent {agent_id}",
-                tags=["process", "success"]
-            )
-            
-        except Exception as e:
-            error_msg = f"Failed to process request: {str(e)}"
-            self._update_health(False, error_msg)
-            
-            # Send error message to agent
-            asyncio.run(
-                self.cell_phone.send_message(
-                    to_agent=agent_id,
-                    content=f"Error: {error_msg}",
-                    mode="SYSTEM",
-                    from_agent="chatgpt_bridge",
-                    metadata={"tags": ["bridge_error"]}
-                )
-            )
-            
-            self.logger.error(
-                platform="chatgpt_bridge",
-                status="error",
-                message=error_msg,
-                tags=["process", "error"]
-            )
-            # Re-queue failed request
-            self.pending_queue.put(request)
-
     def _worker_loop(self):
         """Main worker loop for processing requests."""
         while self.is_running:
@@ -492,43 +644,4 @@ class ChatGPTBridge:
                     message=error_msg,
                     tags=["worker", "error"]
                 )
-                time.sleep(1)  # Back off on error
-
-    def request_chatgpt_response(self, agent_id: str, prompt: str):
-        """Request a response from ChatGPT for an agent.
-        
-        Args:
-            agent_id: ID of the requesting agent
-            prompt: Text prompt to send to ChatGPT
-        """
-        try:
-            request = {
-                "agent_id": agent_id,
-                "prompt": prompt,
-                "timestamp": time.time()
-            }
-            
-            # Add to queue
-            self.pending_queue.put(request)
-            
-            # Save pending requests
-            pending = list(self.pending_queue.queue)
-            self._save_pending_requests(pending)
-            
-            self.logger.info(
-                platform="chatgpt_bridge",
-                status="queued",
-                message=f"Queued request for agent {agent_id}",
-                tags=["request", "queue"]
-            )
-            
-        except Exception as e:
-            error_msg = f"Failed to queue request: {str(e)}"
-            self._update_health(False, error_msg)
-            self.logger.error(
-                platform="chatgpt_bridge",
-                status="error",
-                message=error_msg,
-                tags=["request", "error"]
-            )
-            raise 
+                time.sleep(1)  # Back off on error 
