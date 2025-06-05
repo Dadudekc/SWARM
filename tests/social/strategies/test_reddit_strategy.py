@@ -2,7 +2,6 @@ import os
 import time
 import pytest
 from unittest.mock import Mock, patch, MagicMock
-from datetime import datetime
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import (
     TimeoutException,
@@ -14,15 +13,15 @@ from selenium.common.exceptions import (
 )
 import types
 
-from social.strategies.reddit_strategy import RedditStrategy
-from social.utils.log_config import LogConfig, LogLevel
-from social.utils.log_manager import LogManager
-from social.constants.platform_constants import (
-    REDDIT_MAX_IMAGES,
-)
 from social.utils.social_common import SocialMediaUtils
-from dreamos.core.agent_control.devlog_manager import DevLogManager
+from social.strategies.platform_strategy_base import PlatformStrategy
+from social.strategies.reddit.strategy import RedditStrategy
+from social.strategies.reddit.handlers import LoginHandler, LogoutHandler, PostHandler, CommentHandler
+from social.strategies.reddit.validators import MediaValidator
+from social.strategies.reddit.rate_limiting import RateLimiter
 from social.config.social_config import PlatformConfig
+from social.utils import LogConfig
+from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.driver.proxy_manager import ProxyManager
 
 # --- GLOBAL PATCHES FOR ALL TESTS ---

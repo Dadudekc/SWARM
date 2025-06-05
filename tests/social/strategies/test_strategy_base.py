@@ -3,15 +3,17 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from selenium.common.exceptions import TimeoutException, WebDriverException, ElementClickInterceptedException, ElementNotInteractableException, NoSuchElementException
 from selenium.webdriver.common.by import By
-from social.utils.social_common import SocialMediaUtils
-from dreamos.core.agent_control.devlog_manager import DevLogManager
 from datetime import datetime
 
+from social.utils.social_common import SocialMediaUtils
 from social.strategies.platform_strategy_base import PlatformStrategy
-from social.strategies.reddit_strategy import RedditStrategy
-# from social.core.strategy_base import SocialStrategyBase # Removed, class likely merged/renamed
+from social.strategies.reddit.strategy import RedditStrategy
+from social.strategies.reddit.handlers import LoginHandler, LogoutHandler, PostHandler, CommentHandler
+from social.strategies.reddit.validators import MediaValidator
+from social.strategies.reddit.rate_limiting import RateLimiter
 from social.config.social_config import PlatformConfig
 from social.utils import LogConfig
+from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.driver.proxy_manager import ProxyManager
 
 # --- GLOBAL PATCHES FOR ALL TESTS ---

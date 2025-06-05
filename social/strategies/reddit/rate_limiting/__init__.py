@@ -1,5 +1,9 @@
-"""Utilities for applying Reddit API rate limiting."""
+"""
+Reddit Strategy Rate Limiting
 
-from .rate_limiter import RateLimiter, rate_limit
+This module contains rate limiting functionality for Reddit operations.
+"""
 
-__all__ = ['RateLimiter', 'rate_limit'] 
+from .rate_limiter import RateLimiter
+
+__all__ = ['RateLimiter'] 

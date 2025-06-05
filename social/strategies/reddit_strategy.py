@@ -24,7 +24,7 @@ from social.strategies.platform_strategy_base import PlatformStrategy
 from social.utils.media_validator import MediaValidator
 from social.utils.log_config import LogConfig
 from social.strategies.reddit.post_handler import PostHandler
-from social.strategies.reddit_media import RedditMediaHandler
+from social.strategies.reddit.media import RedditMediaHandler
 from social.strategies.reddit.rate_limiting.rate_limiter import rate_limit, RateLimiter
 from social.strategies.reddit.login_handler import LoginHandler
 

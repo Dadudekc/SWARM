@@ -1,0 +1,10 @@
+# ChatGPT Bridge Configuration
+bridge:
+  # Chrome profile directory (override with CHROME_PROFILE_DIR env var)
+  USER_DATA_DIR: ~/AppData/Local/Google/Chrome/User Data
+  # Cursor window title to focus (override with CURSOR_WINDOW_TITLE env var)
+  CURSOR_WINDOW_TITLE: "Cursor – agent"
+  # Timeouts and delays
+  PAGE_LOAD_WAIT: 10
+  RESPONSE_WAIT: 5
+  PASTE_DELAY: 0.5 
