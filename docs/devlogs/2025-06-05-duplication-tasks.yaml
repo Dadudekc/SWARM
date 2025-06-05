@@ -1,0 +1,25 @@
+- task: unify config directories
+  phase: Phase 1
+  actions:
+    - centralize configs under dreamos/config/
+    - merge autonomy_config.json duplicates
+    - consolidate system_config.yaml and config.json
+
+- task: merge tools and scripts
+  phase: Phase 1
+  actions:
+    - move scripts/dry_scanner.py into tools/
+    - keep all utility scripts in tools/
+    - remove the empty scripts directory
+
+- task: evaluate src vs dreamos modules
+  phase: Phase 2
+  actions:
+    - map src/auth into dreamos/core/auth
+    - remove leftover src directory if redundant
+
+- task: cleanup test layout
+  phase: Phase 2
+  actions:
+    - ensure all tests live in tests/
+    - drop unused tests/core folder
