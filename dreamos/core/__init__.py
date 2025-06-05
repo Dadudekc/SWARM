@@ -33,7 +33,8 @@ try:
 except Exception:  # pragma: no cover - optional dependency
     system_init = None
 
-from .cell_phone import CellPhone, send_message
+# Import from messaging module
+from .messaging.cell_phone import CellPhone, send_message
 from .messaging.common import Message, MessageMode, MessagePriority
 from .persistent_queue import PersistentQueue
 

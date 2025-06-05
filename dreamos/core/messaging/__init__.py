@@ -5,6 +5,7 @@ Messaging module for Dream.OS.
 from .common import Message
 from .enums import MessageMode, MessagePriority, MessageType, TaskStatus, TaskPriority
 from .unified_message_system import MessageSystem
+from .cell_phone import send_message
 try:
     from .phones import Phone, CaptainPhone
 except Exception:  # pragma: no cover - optional dependency
@@ -24,5 +25,6 @@ __all__ = [
     "MessageSystem",
     "Phone",
     "CaptainPhone",
-    "MessageProcessor"
+    "MessageProcessor",
+    "send_message"
 ]

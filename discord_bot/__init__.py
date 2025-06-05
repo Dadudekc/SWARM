@@ -6,12 +6,10 @@
 
 from . import agent_interface
 from . import bot
-from . import commands
 from . import cogs
 
 __all__ = [
     'agent_interface',
     'bot',
-    'commands',
     'cogs',
 ]

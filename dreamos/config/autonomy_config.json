@@ -1,0 +1,38 @@
+{
+    "test_interval": 300,
+    "watch_interval": 60,
+    "check_interval": 5,
+    "max_retries": 3,
+    "clean_file_timeout": 3600,
+    "midnight_hour": 0,
+    "midnight_minute": 0,
+    "commit_message_template": "Agent-X fix: {description}",
+    "pytest": {
+        "verbose": true,
+        "tb_style": "short",
+        "last_failed": true
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "file": "logs/autonomy.log"
+    },
+    "git": {
+        "auto_push": true,
+        "push_interval": 3600
+    },
+    "agents": {
+        "autonomy_agent": {
+            "description": "Main autonomy agent",
+            "capabilities": ["test_fix", "code_review", "commit"]
+        },
+        "test_agent": {
+            "description": "Test specialist",
+            "capabilities": ["test_analysis", "test_fix"]
+        },
+        "code_agent": {
+            "description": "Code specialist",
+            "capabilities": ["code_review", "code_fix"]
+        }
+    }
+} 

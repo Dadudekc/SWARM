@@ -1,0 +1,50 @@
+{
+    "agent1": {
+        "files": [
+            "dreamos/core/agent_control/*",
+            "dreamos/core/system_init.py"
+        ],
+        "description": "Core system and agent control"
+    },
+    "agent2": {
+        "files": [
+            "dreamos/core/messaging/*",
+            "dreamos/communication/*"
+        ],
+        "description": "Message handling and communication"
+    },
+    "agent4": {
+        "files": [
+            "dreamos/agents/*",
+            "dreamos/tasks/*"
+        ],
+        "description": "Agent implementations and task management"
+    },
+    "agent6": {
+        "files": [
+            "dreamos/ui/*",
+            "dreamos/gui/*"
+        ],
+        "description": "UI and GUI components"
+    },
+    "agent7": {
+        "files": [
+            "tests/*",
+            "docs/*"
+        ],
+        "description": "Testing and documentation"
+    },
+    "agent8": {
+        "files": [
+            "dreamos/core/autonomy_loop_runner.py",
+            "config/*"
+        ],
+        "description": "Autonomy and configuration"
+    },
+    "codex": {
+        "files": [
+            "*"
+        ],
+        "description": "Quality control and validation"
+    }
+} 

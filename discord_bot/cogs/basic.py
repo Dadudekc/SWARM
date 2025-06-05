@@ -1,18 +1,68 @@
-"""Basic command set for the Dream.OS Discord bot using a Cog."""
+"""
+Basic Discord bot commands and utilities.
+"""
 
+import discord
 from discord.ext import commands
+from discord import app_commands
+from typing import List, Optional
+from discord.ext.commands import Context
 from social.utils.log_manager import LogManager
 
+# Debug print to check commands.Cog
+import discord.ext.commands as real_commands
+print("DEBUG: commands.Cog is", getattr(real_commands, 'Cog', None))
+
+# Ensure commands.Cog is properly imported
+if not hasattr(commands, 'Cog'):
+    commands.Cog = type('Cog', (), {})
+
+class HelpMenu(commands.Cog):
+    def __init__(self, bot):
+        self.bot = bot
+
+    @commands.command(name="help")
+    async def help_command(self, ctx):
+        await ctx.send("Available commands: !help, !status, !prompt, ...")
+
+class BasicCog(commands.Cog):
+    """Basic bot commands and utilities."""
+    
+    def __init__(self, bot):
+        self.bot = bot
+    
+    @commands.command(name="help")
+    async def show_help(self, ctx):
+        """Display the help menu."""
+        menu = HelpMenu(self.bot)
+        await ctx.send(embed=menu.pages[0], view=menu)
+    
+    @commands.command(name="ping")
+    async def ping(self, ctx):
+        """Check bot latency."""
+        latency = round(self.bot.latency * 1000)
+        await ctx.send(f"Pong! Latency: {latency}ms")
+
+async def setup(bot):
+    """Set up the basic cog."""
+    await bot.add_cog(BasicCog(bot))
 
 class BasicCommands(commands.Cog):
     """Group core bot commands into a Cog for easier management."""
 
     def __init__(self, orchestrator, log_manager: LogManager):
+        """Initialize the basic commands cog.
+        
+        Args:
+            orchestrator: System orchestrator instance
+            log_manager: Log manager instance
+        """
         self.orchestrator = orchestrator
         self.log_manager = log_manager
+        super().__init__()
 
-    @commands.command(name="help")
-    async def cmd_help(self, ctx: commands.Context) -> None:
+    @commands.command()
+    async def help(self, ctx: Context) -> None:
         """Show help information."""
         help_text = (
             "**Dream.OS Bot Commands**\n\n"
@@ -29,8 +79,8 @@ class BasicCommands(commands.Cog):
             tags=["command", "help"],
         )
 
-    @commands.command(name="status")
-    async def cmd_status(self, ctx: commands.Context, agent_id: str) -> None:
+    @commands.command()
+    async def status(self, ctx: Context, agent_id: str) -> None:
         """Show agent status."""
         status = await self.orchestrator.get_agent_status(agent_id)
         msg = f"**Status for Agent {agent_id}**\n\n"
@@ -49,9 +99,9 @@ class BasicCommands(commands.Cog):
             tags=["command", "status"],
         )
 
-    @commands.command(name="task")
-    async def cmd_task(
-        self, ctx: commands.Context, agent_id: str, title: str, *, description: str
+    @commands.command()
+    async def task(
+        self, ctx: Context, agent_id: str, title: str, *, description: str
     ) -> None:
         """Create a new task for an agent."""
         task_id = await self.orchestrator.create_agent_task(
@@ -65,9 +115,9 @@ class BasicCommands(commands.Cog):
             tags=["command", "task"],
         )
 
-    @commands.command(name="devlog")
-    async def cmd_devlog(
-        self, ctx: commands.Context, agent_id: str, category: str, *, content: str
+    @commands.command()
+    async def devlog(
+        self, ctx: Context, agent_id: str, category: str, *, content: str
     ) -> None:
         """Add a devlog entry for an agent."""
         await self.orchestrator.devlog_manager.add_devlog_entry(

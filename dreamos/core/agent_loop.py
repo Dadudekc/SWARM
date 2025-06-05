@@ -17,6 +17,7 @@ from .agent_control.controller import AgentController
 from .agent_logger import AgentLogger
 from .message_processor import MessageProcessor
 from .persistent_queue import PersistentQueue
+from .dreamscribe import Dreamscribe
 from social.utils.log_manager import LogManager
 from social.utils.log_config import LogConfig
 
@@ -37,6 +38,9 @@ class AgentLoop:
         self.inbox_path = Path("D:/SWARM/Dream.OS/runtime/agent_memory")
         self.processed_messages = set()
         
+        # Initialize Dreamscribe for memory logging
+        self.dreamscribe = Dreamscribe()
+        
         # Initialize LogManager with custom config
         log_config = LogConfig(
             log_dir=str(Path.cwd() / "logs" / "agent_loop"),
@@ -51,7 +55,7 @@ class AgentLoop:
         self.log_manager.info(
             platform="agent_loop",
             status="initialized",
-            message="Agent loop initialized with custom logging configuration"
+            message="Agent loop initialized with Dreamscribe integration"
         )
         
     def _load_inbox(self, agent_id: str) -> List[dict]:
@@ -91,6 +95,20 @@ class AgentLoop:
                 # Process the message
                 content = msg.get('content', '')
                 if content:
+                    # Log to Dreamscribe before processing
+                    memory_fragment = {
+                        "timestamp": time.time(),
+                        "agent_id": agent_id,
+                        "content": content,
+                        "context": {
+                            "source": "agent_loop",
+                            "type": "content_generated",
+                            "message_id": msg_id,
+                            "task_id": msg.get('task_id', 'unknown')
+                        }
+                    }
+                    self.dreamscribe.ingest_devlog(memory_fragment)
+                    
                     self.log_manager.info(
                         platform="agent_loop",
                         status="processing",
@@ -102,7 +120,26 @@ class AgentLoop:
                         }
                     )
                     
-                    self.controller.message_processor.send_message(agent_id, content, "NORMAL")
+                    # Process message and get response
+                    response = self.controller.message_processor.send_message(
+                        agent_id, content, "NORMAL"
+                    )
+                    
+                    # Log response to Dreamscribe
+                    if response:
+                        response_fragment = {
+                            "timestamp": time.time(),
+                            "agent_id": agent_id,
+                            "content": response,
+                            "context": {
+                                "source": "agent_loop",
+                                "type": "task_completed",
+                                "message_id": msg_id,
+                                "task_id": msg.get('task_id', 'unknown'),
+                                "status": "success"
+                            }
+                        }
+                        self.dreamscribe.ingest_devlog(response_fragment)
                     
                 # Mark as processed
                 self.processed_messages.add(msg_id)
@@ -118,6 +155,21 @@ class AgentLoop:
                 )
                 
             except Exception as e:
+                # Log error to Dreamscribe
+                error_fragment = {
+                    "timestamp": time.time(),
+                    "agent_id": agent_id,
+                    "content": str(e),
+                    "context": {
+                        "source": "agent_loop",
+                        "type": "task_completed",
+                        "message_id": msg_id,
+                        "task_id": msg.get('task_id', 'unknown'),
+                        "status": "error"
+                    }
+                }
+                self.dreamscribe.ingest_devlog(error_fragment)
+                
                 self.log_manager.error(
                     platform="agent_loop",
                     status="error",

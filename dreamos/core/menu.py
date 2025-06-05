@@ -9,10 +9,7 @@ from dataclasses import dataclass
 from enum import Enum, auto
 import logging
 import warnings
-from PyQt5.QtWidgets import (
-    QApplication, QMainWindow, QWidget, QVBoxLayout, QPushButton,
-    QLabel, QScrollArea, QFrame, QSizePolicy, QSpacerItem, QHBoxLayout
-)
+from PyQt5 import QtWidgets
 from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject
 from PyQt5.QtGui import QFont, QColor, QPalette
 from .ui.agent_status_panel import AgentStatusPanel
@@ -100,7 +97,7 @@ class MenuTheme:
             "footer": QFont("Segoe UI", 8)
         }
 
-class MenuButton(QPushButton):
+class MenuButton(QtWidgets.QPushButton):
     """Custom button widget for menu items."""
     
     def __init__(self, item: MenuItem, theme: MenuTheme, parent=None):
@@ -115,7 +112,7 @@ class MenuButton(QPushButton):
         self.setToolTip(self.item.description)
         self.setFont(self.theme.fonts["item"])
         self.setMinimumHeight(40)
-        self.setSizePolicy(QSizePolicy.Expanding, QSizePolicy.Fixed)
+        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
         self.setCursor(Qt.PointingHandCursor)
         
         # Set style
@@ -140,7 +137,7 @@ class MenuButton(QPushButton):
         if self.item.action:
             self.clicked.connect(self.item.action)
 
-class MenuHeader(QFrame):
+class MenuHeader(QtWidgets.QFrame):
     """Header widget for the menu."""
     
     def __init__(self, title: str, theme: MenuTheme, parent=None):
@@ -150,23 +147,23 @@ class MenuHeader(QFrame):
         
     def setup_ui(self, title: str):
         """Set up header appearance."""
-        layout = QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
         
         # Title label
-        title_label = QLabel(title)
+        title_label = QtWidgets.QLabel(title)
         title_label.setFont(self.theme.fonts["title"])
         title_label.setStyleSheet(f"color: {self.theme.colors['foreground']};")
         layout.addWidget(title_label)
         
         # Separator
-        separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
+        separator = QtWidgets.QFrame()
+        separator.setFrameShape(QtWidgets.QFrame.HLine)
         separator.setStyleSheet(f"background-color: {self.theme.colors['border']};")
         layout.addWidget(separator)
         
         self.setLayout(layout)
 
-class MenuFooter(QFrame):
+class MenuFooter(QtWidgets.QFrame):
     """Footer widget for the menu."""
     
     def __init__(self, theme: MenuTheme, parent=None):
@@ -176,16 +173,16 @@ class MenuFooter(QFrame):
         
     def setup_ui(self):
         """Set up footer appearance."""
-        layout = QVBoxLayout(self)
+        layout = QtWidgets.QVBoxLayout(self)
         
         # Separator
-        separator = QFrame()
-        separator.setFrameShape(QFrame.HLine)
+        separator = QtWidgets.QFrame()
+        separator.setFrameShape(QtWidgets.QFrame.HLine)
         separator.setStyleSheet(f"background-color: {self.theme.colors['border']};")
         layout.addWidget(separator)
         
         # Footer text
-        footer_label = QLabel("Press ESC to exit")
+        footer_label = QtWidgets.QLabel("Press ESC to exit")
         footer_label.setFont(self.theme.fonts["footer"])
         footer_label.setStyleSheet(f"color: {self.theme.colors['foreground']};")
         footer_label.setAlignment(Qt.AlignCenter)
@@ -199,7 +196,7 @@ class MenuSignals(QObject):
     menu_closed = pyqtSignal()  # Emits when menu is closed
     log_message = pyqtSignal(str, str)  # Emits (message, level) for logging
 
-class Menu(QMainWindow):
+class Menu(QtWidgets.QMainWindow):
     """Main menu window class."""
     
     _instance = None
@@ -228,9 +225,9 @@ class Menu(QMainWindow):
         if not self.initialized:
             # Ensure QApplication exists
             if Menu._app is None:
-                Menu._app = QApplication.instance()
+                Menu._app = QtWidgets.QApplication.instance()
                 if Menu._app is None:
-                    Menu._app = QApplication([])
+                    Menu._app = QtWidgets.QApplication([])
             
             # Call parent's __init__
             super().__init__()
@@ -251,18 +248,18 @@ class Menu(QMainWindow):
         self.setMinimumSize(800, 600)
         
         # Main widget and layout
-        main_widget = QWidget()
+        main_widget = QtWidgets.QWidget()
         self.setCentralWidget(main_widget)
-        main_layout = QHBoxLayout(main_widget)
+        main_layout = QtWidgets.QHBoxLayout(main_widget)
         
         # Left panel (menu)
-        left_panel = QWidget()
-        left_layout = QVBoxLayout(left_panel)
+        left_panel = QtWidgets.QWidget()
+        left_layout = QtWidgets.QVBoxLayout(left_panel)
         left_layout.setSpacing(10)
         left_layout.setContentsMargins(20, 20, 20, 20)
         
         # Title label
-        title_label = QLabel(self.title)
+        title_label = QtWidgets.QLabel(self.title)
         title_label.setAlignment(Qt.AlignCenter)
         title_font = QFont()
         title_font.setPointSize(16)
@@ -272,9 +269,9 @@ class Menu(QMainWindow):
         left_layout.addWidget(title_label)
         
         # Scroll area for menu items
-        scroll = QScrollArea()
+        scroll = QtWidgets.QScrollArea()
         scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QFrame.NoFrame)
+        scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
         scroll.setStyleSheet("""
             QScrollArea {
                 border: none;
@@ -297,16 +294,16 @@ class Menu(QMainWindow):
         """)
         
         # Container for menu items
-        self._menu_container = QWidget()
-        self._menu_layout = QVBoxLayout(self._menu_container)
+        self._menu_container = QtWidgets.QWidget()
+        self._menu_layout = QtWidgets.QVBoxLayout(self._menu_container)
         self._menu_layout.setSpacing(10)
         self._menu_layout.setContentsMargins(0, 0, 0, 0)
         scroll.setWidget(self._menu_container)
         left_layout.addWidget(scroll)
         
         # Right panel (status and logs)
-        right_panel = QWidget()
-        right_layout = QVBoxLayout(right_panel)
+        right_panel = QtWidgets.QWidget()
+        right_layout = QtWidgets.QVBoxLayout(right_panel)
         right_layout.setSpacing(10)
         right_layout.setContentsMargins(20, 20, 20, 20)
         
@@ -336,7 +333,7 @@ class Menu(QMainWindow):
         self.signals.log_message.connect(self._log_console.log)
         
         # Add exit button
-        exit_button = QPushButton("Exit")
+        exit_button = QtWidgets.QPushButton("Exit")
         exit_button.setStyleSheet("""
             QPushButton {
                 background-color: #d32f2f;
@@ -528,7 +525,7 @@ def main():
         .add_item(MenuItem(label="Agent Control", action=lambda: print("Opening agent control...")))
         .add_item(MenuItem(label="Settings", action=lambda: print("Opening settings...")))
         .add_item(MenuItem(label="Help", description="View system documentation", action=lambda: print("Opening help...")))
-        .add_item(MenuItem(label="Exit", action=lambda: QApplication.instance().quit()))
+        .add_item(MenuItem(label="Exit", action=lambda: QtWidgets.QApplication.instance().quit()))
         .build())
     
     # Run the menu

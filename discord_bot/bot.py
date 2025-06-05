@@ -8,7 +8,7 @@ import os
 import logging
 import discord
 from discord.ext import commands
-from .cogs import BasicCommands
+from .cogs import HelpMenu, AgentCommands
 from pathlib import Path
 from dreamos.core.agent_control.system_orchestrator import SystemOrchestrator
 from social.utils.log_manager import LogManager, LogLevel
@@ -65,8 +65,9 @@ class DreamOSBot(commands.Bot):
             # Start system orchestrator
             await self.orchestrator.start()
             
-            # Add command cog
-            await self.add_cog(BasicCommands(self.orchestrator, self.log_manager))
+            # Add command cogs
+            await self.add_cog(HelpMenu(self))
+            await self.add_cog(AgentCommands(self))
             
             self.log_manager.info(
                 platform="discord",

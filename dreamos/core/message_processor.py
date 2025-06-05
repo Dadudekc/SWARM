@@ -8,7 +8,7 @@ import logging
 from typing import Dict, List, Optional, Any
 from datetime import datetime
 
-from .cell_phone import CellPhone
+from .messaging.cell_phone import CellPhone
 from .messaging.common import Message, MessageMode
 from .cursor_controller import CursorController
 from .coordinate_manager import CoordinateManager

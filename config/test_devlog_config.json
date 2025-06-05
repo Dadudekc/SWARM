@@ -1,0 +1,49 @@
+{
+    "discord": {
+        "enabled": true,
+        "notify_on": {
+            "test_run_complete": true,
+            "test_failure": true,
+            "fix_attempt": true,
+            "test_progress": true
+        },
+        "embed_colors": {
+            "success": "0x00FF00",
+            "failure": "0xFF0000",
+            "in_progress": "0xFFA500",
+            "warning": "0xFFFF00"
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "file": "runtime/logs/test_devlog.log"
+    },
+    "events": {
+        "test_run_complete": {
+            "enabled": true,
+            "include_summary": true,
+            "include_failures": true
+        },
+        "test_failure": {
+            "enabled": true,
+            "include_traceback": true,
+            "include_context": true
+        },
+        "fix_attempt": {
+            "enabled": true,
+            "include_code": true,
+            "include_error": true
+        },
+        "test_progress": {
+            "enabled": true,
+            "update_interval": 300,
+            "include_percentage": true
+        }
+    },
+    "storage": {
+        "test_history": "runtime/test_history",
+        "fix_history": "runtime/fix_history",
+        "max_history_size": 1000
+    }
+} 

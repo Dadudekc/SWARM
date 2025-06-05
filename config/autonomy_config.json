@@ -1,0 +1,132 @@
+{
+    "system": {
+        "interval_seconds": 300,
+        "timeout_seconds": 300,
+        "max_retries": 3,
+        "log_level": "INFO",
+        "log_file": "logs/autonomy.log",
+        "log_max_size": 10485760,
+        "log_backup_count": 5
+    },
+    "components": {
+        "autonomy_loop": {
+            "enabled": true,
+            "test_interval": 300,
+            "max_concurrent_fixes": 3,
+            "retry_delay": 60
+        },
+        "midnight_runner": {
+            "enabled": true,
+            "midnight_hour": 0,
+            "midnight_minute": 0,
+            "check_interval": 60,
+            "full_test_suite": true
+        },
+        "test_watcher": {
+            "enabled": true,
+            "watch_interval": 30,
+            "test_patterns": ["test_*.py", "*_test.py"],
+            "ignore_patterns": ["test_data/*", "test_cache/*"]
+        },
+        "bridge_handler": {
+            "enabled": true,
+            "check_interval": 5,
+            "max_retries": 3,
+            "response_timeout": 300
+        }
+    },
+    "pytest": {
+        "parallel": true,
+        "max_failures": 10,
+        "traceback_style": "short",
+        "json_report": true,
+        "test_paths": ["tests/"],
+        "ignore_paths": ["test_data/", "test_cache/"]
+    },
+    "agents": {
+        "codex": {
+            "role": "quality_control",
+            "capabilities": ["code_validation", "fix_generation"],
+            "priority": "high"
+        },
+        "default": {
+            "role": "fix_generation",
+            "capabilities": ["code_fixes", "test_updates"],
+            "priority": "normal"
+        }
+    },
+    "git": {
+        "commit_prefix": "✅",
+        "branch": "main",
+        "author_name": "Dream.OS Autonomy",
+        "author_email": "autonomy@dream.os"
+    },
+    "monitoring": {
+        "enabled": true,
+        "metrics_interval": 60,
+        "alert_thresholds": {
+            "test_failures": 5,
+            "fix_attempts": 3,
+            "response_time": 300
+        },
+        "reporting": {
+            "console": true,
+            "file": "logs/metrics.json",
+            "interval": 3600
+        }
+    },
+    "performance": {
+        "max_workers": 8,
+        "chunk_size": 100,
+        "test_timeout": 300,
+        "max_concurrent_tests": 10,
+        "test_interval": 300,
+        "max_retries": 3
+    },
+    "test_execution": {
+        "parallel": true,
+        "distributed": false,
+        "shuffle": true,
+        "fail_fast": false,
+        "retry_failed": true,
+        "timeout_per_test": 60
+    },
+    "resource_limits": {
+        "max_memory_per_test": "512MB",
+        "max_cpu_per_test": 1,
+        "max_total_memory": "4GB",
+        "max_total_cpu": 8
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+        "file": "runtime/logs/autonomy.log",
+        "max_file_size": "100MB",
+        "backup_count": 5
+    },
+    "notifications": {
+        "discord": {
+            "enabled": true,
+            "notify_on": {
+                "test_run_complete": true,
+                "test_failure": true,
+                "fix_attempt": true,
+                "test_progress": true
+            }
+        },
+        "email": {
+            "enabled": false
+        }
+    },
+    "storage": {
+        "test_history": "runtime/test_history",
+        "fix_history": "runtime/fix_history",
+        "max_history_size": 1000,
+        "cleanup_interval": 86400
+    },
+    "commit_message_template": "Agent-X fix: {description}",
+    "agent_ownership": {
+        "default": "Agent-1",
+        "fallback": "codex"
+    }
+} 

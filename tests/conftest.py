@@ -79,8 +79,12 @@ if 'praw' not in sys.modules:
     sys.modules['praw'] = MagicMock()
 
 # Provide selenium stubs if selenium is not installed
-if 'selenium' not in sys.modules:
+try:
+    import selenium
+except ImportError:
     import types
+    import logging
+    logging.warning("Selenium not installed - creating stub modules for testing")
 
     selenium_stub = types.ModuleType('selenium')
     webdriver_mod = types.ModuleType('selenium.webdriver')
@@ -108,6 +112,12 @@ if 'selenium' not in sys.modules:
     class By:
         ID = 'id'
         CSS_SELECTOR = 'css'
+        XPATH = 'xpath'
+        NAME = 'name'
+        CLASS_NAME = 'class name'
+        TAG_NAME = 'tag name'
+        LINK_TEXT = 'link text'
+        PARTIAL_LINK_TEXT = 'partial link text'
 
     by_mod.By = By
 
@@ -119,18 +129,51 @@ if 'selenium' not in sys.modules:
     webdriver_support.expected_conditions = webdriver_support_ec
 
     class WebDriver:
-        pass
-    webdriver_remote_webdriver.WebDriver = WebDriver
-    class WebDriverWait:
-        def __init__(self, *a, **k):
+        def __init__(self, *args, **kwargs):
             pass
-        def until(self, *a, **k):
+        def quit(self):
+            pass
+        def get(self, url):
+            pass
+        def find_element(self, by, value):
+            return WebElement()
+        def find_elements(self, by, value):
+            return [WebElement()]
+
+    webdriver_remote_webdriver.WebDriver = WebDriver
+
+    class WebDriverWait:
+        def __init__(self, driver, timeout):
+            self.driver = driver
+            self.timeout = timeout
+        def until(self, method, message=''):
             return True
+        def until_not(self, method, message=''):
+            return True
+
     webdriver_support_ui.WebDriverWait = WebDriverWait
+
     class WebElement:
-        pass
+        def __init__(self):
+            pass
+        def click(self):
+            pass
+        def send_keys(self, keys):
+            pass
+        def clear(self):
+            pass
+        def get_attribute(self, name):
+            return None
+        def is_displayed(self):
+            return True
+        def is_enabled(self):
+            return True
+        def is_selected(self):
+            return False
+
     webdriver_remote_webelement.WebElement = WebElement
 
+    # Set up the module hierarchy
     sys.modules.update({
         'selenium': selenium_stub,
         'selenium.webdriver': webdriver_mod,
@@ -146,8 +189,26 @@ if 'selenium' not in sys.modules:
         'selenium.common.exceptions': exc_mod,
     })
 
+    # Create expected_conditions alias
+    webdriver_support_ec.EC = webdriver_support_ec
+else:
+    # Now check for required submodules and fail loudly if missing
+    try:
+        import selenium.webdriver.chrome.service
+        from selenium.webdriver.common.by import By
+        from selenium.webdriver.support.ui import WebDriverWait
+        from selenium.webdriver.support import expected_conditions as EC
+    except ImportError as e:
+        raise ImportError(
+            f"Selenium is installed but required submodules are missing: {e}. "
+            "Try reinstalling with: pip install --force-reinstall selenium"
+        )
+
 from tests.utils.gui_test_utils import is_headless_environment, should_skip_gui_test
-from tests.test_config import setup_test_environment, cleanup_test_environment
+from tests.test_config import (
+    setup_test_environment as _setup_test_environment,
+    cleanup_test_environment as _cleanup_test_environment,
+)
 from tests.utils.test_utils import (
     safe_remove, TEST_ROOT, TEST_DATA_DIR, TEST_OUTPUT_DIR,
     VOICE_QUEUE_DIR, TEST_CONFIG_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR,
@@ -718,13 +779,6 @@ def bot() -> discord.Client:
     """Create a mock bot instance."""
     return MagicMock(spec=discord.Client)
 
-@pytest_asyncio.fixture(autouse=True)
-async def setup_teardown():
-    """Set up and tear down the test environment."""
-    setup_test_environment()
-    yield
-    cleanup_test_environment()
-
 @pytest.fixture
 def temp_config_dir():
     """Create a temporary directory for configuration files."""
@@ -896,9 +950,9 @@ def mock_compressed_log_file(test_log_dir: Path) -> Path:
 @pytest.fixture(scope="session", autouse=True)
 def setup_and_cleanup():
     """Set up test environment before tests and clean up after."""
-    setup_test_environment()
+    _setup_test_environment()
     yield
-    cleanup_test_environment()
+    _cleanup_test_environment()
 
 @pytest.fixture(scope="function")
 def temp_log_dir() -> Path:
@@ -1066,4 +1120,19 @@ def pytest_collection_modifyitems(config, items):
                 pytest.mark.skip(
                     reason=f"Test quarantined: {quarantined_tests[test_name]}"
                 )
-            ) 
+            )
+
+@pytest.fixture(scope="function")
+def setup_test_environment():
+    """Fixture to set up and clean up the test environment."""
+    _setup_test_environment()
+    yield
+    _cleanup_test_environment()
+
+@pytest.fixture(scope="function")
+def setup_test_environment_fixture():
+    """Fixture to set up and clean up the test environment (renamed to avoid shadowing)."""
+    from tests.test_config import setup_test_environment as setup_fn, cleanup_test_environment as cleanup_fn
+    setup_fn()
+    yield
+    cleanup_fn() 

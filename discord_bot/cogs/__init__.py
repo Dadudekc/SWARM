@@ -1,5 +1,13 @@
-"""Command cogs for the Discord bot."""
+"""
+Discord Bot Cogs
+---------------
+Command modules for the Discord bot.
+"""
 
-from .basic import BasicCommands
+from .basic import HelpMenu
+from .agent import AgentCommands
 
-__all__ = ["BasicCommands"]
+__all__ = [
+    'HelpMenu',
+    'AgentCommands',
+]

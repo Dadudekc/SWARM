@@ -20,6 +20,55 @@ from .unified_message_system import (
 
 logger = logging.getLogger('dreamos.messaging')
 
+async def send_message(
+    to_agent: str,
+    content: str,
+    mode: str = "NORMAL",
+    priority: str = "NORMAL",
+    from_agent: str = "system",
+    metadata: Optional[Dict[str, Any]] = None,
+    runtime_dir: Optional[Path] = None
+) -> bool:
+    """Send a message using the unified message system.
+    
+    Args:
+        to_agent: Target agent ID
+        content: Message content
+        mode: Message mode
+        priority: Message priority
+        from_agent: Sender agent ID
+        metadata: Additional message metadata
+        runtime_dir: Optional runtime directory path
+        
+    Returns:
+        bool: True if message was successfully sent
+    """
+    try:
+        if runtime_dir is None:
+            runtime_dir = Path("runtime")
+            
+        ums = MessageSystem(runtime_dir=runtime_dir)
+        cell_phone = CellPhone(from_agent, ums)
+        return await cell_phone.send_message(
+            to_agent=to_agent,
+            content=content,
+            mode=mode,
+            priority=priority,
+            from_agent=from_agent,
+            metadata=metadata
+        )
+    except Exception as e:
+        logger.error(f"Error sending message: {e}")
+        return False
+
+__all__ = [
+    'CellPhone',
+    'send_message',
+    'parse_args',
+    'validate_priority',
+    'cli_main'
+]
+
 class CellPhone(BaseMessagingComponent):
     """Simplified interface to the unified message system."""
     
@@ -229,42 +278,6 @@ class CellPhone(BaseMessagingComponent):
         except Exception as e:
             logger.error(f"Error processing message: {e}")
 
-async def send_message(
-    to_agent: str,
-    content: str,
-    mode: str = "NORMAL",
-    priority: str = "NORMAL",
-    from_agent: str = "system",
-    metadata: Optional[Dict[str, Any]] = None,
-    runtime_dir: Optional[Path] = None
-) -> bool:
-    """Send a message using a temporary CellPhone instance.
-    
-    Args:
-        to_agent: Target agent ID
-        content: Message content
-        mode: Message mode
-        priority: Message priority
-        from_agent: Sender agent ID
-        metadata: Additional message metadata
-        runtime_dir: Optional runtime directory
-        
-    Returns:
-        bool: True if message was successfully sent
-    """
-    phone = CellPhone(agent_id="temp", ums=MessageSystem(runtime_dir=runtime_dir))
-    try:
-        return await phone.send_message(
-            to_agent=to_agent,
-            content=content,
-            mode=mode,
-            priority=priority,
-            from_agent=from_agent,
-            metadata=metadata
-        )
-    finally:
-        await phone.cleanup()
-
 def parse_args() -> argparse.Namespace:
     """Parse command line arguments.
     
@@ -290,12 +303,4 @@ def validate_priority(priority: str) -> str:
 
 def cli_main():
     """Stub CLI entry point for cell phone interface."""
-    print("CellPhone CLI not implemented. Use as a module.")
-
-__all__ = [
-    "CellPhone",
-    "send_message",
-    "parse_args",
-    "validate_priority",
-    "cli_main"
-] 
+    print("CellPhone CLI not implemented. Use as a module.") 
