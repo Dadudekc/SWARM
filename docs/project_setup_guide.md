@@ -60,12 +60,12 @@ cd SWARM
 ### 4. Database Setup
 1. Initialize database
    ```bash
-   python scripts/init_db.py
+   python tools/init_db.py
    ```
 
 2. Verify database connection
    ```bash
-   python scripts/verify_db.py
+   python tools/verify_db.py
    ```
 
 ## Project Structure
@@ -78,7 +78,6 @@ SWARM/
 ├── discord_bot/          # Discord bot implementation
 ├── docs/                 # Documentation
 ├── runtime/             # Runtime files
-├── scripts/             # Utility scripts
 ├── tests/               # Test files
 ├── .env                 # Environment variables
 ├── config.json          # Configuration file
@@ -122,7 +121,7 @@ SWARM/
 
 2. Configure test environment
    ```bash
-   python scripts/setup_test_env.py
+   python tools/setup_test_env.py
    ```
 
 ## Running the Project

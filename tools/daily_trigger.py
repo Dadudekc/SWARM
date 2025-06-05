@@ -9,7 +9,7 @@ from typing import List
 import requests
 import schedule
 
-from self_discovery.journal import get_today_stats, init_db
+from dreamos.core.self_discovery import journal
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 
@@ -30,7 +30,7 @@ def send_notification(message: str) -> None:
 
 def check_activities() -> None:
     """Check today's activity status and send reminders if needed."""
-    stats = get_today_stats()
+    stats = journal.get_today_stats()
     missing: List[str] = [name for name, done in (
         ("coding", stats["coded"]),
         ("trading", stats["traded"]),
@@ -47,7 +47,7 @@ def check_activities() -> None:
 
 def main() -> None:
     """Run the daily trigger scheduler."""
-    init_db()
+    journal.init_db()
     schedule.every().day.at(CHECK_TIME).do(check_activities)
     logging.info("Daily trigger scheduled at %s", CHECK_TIME)
     while True:
