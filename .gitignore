@@ -156,3 +156,8 @@ runtime/bridge_inbox/bridge.log
 !agent_tools/general_tools/browser/
 !docs/specs/integrations/
 !config/stealth_bridge.yaml 
+# Runtime artifacts
+backups/
+data/health/
+*.runtime.log
+task_backlog.json
