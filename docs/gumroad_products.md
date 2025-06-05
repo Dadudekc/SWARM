@@ -15,7 +15,7 @@ Below are sample product pages for monetizing key tools in the Dream.OS reposito
   - Quickly share development updates on social media
   - Maintain a visual diary of your progress
 - **What's Included**
-  - Python script `scripts/autopitch_machine.py`
+  - Python script `tools/autopitch_machine.py`
   - Example configuration and usage guide
 - **Price**: $9
 

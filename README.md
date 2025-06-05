@@ -26,10 +26,10 @@ of the most important directories:
 - `agent_tools/` – Utilities for managing agents and scanning projects.
 - `discord_bot/` – Discord integration and bot commands.
 - `crime_report_generator/` – Stand‑alone module for generating crime reports.
-- `tools/` and `scripts/` – Assorted helper scripts and automation utilities.
+- `tools/` – Assorted helper scripts and automation utilities.
 - `config/` – Configuration templates and environment files.
 - `runtime/` – Temporary runtime files such as queues and logs.
-- `data/` and `reports/` – Generated data artifacts and reports.
+- `data/` – Generated data artifacts and reports.
 - `tests/` – Unit and integration tests.
 - `docs/` – Additional documentation including this overview.
 

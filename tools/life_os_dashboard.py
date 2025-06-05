@@ -7,12 +7,12 @@ import json
 from pathlib import Path
 import requests
 
-from self_discovery.journal import calculate_relapse_risk, log_coding_session, init_db
+from dreamos.core.self_discovery import journal
 
 DB_PATH = Path("data/life_os.db")
 
 # Initialize database
-init_db(DB_PATH)
+journal.init_db(DB_PATH)
 conn = sqlite3.connect(DB_PATH)
 cur = conn.cursor()
 cur.execute("CREATE TABLE IF NOT EXISTS habits(date TEXT, habit TEXT, completed INTEGER)")
@@ -151,7 +151,7 @@ with tabs[4]:
     entry = st.text_area("Entry", "")
     emotion = st.selectbox("Emotion", ["😀", "🙂", "😐", "😞", "😡"])
     if st.button("Save Entry"):
-        score = calculate_relapse_risk(entry)
+        score = journal.calculate_relapse_risk(entry)
         cur.execute(
             "REPLACE INTO journal_entries(date, entry, emotion, relapse_score) VALUES(?,?,?,?)",
             (today, entry, emotion, score),
@@ -173,7 +173,7 @@ with tabs[5]:
     cur = conn.cursor()
     notes = st.text_input("Notes", "")
     if st.button("Log Session"):
-        log_coding_session(notes)
+        journal.log_coding_session(notes)
         conn.commit()
     cur.execute(
         "SELECT timestamp, notes FROM coding_sessions ORDER BY timestamp DESC LIMIT 10"

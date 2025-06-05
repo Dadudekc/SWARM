@@ -56,13 +56,13 @@ python -m gui
 ### Command Line
 ```bash
 # Analyze logs for an agent
-python scripts/analyze_logs.py --agent agent1 --level error --summary
+python tools/analyze_logs.py --agent agent1 --level error --summary
 
 # Export as markdown
-python scripts/analyze_logs.py --agent agent1 --summary --export md
+python tools/analyze_logs.py --agent agent1 --summary --export md
 
 # Export as JSON
-python scripts/analyze_logs.py --agent agent1 --summary --export json
+python tools/analyze_logs.py --agent agent1 --summary --export json
 ```
 
 ## Failure Recovery
@@ -75,8 +75,8 @@ python scripts/analyze_logs.py --agent agent1 --summary --export json
    - Ensure log directory exists
 
 2. **Log Rotation Issues**
-   - Clear old logs: `python scripts/analyze_logs.py --agent agent1 --clear`
-   - Rotate logs: `python scripts/analyze_logs.py --agent agent1 --rotate`
+   - Clear old logs: `python tools/analyze_logs.py --agent agent1 --clear`
+   - Rotate logs: `python tools/analyze_logs.py --agent agent1 --rotate`
 
 3. **System Validation**
    - Run test suite: `python -m pytest tests/core/test_log_manager.py`
@@ -94,7 +94,7 @@ python scripts/analyze_logs.py --agent agent1 --summary --export json
    python -m pytest tests/core/test_log_manager.py
    
    # Clear and rotate if needed
-   python scripts/analyze_logs.py --agent agent1 --clear --rotate
+   python tools/analyze_logs.py --agent agent1 --clear --rotate
    ```
 
 2. **System Check**
