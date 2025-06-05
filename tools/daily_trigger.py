@@ -9,7 +9,7 @@ from typing import List
 import requests
 import schedule
 
-from self_discovery.journal import get_today_stats, init_db
+from dreamos.core.self_discovery.journal import get_today_stats, init_db
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s")
 

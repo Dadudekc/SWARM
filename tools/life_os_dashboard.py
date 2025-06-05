@@ -7,7 +7,11 @@ import json
 from pathlib import Path
 import requests
 
-from self_discovery.journal import calculate_relapse_risk, log_coding_session, init_db
+from dreamos.core.self_discovery.journal import (
+    calculate_relapse_risk,
+    log_coding_session,
+    init_db,
+)
 
 DB_PATH = Path("data/life_os.db")
 

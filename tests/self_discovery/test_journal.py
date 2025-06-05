@@ -3,7 +3,7 @@
 import sqlite3
 from pathlib import Path
 
-from self_discovery import journal
+from dreamos.core.self_discovery import journal
 
 
 def test_calculate_relapse_risk():
