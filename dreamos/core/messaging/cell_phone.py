@@ -71,10 +71,18 @@ class CellPhone:
         """
         if not content or not to_agent:
             return False
-            
+
+        # Basic agent name validation.  Agent identifiers are expected to
+        # follow the pattern ``Agent-<name>``.  The previous implementation
+        # accepted any string which allowed tests to send messages to invalid
+        # agents.  ``send_message`` now rejects destinations that do not start
+        # with ``"Agent-"``.
+        if not to_agent.startswith("Agent-"):
+            return False
+
         if mode not in [m.value for m in MessageMode]:
             return False
-            
+
         if not 0 <= priority <= 5:
             return False
             
@@ -182,13 +190,20 @@ class MessageQueue:
     
     def clear_agent_messages(self, agent_id: str) -> None:
         """Clear messages for an agent.
-        
+
         Args:
             agent_id: Agent ID to clear messages for
         """
         self.messages = [msg for msg in self.messages if msg['to_agent'] != agent_id]
+        # Instead of dropping the agent status completely, keep an empty status
+        # record so callers can still query the queue.  This ensures that
+        # ``get_message_status`` returns a predictable object after messages are
+        # cleared.
         if agent_id in self.agent_status:
-            del self.agent_status[agent_id]
+            self.agent_status[agent_id] = {
+                'message_history': [],
+                'last_message': None
+            }
     
     def _update_agent_status(self, message: Dict[str, Any]) -> None:
         """Update agent status with new message.
