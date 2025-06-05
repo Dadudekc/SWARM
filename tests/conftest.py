@@ -954,53 +954,64 @@ def setup_and_cleanup():
     yield
     _cleanup_test_environment()
 
+def safe_rmdir(path: Path, max_retries: int = 3, retry_delay: float = 0.1) -> bool:
+    """Safely remove a directory and its contents with retries.
+    
+    Args:
+        path: Path to directory to remove
+        max_retries: Maximum number of retry attempts
+        retry_delay: Delay between retries in seconds
+        
+    Returns:
+        bool: True if removal was successful, False otherwise
+    """
+    import time
+    import gc
+    
+    for attempt in range(max_retries):
+        try:
+            # Force garbage collection to release file handles
+            gc.collect()
+            
+            if not path.exists():
+                return True
+                
+            # Try to remove files individually first
+            for item in path.iterdir():
+                try:
+                    if item.is_file():
+                        item.unlink()
+                    elif item.is_dir():
+                        shutil.rmtree(item)
+                except (PermissionError, OSError) as e:
+                    logging.warning(f"Failed to remove {item}: {e}")
+                    continue
+            
+            # Then try to remove the directory itself
+            try:
+                path.rmdir()
+                return True
+            except (PermissionError, OSError) as e:
+                logging.warning(f"Failed to remove directory {path}: {e}")
+                
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay)
+                
+        except Exception as e:
+            logging.warning(f"Error during directory removal attempt {attempt + 1}: {e}")
+            if attempt < max_retries - 1:
+                time.sleep(retry_delay)
+                
+    return False
+
 @pytest.fixture(scope="function")
 def temp_log_dir() -> Path:
     """Create a temporary log directory for each test."""
     log_dir = Path("tests/runtime/logs")
     log_dir.mkdir(parents=True, exist_ok=True)
     yield log_dir
-    # Clean up after test
-    if log_dir.exists():
-        # First, ensure all file handles are closed
-        import gc
-        gc.collect()
-        time.sleep(0.1)  # Give time for file handles to be released
-        
-        # Then remove files
-        for file in log_dir.glob("*"):
-            try:
-                if file.is_file():
-                    # Try to close any open handles
-                    try:
-                        with open(file, 'r') as f:
-                            pass  # Just open and close to ensure handle is released
-                    except:
-                        pass
-                    file.unlink()
-                elif file.is_dir():
-                    shutil.rmtree(file)
-            except (PermissionError, OSError) as e:
-                logging.warning(f"Failed to remove {file}: {e}")
-                time.sleep(0.1)  # Wait before retrying
-                try:
-                    if file.is_file():
-                        file.unlink()
-                    elif file.is_dir():
-                        shutil.rmtree(file)
-                except (PermissionError, OSError) as e:
-                    logging.warning(f"Failed to remove {file} after retry: {e}")
-        
-        # Finally remove the directory
-        try:
-            log_dir.rmdir()
-        except (PermissionError, OSError) as e:
-            logging.warning(f"Failed to remove log directory {log_dir}: {e}")
-            time.sleep(0.1)  # Wait before retrying
-            try:
-                log_dir.rmdir()
-            except (PermissionError, OSError) as e:
-                logging.warning(f"Failed to remove log directory {log_dir} after retry: {e}")
+    # Clean up after test using safe removal
+    safe_rmdir(log_dir)
 
 @pytest.fixture(scope="function")
 def mock_redis():
