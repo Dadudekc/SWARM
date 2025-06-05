@@ -5,7 +5,7 @@ odyssey_board.py
 PyQt5 board: 3 tabs (one per Odyssey path) ▸ drag-and-drop columns: TODO, DOING, DONE.
 
 Start:
-    python scripts/odyssey_board.py runtime/planning/odyssey/agent_2_odyssey.yaml
+    python tools/odyssey_board.py runtime/planning/odyssey/agent_2_odyssey.yaml
 """
 import sys, yaml
 from pathlib import Path

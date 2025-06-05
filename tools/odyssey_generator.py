@@ -6,7 +6,7 @@ Auto-creates a 3-path Odyssey Plan (Current / Freedom / Wildcard) for an agent.
 
 Usage
 -----
-python scripts/odyssey_generator.py \
+python tools/odyssey_generator.py \
     --agent-id 2 \
     --devlog runtime/devlog/agents/agent_2/devlog.md \
     --out runtime/planning/odyssey/agent_2_odyssey.yaml

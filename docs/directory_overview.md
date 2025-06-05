@@ -4,20 +4,19 @@ This document describes the purpose of the main folders in the repository to mak
 
 ## Core Components
 
-- `dreamos/` - Core system implementation including orchestrator, messaging and agent management modules.
-- `agent_tools/` - Helper utilities for scanning and managing agents.
+- `dreamos/` - Core system implementation including orchestrator, messaging, agent management, and self-discovery modules.
+- `tools/` - All utility scripts, automation tools, and helper functions for development and operations.
 - `discord_bot/` - Discord integration including the bot and command handlers.
 - `crime_report_generator/` - Stand‑alone module used for generating crime reports.
 
-## Utilities and Scripts
+## Documentation and Examples
 
-- `tools/` - Assorted helper and automation scripts used in development and operations.
-- `docs/examples/` - Small code samples demonstrating library usage.
-- `docs/` - Project documentation.
+- `docs/` - Project documentation and guides.
+- `docs/examples/` - Code samples and examples demonstrating library usage.
 
-## Data and Runtime
+## Configuration and Data
 
-- `config/` - Configuration templates and environment files.
+- `config/` - Configuration files, templates, and environment settings.
 - `runtime/` - Temporary runtime files (queues, logs, etc.).
 - `data/` - Data artifacts including dev logs.
 

@@ -73,27 +73,31 @@ cd SWARM
 ### Directory Layout
 ```
 SWARM/
-├── agent_tools/          # Agent-related tools
-├── core/                 # Core system components
-├── discord_bot/          # Discord bot implementation
-├── docs/                 # Documentation
-├── runtime/             # Runtime files
-├── tests/               # Test files
-├── .env                 # Environment variables
-├── config.json          # Configuration file
-└── requirements.txt     # Python dependencies
+├── dreamos/             # Core system components including self-discovery
+├── tools/              # All utility scripts and automation tools
+├── discord_bot/        # Discord bot implementation
+├── docs/              # Documentation and examples
+│   └── examples/      # Code samples and usage examples
+├── config/            # Configuration files and settings
+├── runtime/           # Runtime files
+├── tests/             # Test files
+├── .env               # Environment variables
+├── config.json        # Configuration file
+└── requirements.txt   # Python dependencies
 ```
 
 ### Key Components
-1. `agent_tools/`
-   - Agent communication tools
-   - Message handling
-   - State management
-
-2. `core/`
-   - System core functionality
+1. `dreamos/`
+   - Core system functionality
    - Agent management
+   - Self-discovery modules
    - Resource handling
+
+2. `tools/`
+   - Development utilities
+   - Automation scripts
+   - Helper functions
+   - Agent tools
 
 3. `discord_bot/`
    - Bot implementation
