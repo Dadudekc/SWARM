@@ -20,15 +20,7 @@ This document outlines different ways to package the Dream.OS platform for vario
   - JSON logging with detailed metadata
 - **Ideal For**: Marketing teams needing reliable, API-free social automation.
 
-## 3. Trading Bots and Market Monitoring
-- **Purpose**: Leverage the trading bot integration to automate trading strategies and monitor market signals.
-- **Features**:
-  - Signal routing from agents to trading APIs
-  - Task manager tracks active trades and strategies
-  - Logging for trades and performance metrics
-- **Ideal For**: Users seeking an automated trading assistant within the Dream.OS ecosystem.
-
-## 4. On-Premise Automation Suite
+## 3. On-Premise Automation Suite
 - **Purpose**: Offer a packaged distribution for organizations requiring full control over their environment.
 - **Features**:
   - Same orchestrator, agent management, and message routing as the SaaS version
@@ -36,7 +28,7 @@ This document outlines different ways to package the Dream.OS platform for vario
   - Suitable for internal task bots or large-scale deployments
 - **Ideal For**: Enterprises with strict data or security policies who prefer local deployment.
 
-## 5. SDK for Custom Agents
+## 4. SDK for Custom Agents
 - **Purpose**: Provide a lightweight framework for developers to build agents that integrate with the orchestrator and messaging system.
 - **Features**:
   - Template agent structure with base classes

@@ -16,4 +16,4 @@ Agent <-> CellPhone <-> UnifiedMessageSystem <-> Agent
                   Captain
 ```
 
-External services (Discord, trading APIs, web automation) plug into the orchestrator via adapters. Dreamscribe stores narrative memory under `runtime/`, while StealthBrowser enables low-detection browser automation for the ChatGPT and Codex bridges.
+External services (Discord and other web APIs) plug into the orchestrator via adapters. Dreamscribe stores narrative memory under `runtime/`, while StealthBrowser enables low-detection browser automation for the ChatGPT and Codex bridges.

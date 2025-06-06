@@ -4,7 +4,7 @@
 This document outlines the key requirements and goals for the Dream.OS project. It serves as a roadmap for ongoing development and helps ensure features align with the overall vision.
 
 ## Vision
-Dream.OS is a swarm‑driven AI platform where multiple autonomous agents coordinate tasks, log activity, and can integrate with external services like Discord and trading APIs. The platform should provide reliable agent orchestration, robust communication, extensible task management, and rich logging/monitoring tools.
+Dream.OS is a swarm‑driven AI platform where multiple autonomous agents coordinate tasks, log activity, and can integrate with external services like Discord. The platform should provide reliable agent orchestration, robust communication, extensible task management, and rich logging/monitoring tools.
 
 ## Stakeholders
 - **Project Maintainers** – oversee development and ensure consistency
@@ -29,14 +29,10 @@ Dream.OS is a swarm‑driven AI platform where multiple autonomous agents coordi
    - Centralized logging with rotation and archival
    - Discord integration for log summaries and alerts
    - Optional GUI dashboard for viewing logs
-5. **Trading Bot Integration**
-   - Example strategies using the Alpaca API
-   - Paper trading and live trading modes
-   - Backtesting utilities
-6. **Social Media Automation**
+5. **Social Media Automation**
    - Platform strategies for Twitter, Facebook, Reddit, Instagram, LinkedIn, and StockTwits
    - Scheduling, posting, and engagement tracking
-7. **Extensibility**
+6. **Extensibility**
    - Modular design so new features can be added without major refactoring
    - Documented SDK for building custom agents or integrations
 8. **Testing & Quality**
@@ -55,8 +51,8 @@ Dream.OS is a swarm‑driven AI platform where multiple autonomous agents coordi
 2. **Discord Control Interface**
    - Commands for listing agents, sending messages, and monitoring status
    - Logging summaries via Discord
-3. **Trading & Social Modules**
-   - Integrate example trading strategies and social media posting flows
+3. **Social Modules**
+   - Integrate social media posting flows
    - Provide configuration files and tests
 4. **Enhanced Monitoring**
    - GUI dashboard and extended metrics collection
