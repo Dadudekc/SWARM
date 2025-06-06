@@ -29,7 +29,7 @@ logger = logging.getLogger(__name__)
 class AgentLayoutVisualizer:
     """Visualizes agent positions and regions."""
     
-    def __init__(self, config_path: str = "runtime/config/cursor_agent_coords.json"):
+    def __init__(self, config_path: str = "config/cursor_agent_coords.json"):
         """Initialize visualizer.
         
         Args:
@@ -222,7 +222,7 @@ class AgentLayoutVisualizer:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Visualize agent layouts")
-    parser.add_argument("--config", default="runtime/config/cursor_agent_coords.json",
+    parser.add_argument("--config", default="config/cursor_agent_coords.json",
                       help="Path to coordinate configuration file")
     parser.add_argument("--output", default="visualizations",
                       help="Output directory for visualizations")

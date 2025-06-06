@@ -42,6 +42,7 @@ class LogConfig:
     format: str = "[{timestamp}] [{level}] {message}"
     retention_days: int = 7
     max_file_size: int = 10 * 1024 * 1024  # 10MB
+    max_bytes: int = 10 * 1024 * 1024  # 10MB - alias for max_file_size
     backup_count: int = 5
     metrics_enabled: bool = True
     discord_webhook: Optional[str] = None
@@ -54,10 +55,9 @@ class LogConfig:
     backup_dir: Optional[str] = None
     max_age_days: int = 30
 
-    @property
-    def max_bytes(self) -> int:
-        """Alias for max_file_size for backward compatibility."""
-        return self.max_file_size
+    def __post_init__(self):
+        """Ensure max_bytes and max_file_size are synchronized."""
+        self.max_bytes = self.max_file_size
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary."""
@@ -66,6 +66,7 @@ class LogConfig:
             "format": self.format,
             "retention_days": self.retention_days,
             "max_file_size": self.max_file_size,
+            "max_bytes": self.max_bytes,
             "backup_count": self.backup_count,
             "metrics_enabled": self.metrics_enabled,
             "discord_webhook": self.discord_webhook,

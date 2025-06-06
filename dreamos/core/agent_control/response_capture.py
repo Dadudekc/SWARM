@@ -20,7 +20,7 @@ logger = logging.getLogger('agent_control.response_capture')
 class ResponseCapture:
     """Handles capturing and processing UI responses."""
     
-    def __init__(self, coords_path: str = "D:/SWARM/Dream.OS/runtime/config/cursor_agent_coords.json"):
+    def __init__(self, coords_path: str = "config/cursor_agent_coords.json"):
         """Initialize response capture.
         
         Args:

@@ -35,7 +35,7 @@ def calibrate_agent(agent_number: int):
     initial_spot_x, initial_spot_y = get_mouse_position()
     
     # Load existing coordinates
-    coords_file = Path("runtime/config/cursor_agent_coords.json")
+    coords_file = Path("config/cursor_agent_coords.json")
     with open(coords_file, 'r') as f:
         coordinates = json.load(f)
     

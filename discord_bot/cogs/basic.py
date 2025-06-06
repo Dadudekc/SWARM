@@ -2,8 +2,7 @@
 Basic commands cog for Discord bot.
 """
 
-import discord
-from discord.ext import commands
+from tests.utils.mock_discord import commands, Cog, MockEmbed as Embed, Color
 from typing import Optional, List, Dict, Any
 import asyncio
 import logging
@@ -11,7 +10,7 @@ from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
-class BasicCommands(commands.Cog):
+class BasicCommands(Cog):
     """Basic commands cog for Discord bot."""
     
     def __init__(self, orchestrator, log_manager):
@@ -41,10 +40,10 @@ class BasicCommands(commands.Cog):
                     await ctx.send(f"Command '{command}' not found.")
                     return
                 
-                embed = discord.Embed(
+                embed = Embed(
                     title=f"Help: {cmd.name}",
                     description=cmd.help or "No description available.",
-                    color=discord.Color.blue()
+                    color=Color.blue()
                 )
                 
                 if cmd.aliases:
@@ -62,10 +61,10 @@ class BasicCommands(commands.Cog):
                     )
             else:
                 # Show general help menu
-                embed = discord.Embed(
+                embed = Embed(
                     title="Dream.OS Bot Help",
                     description="Available commands:",
-                    color=discord.Color.blue()
+                    color=Color.blue()
                 )
                 
                 for cog_name, cog in self.bot.cogs.items():
@@ -94,9 +93,9 @@ class BasicCommands(commands.Cog):
         try:
             status = await self.orchestrator.get_status()
             
-            embed = discord.Embed(
+            embed = Embed(
                 title="Dream.OS System Status",
-                color=discord.Color.green()
+                color=Color.green()
             )
             
             # Add system status
@@ -133,10 +132,10 @@ class BasicCommands(commands.Cog):
         try:
             result = await self.orchestrator.execute_task(task_name, *args)
             
-            embed = discord.Embed(
+            embed = Embed(
                 title=f"Task: {task_name}",
                 description=result.get("message", "Task completed"),
-                color=discord.Color.blue()
+                color=Color.blue()
             )
             
             if "details" in result:

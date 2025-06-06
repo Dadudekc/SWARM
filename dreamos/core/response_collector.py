@@ -35,7 +35,7 @@ from social.utils.log_config import LogConfig
 # Initialize logging
 log_config = LogConfig(
     log_dir="logs",
-    _max_file_size=1024 * 1024,  # 1MB
+    max_bytes=1024 * 1024,  # 1MB
     max_age_days=7
 )
 log_manager = LogManager(log_config)

@@ -43,7 +43,7 @@ class LogConfig:
     log_dir: str = "logs"
     log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     date_format: str = "%Y-%m-%d %H:%M:%S"
-    max_bytes: int = 10 * 1024 * 1024  # 10MB
+    max_file_size: int = 10 * 1024 * 1024  # 10MB
     backup_count: int = 5
     max_age_days: int = 30
     platforms: Dict[str, str] = None
@@ -83,7 +83,7 @@ class LogManager:
             'errors': 0
         }
         rotation_config = RotationConfig(
-            max_size_mb=max(1, self._config.max_bytes // (1024 * 1024)),
+            max_size_mb=max(1, self._config.max_file_size // (1024 * 1024)),
             max_files=self._config.backup_count,
             max_age_days=self._config.max_age_days,
             backup_dir=str(Path(self._config.log_dir) / "backups"),
@@ -129,7 +129,7 @@ class LogManager:
         for platform, log_file in self._config.platforms.items():
             file_handler = RotatingFileHandler(
                 log_dir / log_file,
-                maxBytes=self._config.max_bytes,
+                maxBytes=self._config.max_file_size,
                 backupCount=self._config.backup_count
             )
             file_handler.setFormatter(formatter)
@@ -243,7 +243,7 @@ class LogManager:
         # Recreate handler after rotation
         new_handler = RotatingFileHandler(
             log_file,
-            maxBytes=self._config.max_bytes,
+            maxBytes=self._config.max_file_size,
             backupCount=self._config.backup_count,
         )
         formatter = logging.Formatter(

@@ -23,7 +23,7 @@ class CoordinateManager:
         if os.environ.get("PYTEST_CURRENT_TEST"):
             default_path = Path(__file__).resolve().parents[2] / "tests" / "config" / "test_agent_coords.json"
         else:
-            default_path = Path(__file__).resolve().parents[2] / "runtime" / "config" / "cursor_agent_coords.json"
+            default_path = Path(__file__).resolve().parents[2] / "config" / "cursor_agent_coords.json"
 
         self.config_file = Path(config_path) if config_path else default_path
         self.config_file.parent.mkdir(parents=True, exist_ok=True)

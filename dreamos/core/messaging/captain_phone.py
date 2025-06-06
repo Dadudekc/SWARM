@@ -6,97 +6,135 @@ Provides specialized communication for the captain to interact with agents.
 
 import logging
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 import time
 import yaml
 import json
 
 from .cell_phone import CellPhone
 from .message_system import MessageRecord, MessageMode
+from agent_tools.mailbox.message_handler import MessageHandler
 
 logger = logging.getLogger('dreamos.messaging.captain_phone')
 
-class CaptainPhone(CellPhone):
-    """Special phone interface for the captain to communicate with agents."""
+class CaptainPhone:
+    """Captain phone for managing agent communications."""
     
-    def __init__(self, config_path: Optional[str] = None):
-        """Initialize the captain's phone.
+    _instance = None
+    
+    def __new__(cls, config: Dict):
+        """Ensure singleton instance."""
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self, config: Dict):
+        """Initialize captain phone.
         
         Args:
-            config_path: Path to configuration file
+            config: Configuration dictionary containing:
+                - message_handler: MessageHandler instance
+                - agent_id: Captain agent ID
         """
-        super().__init__(config_path)
-        
-        # Load captain-specific config
-        if config_path:
-            with open(config_path, 'r') as f:
-                config = yaml.safe_load(f)
-                captain_config = config.get('captain', {})
-        else:
-            captain_config = {}
-        
-        # Set captain-specific settings
-        self.captain_id = captain_config.get('id', 'Captain')
-        self.response_timeout = captain_config.get('response_timeout', 30)
-        self.response_dir = Path(captain_config.get('response_dir', 'responses'))
-        self.response_dir.mkdir(exist_ok=True)
-        
-        logger.info(
-            platform="captain_phone",
-            status="initialized",
-            message="Captain's phone initialized",
-            tags=["init"]
-        )
+        if not hasattr(self, 'initialized'):
+            self.message_handler = config.get('message_handler')
+            if not self.message_handler:
+                raise ValueError("message_handler is required in config")
+                
+            self.agent_id = config.get('agent_id')
+            if not self.agent_id:
+                raise ValueError("agent_id is required in config")
+                
+            logger.info(f"Cell phone initialized for agent {self.agent_id}")
+            self.initialized = True
     
-    def send_message(
-        self,
-        to_agent: str,
-        content: str,
-        mode: str = "NORMAL",
-        priority: int = 0,
-        wait_for_response: bool = True
-    ) -> bool:
-        """Send a message from the captain to an agent.
+    @classmethod
+    def reset_singleton(cls):
+        """Reset singleton instance."""
+        cls._instance = None
+    
+    def send_message(self, to_agent: str, content: str, metadata: Optional[Dict] = None, mode: Optional[str] = None, priority: Optional[str] = None) -> bool:
+        """Send message to agent.
         
         Args:
             to_agent: Target agent ID
             content: Message content
-            mode: Message mode (NORMAL, PRIORITY, BULK, etc.)
-            priority: Message priority (0-5)
-            wait_for_response: Whether to wait for agent response
-            
+            metadata: Optional message metadata
+            mode: Optional message mode
+            priority: Optional message priority
         Returns:
-            bool: True if message was sent successfully and response received (if waiting)
+            bool: True if message sent successfully
         """
+        if not content or not to_agent:
+            return False
         try:
-            # Send the message
-            success = super().send_message(
+            return self.message_handler.send_message(
                 to_agent=to_agent,
                 content=content,
+                from_agent=self.agent_id,
+                metadata=metadata or {},
                 mode=mode,
-                priority=priority,
-                from_agent=self.captain_id
+                priority=priority
             )
-            
-            if not success:
-                return False
-            
-            # If not waiting for response, we're done
-            if not wait_for_response:
-                return True
-            
-            # Monitor for response
-            return self._monitor_response(to_agent)
-            
         except Exception as e:
-            logger.error(
-                platform="captain_phone",
-                status="error",
-                message=f"Error sending message: {str(e)}",
-                tags=["message", "error"]
-            )
+            logger.error(f"Error sending message: {e}")
             return False
     
+    def broadcast_message(self, content: str, metadata: Optional[Dict] = None, mode: Optional[str] = None, priority: Optional[str] = None) -> bool:
+        """Broadcast message to all agents.
+        
+        Args:
+            content: Message content
+            metadata: Optional message metadata
+            mode: Optional message mode
+            priority: Optional message priority
+        Returns:
+            bool: True if message broadcast successfully
+        """
+        if not content:
+            return False
+        try:
+            return self.message_handler.broadcast_message(
+                content=content,
+                from_agent=self.agent_id,
+                metadata=metadata or {},
+                mode=mode,
+                priority=priority
+            )
+        except Exception as e:
+            logger.error(f"Error broadcasting message: {e}")
+            return False
+    
+    def get_messages(self, agent_id: str) -> List[Dict]:
+        """Get messages for agent.
+        
+        Args:
+            agent_id: Agent ID to get messages for
+            
+        Returns:
+            List[Dict]: List of messages
+        """
+        try:
+            return self.message_handler.get_messages(agent_id)
+        except Exception as e:
+            logger.error(f"Error getting messages: {e}")
+            return []
+    
+    def acknowledge_message(self, message_id: str) -> bool:
+        """Acknowledge message receipt.
+        
+        Args:
+            message_id: ID of message to acknowledge
+            
+        Returns:
+            bool: True if message acknowledged successfully
+        """
+        try:
+            return self.message_handler.acknowledge_message(message_id)
+        except Exception as e:
+            logger.error(f"Error acknowledging message: {e}")
+            return False
+
     def _monitor_response(self, to_agent: str) -> bool:
         """Monitor for agent response with timeout.
         
@@ -107,15 +145,15 @@ class CaptainPhone(CellPhone):
             bool: True if response received within timeout
         """
         start_time = time.time()
-        last_message_count = len(self.get_message_history())
+        last_message_count = len(self.get_messages(to_agent))
         
         while time.time() - start_time < self.response_timeout:
             # Check for new messages
-            history = self.get_message_history()
+            history = self.get_messages(to_agent)
             if len(history) > last_message_count:
                 # Found a response
                 response = history[-1]
-                if response.get("from_agent") == to_agent:
+                if response.get("from_agent") == self.agent_id:
                     # Save the response
                     self._save_response(to_agent, response)
                     return True
@@ -168,57 +206,6 @@ class CaptainPhone(CellPhone):
                 tags=["message", "error"]
             )
     
-    def broadcast_message(
-        self,
-        content: str,
-        mode: str = "NORMAL",
-        priority: int = 0,
-        exclude_agents: Optional[List[str]] = None
-    ) -> Dict[str, bool]:
-        """Broadcast a message to all agents.
-        
-        Args:
-            content: Message content
-            mode: Message mode
-            priority: Message priority
-            exclude_agents: List of agent IDs to exclude
-            
-        Returns:
-            Dict[str, bool]: Map of agent IDs to success status
-        """
-        try:
-            # Get list of all agents
-            all_agents = self._get_all_agents()
-            
-            # Filter out excluded agents
-            if exclude_agents:
-                target_agents = [a for a in all_agents if a not in exclude_agents]
-            else:
-                target_agents = all_agents
-            
-            # Send to each agent
-            results = {}
-            for agent_id in target_agents:
-                success = self.send_message(
-                    to_agent=agent_id,
-                    content=content,
-                    mode=mode,
-                    priority=priority,
-                    wait_for_response=False  # Don't wait for responses in broadcast
-                )
-                results[agent_id] = success
-            
-            return results
-            
-        except Exception as e:
-            logger.error(
-                platform="captain_phone",
-                status="error",
-                message=f"Error broadcasting message: {str(e)}",
-                tags=["message", "error"]
-            )
-            return {}
-    
     def _get_all_agents(self) -> List[str]:
         """Get list of all active agents.
         
@@ -226,7 +213,7 @@ class CaptainPhone(CellPhone):
             List[str]: List of agent IDs
         """
         try:
-            coords_file = Path("runtime/config/cursor_agent_coords.json")
+            coords_file = Path("config/cursor_agent_coords.json")
             if coords_file.exists():
                 with open(coords_file, "r") as f:
                     data = json.load(f)
@@ -248,3 +235,11 @@ class CaptainPhone(CellPhone):
                 tags=["message", "error"]
             )
             return []
+
+    def clear_messages(self) -> bool:
+        """Clear all messages for this agent."""
+        try:
+            return self.message_handler.clear_messages(self.agent_id)
+        except Exception as e:
+            logger.error(f"Error clearing messages: {e}")
+            return False

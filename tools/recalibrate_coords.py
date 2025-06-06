@@ -22,7 +22,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = "runtime/config/cursor_agent_coords.json"
+CONFIG_PATH = "config/cursor_agent_coords.json"
 AGENT_LIST = [
     "Agent-1", "Agent-2", "Agent-3", "Agent-4",
     "Agent-5", "Agent-6", "Agent-7", "Agent-8"

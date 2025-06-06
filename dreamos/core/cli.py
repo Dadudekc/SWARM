@@ -109,7 +109,7 @@ class MessageCLI:
 def direct_send_message(to_agent: str, message: str, mode: str = "NORMAL") -> bool:
     """Send a message directly to the UI using automation."""
     try:
-        coords_file = Path("runtime/config/cursor_agent_coords.json")
+        coords_file = Path("config/cursor_agent_coords.json")
         coordinates = load_json(coords_file)
 
         if not coordinates or to_agent not in coordinates:

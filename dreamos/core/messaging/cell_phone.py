@@ -83,120 +83,102 @@ class MessageQueue:
         self._save_queue()
 
 class CellPhone:
-    """Agent-to-agent messaging system."""
+    """Cell phone for agent communications."""
     
     _instance = None
     
-    def __new__(cls, *args, **kwargs):
+    def __new__(cls, config: Dict):
+        """Ensure singleton instance."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
     
     def __init__(self, config: Dict):
-        """Initialize the cell phone.
+        """Initialize cell phone.
         
         Args:
-            config: Configuration dictionary
+            config: Configuration dictionary containing:
+                - message_handler: MessageHandler instance
+                - agent_id: Agent ID
         """
         if not hasattr(self, 'initialized'):
-            self.agent_id = config.get('agent_id', 'agent0')
             self.message_handler = config.get('message_handler')
             if not self.message_handler:
-                raise ValueError("message_handler is required")
-            
-            # Set up logging
-            log_level = config.get('log_level', 'INFO')
-            self.logger = logging.getLogger(f"cell_phone_{self.agent_id}")
-            self.logger.setLevel(getattr(logging, log_level))
-            
-            # Initialize message queue
-            self.queue = MessageQueue(f"data/mailbox/{self.agent_id}/queue.json")
-            
-            self.logger.info(f"Cell phone initialized for agent {self.agent_id}")
-            
+                raise ValueError("message_handler is required in config")
+                
+            self.agent_id = config.get('agent_id')
+            if not self.agent_id:
+                raise ValueError("agent_id is required in config")
+                
+            logger.info(f"Cell phone initialized for agent {self.agent_id}")
             self.initialized = True
-        
+    
     @classmethod
     def reset_singleton(cls):
-        """Reset the singleton instance."""
+        """Reset singleton instance."""
         cls._instance = None
-        
-    def send_message(self, to_agent: str, content: str, metadata: Optional[Dict] = None) -> bool:
-        """Send a message to another agent.
+    
+    def send_message(self, to_agent: str, content: str, metadata: Optional[Dict] = None, mode: Optional[str] = None, priority: Optional[str] = None) -> bool:
+        """Send message to agent.
         
         Args:
-            to_agent: ID of the agent to send to
+            to_agent: Target agent ID
             content: Message content
-            metadata: Optional metadata
-            
+            metadata: Optional message metadata
+            mode: Optional message mode
+            priority: Optional message priority
         Returns:
-            True if message was sent successfully
+            bool: True if message sent successfully
         """
+        if not content or not to_agent:
+            return False
         try:
-            # Create message
-            message = {
-                'from': self.agent_id,
-                'to': to_agent,
-                'content': content,
-                'timestamp': datetime.now().isoformat(),
-                'metadata': metadata or {}
-            }
-            
-            # Send via message handler
-            success = self.message_handler.send_message(
-                from_agent=self.agent_id,
+            return self.message_handler.send_message(
                 to_agent=to_agent,
                 content=content,
-                metadata=metadata
+                from_agent=self.agent_id,
+                metadata=metadata or {},
+                mode=mode,
+                priority=priority
             )
-            
-            if success:
-                # Add to local queue
-                self.queue.add_message(message)
-                self.logger.info(f"Message sent to {to_agent}")
-                return True
-            else:
-                self.logger.error(f"Failed to send message to {to_agent}")
-                return False
-                
         except Exception as e:
-            self.logger.error(f"Error sending message: {str(e)}")
+            logger.error(f"Error sending message: {e}")
             return False
-            
+    
     def get_messages(self) -> List[Dict]:
-        """Get all messages for this agent.
+        """Get messages for this agent.
         
         Returns:
-            List of messages
+            List[Dict]: List of messages
         """
         try:
-            # Get messages from handler
-            messages = self.message_handler.get_messages(self.agent_id)
-            
-            # Update local queue
-            self.queue.clear_queue()
-            for msg in messages:
-                self.queue.add_message(msg)
-                
-            return messages
-            
+            return self.message_handler.get_messages(self.agent_id)
         except Exception as e:
-            self.logger.error(f"Error getting messages: {str(e)}")
+            logger.error(f"Error getting messages: {e}")
             return []
+    
+    def acknowledge_message(self, message_id: str) -> bool:
+        """Acknowledge message receipt.
+        
+        Args:
+            message_id: ID of message to acknowledge
             
-    def clear_messages(self):
+        Returns:
+            bool: True if message acknowledged successfully
+        """
+        try:
+            return self.message_handler.acknowledge_message(message_id)
+        except Exception as e:
+            logger.error(f"Error acknowledging message: {e}")
+            return False
+
+    def clear_messages(self) -> bool:
         """Clear all messages for this agent."""
         try:
-            # Clear in handler
-            self.message_handler.clear_messages(self.agent_id)
-            
-            # Clear local queue
-            self.queue.clear_queue()
-            
-            self.logger.info("Messages cleared")
-            
+            return self.message_handler.clear_messages(self.agent_id)
         except Exception as e:
-            self.logger.error(f"Error clearing messages: {str(e)}")
+            logger.error(f"Error clearing messages: {e}")
+            return False
 
 async def send_message(to_agent: str, content: str, mode: str = "NORMAL", from_agent: str = "system") -> bool:
     """

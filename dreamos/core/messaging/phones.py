@@ -364,7 +364,7 @@ class CaptainPhone(Phone):
             List[str]: List of agent IDs
         """
         try:
-            coords_file = Path("runtime/config/cursor_agent_coords.json")
+            coords_file = Path("config/cursor_agent_coords.json")
             if coords_file.exists():
                 with open(coords_file, "r") as f:
                     data = json.load(f)

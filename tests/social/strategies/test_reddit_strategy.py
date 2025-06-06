@@ -79,12 +79,18 @@ def mock_driver():
 @pytest.fixture
 def specific_strategy_mock_config():
     return {
+        "window_coords": {"x": 0, "y": 0, "width": 800, "height": 600},
+        "browser": {
+            "headless": False,
+            "window_title": "Reddit - Chromium",
+            "window_coords": {"x": 0, "y": 0, "width": 800, "height": 600},
+            "cookies_path": "tests/assets/cookies/reddit.pkl"
+        },
+        "profile_path": "tests/assets/profiles/reddit",
         "reddit": {
             "username": "testuser",
             "password": "testpass",
             "cookies_path": "tests/assets/cookies/reddit.pkl",
-            "window_coords": {"x": 0, "y": 0, "width": 800, "height": 600},
-            "profile_path": "tests/assets/profiles/reddit",
             "max_retries": 3,
             "retry_delay": 2,
             "session_timeout": 60,

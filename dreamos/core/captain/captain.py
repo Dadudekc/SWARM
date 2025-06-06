@@ -205,7 +205,7 @@ class Captain:
                 "priority": priority.name,
                 "deadline": deadline.isoformat() if deadline else None,
                 "dependencies": dependencies,
-                **metadata or {}
+                **(metadata or {})
             }
         )
         
@@ -255,10 +255,10 @@ class Captain:
         Args:
             description: Task description
             priority: Task priority
-            metadata: Optional metadata dictionary
+            metadata: Optional task metadata
             
         Returns:
-            Task: The created task
+            Task: Created task
         """
         task = Task(
             task_id=str(uuid.uuid4()),
@@ -266,7 +266,7 @@ class Captain:
             description=description,
             priority=priority,
             created_at=datetime.now(),
-            metadata=metadata if metadata is not None else {}
+            metadata=metadata or {}
         )
         self.active_tasks[task.task_id] = task
         return task 

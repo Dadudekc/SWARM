@@ -36,7 +36,7 @@ log_manager = LogManager(LogConfig(
     log_dir="logs",
     log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
     date_format="%Y-%m-%d %H:%M:%S",
-    max_bytes=10 * 1024 * 1024,  # 10MB
+    max_file_size=10 * 1024 * 1024,  # 10MB
     backup_count=5,
     max_age_days=7,
     platforms={
@@ -71,7 +71,7 @@ class AgentLoop:
             log_dir="logs",
             log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
             date_format="%Y-%m-%d %H:%M:%S",
-            max_bytes=10 * 1024 * 1024,  # 10MB
+            max_file_size=10 * 1024 * 1024,  # 10MB
             backup_count=5,
             max_age_days=7,
             platforms={

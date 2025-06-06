@@ -5,19 +5,82 @@ Global test configuration and fixtures.
 """
 
 import os
+import sys
 import pytest
 import tempfile
+import shutil
 from pathlib import Path
 from typing import Generator, Dict, Any
+import importlib
 
-# Test directory constants
-TEST_ROOT = Path("tests")
+# Add the project root to Python path
+project_root = Path(__file__).parent.parent
+sys.path.insert(0, str(project_root))
+
+# Test directories
+TEST_ROOT = project_root / "tests"
 TEST_DATA_DIR = TEST_ROOT / "data"
 TEST_OUTPUT_DIR = TEST_ROOT / "output"
 TEST_CONFIG_DIR = TEST_ROOT / "config"
 TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
 TEST_TEMP_DIR = TEST_ROOT / "temp"
 VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
+
+# Mock data
+MOCK_AGENT_CONFIG = {
+    "name": "TestAgent",
+    "type": "test",
+    "config": {
+        "enabled": True,
+        "priority": 1
+    }
+}
+
+MOCK_PROMPT = "Test prompt"
+MOCK_DEVLOG = "Test devlog entry"
+
+@pytest.fixture(autouse=True)
+def setup_test_environment():
+    """Set up test environment."""
+    # Create test directories
+    TEST_DATA_DIR.mkdir(exist_ok=True)
+    TEST_CONFIG_DIR.mkdir(exist_ok=True)
+    TEST_RUNTIME_DIR.mkdir(exist_ok=True)
+    
+    yield
+    
+    # Cleanup
+    if TEST_DATA_DIR.exists():
+        for file in TEST_DATA_DIR.glob("*"):
+            file.unlink()
+    if TEST_CONFIG_DIR.exists():
+        for file in TEST_CONFIG_DIR.glob("*"):
+            file.unlink()
+    if TEST_RUNTIME_DIR.exists():
+        for file in TEST_RUNTIME_DIR.glob("*"):
+            file.unlink()
+
+@pytest.fixture
+def clean_test_dirs(tmp_path, monkeypatch):
+    """
+    Create a temporary directory for tests that need to write files.
+    Monkeypatch any global paths so that tests operate under tmp_path.
+    """
+    test_root = tmp_path / "test_data"
+    test_root.mkdir()
+
+    # Monkeypatch any hardcoded base directories
+    monkeypatch.setattr("dreamos.core.logging.log_config.LOG_DIR", str(test_root / "logs"))
+    monkeypatch.setattr("dreamos.core.logging.log_config.METRICS_DIR", str(test_root / "metrics"))
+
+    yield test_root
+
+    # After test, cleanup (pytest will auto-remove tmp_path)
+    for child in test_root.iterdir():
+        if child.is_dir():
+            shutil.rmtree(child)
+        else:
+            child.unlink()
 
 @pytest.fixture(scope="session")
 def test_env() -> Dict[str, str]:
@@ -136,20 +199,6 @@ def MOCK_AGENT_CONFIG() -> Dict[str, Any]:
         }
     }
 
-@pytest.fixture(scope="function")
-def clean_test_dirs() -> None:
-    """Clean test directories before each test."""
-    for dir_path in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR, VOICE_QUEUE_DIR]:
-        if dir_path.exists():
-            for file in dir_path.glob("*"):
-                if file.is_file():
-                    file.unlink()
-                elif file.is_dir():
-                    for subfile in file.glob("**/*"):
-                        if subfile.is_file():
-                            subfile.unlink()
-                    file.rmdir()
-
 def pytest_configure(config):
     """Configure pytest."""
     # Add custom markers
@@ -189,4 +238,10 @@ def pytest_collection_modifyitems(items):
         skip_windows = pytest.mark.skip(reason="Windows-specific test")
         for item in items:
             if "windows" in item.keywords:
-                item.add_marker(skip_windows) 
+                item.add_marker(skip_windows)
+
+# Patch sys.modules at the top of the test session to ensure all imports of discord, discord.ext.commands, and discord.ui use the mocks from tests.utils.mock_discord
+mock_discord = importlib.import_module('tests.utils.mock_discord')
+sys.modules['discord'] = mock_discord.discord
+sys.modules['discord.ext.commands'] = mock_discord.commands
+sys.modules['discord.ui'] = mock_discord.discord.ui 

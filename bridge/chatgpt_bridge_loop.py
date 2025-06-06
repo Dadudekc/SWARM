@@ -37,7 +37,7 @@ class ChatGPTBridgeLoop:
         self.config = self._load_config(config_path)
         self.bridge_outbox = Path("bridge_outbox")
         self.agent_mailbox = Path("agent_tools/mailbox")
-        self.coords_file = Path("cursor_agent_coords.json")
+        self.coords_file = Path("config/cursor_agent_coords.json")
         self.coords = self._load_coords()
         self.driver = None
         self.wait_time = 5  # Default wait time for elements

@@ -28,7 +28,7 @@ logger = logging.getLogger(__name__)
 class OverlapHeatmapGenerator:
     """Generates heatmaps of agent region overlaps."""
     
-    def __init__(self, config_path: str = "runtime/config/cursor_agent_coords.json"):
+    def __init__(self, config_path: str = "config/cursor_agent_coords.json"):
         """Initialize generator.
         
         Args:
@@ -166,7 +166,7 @@ class OverlapHeatmapGenerator:
 def main():
     """Main entry point."""
     parser = argparse.ArgumentParser(description="Generate overlap heatmap")
-    parser.add_argument("--config", default="runtime/config/cursor_agent_coords.json",
+    parser.add_argument("--config", default="config/cursor_agent_coords.json",
                       help="Path to coordinate configuration file")
     parser.add_argument("--output", default="overlap_heatmap.png",
                       help="Output path for heatmap")

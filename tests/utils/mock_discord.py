@@ -11,6 +11,34 @@ from types import SimpleNamespace
 
 T = TypeVar('T')
 
+# Mock Discord.py classes
+class Cog:
+    """Mock Discord Cog class."""
+    def __init__(self, bot=None):
+        self.bot = bot
+
+    def cog_unload(self):
+        """Unload the cog."""
+        pass
+
+class Guild:
+    """Mock Discord Guild class."""
+    def __init__(self, id: int, name: str):
+        self.id = id
+        self.name = name
+
+class Context:
+    """Mock Discord Context class."""
+    def __init__(self, message=None, channel=None, author=None, guild=None):
+        self.message = message
+        self.channel = channel
+        self.author = author
+        self.guild = guild
+
+class CommandError(Exception):
+    """Mock Discord CommandError class."""
+    pass
+
 class Client:
     """Mock Discord client."""
     def __init__(self, *args, **kwargs):
@@ -86,6 +114,34 @@ class Command:
     enabled: bool = True
     cog: Any = None
     callback: Any = None
+
+# Create commands namespace after all relevant classes are defined
+commands = SimpleNamespace()
+commands.Cog = Cog
+commands.Command = Command
+commands.CommandError = CommandError
+commands.Context = Context
+commands.Client = Client
+commands.Bot = Client  # Use Client as the base for Bot
+
+# Mock Color class for embed color handling (test stub)
+class Color:
+    def __init__(self, value=0):
+        self.value = value
+    @classmethod
+    def default(cls):
+        return cls(0)
+    @classmethod
+    def blue(cls):
+        return cls(0x3498db)
+    @classmethod
+    def red(cls):
+        return cls(0xe74c3c)
+    @classmethod
+    def green(cls):
+        return cls(0x2ecc71)
+    def __int__(self):
+        return self.value
 
 @dataclass
 class MockCommand:
@@ -247,9 +303,9 @@ class MockBot:
 @dataclass
 class MockContext:
     """Mock Discord command context."""
-    message: MockMessage
-    channel: MockChannel
-    author: MockMember
+    message: MockMessage = None
+    channel: MockChannel = None
+    author: MockMember = None
     guild: Optional[MockGuild] = None
     bot: Optional[MockBot] = None
     prefix: str = "!"
@@ -257,6 +313,18 @@ class MockContext:
     invoked_with: Optional[str] = None
     args: List[Any] = field(default_factory=list)
     kwargs: Dict[str, Any] = field(default_factory=dict)
+    # Allow no-argument instantiation for test compatibility
+    def __init__(self, message=None, channel=None, author=None, guild=None, bot=None, prefix="!", command=None, invoked_with=None, args=None, kwargs=None):
+        self.message = message if message is not None else MockMessage(id=1, content="", channel=MockChannel(id=1, name="test"), author=MockMember(id=1, name="TestUser"))
+        self.channel = channel if channel is not None else self.message.channel
+        self.author = author if author is not None else self.message.author
+        self.guild = guild
+        self.bot = bot
+        self.prefix = prefix
+        self.command = command
+        self.invoked_with = invoked_with
+        self.args = args if args is not None else []
+        self.kwargs = kwargs if kwargs is not None else {}
     
     async def send(self, content: Optional[str] = None, **kwargs) -> MockMessage:
         """Send a message in the context."""
@@ -348,31 +416,19 @@ def create_mock_embed(
     author: Optional[Dict[str, str]] = None,
     timestamp: Optional[datetime] = None
 ) -> MockEmbed:
-    """Create a mock embed with the given data."""
+    """Create a mock Discord embed."""
     embed = MockEmbed(
         title=title,
         description=description,
         color=color,
         url=url,
+        fields=fields or [],
+        footer=footer,
+        image=image,
+        thumbnail=thumbnail,
+        author=author,
         timestamp=timestamp
     )
-    
-    if fields:
-        for field in fields:
-            embed.add_field(**field)
-    
-    if footer:
-        embed.set_footer(**footer)
-    
-    if image:
-        embed.set_image(**image)
-    
-    if thumbnail:
-        embed.set_thumbnail(**thumbnail)
-    
-    if author:
-        embed.set_author(**author)
-    
     return embed
 
 def run_async_test(coro: Coroutine[Any, Any, T]) -> T:
@@ -387,16 +443,54 @@ def async_test(func: Callable[..., Coroutine[Any, Any, T]]) -> Callable[..., T]:
         return run_async_test(func(*args, **kwargs))
     return wrapper
 
-class MockDiscord:
-    """Mock Discord namespace."""
-    def __init__(self):
-        self.Client = MockBot
-        self.Member = MockMember
-        self.Guild = MockGuild
-        self.Channel = MockChannel
-        self.Message = MockMessage
-        self.Embed = MockEmbed
-        self.Role = MockRole
-        self.Context = MockContext
-        self.Command = MockCommand
-        self.Cog = MockCog 
+# Add a mock command decorator to the commands namespace
+# This mimics discord.ext.commands.command
+
+def mock_command_decorator(*args, **kwargs):
+    def decorator(func):
+        func.name = kwargs.get('name', func.__name__)
+        return func
+    return decorator
+commands.command = mock_command_decorator
+
+# Place these at the end to avoid NameError and avoid shadowing the real discord package
+class VoiceClient:
+    """Mock Discord VoiceClient class."""
+    guild: Optional[MockGuild] = None
+    channel: Optional[MockChannel] = None
+    user: Optional[MockMember] = None
+    is_connected: bool = False
+    is_playing: bool = False
+    
+    async def connect(self, *args, **kwargs) -> None:
+        """Mock connect method."""
+        self.is_connected = True
+        
+    async def disconnect(self, *args, **kwargs) -> None:
+        """Mock disconnect method."""
+        self.is_connected = False
+        
+    async def play(self, *args, **kwargs) -> None:
+        """Mock play method."""
+        self.is_playing = True
+        
+    def stop(self, *args, **kwargs) -> None:
+        """Mock stop method."""
+        self.is_playing = False
+
+# Add VoiceClient to the discord module
+discord = SimpleNamespace()
+discord.VoiceClient = VoiceClient
+
+class View:
+    pass
+class Interaction:
+    pass
+ui = SimpleNamespace()
+ui.View = View
+mock_discord_ns = SimpleNamespace()
+mock_discord_ns.ui = ui
+mock_discord_ns.Embed = MockEmbed
+
+# For legacy compatibility with test setup (conftest.py), allow monkeypatching as 'discord'.
+discord = mock_discord_ns 
