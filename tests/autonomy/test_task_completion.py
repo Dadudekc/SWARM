@@ -12,7 +12,8 @@ import pytest
 from agent_tools.autonomy.task_completion import (
     TaskCompletionHook,
     TaskCompletionManager,
-    on_task_complete
+    on_task_complete,
+    TASK_TAGS
 )
 
 @pytest.fixture
@@ -55,15 +56,65 @@ def task_completion_hook(mock_discord_devlog):
 class TestTaskCompletionHook:
     """Test the TaskCompletionHook class."""
     
+    def test_extract_mentioned_agents(self, task_completion_hook):
+        """Test extraction of mentioned agents from content."""
+        content = """
+        Working with @Agent-2 on this feature.
+        Also need input from @Agent-3.
+        """
+        
+        mentioned = task_completion_hook._extract_mentioned_agents(content)
+        assert mentioned == {"Agent-2", "Agent-3"}
+    
+    def test_generate_tags(self, task_completion_hook):
+        """Test tag generation from task metadata."""
+        task = {
+            'title': 'Test Task',
+            'status': 'done',
+            'type': 'feature',
+            'priority': 'high',
+            'impact': 'major',
+            'scope': 'core',
+            'description': 'Working with @Agent-2 on this feature.'
+        }
+        
+        tags = task_completion_hook._generate_tags(task)
+        
+        # Check agent source tag
+        assert "#agent-1" in tags
+        
+        # Check status tag
+        assert "#done" in tags
+        
+        # Check type tag
+        assert "#feature" in tags
+        
+        # Check priority tag
+        assert "#high" in tags
+        
+        # Check impact tag
+        assert "#major" in tags
+        
+        # Check scope tag
+        assert "#core" in tags
+        
+        # Check mentioned agent tag
+        assert "#agent-2" in tags
+        
+        # Verify tags are sorted
+        assert tags == sorted(tags)
+    
     def test_format_task_summary(self, task_completion_hook):
         """Test formatting a task summary."""
         task = {
             'title': 'Test Task',
-            'description': 'A test task description',
+            'description': 'A test task description with @Agent-2',
             'task_id': 'TASK-123',
-            'status': 'completed',
+            'status': 'done',
+            'type': 'feature',
             'priority': 'high',
-            'type': 'feature'
+            'impact': 'major',
+            'scope': 'core'
         }
         
         summary = task_completion_hook._format_task_summary(task)
@@ -78,20 +129,31 @@ class TestTaskCompletionHook:
         assert "**Completed:**" in summary
         assert "**Task ID:** TASK-123" in summary
         
-        # Check status and tags
-        assert "**Status:** completed" in summary
+        # Check metadata section
+        assert "**Status:** done" in summary
+        assert "**Type:** feature" in summary
+        assert "**Priority:** high" in summary
+        assert "**Impact:** major" in summary
+        assert "**Scope:** core" in summary
+        
+        # Check tags
+        assert "#agent-1" in summary
         assert "#done" in summary
-        assert "#priority" in summary
         assert "#feature" in summary
+        assert "#high" in summary
+        assert "#major" in summary
+        assert "#core" in summary
+        assert "#agent-2" in summary
     
     @pytest.mark.asyncio
     async def test_on_task_complete(self, task_completion_hook, tempfile):
         """Test task completion handling."""
         task = {
             'title': 'Test Task',
-            'description': 'A test task',
+            'description': 'Working with @Agent-2',
             'task_id': 'TASK-123',
-            'status': 'completed'
+            'status': 'done',
+            'type': 'feature'
         }
         
         # Mock the devlog file
@@ -106,9 +168,10 @@ class TestTaskCompletionHook:
             # Verify Discord update parameters
             call_args = task_completion_hook.discord_devlog.update_devlog.call_args[1]
             assert "Test Task" in call_args['title']
-            assert "A test task" in call_args['content']
-            assert call_args['memory_state']['status'] == 'completed'
-            assert call_args['memory_state']['task_id'] == 'TASK-123'
+            assert "Working with @Agent-2" in call_args['content']
+            assert call_args['memory_state']['status'] == 'done'
+            assert call_args['memory_state']['type'] == 'feature'
+            assert "Agent-2" in call_args['memory_state']['mentioned_agents']
     
     @pytest.mark.asyncio
     async def test_on_task_complete_failure(self, task_completion_hook):
@@ -140,7 +203,8 @@ class TestTaskCompletionManager:
         
         task = {
             'title': 'Test Task',
-            'status': 'completed'
+            'status': 'done',
+            'description': 'Working with @Agent-2'
         }
         
         success = await manager.handle_task_completion("Agent-1", task)
@@ -148,6 +212,10 @@ class TestTaskCompletionManager:
         
         # Verify hook was called
         manager.hooks["Agent-1"].discord_devlog.update_devlog.assert_called_once()
+        
+        # Verify mentioned agents were tracked
+        call_args = manager.hooks["Agent-1"].discord_devlog.update_devlog.call_args[1]
+        assert "Agent-2" in call_args['memory_state']['mentioned_agents']
     
     @pytest.mark.asyncio
     async def test_handle_task_completion_unknown_agent(self, temp_config):
@@ -162,7 +230,8 @@ async def test_global_on_task_complete(temp_config):
     """Test the global task completion handler."""
     task = {
         'title': 'Test Task',
-        'status': 'completed'
+        'status': 'done',
+        'description': 'Working with @Agent-2'
     }
     
     success = await on_task_complete("Agent-1", task)

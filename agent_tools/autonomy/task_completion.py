@@ -3,9 +3,18 @@
 import asyncio
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Optional, List, Set
 
 from ..swarm_tools.discord_devlog import DiscordDevlog
+
+# Tag categories for better organization
+TASK_TAGS = {
+    'status': {'done', 'wip', 'blocked', 'failed'},
+    'type': {'feature', 'bugfix', 'refactor', 'infra', 'test', 'ops'},
+    'priority': {'high', 'medium', 'low'},
+    'impact': {'breaking', 'major', 'minor', 'patch'},
+    'scope': {'core', 'agent', 'tool', 'test', 'doc'}
+}
 
 class TaskCompletionHook:
     """Hook for handling task completion events."""
@@ -19,6 +28,54 @@ class TaskCompletionHook:
             agent_name=agent_id,
             footer=footer
         )
+        
+    def _extract_mentioned_agents(self, content: str) -> Set[str]:
+        """Extract mentioned agents from content."""
+        import re
+        mentions = set()
+        for match in re.finditer(r'@Agent-(\d+)', content):
+            mentions.add(f"Agent-{match.group(1)}")
+        return mentions
+        
+    def _generate_tags(self, task: Dict) -> List[str]:
+        """Generate appropriate tags based on task metadata."""
+        tags = []
+        
+        # Add agent source tag
+        tags.append(f"#agent-{self.agent_id.split('-')[1]}")
+        
+        # Add status tag
+        status = task.get('status', 'completed')
+        if status in TASK_TAGS['status']:
+            tags.append(f"#{status}")
+            
+        # Add type tag
+        task_type = task.get('type', '').lower()
+        if task_type in TASK_TAGS['type']:
+            tags.append(f"#{task_type}")
+            
+        # Add priority tag
+        priority = task.get('priority', '').lower()
+        if priority in TASK_TAGS['priority']:
+            tags.append(f"#{priority}")
+            
+        # Add impact tag
+        impact = task.get('impact', '').lower()
+        if impact in TASK_TAGS['impact']:
+            tags.append(f"#{impact}")
+            
+        # Add scope tag
+        scope = task.get('scope', '').lower()
+        if scope in TASK_TAGS['scope']:
+            tags.append(f"#{scope}")
+            
+        # Add mentioned agents as tags
+        if task.get('description'):
+            mentioned = self._extract_mentioned_agents(task['description'])
+            for agent in mentioned:
+                tags.append(f"#{agent.lower()}")
+                
+        return sorted(tags)
         
     def _format_task_summary(self, task: Dict) -> str:
         """Format a task summary for the devlog."""
@@ -39,21 +96,25 @@ class TaskCompletionHook:
             summary.append(f"**Task ID:** {task['task_id']}")
         summary.append("")
         
-        # Add status and tags
-        status = task.get('status', 'completed')
-        summary.append(f"**Status:** {status}")
-        
-        # Add relevant tags
-        tags = []
-        if status == 'completed':
-            tags.append('#done')
-        if task.get('priority') == 'high':
-            tags.append('#priority')
-        if task.get('type') == 'bug':
-            tags.append('#bugfix')
-        if task.get('type') == 'feature':
-            tags.append('#feature')
+        # Add metadata section
+        metadata = []
+        if task.get('status'):
+            metadata.append(f"**Status:** {task['status']}")
+        if task.get('type'):
+            metadata.append(f"**Type:** {task['type']}")
+        if task.get('priority'):
+            metadata.append(f"**Priority:** {task['priority']}")
+        if task.get('impact'):
+            metadata.append(f"**Impact:** {task['impact']}")
+        if task.get('scope'):
+            metadata.append(f"**Scope:** {task['scope']}")
             
+        if metadata:
+            summary.extend(metadata)
+            summary.append("")
+            
+        # Add tags
+        tags = self._generate_tags(task)
         if tags:
             summary.append(f"**Tags:** {' '.join(tags)}")
             
@@ -65,6 +126,11 @@ class TaskCompletionHook:
             # Format the task summary
             content = self._format_task_summary(task)
             
+            # Extract mentioned agents
+            mentioned_agents = set()
+            if task.get('description'):
+                mentioned_agents = self._extract_mentioned_agents(task['description'])
+            
             # Update Discord devlog
             success = await self.discord_devlog.update_devlog(
                 content=content,
@@ -72,7 +138,8 @@ class TaskCompletionHook:
                 memory_state={
                     'status': task.get('status', 'completed'),
                     'task_id': task.get('task_id', ''),
-                    'type': task.get('type', 'task')
+                    'type': task.get('type', 'task'),
+                    'mentioned_agents': list(mentioned_agents)
                 }
             )
             
