@@ -25,6 +25,8 @@ from datetime import timedelta
 
 from .log_entry import LogEntry
 from social.utils.log_config import LogConfig
+from dreamos.core.config.config_manager import ConfigManager
+from dreamos.core.monitoring.metrics import LogMetrics
 
 logger = logging.getLogger(__name__)
 
