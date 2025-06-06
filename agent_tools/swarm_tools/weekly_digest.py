@@ -4,12 +4,13 @@ import json
 import re
 from datetime import datetime, timedelta
 from pathlib import Path
-from typing import Dict, List, Set, Optional
+from typing import Dict, List, Set, Optional, Tuple
 
 import aiohttp
 import click
 from rich.console import Console
 from rich.panel import Panel
+from rich.table import Table
 
 from agent_tools.swarm_tools.discord_devlog import DiscordDevlog
 
@@ -121,7 +122,10 @@ class WeeklyDigest:
                     "tags": set(),
                     "mentioned_by": set(),
                     "mentioned_others": set(),
-                    "last_active": entry.timestamp
+                    "last_active": entry.timestamp,
+                    "first_entry": entry.timestamp,
+                    "wip_tasks": set(),
+                    "completed_tasks": set()
                 }
             
             agent_stats = stats[entry.agent_id]
@@ -129,6 +133,13 @@ class WeeklyDigest:
             agent_stats["tags"].update(entry.tags)
             agent_stats["mentioned_others"].update(entry.mentioned_agents)
             agent_stats["last_active"] = max(agent_stats["last_active"], entry.timestamp)
+            agent_stats["first_entry"] = min(agent_stats["first_entry"], entry.timestamp)
+            
+            # Track task status
+            if "wip" in entry.tags:
+                agent_stats["wip_tasks"].add(entry.content.split("\n")[0])
+            if "done" in entry.tags:
+                agent_stats["completed_tasks"].add(entry.content.split("\n")[0])
             
             # Update mentioned_by for other agents
             for mentioned in entry.mentioned_agents:
@@ -138,11 +149,133 @@ class WeeklyDigest:
                         "tags": set(),
                         "mentioned_by": set(),
                         "mentioned_others": set(),
-                        "last_active": entry.timestamp
+                        "last_active": entry.timestamp,
+                        "first_entry": entry.timestamp,
+                        "wip_tasks": set(),
+                        "completed_tasks": set()
                     }
                 stats[mentioned]["mentioned_by"].add(entry.agent_id)
         
         return stats
+    
+    def _generate_insights(self, entries: List[DevlogEntry], stats: Dict) -> Dict:
+        """Generate strategic insights from the data.
+        
+        Args:
+            entries: List of devlog entries
+            stats: Dictionary of agent statistics
+            
+        Returns:
+            Dictionary of insights
+        """
+        insights = {
+            "top_contributors": [],
+            "silent_agents": [],
+            "longest_wip": [],
+            "most_mentioned": [],
+            "tag_usage": {},
+            "collaboration_pairs": []
+        }
+        
+        # Top contributors by entry count
+        sorted_agents = sorted(
+            stats.items(),
+            key=lambda x: x[1]["total_entries"],
+            reverse=True
+        )
+        insights["top_contributors"] = [
+            (agent_id, data["total_entries"])
+            for agent_id, data in sorted_agents[:3]
+        ]
+        
+        # Silent agents (no entries in period)
+        insights["silent_agents"] = [
+            agent_id for agent_id, data in stats.items()
+            if data["total_entries"] == 0
+        ]
+        
+        # Longest WIP tasks
+        wip_tasks = []
+        for agent_id, data in stats.items():
+            for task in data["wip_tasks"]:
+                wip_tasks.append((agent_id, task))
+        insights["longest_wip"] = wip_tasks[:3]  # Top 3 longest WIP
+        
+        # Most mentioned agents
+        mentioned_counts = {
+            agent_id: len(data["mentioned_by"])
+            for agent_id, data in stats.items()
+        }
+        insights["most_mentioned"] = sorted(
+            mentioned_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )[:3]
+        
+        # Tag usage
+        tag_counts = {}
+        for data in stats.values():
+            for tag in data["tags"]:
+                tag_counts[tag] = tag_counts.get(tag, 0) + 1
+        insights["tag_usage"] = dict(sorted(
+            tag_counts.items(),
+            key=lambda x: x[1],
+            reverse=True
+        ))
+        
+        # Collaboration pairs
+        for agent_id, data in stats.items():
+            for mentioned in data["mentioned_others"]:
+                if mentioned in stats:  # Only count if mentioned agent exists
+                    insights["collaboration_pairs"].append((agent_id, mentioned))
+        
+        return insights
+    
+    def _format_insights(self, insights: Dict) -> str:
+        """Format the insights section of the digest.
+        
+        Args:
+            insights: Dictionary of insights
+            
+        Returns:
+            Formatted insights content
+        """
+        content = ["## Strategic Insights\n"]
+        
+        # Top contributors
+        content.append("### Top Contributors")
+        for agent_id, count in insights["top_contributors"]:
+            content.append(f"- {agent_id}: {count} entries")
+        
+        # Silent agents
+        if insights["silent_agents"]:
+            content.append("\n### Silent Agents")
+            for agent_id in insights["silent_agents"]:
+                content.append(f"- {agent_id}")
+        
+        # Longest WIP
+        if insights["longest_wip"]:
+            content.append("\n### Longest WIP Tasks")
+            for agent_id, task in insights["longest_wip"]:
+                content.append(f"- {agent_id}: {task}")
+        
+        # Most mentioned
+        content.append("\n### Most Mentioned Agents")
+        for agent_id, count in insights["most_mentioned"]:
+            content.append(f"- {agent_id}: mentioned {count} times")
+        
+        # Tag usage
+        content.append("\n### Tag Usage")
+        for tag, count in list(insights["tag_usage"].items())[:5]:  # Top 5 tags
+            content.append(f"- #{tag}: {count} uses")
+        
+        # Collaboration pairs
+        if insights["collaboration_pairs"]:
+            content.append("\n### Active Collaborations")
+            for agent1, agent2 in insights["collaboration_pairs"]:
+                content.append(f"- {agent1} ↔️ {agent2}")
+        
+        return "\n".join(content)
     
     def _format_digest(self, entries: List[DevlogEntry], stats: Dict) -> str:
         """Format the weekly digest content.
@@ -156,8 +289,12 @@ class WeeklyDigest:
         """
         content = ["# Weekly Swarm Activity Digest\n"]
         
+        # Generate and add insights
+        insights = self._generate_insights(entries, stats)
+        content.append(self._format_insights(insights))
+        
         # Agent summaries
-        content.append("## Agent Activity Summary")
+        content.append("\n## Agent Activity Summary")
         for agent_id, agent_stats in sorted(stats.items()):
             content.append(f"\n### {agent_id}")
             content.append(f"Total entries: {agent_stats['total_entries']}")
@@ -172,6 +309,16 @@ class WeeklyDigest:
                 content.append(f"Mentioned others: {', '.join(sorted(agent_stats['mentioned_others']))}")
             
             content.append(f"Last active: {agent_stats['last_active'].strftime('%Y-%m-%d %H:%M:%S')}")
+            
+            if agent_stats["wip_tasks"]:
+                content.append(f"\nWIP Tasks:")
+                for task in agent_stats["wip_tasks"]:
+                    content.append(f"- {task}")
+            
+            if agent_stats["completed_tasks"]:
+                content.append(f"\nCompleted Tasks:")
+                for task in agent_stats["completed_tasks"]:
+                    content.append(f"- {task}")
         
         # Recent activity
         content.append("\n## Recent Activity")
