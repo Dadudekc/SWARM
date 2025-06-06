@@ -13,7 +13,14 @@ from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Union
 
-from agent_tools.mailbox.message_handler import MessageHandler
+# The agent_tools.mailbox package is optional and may not be available in
+# minimal test environments. Import it lazily so that basic functionality of the
+# CellPhone module can still be exercised during tests without requiring the
+# full mailbox subsystem.
+try:
+    from agent_tools.mailbox.message_handler import MessageHandler
+except Exception:  # pragma: no cover - optional dependency
+    MessageHandler = None
 
 __all__ = [
     'MessageMode',

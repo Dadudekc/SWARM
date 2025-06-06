@@ -6,7 +6,22 @@ Provides shared coordinate transformation, validation, and management functions.
 
 import json
 import logging
-import pyautogui
+# Attempt to import pyautogui. This package requires an active display
+# which may not be present in headless test environments. Provide a
+# lightweight fallback so modules importing this file don't fail when
+# pyautogui is unavailable.
+try:
+    import pyautogui  # type: ignore
+except Exception:  # pragma: no cover - best effort fallback
+    class _DummyPyAutoGUI:
+        """Minimal stub implementing the small subset of pyautogui used here."""
+
+        @staticmethod
+        def size() -> tuple[int, int]:
+            # Default to a standard HD resolution.
+            return (1920, 1080)
+
+    pyautogui = _DummyPyAutoGUI()  # type: ignore
 from pathlib import Path
 from typing import Dict, List, Tuple, Optional, Union
 

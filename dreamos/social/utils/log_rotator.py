@@ -86,21 +86,15 @@ class LogRotator:
             filepath: Path to log file
         """
         try:
-            # Create backup directory if it doesn't exist
-            backup_dir = self.log_dir / "backups"
-            backup_dir.mkdir(exist_ok=True)
-            
-            # Generate backup filename with timestamp
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_name = f"{filepath.stem}_{timestamp}{filepath.suffix}"
-            backup_path = backup_dir / backup_name
-            
-            # Move current file to backup
+            # Generate backup filename with timestamp in the same directory as
+            # the original file. Tests expect rotated logs to sit alongside the
+            # main log rather than in a separate folder.
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            backup_path = filepath.with_name(f"{filepath.stem}_{timestamp}{filepath.suffix}")
+
             shutil.move(str(filepath), str(backup_path))
-            
-            # Create new empty file
             filepath.touch()
-            
+
             logger.info(f"Rotated log file {filepath} to {backup_path}")
             
         except Exception as e:
@@ -109,13 +103,11 @@ class LogRotator:
     def _cleanup_old_backups(self) -> None:
         """Clean up old backup files."""
         try:
-            backup_dir = self.log_dir / "backups"
-            if not backup_dir.exists():
-                return
-                
-            # Get all backup files
+            # Rotated files live alongside the main log file and have the form
+            # ``name_TIMESTAMP.ext``. Gather them and keep only the most recent
+            # ``backup_count`` files.
             backup_files = sorted(
-                backup_dir.glob("*_*.*"),
+                self.log_dir.glob("*_????????_??????.*"),
                 key=lambda x: x.stat().st_mtime,
                 reverse=True
             )
@@ -230,11 +222,8 @@ class LogRotator:
         if not path.exists():
             return ""
         try:
-            backup_dir = self.log_dir / "backups"
-            backup_dir.mkdir(exist_ok=True)
-            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            backup_name = f"{path.stem}_{timestamp}{path.suffix}"
-            backup_path = backup_dir / backup_name
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
+            backup_path = path.with_name(f"{path.stem}_{timestamp}{path.suffix}")
             shutil.move(str(path), str(backup_path))
             path.touch()
             logger.info(f"Rotated log file {path} to {backup_path}")

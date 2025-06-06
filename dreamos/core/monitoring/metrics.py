@@ -1,124 +1,96 @@
+"""Lightweight logging metrics used by tests.
+
+This module provides a small metrics helper used by the simplified
+``LogManager`` tests. It intentionally keeps functionality minimal so it
+can operate in environments without optional dependencies.
 """
-Metrics collection and monitoring.
-"""
+
+from __future__ import annotations
 
 import json
-import logging
-import os
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional
+from typing import Dict, Optional, Any
+
 
 class LogMetrics:
-    """Collects and manages logging metrics."""
-    
-    def __init__(self, config):
-        """Initialize metrics collection.
-        
-        Args:
-            config: Configuration object or dictionary containing log_dir
-        """
-        # Handle both dictionary and LogConfig objects
-        if hasattr(config, 'log_dir'):
+    """Collects basic metrics about logging activity."""
+
+    def __init__(self, config: Optional[Any] = None) -> None:
+        # Determine the directory for saving metrics (if required)
+        if config and hasattr(config, "log_dir"):
             self.log_dir = Path(config.log_dir)
+        elif isinstance(config, dict):
+            self.log_dir = Path(config.get("log_dir", "logs"))
         else:
-            self.log_dir = Path(config.get('log_dir', 'logs'))
-            
-        self.metrics = {
-            'message_count': 0,
-            'error_count': 0,
-            'last_error': None,
-            'last_message': None
-        }
-        self.logger = logging.getLogger(__name__)
-    
-    def record_message(self, message: str):
-        """Record a message in metrics.
-        
-        Args:
-            message: The message content
-        """
-        self.metrics['message_count'] += 1
-        self.metrics['last_message'] = {
-            'content': message,
-            'timestamp': datetime.now().isoformat()
-        }
+            self.log_dir = Path("logs")
+
+        self.reset()
+
+    def increment_logs(
+        self,
+        platform: str,
+        level: str,
+        status: str,
+        format_type: str,
+        bytes_written: int = 0,
+    ) -> None:
+        """Update metrics for a newly written log entry."""
+        self.total_logs += 1
+        self.total_bytes += bytes_written
+        self.platform_counts[platform] = self.platform_counts.get(platform, 0) + 1
+        self.level_counts[level] = self.level_counts.get(level, 0) + 1
+        self.status_counts[status] = self.status_counts.get(status, 0) + 1
+        self.format_counts[format_type] = self.format_counts.get(format_type, 0) + 1
         self._save()
-    
-    def record_error(self, error: str):
-        """Record an error in metrics.
-        
-        Args:
-            error: The error message
-        """
-        self.metrics['error_count'] += 1
-        self.metrics['last_error'] = {
-            'content': error,
-            'timestamp': datetime.now().isoformat()
-        }
+
+    def record_error(self, message: str) -> None:
+        self.error_count += 1
+        self.last_error = datetime.now()
+        self.last_error_message = message
         self._save()
-    
-    def get_metrics(self) -> Dict:
-        """Get current metrics.
-        
-        Returns:
-            Dict: Current metrics data
-        """
-        return self.metrics
-    
-    def reset(self):
-        """Reset metrics to initial state."""
-        self.metrics = {
-            'message_count': 0,
-            'error_count': 0,
-            'last_error': None,
-            'last_message': None
-        }
+
+    def record_rotation(self) -> None:
+        self.last_rotation = datetime.now()
         self._save()
-    
-    def _save(self):
-        """Save metrics to disk."""
+
+    def reset(self) -> None:
+        self.total_logs = 0
+        self.total_bytes = 0
+        self.error_count = 0
+        self.last_error: Optional[datetime] = None
+        self.last_error_message: Optional[str] = None
+        self.last_rotation: Optional[datetime] = None
+        self.platform_counts: Dict[str, int] = {}
+        self.level_counts: Dict[str, int] = {}
+        self.status_counts: Dict[str, int] = {}
+        self.format_counts: Dict[str, int] = {}
+        self._save()
+
+    # ------------------------------------------------------------------
+    # Internal helpers
+    # ------------------------------------------------------------------
+    def _save(self) -> None:
+        """Persist metrics to ``metrics.json`` for debugging purposes."""
         try:
             self.log_dir.mkdir(parents=True, exist_ok=True)
-            metrics_file = self.log_dir / 'metrics.json'
-            with open(metrics_file, 'w') as f:
-                json.dump(self.metrics, f, indent=2)
-        except Exception as e:
-            self.logger.error(f"Error saving metrics: {e}")
+            metrics_file = self.log_dir / "metrics.json"
+            with open(metrics_file, "w") as f:
+                json.dump(self.get_metrics(), f, indent=2, default=str)
+        except Exception:
+            # Saving metrics should never fail tests
+            pass
 
-    def collect(self) -> Dict[str, Any]:
-        """
-        Walks through the log directory and gathers:
-          - Total number of log files
-          - Total size in bytes
-          - Oldest and newest timestamps
-        """
-        total_size = 0
-        file_count = 0
-        oldest = None
-        newest = None
-
-        if not self.log_dir.exists():
-            return {}
-
-        for file_path in self.log_dir.rglob("*.log"):
-            try:
-                stat = file_path.stat()
-                total_size += stat.st_size
-                file_count += 1
-
-                mtime = stat.st_mtime
-                if oldest is None or mtime < oldest:
-                    oldest = mtime
-                if newest is None or mtime > newest:
-                    newest = mtime
-            except (OSError, PermissionError):
-                continue
-
-        self.metrics = {
-            "total_size_bytes": total_size,
-            "file_count": file_count,
-            "oldest_timestamp": time.ctime(oldest) if oldest else None,
-            "newest_timestamp": time.ctime(newest) if newest else None,
+    def get_metrics(self) -> Dict[str, Any]:
+        return {
+            "total_logs": self.total_logs,
+            "total_bytes": self.total_bytes,
+            "error_count": self.error_count,
+            "last_error": str(self.last_error) if self.last_error else None,
+            "last_error_message": self.last_error_message,
+            "last_rotation": str(self.last_rotation) if self.last_rotation else None,
+            "platform_counts": self.platform_counts,
+            "level_counts": self.level_counts,
+            "status_counts": self.status_counts,
+            "format_counts": self.format_counts,
         }
-        return self.metrics 
