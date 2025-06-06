@@ -1,0 +1,946 @@
+{
+  "timestamp": "2025-06-06T03:12:03.773761",
+  "total_files": 38174,
+  "total_dirs": 3795,
+  "file_types": {
+    "": 10319,
+    ".ps1": 3,
+    ".md": 86,
+    ".log": 55,
+    ".json": 195,
+    ".py": 13304,
+    ".yaml": 14,
+    ".txt": 413,
+    ".ini": 8,
+    ".db": 5,
+    ".exe": 117,
+    ".sample": 14,
+    ".idx": 2,
+    ".pack": 2,
+    ".rev": 2,
+    ".yml": 2,
+    ".tag": 2,
+    ".cfg": 14,
+    ".pyd": 839,
+    ".pth": 6,
+    ".whl": 2,
+    ".chm": 1,
+    ".typed": 181,
+    ".pxd": 74,
+    ".pxi": 36,
+    ".pyi": 2344,
+    ".pyx": 74,
+    ".hash": 16,
+    ".pyc": 1867,
+    ".js": 185,
+    ".rst": 10,
+    ".pem": 4,
+    ".h": 1087,
+    ".idl": 9,
+    ".tlb": 8,
+    ".png": 571,
+    ".html": 24,
+    ".css": 12,
+    ".scss": 2,
+    ".dll": 365,
+    ".xml": 21,
+    ".gz": 20,
+    ".mgc": 1,
+    ".c": 138,
+    ".xslt": 4,
+    ".xsd": 2,
+    ".tmpl": 6,
+    ".f90": 120,
+    ".f": 48,
+    ".pyf": 14,
+    ".inc": 2,
+    ".f95": 2,
+    ".template": 2,
+    ".lib": 151,
+    ".npy": 10,
+    ".npz": 4,
+    ".csv": 62,
+    ".build": 6,
+    ".pc": 2,
+    ".pkl": 2,
+    ".cpp": 2,
+    ".fits": 2,
+    ".apache2": 6,
+    ".mit": 6,
+    ".apache": 2,
+    ".bsd": 2,
+    ".toml": 99,
+    ".tpl": 14,
+    ".hpp": 6,
+    ".cc": 44,
+    ".feather": 2,
+    ".orc": 8,
+    ".parquet": 8,
+    ".j2": 7,
+    ".map": 4,
+    ".sip": 2391,
+    ".sip5": 3,
+    ".qmltypes": 106,
+    ".qml": 1390,
+    ".qmlc": 340,
+    ".jsc": 6,
+    ".metainfo": 10,
+    ".ttf": 42,
+    ".mesh": 2,
+    ".api": 3,
+    ".qm": 390,
+    ".jinja2": 2,
+    ".pyw": 1,
+    ".tab": 16,
+    ".zi": 4,
+    ".gif": 11,
+    ".woff2": 76,
+    ".woff": 40,
+    ".svg": 2,
+    ".crt": 2,
+    ".key": 2,
+    ".mo": 2,
+    ".po": 2,
+    ".bz2": 2,
+    ".cer": 2,
+    ".bmp": 3,
+    ".ico": 1,
+    ".rc": 1,
+    ".vbs": 3,
+    ".sct": 1,
+    ".xsl": 1,
+    ".asp": 5,
+    ".htm": 14,
+    ".pys": 5,
+    ".bat": 4,
+    ".cmd": 2,
+    ".env": 1,
+    ".pdf": 1,
+    ".example": 3,
+    ".service": 1,
+    ".pma": 6,
+    ".db-journal": 4,
+    ".binarypb": 2,
+    ".dat": 4,
+    ".old": 25,
+    ".pb": 34,
+    ".ldb": 3,
+    ".bin": 3,
+    ".hyb": 52,
+    ".tflite": 21,
+    ".model": 1,
+    ".store": 11,
+    ".32_13393465653161568": 1,
+    ".4_13393465653181303": 1,
+    ".32_13393465653191017": 1,
+    ".4_13393465653190760": 1,
+    ".32_13393465653186855": 1,
+    ".32_13393465653108476": 1,
+    ".4_13393465653154564": 1,
+    ".4_13393465653125233": 1,
+    ".4_13393465652600949": 1,
+    ".4_13393465653198406": 1,
+    ".4_13393465653146852": 1,
+    ".4_13393465653141326": 1
+  },
+  "orphaned_files": [],
+  "large_files": [
+    {
+      "path": "dry_analysis_report.yaml",
+      "size_mb": 1.950571060180664
+    },
+    {
+      "path": "tesseract-installer.exe",
+      "size_mb": 47.83552551269531
+    },
+    {
+      "path": ".git\\objects\\28\\a5676d97ebe6f364bb17c8056ae6fb4ae2fe11",
+      "size_mb": 5.916383743286133
+    },
+    {
+      "path": ".git\\objects\\2c\\0658e0fcc382d8f61496193b0aa49ac1c825c4",
+      "size_mb": 47.79963207244873
+    },
+    {
+      "path": ".git\\objects\\3e\\ba64003ef512a7c9f7089c9f8d86a2fefdb594",
+      "size_mb": 1.026102066040039
+    },
+    {
+      "path": ".git\\objects\\48\\ba21df8b8ff2e0a4d547fa23bb93228745cee4",
+      "size_mb": 1.0214776992797852
+    },
+    {
+      "path": ".git\\objects\\5e\\973284d5eaced3c63bcbe74e25c6b07bbd3ebd",
+      "size_mb": 5.108210563659668
+    },
+    {
+      "path": ".git\\objects\\6a\\e31c08fe6f5bc504d2a17659bd71f98d646b32",
+      "size_mb": 1.1321640014648438
+    },
+    {
+      "path": ".git\\objects\\7c\\05217096d8dfaa2157261ea31d8043be783f53",
+      "size_mb": 5.202507972717285
+    },
+    {
+      "path": ".git\\objects\\94\\4c03c93e03fa5ce7741f9a95c5085472f36b48",
+      "size_mb": 1.0464601516723633
+    },
+    {
+      "path": ".git\\objects\\9a\\d1a9003636eb1ce470731efeec5bf03548d01a",
+      "size_mb": 1.3689594268798828
+    },
+    {
+      "path": ".git\\objects\\c5\\3babcea7b60c921421a124f628591f5d3c8712",
+      "size_mb": 3.3186988830566406
+    },
+    {
+      "path": ".git\\objects\\d9\\2f3c73139ec710afe8de006d510c0eb7404c46",
+      "size_mb": 1.0206727981567383
+    },
+    {
+      "path": ".git\\objects\\df\\dc6a8bc48245603feb0beda2dd74bb3bec4298",
+      "size_mb": 2.427670478820801
+    },
+    {
+      "path": ".git\\objects\\f8\\be6ad875fc20a805c60872e747a9958d823d1d",
+      "size_mb": 1.0107669830322266
+    },
+    {
+      "path": ".git\\objects\\ff\\d1aaf70d7202bd41600678de301c9ec6efcec7",
+      "size_mb": 1.9208831787109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\30fcd23745efe32ce681__mypyc.cp311-win_amd64.pyd",
+      "size_mb": 2.68505859375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\91844386ccf7a24691a0__mypyc.cp311-win_amd64.pyd",
+      "size_mb": 15.8759765625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyWin32.chm",
+      "size_mb": 2.517477035522461
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\altair\\vegalite\\v5\\schema\\channels.py",
+      "size_mb": 1.1231269836425781
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\altair\\vegalite\\v5\\schema\\core.py",
+      "size_mb": 1.4820728302001953
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\altair\\vegalite\\v5\\schema\\vega-lite-schema.json",
+      "size_mb": 1.7617063522338867
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\cv2\\cv2.pyd",
+      "size_mb": 71.46728515625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\cv2\\opencv_videoio_ffmpeg4110_64.dll",
+      "size_mb": 26.65966796875
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\cv2\\data\\haarcascade_frontalface_alt_tree.xml",
+      "size_mb": 2.5644683837890625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\magic\\libmagic\\magic.mgc",
+      "size_mb": 4.69000244140625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\numpy\\_core\\_multiarray_umath.cp311-win_amd64.pyd",
+      "size_mb": 3.9765625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\numpy\\_core\\_simd.cp311-win_amd64.pyd",
+      "size_mb": 2.134765625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-13e2df515630b4a41f92893938845698.dll",
+      "size_mb": 19.4462890625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pandas\\_libs\\algos.cp311-win_amd64.pyd",
+      "size_mb": 1.6279296875
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pandas\\_libs\\groupby.cp311-win_amd64.pyd",
+      "size_mb": 1.9111328125
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pandas\\_libs\\hashtable.cp311-win_amd64.pyd",
+      "size_mb": 1.6591796875
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PIL\\_imaging.cp311-win_amd64.pyd",
+      "size_mb": 2.3759765625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PIL\\_imagingft.cp311-win_amd64.pyd",
+      "size_mb": 1.908203125
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow.dll",
+      "size_mb": 29.74658203125
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow.lib",
+      "size_mb": 4.005733489990234
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow_acero.dll",
+      "size_mb": 1.208984375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow_dataset.dll",
+      "size_mb": 1.259765625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow_flight.dll",
+      "size_mb": 10.2138671875
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow_python.dll",
+      "size_mb": 1.1533203125
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\arrow_substrait.dll",
+      "size_mb": 2.26025390625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\lib.cp311-win_amd64.pyd",
+      "size_mb": 3.5966796875
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pyarrow\\parquet.dll",
+      "size_mb": 5.8046875
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pydeck\\nbextension\\static\\index.js",
+      "size_mb": 2.4746084213256836
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pydeck\\nbextension\\static\\index.js.map",
+      "size_mb": 11.246073722839355
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\QtCore.pyd",
+      "size_mb": 2.36865234375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\QtGui.pyd",
+      "size_mb": 2.37939453125
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\QtWidgets.pyd",
+      "size_mb": 4.90625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\d3dcompiler_47.dll",
+      "size_mb": 3.9805679321289062
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libcrypto-1_1-x64.dll",
+      "size_mb": 3.05712890625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libeay32.dll",
+      "size_mb": 1.896484375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libGLESv2.dll",
+      "size_mb": 3.2285003662109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\opengl32sw.dll",
+      "size_mb": 19.9541015625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Core.dll",
+      "size_mb": 5.7446136474609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Designer.dll",
+      "size_mb": 4.2792816162109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Gui.dll",
+      "size_mb": 6.6835784912109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Location.dll",
+      "size_mb": 1.5693206787109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Network.dll",
+      "size_mb": 1.2783050537109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Qml.dll",
+      "size_mb": 3.4252777099609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Quick.dll",
+      "size_mb": 3.9565277099609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Quick3DRuntimeRender.dll",
+      "size_mb": 1.1865081787109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5QuickTemplates2.dll",
+      "size_mb": 1.0619964599609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Widgets.dll",
+      "size_mb": 5.2436370849609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5XmlPatterns.dll",
+      "size_mb": 2.5209808349609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\assetimporters\\assimp.dll",
+      "size_mb": 1.4872894287109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platforms\\qwindows.dll",
+      "size_mb": 1.4086761474609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\sqldrivers\\qsqlite.dll",
+      "size_mb": 1.3466644287109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\qml\\QtQuick\\Controls.2\\Imagine\\qtquickcontrols2imaginestyleplugin.dll",
+      "size_mb": 1.5380706787109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\qsci\\api\\python\\PyQt5.api",
+      "size_mb": 1.7097177505493164
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\qsci\\api\\~ython\\PyQt5.api",
+      "size_mb": 1.7088508605957031
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\~in\\Qt5Core.dll",
+      "size_mb": 5.7446136474609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\~in\\Qt5Gui.dll",
+      "size_mb": 6.6835784912109375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\PyQt5\\Qt5\\~in\\Qt5Widgets.dll",
+      "size_mb": 5.2436370849609375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pythonwin\\mfc140u.dll",
+      "size_mb": 5.391670227050781
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pythonwin\\scintilla.dll",
+      "size_mb": 1.49267578125
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\pythonwin\\win32ui.pyd",
+      "size_mb": 1.08984375
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\selenium\\webdriver\\common\\linux\\selenium-manager",
+      "size_mb": 4.303375244140625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\selenium\\webdriver\\common\\macos\\selenium-manager",
+      "size_mb": 3.588531494140625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\selenium\\webdriver\\common\\windows\\selenium-manager.exe",
+      "size_mb": 3.02587890625
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.BGga-hcS.js",
+      "size_mb": 4.475120544433594
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.C1z8KpLA.js",
+      "size_mb": 6.527717590332031
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.DeB9iKFW.js",
+      "size_mb": 2.4844751358032227
+    },
+    {
+      "path": ".venv\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.xNQq3Ei5.js",
+      "size_mb": 3.2286977767944336
+    },
+    {
+      "path": ".venv\\share\\jupyter\\nbextensions\\pydeck\\index.js",
+      "size_mb": 2.4746084213256836
+    },
+    {
+      "path": ".venv\\share\\jupyter\\nbextensions\\pydeck\\index.js.map",
+      "size_mb": 11.246073722839355
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\30fcd23745efe32ce681__mypyc.cp311-win_amd64.pyd",
+      "size_mb": 2.68505859375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\91844386ccf7a24691a0__mypyc.cp311-win_amd64.pyd",
+      "size_mb": 15.8759765625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\altair\\vegalite\\v5\\schema\\channels.py",
+      "size_mb": 1.1231269836425781
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\altair\\vegalite\\v5\\schema\\core.py",
+      "size_mb": 1.4820728302001953
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\altair\\vegalite\\v5\\schema\\vega-lite-schema.json",
+      "size_mb": 1.7617063522338867
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\numpy\\_core\\_multiarray_umath.cp311-win_amd64.pyd",
+      "size_mb": 3.9765625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\numpy\\_core\\_simd.cp311-win_amd64.pyd",
+      "size_mb": 2.134765625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\numpy.libs\\libscipy_openblas64_-13e2df515630b4a41f92893938845698.dll",
+      "size_mb": 19.4462890625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pandas\\_libs\\algos.cp311-win_amd64.pyd",
+      "size_mb": 1.6279296875
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pandas\\_libs\\groupby.cp311-win_amd64.pyd",
+      "size_mb": 1.9111328125
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pandas\\_libs\\hashtable.cp311-win_amd64.pyd",
+      "size_mb": 1.6591796875
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PIL\\_imaging.cp311-win_amd64.pyd",
+      "size_mb": 2.3759765625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PIL\\_imagingft.cp311-win_amd64.pyd",
+      "size_mb": 1.908203125
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow.dll",
+      "size_mb": 29.74658203125
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow.lib",
+      "size_mb": 4.005733489990234
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow_acero.dll",
+      "size_mb": 1.208984375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow_dataset.dll",
+      "size_mb": 1.259765625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow_flight.dll",
+      "size_mb": 10.2138671875
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow_python.dll",
+      "size_mb": 1.1533203125
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\arrow_substrait.dll",
+      "size_mb": 2.26025390625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\lib.cp311-win_amd64.pyd",
+      "size_mb": 3.5966796875
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pyarrow\\parquet.dll",
+      "size_mb": 5.8046875
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pydeck\\nbextension\\static\\index.js",
+      "size_mb": 2.4746084213256836
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\pydeck\\nbextension\\static\\index.js.map",
+      "size_mb": 11.246073722839355
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\QtCore.pyd",
+      "size_mb": 2.36865234375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\QtGui.pyd",
+      "size_mb": 2.37939453125
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\QtWidgets.pyd",
+      "size_mb": 4.90625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\d3dcompiler_47.dll",
+      "size_mb": 3.9805679321289062
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libcrypto-1_1-x64.dll",
+      "size_mb": 3.05712890625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libeay32.dll",
+      "size_mb": 1.896484375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\libGLESv2.dll",
+      "size_mb": 3.2285003662109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\opengl32sw.dll",
+      "size_mb": 19.9541015625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Core.dll",
+      "size_mb": 5.7446136474609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Designer.dll",
+      "size_mb": 4.2792816162109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Gui.dll",
+      "size_mb": 6.6835784912109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Location.dll",
+      "size_mb": 1.5693206787109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Network.dll",
+      "size_mb": 1.2783050537109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Qml.dll",
+      "size_mb": 3.4252777099609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Quick.dll",
+      "size_mb": 3.9565277099609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Quick3DRuntimeRender.dll",
+      "size_mb": 1.1865081787109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5QuickTemplates2.dll",
+      "size_mb": 1.0619964599609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5Widgets.dll",
+      "size_mb": 5.2436370849609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\bin\\Qt5XmlPatterns.dll",
+      "size_mb": 2.5209808349609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\assetimporters\\assimp.dll",
+      "size_mb": 1.4872894287109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\platforms\\qwindows.dll",
+      "size_mb": 1.4086761474609375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\plugins\\sqldrivers\\qsqlite.dll",
+      "size_mb": 1.3466644287109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\qml\\QtQuick\\Controls.2\\Imagine\\qtquickcontrols2imaginestyleplugin.dll",
+      "size_mb": 1.5380706787109375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\PyQt5\\Qt5\\qsci\\api\\python\\PyQt5.api",
+      "size_mb": 1.7097177505493164
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\selenium\\webdriver\\common\\linux\\selenium-manager",
+      "size_mb": 5.14813232421875
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\selenium\\webdriver\\common\\macos\\selenium-manager",
+      "size_mb": 7.6559906005859375
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\selenium\\webdriver\\common\\windows\\selenium-manager.exe",
+      "size_mb": 3.4931640625
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.BGga-hcS.js",
+      "size_mb": 4.475120544433594
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.C1z8KpLA.js",
+      "size_mb": 6.527717590332031
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.DeB9iKFW.js",
+      "size_mb": 2.4844751358032227
+    },
+    {
+      "path": ".venv_new\\Lib\\site-packages\\streamlit\\static\\static\\js\\index.xNQq3Ei5.js",
+      "size_mb": 3.2286977767944336
+    },
+    {
+      "path": ".venv_new\\share\\jupyter\\nbextensions\\pydeck\\index.js",
+      "size_mb": 2.4746084213256836
+    },
+    {
+      "path": ".venv_new\\share\\jupyter\\nbextensions\\pydeck\\index.js.map",
+      "size_mb": 11.246073722839355
+    },
+    {
+      "path": "runtime\\chrome_profile\\BrowserMetrics-spare.pma",
+      "size_mb": 4.0
+    },
+    {
+      "path": "runtime\\chrome_profile\\BrowserMetrics\\BrowserMetrics-683F84D8-18FC.pma",
+      "size_mb": 4.0
+    },
+    {
+      "path": "runtime\\chrome_profile\\component_crx_cache\\c52c62a7c50daf7d3f73ec16977cd4b0ea401710807d5dbe3850941dd1b73a70",
+      "size_mb": 1.0631608963012695
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Cache\\Cache_Data\\data_1",
+      "size_mb": 2.0078125
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Cache\\Cache_Data\\data_2",
+      "size_mb": 7.0078125
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Cache\\Cache_Data\\data_3",
+      "size_mb": 28.0078125
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Cache\\Cache_Data\\f_000033",
+      "size_mb": 1.3597335815429688
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Cache\\Cache_Data\\f_000034",
+      "size_mb": 1.0203514099121094
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Cache\\Cache_Data\\f_000035",
+      "size_mb": 2.5344457626342773
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\1a336df423e4702d_0",
+      "size_mb": 1.3576431274414062
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\26c60b691244362d_0",
+      "size_mb": 1.3779754638671875
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\2f53f84e22ce3db1_0",
+      "size_mb": 1.4572525024414062
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\340caf9638b19a9d_0",
+      "size_mb": 1.3780746459960938
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\644edf52d87bd80d_0",
+      "size_mb": 1.350372314453125
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\a6051966599ab8c7_0",
+      "size_mb": 1.2499847412109375
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\c1f759aed2192beb_0",
+      "size_mb": 1.2488937377929688
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\cc0fe51219145f5d_0",
+      "size_mb": 1.5284881591796875
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\dffc290cfe235354_0",
+      "size_mb": 1.35028076171875
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\ecb7a9e3954643b2_0",
+      "size_mb": 1.2505569458007812
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Code Cache\\js\\ed317b6f491e913a_0",
+      "size_mb": 1.35028076171875
+    },
+    {
+      "path": "runtime\\chrome_profile\\Default\\Sessions\\Tabs_13393526737549799",
+      "size_mb": 1.0414304733276367
+    },
+    {
+      "path": "runtime\\chrome_profile\\OnDeviceHeadSuggestModel\\20250522.762470205.14\\cr_en-us_500000_index.bin",
+      "size_mb": 7.578531265258789
+    },
+    {
+      "path": "runtime\\chrome_profile\\OpenCookieDatabase\\2024.10.17.0\\open_cookie_database.json",
+      "size_mb": 1.0512161254882812
+    },
+    {
+      "path": "runtime\\chrome_profile\\optimization_guide_model_store\\13\\E6DC4029A1E4B4C1\\EB60323B5CED60D6\\model.tflite",
+      "size_mb": 1.1627655029296875
+    },
+    {
+      "path": "runtime\\chrome_profile\\optimization_guide_model_store\\15\\E6DC4029A1E4B4C1\\0738A85C0CEFC0E5\\model.tflite",
+      "size_mb": 2.6106491088867188
+    },
+    {
+      "path": "runtime\\chrome_profile\\optimization_guide_model_store\\24\\E6DC4029A1E4B4C1\\1C2103E3CF0EBFB2\\model.tflite",
+      "size_mb": 4.388954162597656
+    },
+    {
+      "path": "runtime\\chrome_profile\\optimization_guide_model_store\\25\\E6DC4029A1E4B4C1\\698D80621B269200\\visual_model_desktop.tflite",
+      "size_mb": 3.2928714752197266
+    },
+    {
+      "path": "runtime\\chrome_profile\\optimization_guide_model_store\\43\\E6DC4029A1E4B4C1\\980449CB65EDD879\\model.tflite",
+      "size_mb": 106.51007843017578
+    },
+    {
+      "path": "runtime\\chrome_user_data\\BrowserMetrics-spare.pma",
+      "size_mb": 4.0
+    },
+    {
+      "path": "runtime\\chrome_user_data\\BrowserMetrics\\BrowserMetrics-683F7F60-660C.pma",
+      "size_mb": 4.0
+    },
+    {
+      "path": "runtime\\chrome_user_data\\component_crx_cache\\e4f9be8a10a42888f953c8f94cc3ba146eb0a019150b4b204dcb1259068a87a3",
+      "size_mb": 5.109548568725586
+    },
+    {
+      "path": "runtime\\chrome_user_data\\Default\\Cache\\Cache_Data\\data_2",
+      "size_mb": 1.0078125
+    },
+    {
+      "path": "runtime\\chrome_user_data\\Default\\Cache\\Cache_Data\\data_3",
+      "size_mb": 4.0078125
+    },
+    {
+      "path": "runtime\\chrome_user_data\\OnDeviceHeadSuggestModel\\20250522.762470205.14\\cr_en-us_500000_index.bin",
+      "size_mb": 7.578531265258789
+    },
+    {
+      "path": "runtime\\chrome_user_data\\optimization_guide_model_store\\13\\E6DC4029A1E4B4C1\\F1A0EA9692278A27\\model.tflite",
+      "size_mb": 1.1627655029296875
+    },
+    {
+      "path": "runtime\\chrome_user_data\\optimization_guide_model_store\\15\\E6DC4029A1E4B4C1\\AF81E9573E124C89\\model.tflite",
+      "size_mb": 2.6106491088867188
+    },
+    {
+      "path": "runtime\\chrome_user_data\\optimization_guide_model_store\\24\\E6DC4029A1E4B4C1\\2E2BD725B10071B8\\model.tflite",
+      "size_mb": 4.388954162597656
+    },
+    {
+      "path": "runtime\\chrome_user_data\\optimization_guide_model_store\\25\\E6DC4029A1E4B4C1\\0BA12B859709E2BB\\visual_model_desktop.tflite",
+      "size_mb": 3.2928714752197266
+    },
+    {
+      "path": "runtime\\chrome_user_data\\Safe Browsing\\ChromeExtMalware.store.32_13393465653161568",
+      "size_mb": 1.827545166015625
+    },
+    {
+      "path": "runtime\\chrome_user_data\\Safe Browsing\\UrlSoceng.store.4_13393465652600949",
+      "size_mb": 16.9801025390625
+    },
+    {
+      "path": "tests\\media\\region_test.png",
+      "size_mb": 1.577418327331543
+    }
+  ],
+  "duplicate_files": [],
+  "core_dirs": {
+    "dreamos": {
+      "description": "Main project code",
+      "file_count": 273,
+      "size_mb": 1.6408662796020508
+    },
+    "tests": {
+      "description": "Test files",
+      "file_count": 266,
+      "size_mb": 4.199854850769043
+    },
+    "docs": {
+      "description": "Documentation",
+      "file_count": 50,
+      "size_mb": 0.109161376953125
+    },
+    "scripts": {
+      "description": "Utility scripts",
+      "file_count": 11,
+      "size_mb": 0.042168617248535156
+    },
+    "config": {
+      "description": "Configuration files",
+      "file_count": 21,
+      "size_mb": 0.02167510986328125
+    }
+  },
+  "archive_dirs": {
+    "backups": {
+      "description": "Backup files",
+      "file_count": 27,
+      "size_mb": 0.06988048553466797
+    },
+    "test_artifacts": {
+      "description": "Test artifacts",
+      "file_count": 1,
+      "size_mb": 0.0
+    },
+    "test_logs": {
+      "description": "Test logs",
+      "file_count": 0,
+      "size_mb": 0.0
+    },
+    "test_temp": {
+      "description": "Temporary test files",
+      "file_count": 1,
+      "size_mb": 0.0
+    },
+    "test_data": {
+      "description": "Test data",
+      "file_count": 0,
+      "size_mb": 0.0
+    },
+    "runtime": {
+      "description": "Runtime files",
+      "file_count": 3473,
+      "size_mb": 363.75568675994873
+    },
+    "src": {
+      "description": "Source files (if moved to dreamos)",
+      "file_count": 6,
+      "size_mb": 0.012351036071777344
+    }
+  }
+}

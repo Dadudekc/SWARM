@@ -17,7 +17,7 @@ import asyncio
 from .ui_automation import UIAutomation
 from .task_manager import TaskManager, TaskStatus, TaskPriority
 from .devlog_manager import DevLogManager
-from ..cell_phone import CaptainPhone
+from ..messaging.cell_phone import CaptainPhone
 
 logger = logging.getLogger('agent_management')
 

@@ -12,6 +12,7 @@ from typing import Dict, List, Optional, Set, Any
 from dataclasses import dataclass
 from enum import Enum, auto
 from queue import PriorityQueue
+import uuid
 
 from ..messaging.unified_message_system import UnifiedMessageSystem
 from ..messaging.common import Message, MessageMode, MessagePriority
@@ -246,4 +247,26 @@ class Captain:
         """
         if agent_id:
             return [task for task in self.task_history if task.agent_id == agent_id]
-        return self.task_history 
+        return self.task_history
+
+    def create_task(self, description: str, priority: TaskPriority = TaskPriority.NORMAL, metadata: Optional[Dict] = None) -> Task:
+        """Create a new task.
+        
+        Args:
+            description: Task description
+            priority: Task priority
+            metadata: Optional metadata dictionary
+            
+        Returns:
+            Task: The created task
+        """
+        task = Task(
+            task_id=str(uuid.uuid4()),
+            agent_id="",
+            description=description,
+            priority=priority,
+            created_at=datetime.now(),
+            metadata=metadata if metadata is not None else {}
+        )
+        self.active_tasks[task.task_id] = task
+        return task 

@@ -9,20 +9,37 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
-import logging
 import win32gui
 import win32con
 import win32clipboard
 import keyboard
 import re
 import uiautomation as auto
-import os
 import pyautogui
 import numpy as np
 from PIL import Image, ImageChops
 import cv2
+import os
+import sys
 
-logger = logging.getLogger('response_collector')
+from dreamos.core.utils.file_utils import (
+    safe_read,
+    safe_write,
+    load_json,
+    save_json,
+    ensure_dir
+)
+from social.utils.log_manager import LogManager
+from social.utils.log_config import LogConfig
+
+# Initialize logging
+log_config = LogConfig(
+    log_dir="logs",
+    _max_file_size=1024 * 1024,  # 1MB
+    max_age_days=7
+)
+log_manager = LogManager(log_config)
+logger = log_manager
 
 class CopyButtonDetector:
     """Detects and interacts with the copy button in Cursor."""
@@ -40,7 +57,7 @@ class CopyButtonDetector:
     def load_template(self) -> None:
         """Load the template image for copy button detection."""
         try:
-            if os.path.exists(self.template_path):
+            if Path(self.template_path).exists():
                 self.template = cv2.imread(self.template_path, cv2.IMREAD_COLOR)
                 logger.info(f"Loaded copy button template from {self.template_path}")
             else:
@@ -181,7 +198,7 @@ class ResponseCollector:
             regions_file: Path to JSON file containing agent regions
         """
         self.save_dir = Path(save_dir)
-        self.save_dir.mkdir(exist_ok=True)
+        ensure_dir(self.save_dir)
         self.last_response = None
         self.response_count = 0
         self.cursor_windows = []  # List of all Cursor windows
@@ -195,8 +212,10 @@ class ResponseCollector:
     def _load_agent_regions(self, regions_file: str) -> None:
         """Load agent regions from JSON file."""
         try:
-            with open(regions_file, 'r') as f:
-                regions = json.load(f)
+            regions = load_json(regions_file)
+            if not regions:
+                logger.error(f"No regions found in {regions_file}")
+                return
                 
             for name, coords in regions.items():
                 region = (
@@ -366,52 +385,75 @@ class ResponseCollector:
             return False
     
     def _save_response(self, response: str, agent_id: Optional[str] = None) -> None:
-        """Save response to file."""
+        """Save a response to file.
+        
+        Args:
+            response: The response text to save
+            agent_id: Optional agent ID to include in filename
+        """
         try:
-            # Create timestamp for filename
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            agent_prefix = f"agent_{agent_id}_" if agent_id else ""
-            filename = f"{agent_prefix}response_{timestamp}.md"
+            if agent_id:
+                filename = f"response_{agent_id}_{timestamp}.txt"
+            else:
+                filename = f"response_{timestamp}.txt"
+                
             filepath = self.save_dir / filename
-            
-            # Save response
-            with open(filepath, 'w', encoding='utf-8') as f:
-                f.write(response)
-            
+            safe_write(filepath, response)
+            self.last_response = response
             self.response_count += 1
-            logger.info(f"Saved response {self.response_count} to {filepath}")
+            logger.info(f"Saved response to {filepath}")
             
         except Exception as e:
             logger.error(f"Error saving response: {e}")
     
     def get_saved_responses(self, agent_id: Optional[str] = None) -> List[Path]:
-        """Get list of saved response files."""
-        pattern = f"agent_{agent_id}_response_*.md" if agent_id else "response_*.md"
+        """Get list of saved response files.
+        
+        Args:
+            agent_id: Optional agent ID to filter by
+            
+        Returns:
+            List of response file paths
+        """
+        pattern = f"response_{agent_id}_*.txt" if agent_id else "response_*.txt"
         return list(self.save_dir.glob(pattern))
     
     def get_latest_response(self, agent_id: Optional[str] = None) -> Optional[str]:
-        """Get the most recent response content."""
-        responses = self.get_saved_responses(agent_id)
-        if not responses:
-            return None
+        """Get the most recent response.
+        
+        Args:
+            agent_id: Optional agent ID to filter by
             
-        latest = max(responses, key=lambda p: p.stat().st_mtime)
+        Returns:
+            Most recent response text or None
+        """
         try:
-            with open(latest, 'r', encoding='utf-8') as f:
-                return f.read()
+            responses = self.get_saved_responses(agent_id)
+            if not responses:
+                return None
+                
+            latest = max(responses, key=lambda p: p.stat().st_mtime)
+            return safe_read(latest)
+            
         except Exception as e:
-            logger.error(f"Error reading latest response: {e}")
+            logger.error(f"Error getting latest response: {e}")
             return None
     
     def clear_responses(self, agent_id: Optional[str] = None) -> None:
-        """Clear all saved responses."""
-        for file in self.get_saved_responses(agent_id):
-            try:
-                file.unlink()
-                logger.info(f"Deleted response file: {file}")
-            except Exception as e:
-                logger.error(f"Error deleting {file}: {e}")
-        self.response_count = 0
+        """Clear saved responses.
+        
+        Args:
+            agent_id: Optional agent ID to clear responses for
+        """
+        try:
+            responses = self.get_saved_responses(agent_id)
+            for response in responses:
+                response.unlink()
+            logger.info(f"Cleared {len(responses)} responses")
+            
+        except Exception as e:
+            logger.error(f"Error clearing responses: {e}")
 
 def collect_response(timeout: int = 300, agent_id: Optional[str] = None) -> Optional[str]:
     """Helper function to collect a single response.
@@ -427,3 +469,12 @@ def collect_response(timeout: int = 300, agent_id: Optional[str] = None) -> Opti
     if collector.start_collecting(timeout, agent_id):
         return collector.get_latest_response(agent_id)
     return None 
+
+def load_regions(regions_file: str) -> Dict:
+    """Load regions from file."""
+    regions = load_json(regions_file)
+    return regions if regions else {}
+
+def save_regions(regions_file: str, regions: Dict) -> None:
+    """Save regions to file."""
+    save_json(regions_file, regions) 

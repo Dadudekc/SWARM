@@ -1,535 +1,434 @@
 """
-Menu System Module
-
-Provides a modular menu system with different styles and components.
+Menu System
+----------
+Provides a menu interface for the application.
 """
 
-from typing import List, Dict, Optional, Callable, Any
-from dataclasses import dataclass
-from enum import Enum, auto
+import os
+import sys
 import logging
 import warnings
-from PyQt5 import QtWidgets
-from PyQt5.QtCore import Qt, QSize, pyqtSignal, QObject
-from PyQt5.QtGui import QFont, QColor, QPalette
-from .ui.agent_status_panel import AgentStatusPanel
-from .ui.log_console import LogConsole
+from typing import Dict, List, Optional, Any, Callable
+from dataclasses import dataclass
+from enum import Enum
 
-# Suppress PyQt5 deprecation warnings
-warnings.filterwarnings("ignore", category=DeprecationWarning)
+# Try to import PyQt5, but provide fallbacks if not available
+try:
+    from PyQt5.QtWidgets import QWidget, QVBoxLayout, QLabel, QFrame
+    from PyQt5.QtCore import Qt, pyqtSignal, QObject
+    from PyQt5.QtGui import QFont, QColor
+    PYTQT5_AVAILABLE = True
+except ImportError:
+    warnings.warn("PyQt5 is not available. Menu functionality will be limited.")
+    PYTQT5_AVAILABLE = False
+    
+    # Create dummy classes for when PyQt5 is not available
+    class QWidget:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    class QVBoxLayout:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    class QLabel:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    class QFrame:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    class Qt:
+        class AlignmentFlag:
+            AlignCenter = 0
+            AlignLeft = 0
+            AlignRight = 0
+    
+    class pyqtSignal:
+        def __init__(self, *args):
+            pass
+    
+    class QObject:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    class QFont:
+        def __init__(self, *args, **kwargs):
+            pass
+    
+    class QColor:
+        def __init__(self, *args, **kwargs):
+            pass
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class MenuStyle(Enum):
-    """Available menu styles."""
+    """Menu styles."""
     DARK = "dark"
     LIGHT = "light"
     SYSTEM = "system"
 
 class MenuItemType(Enum):
-    """Types of menu items."""
-    COMMAND = auto()
-    SUBMENU = auto()
-    TOGGLE = auto()
-    INPUT = auto()
-    AGENT_SELECTION = auto()
+    """Menu item types."""
+    BUTTON = "button"
+    HEADER = "header"
+    FOOTER = "footer"
+    SEPARATOR = "separator"
 
 @dataclass
 class MenuItem:
-    """Represents a menu item with its properties."""
-    label: str
-    description: str = ""
+    """Menu item."""
+    type: MenuItemType
+    text: str
     action: Optional[Callable] = None
-    shortcut: Optional[str] = None
-    icon: Optional[str] = None
-    enabled: bool = True
-    visible: bool = True
-    type: MenuItemType = MenuItemType.COMMAND
-    submenu: Optional['Menu'] = None
-    agent_id: Optional[str] = None
-    id: Optional[str] = None  # Added id field for menu item identification
+    style: Optional[Dict[str, Any]] = None
 
 class MenuTheme:
-    """Handles menu theming and styling."""
+    """Menu theme."""
     
-    def __init__(self, style: MenuStyle = MenuStyle.DARK):
-        self.style = style
-        self.colors = self._get_theme_colors()
-        self.fonts = self._get_theme_fonts()
+    def __init__(self, style: MenuStyle = MenuStyle.SYSTEM):
+        """Initialize theme.
         
-    def _get_theme_colors(self) -> Dict[str, str]:
-        """Get color scheme based on selected style."""
+        Args:
+            style: Menu style
+        """
+        self.style = style
+        self._init_theme()
+    
+    def _init_theme(self):
+        """Initialize theme colors and styles."""
         if self.style == MenuStyle.DARK:
-            return {
-                "background": "#1e1e1e",
-                "foreground": "#ffffff",
-                "accent": "#007acc",
-                "hover": "#2d2d2d",
-                "disabled": "#666666",
-                "border": "#3c3c3c"
+            self.colors = {
+                "background": "#2D2D2D",
+                "text": "#FFFFFF",
+                "accent": "#007ACC",
+                "hover": "#3E3E3E",
+                "border": "#3E3E3E"
             }
         elif self.style == MenuStyle.LIGHT:
-            return {
-                "background": "#ffffff",
-                "foreground": "#000000",
-                "accent": "#0078d4",
-                "hover": "#f0f0f0",
-                "disabled": "#999999",
-                "border": "#e0e0e0"
+            self.colors = {
+                "background": "#FFFFFF",
+                "text": "#000000",
+                "accent": "#007ACC",
+                "hover": "#F0F0F0",
+                "border": "#E0E0E0"
             }
         else:  # SYSTEM
-            return {
-                "background": "system",
-                "foreground": "system",
-                "accent": "system",
-                "hover": "system",
-                "disabled": "system",
-                "border": "system"
+            self.colors = {
+                "background": "#FFFFFF",
+                "text": "#000000",
+                "accent": "#007ACC",
+                "hover": "#F0F0F0",
+                "border": "#E0E0E0"
             }
-
-    def _get_theme_fonts(self) -> Dict[str, QFont]:
-        """Get font settings based on selected style."""
-        base_font = QFont("Segoe UI", 10)
-        return {
-            "title": QFont("Segoe UI", 14, QFont.Bold),
-            "item": base_font,
-            "description": QFont("Segoe UI", 9),
-            "footer": QFont("Segoe UI", 8)
-        }
-
-class MenuButton(QtWidgets.QPushButton):
-    """Custom button widget for menu items."""
     
-    def __init__(self, item: MenuItem, theme: MenuTheme, parent=None):
-        super().__init__(parent)
-        self.item = item
-        self.theme = theme
-        self.setup_ui()
+    def get_font(self, size: int = 12, bold: bool = False) -> Optional[QFont]:
+        """Get font.
         
-    def setup_ui(self):
-        """Set up button appearance and behavior."""
-        self.setText(self.item.label)
-        self.setToolTip(self.item.description)
-        self.setFont(self.theme.fonts["item"])
-        self.setMinimumHeight(40)
-        self.setSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Fixed)
+        Args:
+            size: Font size
+            bold: Whether font is bold
+            
+        Returns:
+            QFont instance or None if PyQt5 is not available
+        """
+        if not PYTQT5_AVAILABLE:
+            return None
+            
+        font = QFont()
+        font.setPointSize(size)
+        font.setBold(bold)
+        return font
+    
+    def get_color(self, name: str) -> Optional[QColor]:
+        """Get color.
+        
+        Args:
+            name: Color name
+            
+        Returns:
+            QColor instance or None if PyQt5 is not available
+        """
+        if not PYTQT5_AVAILABLE:
+            return None
+            
+        return QColor(self.colors.get(name, "#000000"))
+
+class MenuButton(QWidget):
+    """Menu button."""
+    
+    clicked = pyqtSignal() if PYTQT5_AVAILABLE else None
+    
+    def __init__(self, text: str, action: Optional[Callable] = None, parent: Optional[QWidget] = None):
+        """Initialize button.
+        
+        Args:
+            text: Button text
+            action: Button action
+            parent: Parent widget
+        """
+        if not PYTQT5_AVAILABLE:
+            return
+            
+        super().__init__(parent)
+        self.text = text
+        self.action = action
+        self._init_ui()
+    
+    def _init_ui(self):
+        """Initialize UI."""
+        if not PYTQT5_AVAILABLE:
+            return
+            
+        self.setFixedHeight(40)
         self.setCursor(Qt.PointingHandCursor)
         
-        # Set style
-        self.setStyleSheet(f"""
-            QPushButton {{
-                background-color: {self.theme.colors["background"]};
-                color: {self.theme.colors["foreground"]};
-                border: 1px solid {self.theme.colors["border"]};
-                border-radius: 4px;
-                padding: 8px 16px;
-                text-align: left;
-            }}
-            QPushButton:hover {{
-                background-color: {self.theme.colors["hover"]};
-            }}
-            QPushButton:disabled {{
-                color: {self.theme.colors["disabled"]};
-            }}
-        """)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 0, 10, 0)
         
-        # Connect click handler
-        if self.item.action:
-            self.clicked.connect(self.item.action)
+        label = QLabel(self.text)
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
+        
+        self.setLayout(layout)
+        
+        if self.action:
+            self.clicked.connect(self.action)
 
-class MenuHeader(QtWidgets.QFrame):
-    """Header widget for the menu."""
+class MenuHeader(QWidget):
+    """Menu header."""
     
-    def __init__(self, title: str, theme: MenuTheme, parent=None):
+    def __init__(self, text: str, parent: Optional[QWidget] = None):
+        """Initialize header.
+        
+        Args:
+            text: Header text
+            parent: Parent widget
+        """
+        if not PYTQT5_AVAILABLE:
+            return
+            
         super().__init__(parent)
-        self.theme = theme
-        self.setup_ui(title)
+        self.text = text
+        self._init_ui()
+    
+    def _init_ui(self):
+        """Initialize UI."""
+        if not PYTQT5_AVAILABLE:
+            return
+            
+        self.setFixedHeight(60)
         
-    def setup_ui(self, title: str):
-        """Set up header appearance."""
-        layout = QtWidgets.QVBoxLayout(self)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 10, 10, 10)
         
-        # Title label
-        title_label = QtWidgets.QLabel(title)
-        title_label.setFont(self.theme.fonts["title"])
-        title_label.setStyleSheet(f"color: {self.theme.colors['foreground']};")
-        layout.addWidget(title_label)
-        
-        # Separator
-        separator = QtWidgets.QFrame()
-        separator.setFrameShape(QtWidgets.QFrame.HLine)
-        separator.setStyleSheet(f"background-color: {self.theme.colors['border']};")
-        layout.addWidget(separator)
+        label = QLabel(self.text)
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
         
         self.setLayout(layout)
 
-class MenuFooter(QtWidgets.QFrame):
-    """Footer widget for the menu."""
+class MenuFooter(QWidget):
+    """Menu footer."""
     
-    def __init__(self, theme: MenuTheme, parent=None):
+    def __init__(self, text: str, parent: Optional[QWidget] = None):
+        """Initialize footer.
+        
+        Args:
+            text: Footer text
+            parent: Parent widget
+        """
+        if not PYTQT5_AVAILABLE:
+            return
+            
         super().__init__(parent)
-        self.theme = theme
-        self.setup_ui()
+        self.text = text
+        self._init_ui()
+    
+    def _init_ui(self):
+        """Initialize UI."""
+        if not PYTQT5_AVAILABLE:
+            return
+            
+        self.setFixedHeight(40)
         
-    def setup_ui(self):
-        """Set up footer appearance."""
-        layout = QtWidgets.QVBoxLayout(self)
+        layout = QVBoxLayout()
+        layout.setContentsMargins(10, 0, 10, 0)
         
-        # Separator
-        separator = QtWidgets.QFrame()
-        separator.setFrameShape(QtWidgets.QFrame.HLine)
-        separator.setStyleSheet(f"background-color: {self.theme.colors['border']};")
-        layout.addWidget(separator)
-        
-        # Footer text
-        footer_label = QtWidgets.QLabel("Press ESC to exit")
-        footer_label.setFont(self.theme.fonts["footer"])
-        footer_label.setStyleSheet(f"color: {self.theme.colors['foreground']};")
-        footer_label.setAlignment(Qt.AlignCenter)
-        layout.addWidget(footer_label)
+        label = QLabel(self.text)
+        label.setAlignment(Qt.AlignCenter)
+        layout.addWidget(label)
         
         self.setLayout(layout)
 
 class MenuSignals(QObject):
-    """Signal handler for menu events."""
-    item_selected = pyqtSignal(object, object)  # Emits (item_id, data) when selected
-    menu_closed = pyqtSignal()  # Emits when menu is closed
-    log_message = pyqtSignal(str, str)  # Emits (message, level) for logging
+    """Menu signals."""
+    
+    item_clicked = pyqtSignal(str) if PYTQT5_AVAILABLE else None
+    menu_closed = pyqtSignal() if PYTQT5_AVAILABLE else None
 
-class Menu(QtWidgets.QMainWindow):
-    """Main menu window class."""
+class Menu(QWidget):
+    """Menu widget."""
     
-    _instance = None
-    _app = None
-    
-    def __new__(cls, *args, **kwargs):
-        if cls._instance is None:
-            cls._instance = super(Menu, cls).__new__(cls)
-            # Initialize instance attributes
-            cls._instance.initialized = False
-            cls._instance.title = kwargs.get('title', "Dream.OS Menu")
-            cls._instance.items = {}
-            cls._instance.parent = None
-            cls._instance.signals = None  # Will be initialized in __init__
-            cls._instance._menu_container = None
-            cls._instance._menu_layout = None
-            cls._instance._status_panel = None
-            cls._instance._log_console = None
-            cls._instance._theme = None  # Will be initialized in __init__
-            cls._instance.controller = None  # Will store the controller reference
-        return cls._instance
-    
-    def __init__(self, title: str = "Dream.OS Menu"):
-        """Initialize the menu window."""
-        # Only initialize once
-        if not self.initialized:
-            # Ensure QApplication exists
-            if Menu._app is None:
-                Menu._app = QtWidgets.QApplication.instance()
-                if Menu._app is None:
-                    Menu._app = QtWidgets.QApplication([])
-            
-            # Call parent's __init__
-            super().__init__()
-            
-            # Initialize theme
-            self._theme = MenuTheme(MenuStyle.DARK)
-            
-            # Initialize signals after parent initialization
-            self.signals = MenuSignals()
-            
-            self.setup_ui()
-            self.initialized = True
-            
-    def setup_ui(self):
-        """Set up the main window UI."""
-        # Window properties
-        self.setWindowTitle(self.title)
-        self.setMinimumSize(800, 600)
-        
-        # Main widget and layout
-        main_widget = QtWidgets.QWidget()
-        self.setCentralWidget(main_widget)
-        main_layout = QtWidgets.QHBoxLayout(main_widget)
-        
-        # Left panel (menu)
-        left_panel = QtWidgets.QWidget()
-        left_layout = QtWidgets.QVBoxLayout(left_panel)
-        left_layout.setSpacing(10)
-        left_layout.setContentsMargins(20, 20, 20, 20)
-        
-        # Title label
-        title_label = QtWidgets.QLabel(self.title)
-        title_label.setAlignment(Qt.AlignCenter)
-        title_font = QFont()
-        title_font.setPointSize(16)
-        title_font.setBold(True)
-        title_label.setFont(title_font)
-        title_label.setStyleSheet("color: #ffffff; margin-bottom: 20px;")
-        left_layout.addWidget(title_label)
-        
-        # Scroll area for menu items
-        scroll = QtWidgets.QScrollArea()
-        scroll.setWidgetResizable(True)
-        scroll.setFrameShape(QtWidgets.QFrame.NoFrame)
-        scroll.setStyleSheet("""
-            QScrollArea {
-                border: none;
-                background-color: transparent;
-            }
-            QScrollBar:vertical {
-                border: none;
-                background: #2b2b2b;
-                width: 10px;
-                margin: 0px;
-            }
-            QScrollBar::handle:vertical {
-                background: #3b3b3b;
-                min-height: 20px;
-                border-radius: 5px;
-            }
-            QScrollBar::add-line:vertical, QScrollBar::sub-line:vertical {
-                height: 0px;
-            }
-        """)
-        
-        # Container for menu items
-        self._menu_container = QtWidgets.QWidget()
-        self._menu_layout = QtWidgets.QVBoxLayout(self._menu_container)
-        self._menu_layout.setSpacing(10)
-        self._menu_layout.setContentsMargins(0, 0, 0, 0)
-        scroll.setWidget(self._menu_container)
-        left_layout.addWidget(scroll)
-        
-        # Right panel (status and logs)
-        right_panel = QtWidgets.QWidget()
-        right_layout = QtWidgets.QVBoxLayout(right_panel)
-        right_layout.setSpacing(10)
-        right_layout.setContentsMargins(20, 20, 20, 20)
-        
-        # Agent status panel
-        self._status_panel = AgentStatusPanel()
-        right_layout.addWidget(self._status_panel)
-        
-        # Log console
-        self._log_console = LogConsole()
-        right_layout.addWidget(self._log_console)
-        
-        # Add panels to main layout
-        main_layout.addWidget(left_panel, 1)
-        main_layout.addWidget(right_panel, 1)
-        
-        # Set dark theme
-        self.setStyleSheet("""
-            QMainWindow {
-                background-color: #1e1e1e;
-            }
-            QWidget {
-                background-color: #1e1e1e;
-            }
-        """)
-        
-        # Connect log signal
-        self.signals.log_message.connect(self._log_console.log)
-        
-        # Add exit button
-        exit_button = QtWidgets.QPushButton("Exit")
-        exit_button.setStyleSheet("""
-            QPushButton {
-                background-color: #d32f2f;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 4px;
-            }
-            QPushButton:hover {
-                background-color: #b71c1c;
-            }
-        """)
-        exit_button.clicked.connect(self.close)
-        left_layout.addWidget(exit_button)
-        
-    def add_item(self, item: MenuItem) -> None:
-        """Add a menu item."""
-        if item.id in self.items:
-            logger.warning(f"Menu item with id {item.id} already exists")
-            return
-            
-        self.items[item.id] = item
-        
-        # Create and add button
-        button = MenuButton(item, self._theme)
-        button.clicked.connect(lambda: self.handle_item_click(item))
-        self._menu_layout.addWidget(button)
-        
-        if item.type == MenuItemType.SUBMENU and item.submenu:
-            item.submenu.parent = self
-            
-    def handle_item_click(self, item: MenuItem):
-        """Handle menu item click."""
-        if not item.enabled:
-            return
-            
-        if item.type == MenuItemType.COMMAND and item.action:
-            item.action()
-            self.signals.item_selected.emit(item.id, None)
-        elif item.type == MenuItemType.SUBMENU and item.submenu:
-            item.submenu.show()
-        elif item.type == MenuItemType.TOGGLE:
-            item.enabled = not item.enabled
-            # Update button state
-            for i in range(self._menu_layout.count()):
-                widget = self._menu_layout.itemAt(i).widget()
-                if isinstance(widget, MenuButton) and widget.item.id == item.id:
-                    widget.setEnabled(item.enabled)
-                    break
-        elif item.type == MenuItemType.AGENT_SELECTION:
-            self._handle_agent_selection(item)
-            
-    def _handle_agent_selection(self, item: MenuItem):
-        """Handle agent selection menu items.
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Initialize menu.
         
         Args:
-            item: The menu item that triggered the selection
+            parent: Parent widget
         """
-        if hasattr(self, 'controller') and self.controller:
-            # Get list of available agents from the controller
-            agents = self.controller.list_agents()
+        if not PYTQT5_AVAILABLE:
+            return
             
-            # Create submenu for agent selection
-            submenu = Menu("Select Agent")
-            for agent in agents:
-                submenu.add_item(MenuItem(
-                    id=f"{item.id}_{agent}",
-                    label=agent,
-                    type=MenuItemType.COMMAND,
-                    action=lambda a=agent: self.signals.item_selected.emit(item.id, a)
-                ))
-                
-            # Show submenu
-            submenu.show()
-        else:
-            logger.error("Controller not available for agent selection")
+        super().__init__(parent)
+        self.items: List[MenuItem] = []
+        self.theme = MenuTheme()
+        self.signals = MenuSignals()
+        self._init_ui()
+    
+    def _init_ui(self):
+        """Initialize UI."""
+        if not PYTQT5_AVAILABLE:
+            return
             
-    def show(self):
-        """Show the menu window."""
-        if not self.isVisible():
-            super().show()
-            # Ensure window stays on top
-            self.raise_()
-            self.activateWindow()
+        self.setFixedWidth(200)
+        self.setStyleSheet(f"background-color: {self.theme.colors['background']};")
         
-    def run(self):
-        """Run the menu event loop."""
-        if Menu._app:
-            # Show the window if not visible
-            if not self.isVisible():
-                self.show()
-            # Start the event loop
-            Menu._app.exec_()
+        layout = QVBoxLayout()
+        layout.setContentsMargins(0, 0, 0, 0)
+        layout.setSpacing(0)
+        
+        self.setLayout(layout)
+    
+    def add_item(self, item: MenuItem):
+        """Add menu item.
+        
+        Args:
+            item: Menu item
+        """
+        if not PYTQT5_AVAILABLE:
+            return
             
-    def _cleanup(self):
-        """Clean up resources."""
-        try:
-            # Clean up status panel
-            if self._status_panel:
-                try:
-                    self._status_panel.cleanup()
-                except AttributeError:
-                    pass  # Ignore if cleanup method doesn't exist
-                
-            # Clean up log console
-            if self._log_console:
-                try:
-                    self._log_console.cleanup()
-                except AttributeError:
-                    pass  # Ignore if cleanup method doesn't exist
-                
-            # Clean up signals
-            if self.signals:
-                self.signals.deleteLater()
-                
-        except Exception as e:
-            logger.error(f"Error during resource cleanup: {e}")
+        self.items.append(item)
+        
+        if item.type == MenuItemType.BUTTON:
+            button = MenuButton(item.text, item.action)
+            self.layout().addWidget(button)
+        elif item.type == MenuItemType.HEADER:
+            header = MenuHeader(item.text)
+            self.layout().addWidget(header)
+        elif item.type == MenuItemType.FOOTER:
+            footer = MenuFooter(item.text)
+            self.layout().addWidget(footer)
+        elif item.type == MenuItemType.SEPARATOR:
+            separator = QFrame()
+            separator.setFrameShape(QFrame.HLine)
+            separator.setFrameShadow(QFrame.Sunken)
+            self.layout().addWidget(separator)
+    
+    def clear(self):
+        """Clear menu."""
+        if not PYTQT5_AVAILABLE:
+            return
             
-    def closeEvent(self, event):
-        """Handle window close event."""
-        try:
-            # Emit menu closed signal
-            if self.signals:
-                self.signals.menu_closed.emit()
-            
-            # Clean up controller if exists
-            if self.controller:
-                self.controller.cleanup()
-            
-            # Clean up resources
-            self._cleanup()
-            
-            # Accept the close event
-            event.accept()
-            
-            # Quit the application
-            if Menu._app:
-                Menu._app.quit()
-                
-        except Exception as e:
-            logger.error(f"Error during cleanup: {e}")
-            event.accept()
-            
-    def __del__(self):
-        """Clean up resources."""
-        self._cleanup()
-
-    def set_controller(self, controller):
-        """Set the controller reference."""
-        self.controller = controller
+        self.items.clear()
+        while self.layout().count():
+            item = self.layout().takeAt(0)
+            if item.widget():
+                item.widget().deleteLater()
 
 class MenuBuilder:
-    """Builds and manages menu instances."""
+    """Menu builder."""
     
-    def __init__(self):
-        """Initialize the menu builder."""
-        self.menu = Menu()  # Get singleton instance
+    def __init__(self, parent: Optional[QWidget] = None):
+        """Initialize builder.
         
-    def add_item(self, item: MenuItem) -> 'MenuBuilder':
-        """Add a menu item."""
-        self.menu.add_item(item)
-        return self
+        Args:
+            parent: Parent widget
+        """
+        self.parent = parent
+        self.menu = Menu(parent) if PYTQT5_AVAILABLE else None
+    
+    def add_button(self, text: str, action: Optional[Callable] = None) -> 'MenuBuilder':
+        """Add button.
         
-    def add_items(self, items: List[MenuItem]) -> 'MenuBuilder':
-        """Add multiple menu items."""
-        for item in items:
-            self.menu.add_item(item)
-        return self
-        
-    def build(self) -> Menu:
-        """Build and return the menu instance."""
-        return self.menu
-        
-    def display_menu(self):
-        """Display the menu."""
-        if self.menu:
-            self.menu.show()
+        Args:
+            text: Button text
+            action: Button action
             
-    def close_menu(self):
-        """Close the menu."""
-        if self.menu:
-            self.menu.hide()
+        Returns:
+            Self for chaining
+        """
+        if not PYTQT5_AVAILABLE:
+            return self
+            
+        self.menu.add_item(MenuItem(MenuItemType.BUTTON, text, action))
+        return self
+    
+    def add_header(self, text: str) -> 'MenuBuilder':
+        """Add header.
+        
+        Args:
+            text: Header text
+            
+        Returns:
+            Self for chaining
+        """
+        if not PYTQT5_AVAILABLE:
+            return self
+            
+        self.menu.add_item(MenuItem(MenuItemType.HEADER, text))
+        return self
+    
+    def add_footer(self, text: str) -> 'MenuBuilder':
+        """Add footer.
+        
+        Args:
+            text: Footer text
+            
+        Returns:
+            Self for chaining
+        """
+        if not PYTQT5_AVAILABLE:
+            return self
+            
+        self.menu.add_item(MenuItem(MenuItemType.FOOTER, text))
+        return self
+    
+    def add_separator(self) -> 'MenuBuilder':
+        """Add separator.
+        
+        Returns:
+            Self for chaining
+        """
+        if not PYTQT5_AVAILABLE:
+            return self
+            
+        self.menu.add_item(MenuItem(MenuItemType.SEPARATOR, ""))
+        return self
+    
+    def build(self) -> Optional[Menu]:
+        """Build menu.
+        
+        Returns:
+            Menu instance or None if PyQt5 is not available
+        """
+        return self.menu
 
 def main():
-    """Example usage of the menu system."""
-    # Create a menu using the builder pattern
-    menu = (MenuBuilder()
-        .add_item(MenuItem(label="System Status", action=lambda: print("Checking system status...")))
-        .add_item(MenuItem(label="Agent Control", action=lambda: print("Opening agent control...")))
-        .add_item(MenuItem(label="Settings", action=lambda: print("Opening settings...")))
-        .add_item(MenuItem(label="Help", description="View system documentation", action=lambda: print("Opening help...")))
-        .add_item(MenuItem(label="Exit", action=lambda: QtWidgets.QApplication.instance().quit()))
-        .build())
+    """Main entry point."""
+    if not PYTQT5_AVAILABLE:
+        logger.error("PyQt5 is not available. Cannot start menu system.")
+        return
+        
+    app = QApplication(sys.argv)
     
-    # Run the menu
-    menu.run()
+    menu = MenuBuilder().add_header("Menu").add_button("Button 1").add_button("Button 2").build()
+    menu.show()
+    
+    sys.exit(app.exec_())
 
 if __name__ == "__main__":
     main() 

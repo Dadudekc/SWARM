@@ -1,0 +1,20 @@
+Please review the following code patch from agent {{ agent_id }}:
+
+File: {{ response.file_path }}
+Summary: {{ response.summary }}
+
+```python
+{{ response.code_patch }}
+```
+
+Context:
+- Original Error: {{ response.metadata.original_error }}
+- Timestamp: {{ response.timestamp }}
+
+Please analyze this patch and provide:
+1. Is the fix correct and complete?
+2. Are there any potential side effects?
+3. What improvements would you suggest?
+4. Should we add any tests to verify this fix?
+
+Respond in a clear, structured format. 

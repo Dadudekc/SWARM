@@ -1,0 +1,21 @@
+{
+    "backup_dir": "backups",
+    "max_backups": 5,
+    "backup_retention_days": 7,
+    "apply_timeout": 60,
+    "verify_timeout": 30,
+    "rollback_timeout": 30,
+    "git_commands": {
+        "apply": ["git", "apply"],
+        "check": ["git", "apply", "--check"],
+        "diff": ["git", "diff"],
+        "restore": ["git", "apply", "--reverse"]
+    },
+    "log_level": "INFO",
+    "log_format": {
+        "platform": "patch_apply",
+        "status": "string",
+        "message": "string",
+        "tags": ["string"]
+    }
+} 

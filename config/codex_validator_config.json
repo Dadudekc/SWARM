@@ -1,0 +1,27 @@
+{
+    "validation_dir": "validation",
+    "validation_timeout": 60,
+    "max_retries": 3,
+    "retry_delay": 300,
+    "validation_checks": {
+        "syntax_check": {
+            "enabled": true,
+            "timeout": 10
+        },
+        "safety_check": {
+            "enabled": true,
+            "timeout": 20
+        },
+        "correctness_check": {
+            "enabled": true,
+            "timeout": 30
+        }
+    },
+    "log_level": "INFO",
+    "log_format": {
+        "platform": "codex_validator",
+        "status": "string",
+        "message": "string",
+        "tags": ["string"]
+    }
+} 

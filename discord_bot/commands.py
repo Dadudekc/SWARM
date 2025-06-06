@@ -25,7 +25,7 @@ from dreamos.core.messaging.enums import MessageMode
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
 from dreamos.core.log_manager import LogManager
-from dreamos.core.agent_control.devlog_manager import DevLogManager
+from social.utils.devlog_manager import DevlogManager
 
 logger = logging.getLogger('discord_bot')
 
@@ -383,7 +383,7 @@ class AgentCommands:
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.log_manager = LogManager()
-        self.devlog_manager = DevLogManager()
+        self.devlog_manager = DevlogManager()
         self.message_processor = MessageProcessor()
         self.cell_phone = CellPhone()
         self.agent_interface = AgentInterface()

@@ -1,171 +1,82 @@
 """
-Agent Control Module
+Agent Control
 
-Handles agent control operations including coordinate management and UI interactions.
+Provides high-level control and management of agents in the system.
 """
 
 import logging
+from typing import Dict, List, Optional, Any
 from pathlib import Path
-import json
-import pyautogui
-from typing import Dict, Optional, Tuple
 
-from .coordinate_transformer import CoordinateTransformer
-
-logger = logging.getLogger('agent_control.agent_control')
+logger = logging.getLogger(__name__)
 
 class AgentControl:
-    """Handles agent control operations."""
+    """High-level agent control and management."""
     
-    def __init__(self, config_path: str):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize agent control.
         
         Args:
-            config_path: Path to coordinate configuration file
+            config: Optional configuration dictionary
         """
-        self.config_path = Path(config_path)
-        self.transformer = CoordinateTransformer(transform_debug=True)
-        self.coords = self._load_coordinates()
+        self.config = config or {}
+        self.agents: Dict[str, Any] = {}
+        self.logger = logger
         
-    def _load_coordinates(self) -> Dict:
-        """Load coordinates from config file.
-        
-        Returns:
-            Dictionary of agent coordinates
-        """
-        try:
-            if not self.config_path.exists():
-                logger.error(f"Coordinate file not found at {self.config_path}")
-                return {}
-                
-            with open(self.config_path, 'r') as f:
-                return json.load(f)
-                
-        except Exception as e:
-            logger.error(f"Error loading coordinates: {e}")
-            return {}
-            
-    def move_to_agent(self, agent_id: str) -> bool:
-        """Move cursor to agent's initial position.
+    def register_agent(self, agent_id: str, agent: Any) -> None:
+        """Register a new agent.
         
         Args:
-            agent_id: ID of the agent
-            
-        Returns:
-            True if successful, False otherwise
+            agent_id: Unique identifier for the agent
+            agent: Agent instance to register
         """
-        try:
-            if agent_id not in self.coords:
-                logger.error(f"No coordinates found for {agent_id}")
-                return False
-                
-            coords = self.coords[agent_id]["initial_spot"]
-            pyautogui.moveTo(coords["x"], coords["y"])
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error moving to agent {agent_id}: {e}")
-            return False
-            
-    def click_input_box(self, agent_id: str) -> bool:
-        """Click agent's input box.
+        if agent_id in self.agents:
+            raise ValueError(f"Agent {agent_id} already registered")
+        self.agents[agent_id] = agent
+        self.logger.info(f"Registered agent {agent_id}")
+        
+    def unregister_agent(self, agent_id: str) -> None:
+        """Unregister an agent.
         
         Args:
-            agent_id: ID of the agent
-            
-        Returns:
-            True if successful, False otherwise
+            agent_id: ID of agent to unregister
         """
-        try:
-            if agent_id not in self.coords:
-                logger.error(f"No coordinates found for {agent_id}")
-                return False
-                
-            coords = self.coords[agent_id]["input_box"]
-            pyautogui.click(coords["x"], coords["y"])
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error clicking input box for {agent_id}: {e}")
-            return False
-            
-    def click_copy_button(self, agent_id: str) -> bool:
-        """Click agent's copy button.
+        if agent_id not in self.agents:
+            raise ValueError(f"Agent {agent_id} not found")
+        del self.agents[agent_id]
+        self.logger.info(f"Unregistered agent {agent_id}")
+        
+    def get_agent(self, agent_id: str) -> Any:
+        """Get a registered agent.
         
         Args:
-            agent_id: ID of the agent
+            agent_id: ID of agent to get
             
         Returns:
-            True if successful, False otherwise
+            Registered agent instance
         """
-        try:
-            if agent_id not in self.coords:
-                logger.error(f"No coordinates found for {agent_id}")
-                return False
-                
-            coords = self.coords[agent_id]["copy_button"]
-            pyautogui.click(coords["x"], coords["y"])
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error clicking copy button for {agent_id}: {e}")
-            return False
-            
-    def get_response_region(self, agent_id: str) -> Optional[Dict]:
-        """Get agent's response region coordinates.
+        if agent_id not in self.agents:
+            raise ValueError(f"Agent {agent_id} not found")
+        return self.agents[agent_id]
+        
+    def list_agents(self) -> List[str]:
+        """List all registered agent IDs.
+        
+        Returns:
+            List of registered agent IDs
+        """
+        return list(self.agents.keys())
+        
+    def update_agent_config(self, agent_id: str, config: Dict[str, Any]) -> None:
+        """Update an agent's configuration.
         
         Args:
-            agent_id: ID of the agent
-            
-        Returns:
-            Response region coordinates or None if not found
+            agent_id: ID of agent to update
+            config: New configuration dictionary
         """
-        try:
-            if agent_id not in self.coords:
-                logger.error(f"No coordinates found for {agent_id}")
-                return None
-                
-            if "response_region" not in self.coords[agent_id]:
-                logger.error(f"No response region found for {agent_id}")
-                return None
-                
-            return self.coords[agent_id]["response_region"]
-            
-        except Exception as e:
-            logger.error(f"Error getting response region for {agent_id}: {e}")
-            return None
-
-def main():
-    """Run agent control."""
-    import argparse
-    
-    parser = argparse.ArgumentParser(description="Control agent positioning")
-    parser.add_argument("--config", default="runtime/config/cursor_agent_coords.json",
-                      help="Path to coordinate configuration file")
-    parser.add_argument("--agent", required=True,
-                      help="ID of the agent to control")
-    parser.add_argument("--action", choices=["move", "click_input", "click_copy", "get_region"],
-                      required=True, help="Action to perform")
-    args = parser.parse_args()
-    
-    control = AgentControl(args.config)
-    
-    if args.action == "move":
-        success = control.move_to_agent(args.agent)
-        print(f"Move to agent: {'Success' if success else 'Failed'}")
-    elif args.action == "click_input":
-        success = control.click_input_box(args.agent)
-        print(f"Click input box: {'Success' if success else 'Failed'}")
-    elif args.action == "click_copy":
-        success = control.click_copy_button(args.agent)
-        print(f"Click copy button: {'Success' if success else 'Failed'}")
-    elif args.action == "get_region":
-        region = control.get_response_region(args.agent)
-        if region:
-            print("\nResponse Region:")
-            print(json.dumps(region, indent=2))
-        else:
-            print("Failed to get response region")
-
-if __name__ == "__main__":
-    main() 
+        if agent_id not in self.agents:
+            raise ValueError(f"Agent {agent_id} not found")
+        agent = self.agents[agent_id]
+        if hasattr(agent, 'update_config'):
+            agent.update_config(config)
+        self.logger.info(f"Updated config for agent {agent_id}") 

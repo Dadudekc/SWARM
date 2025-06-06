@@ -1,0 +1,33 @@
+Test Results Analysis Request
+---------------------------
+
+Test: {{ response.test_name }}
+Status: {{ response.status }}
+Timestamp: {{ response.timestamp }}
+
+{% if response.error %}
+Error Details:
+```
+{{ response.error }}
+```
+{% endif %}
+
+{% if response.result %}
+Test Output:
+```
+{{ response.result }}
+```
+{% endif %}
+
+Context:
+- Platform: {{ response.metadata.platform }}
+- Test File: {{ response.metadata.test_file }}
+- Run Duration: {{ response.metadata.duration }}
+
+Please analyze these test results and provide:
+1. What is the root cause of any failures?
+2. What is the recommended fix?
+3. Are there any patterns or trends in the test results?
+4. What should be the next step in the testing process?
+
+Respond with a clear action plan. 

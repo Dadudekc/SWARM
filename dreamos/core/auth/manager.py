@@ -1,153 +1,87 @@
-"""
-Authentication manager implementation.
-"""
+"""Authentication manager for handling user authentication and authorization."""
 
+from typing import Optional, Dict, Any
+from dataclasses import dataclass
+import jwt
 import time
-import logging
-from typing import Dict, Any, Optional
-from datetime import datetime, timedelta
+from pathlib import Path
+import json
 
 from .interface import AbstractAuthInterface, AuthError
-from .retry import RetryMechanism
+from .session import Session, SessionManager
+from .token import TokenInfo, TokenHandler
 
-logger = logging.getLogger(__name__)
+@dataclass
+class AuthConfig:
+    """Configuration for authentication."""
+    secret_key: str
+    token_expiry: int = 3600  # 1 hour
+    refresh_token_expiry: int = 604800  # 1 week
+    session_expiry: int = 86400  # 24 hours
+    config_path: Path = Path("config/auth.json")
 
 class AuthManager(AbstractAuthInterface):
-    """Authentication manager implementing the platform-agnostic interface."""
+    """Manages authentication and authorization."""
     
-    def __init__(self, config: Dict[str, Any] = None):
-        """Initialize the auth manager with configuration.
+    def __init__(self, config: Optional[AuthConfig] = None):
+        """Initialize the auth manager."""
+        self.config = config or self._load_config()
+        self.token_handler = TokenHandler(self.config)
+        self.session_manager = SessionManager(self.config)
+    
+    def _load_config(self) -> AuthConfig:
+        """Load auth configuration from file."""
+        if not self.config_path.exists():
+            raise AuthError("Auth config file not found")
         
-        Args:
-            config: Optional configuration dictionary containing:
-                - max_retries: Maximum number of retry attempts (default: 3)
-                - retry_delay: Base delay in seconds for retries (default: 1.0)
-                - session_timeout: Session timeout in seconds (default: 3600)
-        """
-        self.config = config or {}
-        self.max_retries = self.config.get('max_retries', 3)
-        self.retry_delay = self.config.get('retry_delay', 1.0)
-        self.session_timeout = self.config.get('session_timeout', 3600)
-        self._sessions = {}
-        self._retry = RetryMechanism(
-            max_retries=self.max_retries,
-            base_delay=self.retry_delay
+        with open(self.config_path) as f:
+            data = json.load(f)
+        
+        return AuthConfig(
+            secret_key=data["secret_key"],
+            token_expiry=data.get("token_expiry", 3600),
+            refresh_token_expiry=data.get("refresh_token_expiry", 604800),
+            session_expiry=data.get("session_expiry", 86400),
+            config_path=self.config_path
         )
     
-    def _attempt_login(self, username: str, password: str) -> Dict[str, Any]:
-        """Attempt a single login operation.
-        
-        This method should be implemented by platform-specific auth providers.
-        
-        Args:
-            username: The username to authenticate
-            password: The password to authenticate with
-            
-        Returns:
-            Dict containing session information
-            
-        Raises:
-            AuthError: If authentication fails
-        """
-        raise NotImplementedError("Platform-specific login not implemented")
+    def authenticate(self, credentials: Dict[str, Any]) -> TokenInfo:
+        """Authenticate a user and return token info."""
+        # TODO: Implement actual authentication logic
+        return self.token_handler.create_tokens(credentials)
     
-    def login(self, username: str, password: str) -> Dict[str, Any]:
-        """Authenticate a user with retry logic.
-        
-        Args:
-            username: The username to authenticate
-            password: The password to authenticate with
-            
-        Returns:
-            Dict containing session information
-            
-        Raises:
-            AuthError: If authentication fails after all retries
-        """
-        def login_operation():
-            try:
-                result = self._attempt_login(username, password)
-                session_id = result.get('session_id')
-                if session_id:
-                    self._sessions[session_id] = {
-                        'user_id': username,
-                        'created_at': datetime.now(),
-                        'expires_at': datetime.now() + timedelta(seconds=self.session_timeout)
-                    }
-                return result
-            except Exception as e:
-                logger.warning(f"Login attempt failed: {str(e)}")
-                raise AuthError(f"Authentication failed: {str(e)}")
-        
+    def validate_token(self, token: str) -> Dict[str, Any]:
+        """Validate a JWT token."""
         try:
-            return self._retry.execute(login_operation)
-        except Exception as e:
-            logger.error(f"Login failed after {self.max_retries} attempts: {str(e)}")
-            raise AuthError(f"Authentication failed after {self.max_retries} attempts")
+            return jwt.decode(
+                token,
+                self.config.secret_key,
+                algorithms=["HS256"]
+            )
+        except jwt.InvalidTokenError as e:
+            raise AuthError(f"Invalid token: {e}")
     
-    def logout(self, session_id: str) -> bool:
-        """Invalidate a user session.
-        
-        Args:
-            session_id: The session identifier to invalidate
+    def refresh_token(self, refresh_token: str) -> TokenInfo:
+        """Refresh an access token using a refresh token."""
+        try:
+            payload = self.validate_token(refresh_token)
+            if payload.get("type") != "refresh":
+                raise AuthError("Invalid refresh token")
             
-        Returns:
-            True if session was successfully invalidated, False otherwise
-        """
-        if session_id in self._sessions:
-            del self._sessions[session_id]
-            logger.info(f"Session {session_id} invalidated")
-            return True
-        logger.warning(f"Attempted to invalidate non-existent session {session_id}")
-        return False
+            return self.token_handler.create_tokens({
+                "user_id": payload["user_id"]
+            })
+        except jwt.InvalidTokenError as e:
+            raise AuthError(f"Invalid refresh token: {e}")
     
-    def verify_session(self, session_id: str) -> bool:
-        """Verify if a session is valid.
-        
-        Args:
-            session_id: The session identifier to verify
-            
-        Returns:
-            True if session is valid, False otherwise
-        """
-        if session_id not in self._sessions:
-            return False
-        session = self._sessions[session_id]
-        is_valid = datetime.now() < session['expires_at']
-        if not is_valid:
-            logger.info(f"Session {session_id} expired")
-            del self._sessions[session_id]
-        return is_valid
+    def create_session(self, user_id: str) -> Session:
+        """Create a new session for a user."""
+        return self.session_manager.create_session(user_id)
     
-    def refresh_token(self, token: str) -> Optional[str]:
-        """Refresh an authentication token.
-        
-        This method should be implemented by platform-specific auth providers.
-        
-        Args:
-            token: The token to refresh
-            
-        Returns:
-            New token if refresh successful, None otherwise
-            
-        Raises:
-            AuthError: If token refresh fails
-        """
-        raise NotImplementedError("Platform-specific token refresh not implemented")
+    def get_session(self, session_id: str) -> Optional[Session]:
+        """Get a session by ID."""
+        return self.session_manager.get_session(session_id)
     
-    def cleanup_expired_sessions(self) -> int:
-        """Clean up expired sessions.
-        
-        Returns:
-            Number of sessions cleaned up
-        """
-        now = datetime.now()
-        expired = [
-            session_id for session_id, session in self._sessions.items()
-            if now >= session['expires_at']
-        ]
-        for session_id in expired:
-            del self._sessions[session_id]
-        if expired:
-            logger.info(f"Cleaned up {len(expired)} expired sessions")
-        return len(expired) 
+    def invalidate_session(self, session_id: str) -> None:
+        """Invalidate a session."""
+        self.session_manager.invalidate_session(session_id) 

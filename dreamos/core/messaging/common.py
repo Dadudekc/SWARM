@@ -12,6 +12,45 @@ from .enums import MessageMode, MessagePriority, MessageType
 import logging
 
 @dataclass
+class MessageContext:
+    """Context for message processing."""
+    message_id: str = field(default_factory=lambda: str(uuid4()))
+    timestamp: datetime = field(default_factory=datetime.now)
+    metadata: Dict[str, Any] = field(default_factory=dict)
+    source: Optional[str] = None
+    destination: Optional[str] = None
+    priority: MessagePriority = MessagePriority.NORMAL
+    mode: MessageMode = MessageMode.NORMAL
+    type: MessageType = MessageType.COMMAND
+
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert context to dictionary."""
+        return {
+            "message_id": self.message_id,
+            "timestamp": self.timestamp.isoformat(),
+            "metadata": self.metadata,
+            "source": self.source,
+            "destination": self.destination,
+            "priority": self.priority.name,
+            "mode": self.mode.name,
+            "type": self.type.name
+        }
+    
+    @classmethod
+    def from_dict(cls, data: Dict[str, Any]) -> 'MessageContext':
+        """Create context from dictionary."""
+        return cls(
+            message_id=data.get("message_id", str(uuid4())),
+            timestamp=datetime.fromisoformat(data["timestamp"]) if "timestamp" in data else datetime.now(),
+            metadata=data.get("metadata", {}),
+            source=data.get("source"),
+            destination=data.get("destination"),
+            priority=MessagePriority[data.get("priority", "NORMAL")],
+            mode=MessageMode[data.get("mode", "NORMAL")],
+            type=MessageType[data.get("type", "COMMAND")]
+        )
+
+@dataclass
 class Message:
     """Base message structure."""
     content: str
@@ -74,4 +113,4 @@ class Message:
             return False
         return True
 
-__all__ = ["Message", "MessageMode", "MessagePriority", "MessageType"]
+__all__ = ["Message", "MessageContext", "MessageMode", "MessagePriority", "MessageType"]

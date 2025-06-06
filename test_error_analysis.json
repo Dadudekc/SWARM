@@ -129,19 +129,6 @@
   },
   "quarantined_tests": [
     {
-      "test_name": "test_log_cleanup",
-      "file": "tests/social/core/test_log_manager.py",
-      "issue": "Windows permission and ACL issues during cleanup",
-      "suggested_fix": "Implement proper Windows security handling",
-      "platform_impact": "Windows",
-      "root_cause": "Insufficient file permissions and ACL conflicts",
-      "impact_assessment": "Affects log cleanup and maintenance",
-      "quarantine_date": "2024-06-02T20:45:00Z",
-      "last_reviewed": "2024-06-03T06:45:00Z",
-      "attempts": 6,
-      "quarantine_reason": "Exceeded 4-attempt threshold for Windows permission issues"
-    },
-    {
       "test_name": "test_write_log",
       "file": "tests/social/core/test_log_writer.py",
       "issue": "Windows file handle management issues causing JSON decode errors",

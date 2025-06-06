@@ -22,14 +22,9 @@ from queue import PriorityQueue
 import re
 from uuid import uuid4
 
-try:
-    from .base import BaseMessagingComponent
-    from .enums import MessageMode, MessagePriority
-    from .common import Message
-except Exception:  # pragma: no cover - support direct execution
-    from dreamos.core.messaging.base import BaseMessagingComponent
-    from dreamos.core.messaging.enums import MessageMode, MessagePriority
-    from dreamos.core.messaging.common import Message
+from .base import BaseMessagingComponent
+from .enums import MessageMode, MessagePriority
+from .common import Message
 
 logger = logging.getLogger('dreamos.messaging')
 

@@ -9,7 +9,7 @@ import asyncio
 from typing import Dict, List, Optional, Any
 from pathlib import Path
 from .messaging.cell_phone import CellPhone
-from .messaging.types import MessageMode
+from .messaging.enums import MessageMode
 from .messaging.unified_message_system import (
     UnifiedMessageSystem,
     MessagePriority,

@@ -1,0 +1,85 @@
+{
+    "project": "UTILS Logging Consolidation",
+    "deadline": "2025-06-06",
+    "version": "1.0.0",
+    "last_updated": "2025-06-05T00:00:00Z",
+    "agents": {
+        "agent-1": {
+            "task_id": "UTILS-001",
+            "title": "Archive Structure Setup",
+            "status": "IN_PROGRESS",
+            "started_at": "2025-06-05T00:00:00Z",
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": []
+        },
+        "agent-2": {
+            "task_id": "UTILS-002",
+            "title": "Legacy Log Files Deprecation",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": []
+        },
+        "agent-3": {
+            "task_id": "UTILS-003",
+            "title": "New Logging System Implementation",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": ["UTILS-002"]
+        },
+        "agent-4": {
+            "task_id": "UTILS-004",
+            "title": "Logging Settings Consolidation",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": ["UTILS-003"]
+        },
+        "agent-5": {
+            "task_id": "UTILS-005",
+            "title": "Log Writer Consolidation",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": ["UTILS-003", "UTILS-004"]
+        },
+        "agent-6": {
+            "task_id": "UTILS-006",
+            "title": "Log Pipeline Consolidation",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": ["UTILS-003", "UTILS-004", "UTILS-005"]
+        },
+        "agent-7": {
+            "task_id": "UTILS-007",
+            "title": "Log Metrics Consolidation",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": ["UTILS-003", "UTILS-004", "UTILS-005", "UTILS-006"]
+        },
+        "agent-8": {
+            "task_id": "UTILS-008",
+            "title": "Log Migration and Integration",
+            "status": "WAITING_ON_EXECUTION",
+            "started_at": null,
+            "last_updated": "2025-06-05T00:00:00Z",
+            "dependencies": ["UTILS-003", "UTILS-004", "UTILS-005", "UTILS-006", "UTILS-007"]
+        }
+    },
+    "status_summary": {
+        "total_tasks": 8,
+        "in_progress": 1,
+        "waiting": 7,
+        "completed": 0,
+        "blocked": 0
+    },
+    "metrics": {
+        "estimated_completion": "2025-06-06T00:00:00Z",
+        "total_estimated_hours": 32,
+        "hours_completed": 0,
+        "progress_percentage": 0
+    }
+} 

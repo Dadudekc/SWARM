@@ -1,30 +1,36 @@
 """
-Messaging module for Dream.OS.
+Messaging Package
+
+Provides message processing and routing functionality.
 """
 
-from .common import Message
-from .enums import MessageMode, MessagePriority, MessageType, TaskStatus, TaskPriority
-from .unified_message_system import MessageSystem
-from .cell_phone import send_message
-try:
-    from .phones import Phone, CaptainPhone
-except Exception:  # pragma: no cover - optional dependency
-    Phone = CaptainPhone = None
-try:
-    from dreamos.core.message_processor import MessageProcessor
-except Exception:  # pragma: no cover - optional dependency
-    MessageProcessor = None
+from .message_processor import MessageProcessor
+from .message import Message
+from .enums import MessageMode, MessageType, MessagePriority, TaskStatus, TaskPriority
+from .message_system import MessageSystem
+from .router import MessageRouter
+from .queue import MessageQueue
+from .history import MessageHistory
+from .base import BaseMessageHandler
+from .common import MessageContext
+from .unified_message_system import UnifiedMessageSystem
+from .cell_phone import CellPhone, send_message as send_sms_message
 
 __all__ = [
-    "Message",
-    "MessageMode",
-    "MessagePriority",
-    "MessageType",
-    "TaskStatus",
-    "TaskPriority",
-    "MessageSystem",
-    "Phone",
-    "CaptainPhone",
-    "MessageProcessor",
-    "send_message"
+    'MessageProcessor',
+    'Message',
+    'MessageMode',
+    'MessageType',
+    'MessagePriority',
+    'TaskStatus',
+    'TaskPriority',
+    'MessageSystem',
+    'MessageRouter',
+    'MessageQueue',
+    'MessageHistory',
+    'BaseMessageHandler',
+    'MessageContext',
+    'UnifiedMessageSystem',
+    'CellPhone',
+    'send_sms_message'
 ]

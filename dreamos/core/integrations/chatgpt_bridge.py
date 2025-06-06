@@ -10,10 +10,10 @@ import os
 from typing import Optional
 
 from ..automation.browser_control import BrowserControl
-from ..config.bridge_config import BridgeConfig
+from ..config.config_manager import ConfigManager
 from ..messaging.request_queue import RequestQueue
 from ..monitoring.bridge_health import BridgeHealthMonitor
-from ..utils.retry import with_retry
+from ..utils.retry_utils import with_retry
 
 logger = logging.getLogger('chatgpt_bridge')
 
@@ -26,16 +26,16 @@ class ChatGPTBridge:
         Args:
             config_path: Path to configuration file
         """
-        self.config = BridgeConfig.load(config_path)
-        self.config.validate()
+        self.config_manager = ConfigManager()
+        self.config = self.config_manager.get_bridge_config()
         
         # Initialize components
         self.browser = BrowserControl(
-            user_data_dir=self.config.user_data_dir,
-            window_title=self.config.cursor_window_title,
-            page_load_wait=self.config.page_load_wait,
-            response_wait=self.config.response_wait,
-            paste_delay=self.config.paste_delay
+            user_data_dir=self.config.get('user_data_dir'),
+            window_title=self.config.get('cursor_window_title'),
+            page_load_wait=self.config.get('page_load_wait'),
+            response_wait=self.config.get('response_wait'),
+            paste_delay=self.config.get('paste_delay')
         )
         
         self.queue = RequestQueue(
@@ -44,7 +44,7 @@ class ChatGPTBridge:
         
         self.health = BridgeHealthMonitor(
             status_file=os.path.join('runtime', 'bridge_inbox', 'health.json'),
-            check_interval=self.config.health_check_interval
+            check_interval=self.config.get('health_check_interval')
         )
         
         self._running = False
@@ -198,11 +198,9 @@ async def main() -> None:
     
     try:
         await bridge.start()
-        
         # Keep running until interrupted
         while True:
             await asyncio.sleep(1)
-            
     except KeyboardInterrupt:
         logger.info("Shutting down...")
     finally:

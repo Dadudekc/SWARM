@@ -6,6 +6,9 @@ A file-based persistent queue implementation with file locking to prevent race c
 
 import time
 import logging
+import os
+import json
+import threading
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from enum import Enum
@@ -14,11 +17,14 @@ from filelock import FileLock, Timeout
 
 from dreamos.core.messaging.common import Message, MessagePriority
 from dreamos.core.message import Message as LegacyMessage
-from dreamos.core.utils.file_ops import (
-    read_json, write_json,
+from .utils.file_utils import (
     ensure_dir,
-    FileOpsError, FileOpsIOError
+    safe_write,
+    safe_read,
+    load_json,
+    save_json
 )
+from social.utils.log_manager import LogManager
 
 logger = logging.getLogger('persistent_queue')
 
@@ -82,7 +88,7 @@ class PersistentQueue:
     def _read_queue(self) -> List[Dict]:
         """Read the current queue from file."""
         try:
-            return read_json(self.queue_path, default=[])
+            return load_json(self.queue_path, default=[])
         except FileOpsError as e:
             logger.error(f"Error reading queue: {e}")
             return []
@@ -90,7 +96,7 @@ class PersistentQueue:
     def _write_queue(self, queue: List[Dict]):
         """Write the queue to file."""
         try:
-            write_json(self.queue_path, queue)
+            save_json(self.queue_path, queue)
         except FileOpsError as e:
             logger.error(f"Error writing queue: {e}")
     
@@ -378,3 +384,15 @@ class PersistentQueue:
             enabled: Whether to enable test mode
         """
         self._is_test_mode = enabled
+
+def load_queue(self) -> List[Dict]:
+    """Load queue from disk."""
+    return load_json(self.queue_path, default=[])
+
+def save_queue(self, queue: List[Dict]) -> None:
+    """Save queue to disk."""
+    save_json(self.queue_path, queue)
+
+def load_queue_file(queue_file: str) -> List[Dict]:
+    """Load queue from file."""
+    return load_json(queue_file)

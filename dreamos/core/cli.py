@@ -4,32 +4,51 @@ Command Line Interface
 Provides a command-line interface for agent communication.
 """
 
-import logging
 import argparse
 import sys
-import os
 import asyncio
 import json
 import time
-from typing import Optional
+from typing import Optional, Dict, Any
 from datetime import datetime
 from pathlib import Path
 import pyautogui
+import os
+import logging
+
+from dreamos.core.utils.file_utils import (
+    safe_read,
+    safe_write,
+    load_json,
+    save_json,
+    ensure_dir,
+    read_json,
+    write_json,
+    read_yaml,
+    write_yaml
+)
+from social.utils.log_manager import LogManager, LogConfig, LogLevel
+from .config import ConfigManager
+from dreamos.core.messaging.message_processor import MessageProcessor
 
 # Add the project root to Python path when running as standalone script
 if __name__ == "__main__":
-    project_root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-    sys.path.insert(0, project_root)
-    from dreamos.core.message_processor import MessageProcessor
+    project_root = Path(__file__).parent.parent.parent
+    sys.path.insert(0, str(project_root))
     from dreamos.core.messaging.common import Message, MessageMode
 else:
-    from .message_processor import MessageProcessor
     from .messaging.common import Message, MessageMode
 
 # Version information
 __version__ = "1.0.0"
 
-logger = logging.getLogger('cli')
+# Initialize logging
+log_manager = LogManager(LogConfig(
+    level=LogLevel.INFO,
+    log_dir="logs/cli",
+    platforms={"cli": "cli.log"}
+))
+logger = log_manager
 
 class MessageCLI:
     """Command-line interface for agent communication."""
@@ -91,10 +110,9 @@ def direct_send_message(to_agent: str, message: str, mode: str = "NORMAL") -> bo
     """Send a message directly to the UI using automation."""
     try:
         coords_file = Path("runtime/config/cursor_agent_coords.json")
-        with open(coords_file, "r") as f:
-            coordinates = json.load(f)
+        coordinates = load_json(coords_file)
 
-        if to_agent not in coordinates:
+        if not coordinates or to_agent not in coordinates:
             logger.error(f"No coordinates found for {to_agent}")
             print(f"[ERROR] No coordinates found for {to_agent}")
             return False
@@ -152,6 +170,11 @@ def parse_args():
 def validate_priority(priority: int) -> bool:
     """Validate message priority."""
     return 0 <= priority <= 5
+
+def load_coordinates(coords_file: str) -> Dict:
+    """Load coordinates from file."""
+    coordinates = load_json(coords_file)
+    return coordinates if coordinates else {}
 
 def cli_main():
     """Main entry point for CLI interface."""

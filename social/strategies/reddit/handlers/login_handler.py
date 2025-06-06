@@ -23,7 +23,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from social.utils.log_manager import LogManager
 from social.utils.social_common import SocialMediaUtils
-from social.utils.log_level import LogLevel
+from dreamos.core.logging.log_config import LogLevel
 from ..config import RedditConfig
 
 logger = logging.getLogger(__name__)

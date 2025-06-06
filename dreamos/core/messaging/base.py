@@ -7,6 +7,8 @@ import logging
 from typing import Dict, Set, Callable, Pattern, Optional, Any
 from queue import PriorityQueue
 import re
+from abc import ABC, abstractmethod
+from datetime import datetime
 
 logger = logging.getLogger('dreamos.messaging')
 
@@ -125,4 +127,51 @@ class BaseMessagingComponent:
                     try:
                         await handler(message)
                     except Exception as e:
-                        logger.error(f"Error in pattern subscriber handler: {e}") 
+                        logger.error(f"Error in pattern subscriber handler: {e}")
+
+class BaseMessageHandler(ABC):
+    """Base class for message handlers."""
+    
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
+        """Initialize the message handler.
+        
+        Args:
+            config: Optional configuration dictionary
+        """
+        self.config = config or {}
+        
+    @abstractmethod
+    async def handle_message(self, message: Any) -> bool:
+        """Handle an incoming message.
+        
+        Args:
+            message: The message to handle
+            
+        Returns:
+            bool: True if message was handled successfully
+        """
+        pass
+    
+    @abstractmethod
+    async def send_message(self, message: Any) -> bool:
+        """Send a message.
+        
+        Args:
+            message: The message to send
+            
+        Returns:
+            bool: True if message was sent successfully
+        """
+        pass
+    
+    @abstractmethod
+    def validate_message(self, message: Any) -> bool:
+        """Validate a message.
+        
+        Args:
+            message: The message to validate
+            
+        Returns:
+            bool: True if message is valid
+        """
+        pass 

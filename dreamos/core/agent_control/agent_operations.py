@@ -7,11 +7,15 @@ Handles all agent-specific operations like onboarding, resuming, etc.
 import logging
 from typing import Union, List, Optional, Dict, Any
 from pathlib import Path
+import time
+import uuid
+from datetime import datetime
 
 from ..messaging.message_processor import MessageProcessor
 from ..messaging.common import MessageMode
-from ..cell_phone import CellPhone
+from ..messaging.cell_phone import CellPhone
 from .ui_automation import UIAutomation
+from ..config import ConfigManager
 
 logger = logging.getLogger('agent_control.agent_operations')
 
@@ -29,11 +33,32 @@ class AgentOperations:
         self.runtime_dir = Path(runtime_dir)
         self.runtime_dir.mkdir(parents=True, exist_ok=True)
         
-        self.message_processor = MessageProcessor(runtime_dir=self.runtime_dir)
+        self.message_processor = MessageProcessor(runtime_dir=str(self.runtime_dir))
         self.cell_phone = CellPhone()
         self.ui_automation = UIAutomation()
         self.last_error = None
         logger.info(f"Agent operations initialized with runtime dir: {self.runtime_dir}")
+
+    async def _build_message(self, agent_id: str, content: str, task_id: str = "unknown") -> Dict[str, Any]:
+        """Build a properly formatted message dictionary.
+        
+        Args:
+            agent_id: The agent ID to send to
+            content: The message content
+            task_id: Optional task ID
+            
+        Returns:
+            Formatted message dictionary
+        """
+        return {
+            "type": "agent_message",
+            "agent_id": agent_id,
+            "content": content,
+            "priority": "NORMAL",
+            "task_id": task_id,
+            "id": str(uuid.uuid4()),
+            "timestamp": datetime.utcnow().isoformat()
+        }
         
     def list_agents(self) -> List[str]:
         """List all available agents.
@@ -57,7 +82,7 @@ class AgentOperations:
             logger.error(f"Error listing agents: {e}")
             return []
         
-    def onboard_agent(self, agent_id: Union[str, List[str]], use_ui: bool = False) -> None:
+    async def onboard_agent(self, agent_id: Union[str, List[str]], use_ui: bool = False) -> None:
         """Onboard a new agent.
         
         Args:
@@ -66,11 +91,11 @@ class AgentOperations:
         """
         if isinstance(agent_id, list):
             for aid in agent_id:
-                self._onboard_single_agent(aid, use_ui)
+                await self._onboard_single_agent(aid, use_ui)
         else:
-            self._onboard_single_agent(agent_id, use_ui)
+            await self._onboard_single_agent(agent_id, use_ui)
 
-    def _onboard_single_agent(self, agent_id: str, use_ui: bool = False) -> None:
+    async def _onboard_single_agent(self, agent_id: str, use_ui: bool = False) -> None:
         """Onboard a single agent.
         
         Args:
@@ -86,7 +111,8 @@ class AgentOperations:
                 self.ui_automation.perform_onboarding_sequence(agent_id, message)
 
             # Always send via message processor
-            self.message_processor.send_message(agent_id, message, "ONBOARD")
+            message_dict = await self._build_message(agent_id, message, "ONBOARD")
+            await self.message_processor.send_message(message_dict)
             logger.info(f"Onboarding message sent to agent {agent_id}")
 
         except Exception as e:
@@ -101,7 +127,7 @@ class AgentOperations:
             except Exception as fallback_error:
                 logger.error(f"Fallback also failed: {fallback_error}")
 
-    def resume_agent(self, agent_id: Union[str, List[str]], use_ui: bool = False) -> bool:
+    async def resume_agent(self, agent_id: Union[str, List[str]], use_ui: bool = False) -> bool:
         """Resume an agent's operation.
         
         Args:
@@ -113,15 +139,8 @@ class AgentOperations:
         """
         try:
             # Create message for resuming
-            message = {
-                "agent_id": agent_id,
-                "type": "RESUME",
-                "content": "Resume operations",
-                "metadata": {"operation": "resume"}
-            }
-            
-            # Send message
-            self.message_processor.send_message(message)
+            message_dict = await self._build_message(agent_id, "Resume operations", "RESUME")
+            await self.message_processor.send_message(message_dict)
             
             # Update UI
             self.ui_automation.click(agent_id)
@@ -142,7 +161,7 @@ class AgentOperations:
                 
             return False
 
-    def verify_agent(self, agent_id: Union[str, List[str]]) -> bool:
+    async def verify_agent(self, agent_id: Union[str, List[str]]) -> bool:
         """Verify an agent's status.
         
         Args:
@@ -153,15 +172,8 @@ class AgentOperations:
         """
         try:
             # Create message for verification
-            message = {
-                "agent_id": agent_id,
-                "type": "VERIFY",
-                "content": "Verify state",
-                "metadata": {"operation": "verify"}
-            }
-            
-            # Send message
-            self.message_processor.send_message(message)
+            message_dict = await self._build_message(agent_id, "Verify state", "VERIFY")
+            await self.message_processor.send_message(message_dict)
             
             # Update UI
             self.ui_automation.click(agent_id)
@@ -182,7 +194,7 @@ class AgentOperations:
                 
             return False
             
-    def repair_agent(self, agent_id: Union[str, List[str]]) -> None:
+    async def repair_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Repair an agent's issues.
         
         Args:
@@ -190,11 +202,11 @@ class AgentOperations:
         """
         if isinstance(agent_id, list):
             for aid in agent_id:
-                self._repair_single_agent(aid)
+                await self._repair_single_agent(aid)
         else:
-            self._repair_single_agent(agent_id)
+            await self._repair_single_agent(agent_id)
             
-    def _repair_single_agent(self, agent_id: str) -> None:
+    async def _repair_single_agent(self, agent_id: str) -> None:
         """Repair a single agent.
         
         Args:
@@ -202,7 +214,8 @@ class AgentOperations:
         """
         try:
             message = "Initiating repair sequence. Please follow the repair protocol."
-            self.message_processor.send_message(agent_id, message, "REPAIR")
+            message_dict = await self._build_message(agent_id, message, "REPAIR")
+            await self.message_processor.send_message(message_dict)
             logger.info(f"Repair message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error repairing agent {agent_id}: {e}")
@@ -213,7 +226,7 @@ class AgentOperations:
             except Exception as fallback_error:
                 logger.error(f"Fallback also failed: {fallback_error}")
             
-    def backup_agent(self, agent_id: Union[str, List[str]]) -> None:
+    async def backup_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Backup an agent's data.
         
         Args:
@@ -221,11 +234,11 @@ class AgentOperations:
         """
         if isinstance(agent_id, list):
             for aid in agent_id:
-                self._backup_single_agent(aid)
+                await self._backup_single_agent(aid)
         else:
-            self._backup_single_agent(agent_id)
+            await self._backup_single_agent(agent_id)
             
-    def _backup_single_agent(self, agent_id: str) -> None:
+    async def _backup_single_agent(self, agent_id: str) -> None:
         """Backup a single agent.
         
         Args:
@@ -233,7 +246,8 @@ class AgentOperations:
         """
         try:
             message = "Initiating backup sequence. Please prepare your data for backup."
-            self.message_processor.send_message(agent_id, message, "BACKUP")
+            message_dict = await self._build_message(agent_id, message, "BACKUP")
+            await self.message_processor.send_message(message_dict)
             logger.info(f"Backup message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error backing up agent {agent_id}: {e}")
@@ -244,7 +258,7 @@ class AgentOperations:
             except Exception as fallback_error:
                 logger.error(f"Fallback also failed: {fallback_error}")
             
-    def restore_agent(self, agent_id: Union[str, List[str]]) -> None:
+    async def restore_agent(self, agent_id: Union[str, List[str]]) -> None:
         """Restore an agent from backup.
         
         Args:
@@ -252,19 +266,20 @@ class AgentOperations:
         """
         if isinstance(agent_id, list):
             for aid in agent_id:
-                self._restore_single_agent(aid)
+                await self._restore_single_agent(aid)
         else:
-            self._restore_single_agent(agent_id)
+            await self._restore_single_agent(agent_id)
             
-    def _restore_single_agent(self, agent_id: str) -> None:
+    async def _restore_single_agent(self, agent_id: str) -> None:
         """Restore a single agent.
         
         Args:
             agent_id: The agent ID to restore
         """
         try:
-            message = "Initiating restore sequence. Please prepare for data restoration."
-            self.message_processor.send_message(agent_id, message, "RESTORE")
+            message = "Initiating restore sequence. Please prepare to receive backup data."
+            message_dict = await self._build_message(agent_id, message, "RESTORE")
+            await self.message_processor.send_message(message_dict)
             logger.info(f"Restore message sent to agent {agent_id}")
         except Exception as e:
             logger.error(f"Error restoring agent {agent_id}: {e}")
@@ -274,58 +289,52 @@ class AgentOperations:
                 logger.info(f"Fallback message sent via cell phone to {agent_id}")
             except Exception as fallback_error:
                 logger.error(f"Fallback also failed: {fallback_error}")
-            
-    def send_message(self, agent_id: Union[str, List[str]], message: Optional[str] = None) -> None:
-        """Send a message to an agent.
+
+    async def send_message(self, agent_id: Union[str, List[str]], message: Optional[str] = None) -> None:
+        """Send a message to one or more agents.
         
         Args:
             agent_id: Single agent ID or list of agent IDs
-            message: Optional message to send
+            message: Optional message content
         """
         if isinstance(agent_id, list):
             for aid in agent_id:
-                self._send_single_message(aid, message)
+                await self._send_single_message(aid, message)
         else:
-            self._send_single_message(agent_id, message)
-            
-    def _send_single_message(self, agent_id: str, message: str) -> None:
+            await self._send_single_message(agent_id, message)
+
+    async def _send_single_message(self, agent_id: str, message: str) -> None:
         """Send a message to a single agent.
         
         Args:
-            agent_id: The agent ID to message
-            message: The message to send
+            agent_id: The agent ID to send to
+            message: The message content
         """
         try:
-            if not message:
-                message = "Please check your status and report any issues."
-                
-            # Try message processor first
-            self.message_processor.send_message(agent_id, message, "MESSAGE")
+            # Create message with correct format
+            message_dict = await self._build_message(agent_id, message)
+            
+            # Send message
+            await self.message_processor.send_message(message_dict)
             logger.info(f"Message sent to agent {agent_id}")
             
         except Exception as e:
+            self.last_error = str(e)
             logger.error(f"Error sending message to agent {agent_id}: {e}")
+            
             # Try cell phone as fallback
             try:
                 self.cell_phone.send_message(agent_id, message)
                 logger.info(f"Fallback message sent via cell phone to {agent_id}")
-            except Exception as fallback_error:
-                logger.error(f"Fallback also failed: {fallback_error}")
-                
+            except Exception as cell_error:
+                logger.error(f"Failed to send fallback message: {cell_error}")
+
     def cleanup(self) -> None:
         """Clean up resources."""
         try:
-            # Clean up message processor
             if hasattr(self.message_processor, 'cleanup'):
                 self.message_processor.cleanup()
-            
-            # Clean up UI automation
             if hasattr(self.ui_automation, 'cleanup'):
                 self.ui_automation.cleanup()
-                
-            logger.info("Agent operations cleaned up successfully")
-            
         except Exception as e:
-            self.last_error = str(e)
-            logger.error(f"Error during cleanup: {e}")
-            raise 
+            logger.error(f"Error during cleanup: {e}") 

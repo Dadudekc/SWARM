@@ -6,10 +6,14 @@ from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from pathlib import Path
 
-from dreamos.core.utils.file_ops import (
-    read_json, write_json,
-    ensure_dir, rotate_file,
-    FileOpsError, FileOpsIOError
+from dreamos.core.utils.file_utils import (
+    ensure_dir,
+    safe_write,
+    safe_read,
+    read_json,
+    write_json,
+    load_json,
+    save_json
 )
 
 class CommandMetrics:
@@ -51,7 +55,7 @@ class CommandMetrics:
         """Save current metrics to file."""
         metrics_file = self.metrics_dir / f"command_metrics_{datetime.now().strftime('%Y%m%d')}.json"
         try:
-            write_json(str(metrics_file), {
+            save_json(str(metrics_file), {
                 "last_reset": self.last_reset.isoformat(),
                 "command_counts": self.command_counts
             })
@@ -66,8 +70,17 @@ class CommandMetrics:
         metrics_files = sorted(self.metrics_dir.glob("command_metrics_*.json"))
         if metrics_files:
             try:
-                data = read_json(str(metrics_files[-1]))
+                data = load_json(str(metrics_files[-1]))
                 self.last_reset = datetime.fromisoformat(data["last_reset"])
                 self.command_counts = data["command_counts"]
             except FileOpsError as e:
-                print(f"Error loading metrics: {e}") 
+                print(f"Error loading metrics: {e}")
+
+def save_metrics(metrics_file: str, metrics: Dict) -> None:
+    """Save metrics to file."""
+    save_json(str(metrics_file), metrics)
+
+def load_metrics(metrics_files: List[Path]) -> Dict:
+    """Load metrics from file."""
+    data = load_json(str(metrics_files[-1]))
+    return data if data else {} 

@@ -71,7 +71,7 @@ class AuthMigration:
             return False
             
     def find_import_references(self) -> List[Path]:
-        """Find all files that import from src.auth."""
+        """Find all files that import from dreamos.core.auth."""
         import_pattern = re.compile(r'from\s+src\.auth|import\s+src\.auth')
         files_with_imports = []
         
@@ -97,8 +97,8 @@ class AuthMigration:
                     content = f.read()
                     
                 # Update imports
-                new_content = content.replace('from src.auth', 'from dreamos.core.auth')
-                new_content = new_content.replace('import src.auth', 'import dreamos.core.auth')
+                new_content = content.replace('from dreamos.core.auth', 'from dreamos.core.auth')
+                new_content = new_content.replace('import dreamos.core.auth', 'import dreamos.core.auth')
                 
                 if new_content != content:
                     with open(file_path, 'w', encoding='utf-8') as f:
@@ -116,12 +116,17 @@ class AuthMigration:
         """Move auth files to new location."""
         try:
             # Create target directory
-            self.target_auth.mkdir(parents=True)
+            self.target_auth.mkdir(parents=True, exist_ok=True)
             
-            # Copy files
-            for file in self.src_auth.glob('*.py'):
-                shutil.copy2(file, self.target_auth / file.name)
-                logger.info(f"Copied {file} to {self.target_auth}")
+            # Copy files individually
+            for item in self.src_auth.iterdir():
+                dest = self.target_auth / item.name
+                if item.is_file():
+                    shutil.copy2(item, dest)
+                    logger.info(f"Copied {item} to {dest}")
+                elif item.is_dir():
+                    shutil.copytree(item, dest, dirs_exist_ok=True)
+                    logger.info(f"Copied directory {item} to {dest}")
                 
             return True
             

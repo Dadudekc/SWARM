@@ -15,8 +15,7 @@ from unittest.mock import Mock
 
 from .driver_manager import DriverManager
 from ..config.social_config import social_config, Platform
-from ..utils.log_manager import LogManager
-from ..utils.log_config import LogLevel, LogConfig
+from ..utils.log_manager import LogManager, LogConfig, LogLevel
 from .rate_limiter import RateLimiter
 from ..strategies.reddit.handlers.login_handler import LoginHandler
 from ..utils.media_validator import MediaValidator
@@ -29,6 +28,7 @@ from ..strategies import (
     LinkedInStrategy
 )
 from ..strategies.reddit.config import RedditConfig
+from dreamos.core.monitoring.metrics import LogMetrics
 
 class SocialPlatformDispatcher:
     """Main dispatcher for handling social media operations."""
@@ -44,11 +44,18 @@ class SocialPlatformDispatcher:
         
         # Initialize LogManager with social-specific config
         log_config = LogConfig(
+            level=LogLevel.INFO,
             log_dir="logs/social",
-            batch_size=20,  # Larger batch size for social operations
-            batch_timeout=1.0,
-            max_retries=3,
-            retry_delay=0.5
+            log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            date_format="%Y-%m-%d %H:%M:%S",
+            max_bytes=10 * 1024 * 1024,  # 10MB
+            backup_count=5,
+            max_age_days=30,
+            platforms={
+                "social": "social.log",
+                "dispatcher": "dispatcher.log",
+                "rate_limiter": "rate_limiter.log"
+            }
         )
         self.log_manager = LogManager(config=log_config)
         

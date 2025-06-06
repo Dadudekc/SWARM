@@ -22,14 +22,12 @@ from typing import Dict, Optional
 from dreamos.core.messaging.cell_phone import CellPhone
 from dreamos.core.messaging.request_queue import RequestQueue
 from dreamos.core.monitoring.bridge_health import BridgeHealthMonitor
-from dreamos.core.utils.retry import with_retry
+from dreamos.core.utils.retry_utils import with_retry
 from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
 from dreamos.core.cursor_controller import CursorController
 from dreamos.core.ai.llm_agent import LLMAgent
 from agent_tools.general_tools.browser.integration import StealthBrowserBridge
-from dreamos.core.messaging.request_queue import RequestQueue
-from dreamos.core.monitoring.bridge_health import BridgeHealthMonitor
-from dreamos.core.utils.retry import with_retry
+from agent_tools.mailbox.message_handler import MessageHandler
 
 # Constants & paths
 ROOT = Path(__file__).resolve().parent.parent
@@ -51,9 +49,10 @@ class AutonomyLoop:
     def __init__(self):
         """Initialize the autonomy loop."""
         # Initialize components
+        self.message_handler = MessageHandler(base_dir="data/mailbox")
         self.cell_phone = CellPhone(config={
             "agent_id": "agent0",
-            "message_queue_path": "data/messages/queue.json",
+            "message_handler": self.message_handler,
             "log_level": "INFO"
         })
         self.gpt_bridge = ChatGPTBridge(api_key=os.getenv("OPENAI_API_KEY"))
@@ -128,7 +127,7 @@ class AutonomyLoop:
         logger.info("Starting autonomy loop...")
         
         # Create data directories
-        os.makedirs("data/messages", exist_ok=True)
+        # os.makedirs("data/messages", exist_ok=True)
         os.makedirs("data/requests", exist_ok=True)
         os.makedirs("data/health", exist_ok=True)
         

@@ -1,0 +1,16 @@
+{
+    "bridge_outbox": "bridge_outbox",
+    "watch_interval": 1,
+    "process_timeout": 300,
+    "max_retries": 3,
+    "retry_delay": 60,
+    "cleanup_interval": 3600,
+    "max_file_age": 86400,
+    "log_level": "INFO",
+    "log_format": {
+        "platform": "response_loop",
+        "status": "string",
+        "message": "string",
+        "tags": ["string"]
+    }
+} 

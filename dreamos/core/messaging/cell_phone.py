@@ -1,197 +1,249 @@
 """
-Cell Phone Messaging Module
--------------------------
-Handles SMS and MMS messaging functionality.
+Cell Phone
+---------
+Agent-to-agent messaging system.
 """
 
+import json
 import logging
-from typing import List, Optional, Dict, Any
 import os
-from pathlib import Path
+import time
 from datetime import datetime
 from enum import Enum
-import argparse
+from pathlib import Path
+from typing import Dict, List, Optional, Union
+
+from agent_tools.mailbox.message_handler import MessageHandler
+
+__all__ = [
+    'MessageMode',
+    'CellPhone',
+    'MessageQueue',
+    'send_message',
+    'validate_phone_number',
+    'format_phone_number'
+]
 
 logger = logging.getLogger(__name__)
 
 class MessageMode(Enum):
+    """Message delivery modes."""
     NORMAL = "NORMAL"
     PRIORITY = "PRIORITY"
     BULK = "BULK"
     SYSTEM = "SYSTEM"
 
+class MessageQueue:
+    """Queue for storing and retrieving messages."""
+    
+    def __init__(self, queue_path: str):
+        """Initialize the message queue.
+        
+        Args:
+            queue_path: Path to the queue file
+        """
+        self.queue_path = Path(queue_path)
+        self.queue_path.parent.mkdir(parents=True, exist_ok=True)
+        self._load_queue()
+        
+    def _load_queue(self):
+        """Load the queue from disk."""
+        if self.queue_path.exists():
+            with open(self.queue_path, 'r') as f:
+                self.queue = json.load(f)
+        else:
+            self.queue = []
+            self._save_queue()
+            
+    def _save_queue(self):
+        """Save the queue to disk."""
+        with open(self.queue_path, 'w') as f:
+            json.dump(self.queue, f, indent=2)
+            
+    def add_message(self, message: Dict):
+        """Add a message to the queue.
+        
+        Args:
+            message: Message to add
+        """
+        self.queue.append(message)
+        self._save_queue()
+        
+    def get_messages(self) -> List[Dict]:
+        """Get all messages in the queue.
+        
+        Returns:
+            List of messages
+        """
+        return self.queue
+        
+    def clear_queue(self):
+        """Clear the queue."""
+        self.queue = []
+        self._save_queue()
+
 class CellPhone:
-    """Handles agent-to-agent messaging with priority queues and status tracking."""
+    """Agent-to-agent messaging system."""
     
     _instance = None
     
     def __new__(cls, *args, **kwargs):
-        """Ensure singleton instance of CellPhone."""
         if cls._instance is None:
             cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize messaging system with optional configuration."""
+    def __init__(self, config: Dict):
+        """Initialize the cell phone.
+        
+        Args:
+            config: Configuration dictionary
+        """
         if not hasattr(self, 'initialized'):
-            self.config = config or {}
-            self.logger = logging.getLogger(__name__)
-            self.queue = MessageQueue()
+            self.agent_id = config.get('agent_id', 'agent0')
+            self.message_handler = config.get('message_handler')
+            if not self.message_handler:
+                raise ValueError("message_handler is required")
+            
+            # Set up logging
+            log_level = config.get('log_level', 'INFO')
+            self.logger = logging.getLogger(f"cell_phone_{self.agent_id}")
+            self.logger.setLevel(getattr(logging, log_level))
+            
+            # Initialize message queue
+            self.queue = MessageQueue(f"data/mailbox/{self.agent_id}/queue.json")
+            
+            self.logger.info(f"Cell phone initialized for agent {self.agent_id}")
+            
             self.initialized = True
-    
-    def _is_valid_agent(self, agent_id: str) -> bool:
-        """Validate that the agent ID is properly formatted (starts with 'Agent-')."""
-        return isinstance(agent_id, str) and agent_id.startswith("Agent-")
-    
+        
     @classmethod
     def reset_singleton(cls):
-        """Reset the singleton instance for testing purposes."""
+        """Reset the singleton instance."""
         cls._instance = None
-    
-    def send_message(
-        self,
-        to_agent: str,
-        content: str,
-        mode: str = "NORMAL",
-        priority: int = 0,
-        from_agent: Optional[str] = None,
-        metadata: Optional[Dict[str, Any]] = None
-    ) -> bool:
-        """Queue a message for delivery to an agent with specified mode and priority."""
-        if not content or not to_agent:
-            return False
-
-        if not self._is_valid_agent(to_agent):
-            return False
-
-        if mode not in [m.value for m in MessageMode]:
-            return False
-
-        if not 0 <= priority <= 5:
+        
+    def send_message(self, to_agent: str, content: str, metadata: Optional[Dict] = None) -> bool:
+        """Send a message to another agent.
+        
+        Args:
+            to_agent: ID of the agent to send to
+            content: Message content
+            metadata: Optional metadata
+            
+        Returns:
+            True if message was sent successfully
+        """
+        try:
+            # Create message
+            message = {
+                'from': self.agent_id,
+                'to': to_agent,
+                'content': content,
+                'timestamp': datetime.now().isoformat(),
+                'metadata': metadata or {}
+            }
+            
+            # Send via message handler
+            success = self.message_handler.send_message(
+                from_agent=self.agent_id,
+                to_agent=to_agent,
+                content=content,
+                metadata=metadata
+            )
+            
+            if success:
+                # Add to local queue
+                self.queue.add_message(message)
+                self.logger.info(f"Message sent to {to_agent}")
+                return True
+            else:
+                self.logger.error(f"Failed to send message to {to_agent}")
+                return False
+                
+        except Exception as e:
+            self.logger.error(f"Error sending message: {str(e)}")
             return False
             
-        message = {
-            'to_agent': to_agent,
-            'content': content,
-            'mode': mode,
-            'priority': priority,
-            'from_agent': from_agent,
-            'metadata': metadata or {},
-            'timestamp': datetime.now().isoformat()
-        }
+    def get_messages(self) -> List[Dict]:
+        """Get all messages for this agent.
         
-        return self.queue.add_message(message)
-    
-    def get_message_status(self, agent_id: str) -> Dict[str, Any]:
-        """Get current message status and history for an agent."""
-        return self.queue.get_agent_status(agent_id)
-    
-    def get_message_history(self, agent_id: str) -> List[Dict[str, Any]]:
-        """Get complete message history for an agent."""
-        return self.queue.get_agent_history(agent_id)
-    
-    def clear_messages(self, agent_id: str) -> None:
-        """Clear all messages and reset status for an agent."""
-        self.queue.clear_agent_messages(agent_id)
-    
-    def shutdown(self) -> None:
-        """Shutdown messaging system and clear all queues."""
-        self.queue.clear_queue()
+        Returns:
+            List of messages
+        """
+        try:
+            # Get messages from handler
+            messages = self.message_handler.get_messages(self.agent_id)
+            
+            # Update local queue
+            self.queue.clear_queue()
+            for msg in messages:
+                self.queue.add_message(msg)
+                
+            return messages
+            
+        except Exception as e:
+            self.logger.error(f"Error getting messages: {str(e)}")
+            return []
+            
+    def clear_messages(self):
+        """Clear all messages for this agent."""
+        try:
+            # Clear in handler
+            self.message_handler.clear_messages(self.agent_id)
+            
+            # Clear local queue
+            self.queue.clear_queue()
+            
+            self.logger.info("Messages cleared")
+            
+        except Exception as e:
+            self.logger.error(f"Error clearing messages: {str(e)}")
 
-class MessageQueue:
-    """Manages message queues and status tracking for all agents."""
-    
-    def __init__(self):
-        """Initialize empty message queue and status tracking."""
-        self.messages = []
-        self.agent_status = {}
-    
-    def _get_default_status(self) -> Dict[str, Any]:
-        """Get empty status structure for new or reset agents."""
-        return {
-            'message_history': [],
-            'last_message': None
-        }
-    
-    def add_message(self, message: Dict[str, Any]) -> bool:
-        """Add a message to the queue and update agent status."""
-        self.messages.append(message)
-        self._update_agent_status(message)
-        return True
-    
-    def get_queue_size(self) -> int:
-        """Get total number of messages in the queue."""
-        return len(self.messages)
-    
-    def clear_queue(self) -> None:
-        """Clear all messages and reset all agent statuses."""
-        self.messages.clear()
-        self.agent_status.clear()
-    
-    def get_agent_status(self, agent_id: str) -> Dict[str, Any]:
-        """Get current status and history for an agent, creating if needed."""
-        return self.agent_status.get(agent_id, self._get_default_status())
-    
-    def get_agent_history(self, agent_id: str) -> List[Dict[str, Any]]:
-        """Get all messages sent to an agent."""
-        return [msg for msg in self.messages if msg['to_agent'] == agent_id]
-    
-    def clear_agent_messages(self, agent_id: str) -> None:
-        """Clear all messages and reset status for an agent."""
-        self.messages = [msg for msg in self.messages if msg['to_agent'] != agent_id]
-        self.agent_status[agent_id] = self._get_default_status()
-    
-    def _update_agent_status(self, message: Dict[str, Any]) -> None:
-        """Update agent status with a new message."""
-        agent_id = message['to_agent']
-        if agent_id not in self.agent_status:
-            self.agent_status[agent_id] = self._get_default_status()
-        
-        self.agent_status[agent_id]['message_history'].append(message)
-        self.agent_status[agent_id]['last_message'] = message
-
-def send_message(
-    phone_number: str,
-    message: str,
-    media_files: Optional[List[str]] = None,
-    config: Optional[Dict[str, Any]] = None
-) -> Dict[str, Any]:
+async def send_message(to_agent: str, content: str, mode: str = "NORMAL", from_agent: str = "system") -> bool:
     """
-    Send an SMS or MMS message.
+    Send a message to another agent.
     
     Args:
-        phone_number: Recipient's phone number
-        message: Message text
-        media_files: Optional list of media file paths
-        config: Optional configuration dict
+        to_agent: ID of the agent to send to
+        content: Message content
+        mode: Message mode (NORMAL, PRIORITY, etc.)
+        from_agent: ID of the sending agent
         
     Returns:
-        Dict containing send status and any error messages
+        bool: True if message was sent successfully
     """
-    if not phone_number or not message:
-        return {
-            'success': False,
-            'error': 'Phone number and message are required'
-        }
-    
     try:
-        # TODO: Implement actual SMS/MMS sending logic
-        # This is a placeholder implementation
-        logger.info(f"Sending message to {phone_number}: {message}")
-        if media_files:
-            logger.info(f"With media files: {media_files}")
+        # Create message object
+        message = {
+            "to": to_agent,
+            "from": from_agent,
+            "content": content,
+            "mode": mode,
+            "timestamp": datetime.now().isoformat()
+        }
         
-        return {
-            'success': True,
-            'message_id': 'placeholder_id',
-            'sent_at': 'timestamp'
-        }
+        # Get inbox path for recipient
+        inbox_path = Path("runtime/agent_comms") / to_agent / "inbox.json"
+        inbox_path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Load existing messages
+        if inbox_path.exists():
+            with open(inbox_path) as f:
+                messages = json.load(f)
+        else:
+            messages = []
+            
+        # Add new message
+        messages.append(message)
+        
+        # Save updated messages
+        with open(inbox_path, "w") as f:
+            json.dump(messages, f, indent=2)
+            
+        return True
+        
     except Exception as e:
-        logger.error(f"Error sending message: {e}")
-        return {
-            'success': False,
-            'error': str(e)
-        }
+        logger.error(f"Failed to send message: {e}")
+        return False
 
 def validate_phone_number(phone_number: str) -> bool:
     """
@@ -225,49 +277,64 @@ def format_phone_number(phone_number: str) -> str:
     
     return f"+{digits}"
 
-def parse_args() -> argparse.Namespace:
-    """Parse command line arguments.
-    
-    Returns:
-        Parsed arguments
-    """
-    parser = argparse.ArgumentParser(description="Cell Phone Messaging CLI")
-    parser.add_argument("--to", required=True, help="Recipient agent ID")
-    parser.add_argument("--content", required=True, help="Message content")
-    parser.add_argument("--mode", default="NORMAL", help="Message mode")
-    parser.add_argument("--priority", type=int, default=0, help="Message priority")
-    parser.add_argument("--from-agent", help="Sender agent ID")
-    return parser.parse_args()
+# Remove legacy CLI/test harness code below this line
+# (No argparse, no __main__ block, no legacy CLI functions) 
 
-def validate_priority(priority: int) -> bool:
-    """Validate message priority.
+class CaptainPhone(CellPhone):
+    """Manages messaging for the captain agent."""
     
-    Args:
-        priority: Priority to validate
+    _instance = None
+    
+    def __new__(cls, *args, **kwargs):
+        if cls._instance is None:
+            cls._instance = super().__new__(cls)
+        return cls._instance
+    
+    def __init__(self, config: Dict):
+        """Initialize the captain phone.
         
-    Returns:
-        True if valid, False otherwise
-    """
-    return 0 <= priority <= 5
-
-def cli_main() -> None:
-    """Run the CLI interface."""
-    args = parse_args()
-    phone = CellPhone()
+        Args:
+            config: Configuration dictionary containing:
+                - message_handler: MessageHandler instance
+                - agent_id: ID of this agent (should be 'captain')
+        """
+        if not hasattr(self, 'initialized'):
+            super().__init__(config)
+            if self.agent_id != 'captain':
+                raise ValueError("CaptainPhone must be initialized with agent_id='captain'")
+            self.initialized = True
     
-    if not validate_priority(args.priority):
-        logger.error("Invalid priority: %d", args.priority)
-        return
+    @classmethod
+    def reset_singleton(cls):
+        """Reset the singleton instance."""
+        cls._instance = None
+    
+    def broadcast_message(self, content: str, metadata: Optional[Dict] = None) -> bool:
+        """Broadcast a message to all agents.
         
-    success = phone.send_message(
-        to_agent=args.to,
-        content=args.content,
-        mode=args.mode,
-        priority=args.priority,
-        from_agent=args.from_agent
-    )
-    
-    if success:
-        logger.info("Message sent successfully")
-    else:
-        logger.error("Failed to send message") 
+        Args:
+            content: Message content
+            metadata: Optional metadata to attach
+            
+        Returns:
+            bool: True if message was sent successfully
+        """
+        try:
+            message = {
+                'sender': self.agent_id,
+                'recipient': 'all',
+                'content': content,
+                'timestamp': datetime.now().isoformat(),
+                'metadata': metadata or {}
+            }
+            
+            success = self.message_handler.broadcast_message(message)
+            if success:
+                self.logger.info("Broadcast message sent")
+            else:
+                self.logger.error("Failed to send broadcast message")
+            return success
+            
+        except Exception as e:
+            self.logger.error(f"Error broadcasting message: {e}")
+            return False 

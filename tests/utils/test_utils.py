@@ -1,105 +1,115 @@
-from pathlib import Path
-import shutil
-import logging
-import os
+"""
+Test utilities and helper functions.
+"""
 
-TEST_ROOT = Path(__file__).resolve().parents[1]
+import os
+import shutil
+from pathlib import Path
+from typing import Any, List, Optional, Union
+
+# Test directory constants
+TEST_ROOT = Path("tests")
 TEST_DATA_DIR = TEST_ROOT / "data"
 TEST_OUTPUT_DIR = TEST_ROOT / "output"
-VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
 TEST_CONFIG_DIR = TEST_ROOT / "config"
 TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
 TEST_TEMP_DIR = TEST_ROOT / "temp"
+VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
 
+# Mock configuration for testing
 MOCK_AGENT_CONFIG = {
-    "name": "test_agent",
-    "type": "test",
-    "capabilities": ["test"],
+    "agent_id": "test-agent",
+    "message_queue_path": "tests/data/messages/queue.json",
+    "log_level": "DEBUG",
+    "inbox_path": "tests/data/agent_comms/test-agent/inbox.json",
+    "devlog_path": "tests/data/agent_comms/test-agent/devlog.md",
     "settings": {
-        "test_setting": "test_value"
+        "retry_attempts": 3,
+        "timeout": 5,
+        "max_message_size": 1024,
+        "cleanup_interval": 3600
     }
 }
 
-MOCK_PROMPT = "This is a test prompt for unit testing purposes."
+# Mock test data
+MOCK_PROMPT = "This is a test prompt for unit testing."
+MOCK_RESPONSE = "This is a test response for unit testing."
 
-MOCK_DEVLOG = {
-    "title": "Test Devlog",
-    "content": "This is a test devlog entry",
-    "author": "test_user",
-    "tags": ["test", "unit"],
-    "metadata": {
-        "version": "1.0.0",
-        "type": "test"
-    }
-}
-
-
-def safe_remove(path: Path) -> bool:
-    """Remove a file or directory, ignoring errors."""
-    try:
-        if path.is_dir():
-            shutil.rmtree(path, ignore_errors=True)
-        else:
-            path.unlink(missing_ok=True)
-        return True
-    except Exception:
-        return False
-
+MOCK_DEVLOG = "This is a test devlog entry for unit testing."
 
 def ensure_test_dirs() -> None:
-    """Ensure all common test directories exist."""
-    for d in [TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, TEST_CONFIG_DIR,
-              TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        d.mkdir(parents=True, exist_ok=True)
+    """Ensure all test directories exist."""
+    for directory in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_CONFIG_DIR, 
+                     TEST_RUNTIME_DIR, TEST_TEMP_DIR, VOICE_QUEUE_DIR]:
+        directory.mkdir(parents=True, exist_ok=True)
 
+def safe_remove(path: Union[str, Path]) -> None:
+    """Safely remove a file or directory."""
+    path = Path(path)
+    if path.exists():
+        if path.is_file():
+            path.unlink()
+        else:
+            shutil.rmtree(path)
 
-def setup_test_environment() -> None:
-    """Set up the test environment.
-    
-    This function:
-    1. Ensures all test directories exist
-    2. Cleans up any existing test data
-    3. Sets up logging
-    4. Sets environment variables
-    """
-    # Clean up existing test data
-    for d in [TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, TEST_CONFIG_DIR,
-              TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        safe_remove(d)
-    
-    # Create fresh test directories
-    ensure_test_dirs()
-    
-    # Set up logging
-    logging.basicConfig(
-        level=logging.DEBUG,
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    )
-    
-    # Set environment variables
-    os.environ['DREAMOS_TEST_MODE'] = '1'
-    os.environ['DREAMOS_TEST_ROOT'] = str(TEST_ROOT)
-    os.environ['DREAMOS_TEST_DATA_DIR'] = str(TEST_DATA_DIR)
-    os.environ['DREAMOS_TEST_OUTPUT_DIR'] = str(TEST_OUTPUT_DIR)
-    os.environ['DREAMOS_TEST_CONFIG_DIR'] = str(TEST_CONFIG_DIR)
-    os.environ['DREAMOS_TEST_RUNTIME_DIR'] = str(TEST_RUNTIME_DIR)
-    os.environ['DREAMOS_TEST_TEMP_DIR'] = str(TEST_TEMP_DIR)
+def safe_rmdir(path: Union[str, Path], recursive: bool = False) -> None:
+    """Safely remove a directory."""
+    path = Path(path)
+    if path.exists():
+        if recursive:
+            shutil.rmtree(path)
+        else:
+            path.rmdir()
 
+def ensure_dir(path: Union[str, Path]) -> None:
+    """Ensure a directory exists."""
+    Path(path).mkdir(parents=True, exist_ok=True)
 
-def cleanup_test_environment() -> None:
-    """Clean up the test environment.
-    
-    This function:
-    1. Removes all test directories and their contents
-    2. Clears test-related environment variables
-    """
-    # Remove test directories
-    for d in [TEST_DATA_DIR, TEST_OUTPUT_DIR, VOICE_QUEUE_DIR, TEST_CONFIG_DIR,
-              TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        safe_remove(d)
-    
-    # Clear environment variables
-    for var in ['DREAMOS_TEST_MODE', 'DREAMOS_TEST_ROOT', 'DREAMOS_TEST_DATA_DIR',
-                'DREAMOS_TEST_OUTPUT_DIR', 'DREAMOS_TEST_CONFIG_DIR',
-                'DREAMOS_TEST_RUNTIME_DIR', 'DREAMOS_TEST_TEMP_DIR']:
-        os.environ.pop(var, None)
+def get_test_file_path(filename: str, directory: Optional[Path] = None) -> Path:
+    """Get path to a test file."""
+    if directory is None:
+        directory = TEST_DATA_DIR
+    return directory / filename
+
+def create_test_file(filename: str, content: str = "", directory: Optional[Path] = None) -> Path:
+    """Create a test file with content."""
+    path = get_test_file_path(filename, directory)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, "w") as f:
+        f.write(content)
+    return path
+
+def cleanup_test_files() -> None:
+    """Clean up all test files and directories."""
+    for directory in [TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
+        if directory.exists():
+            shutil.rmtree(directory)
+            directory.mkdir(parents=True, exist_ok=True)
+
+def cleanup_test_environment():
+    """Remove test directories."""
+    test_dirs = [
+        "tests/data",
+        "tests/output",
+        "tests/config",
+        "tests/runtime",
+        "tests/temp",
+        "tests/voice/queue"
+    ]
+    for dir_path in test_dirs:
+        if os.path.exists(dir_path):
+            shutil.rmtree(dir_path)
+
+class MockMember:
+    def __init__(
+        self,
+        id: int = 123456789,
+        name: str = "test-user",
+        roles: List[Any] = None,
+        bot: bool = False
+    ):
+        self.id = id
+        self.name = name
+        self.roles = roles or []
+        self.bot = bot
+        self.mention = f"<@{id}>" 

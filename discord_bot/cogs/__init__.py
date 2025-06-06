@@ -1,13 +1,13 @@
 """
-Discord Bot Cogs
----------------
-Command modules for the Discord bot.
+Discord bot cogs initialization.
 """
 
-from .basic import HelpMenu
-from .agent import AgentCommands
+from discord.ext import commands
+import logging
+
+logger = logging.getLogger(__name__)
 
 __all__ = [
-    'HelpMenu',
-    'AgentCommands',
+    "HelpMenu",
+    "BasicCommands"
 ]

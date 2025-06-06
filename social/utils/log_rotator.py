@@ -1,579 +1,224 @@
 """
 Log Rotator Module
 -----------------
-Handles log file rotation and compression.
+Handles log file rotation and cleanup to manage disk space.
 """
 
 import os
 import time
-import gzip
-import shutil
-from datetime import datetime, timedelta
-from typing import Optional, List, Dict, Any
-from pathlib import Path
 import logging
-import platform
-import stat
-import win32file
-import win32con
-import pywintypes
-import ctypes
-from ctypes import wintypes
-import win32api
-import win32security
-import win32process
-import threading
+import shutil
+from pathlib import Path
+from typing import Optional, List, Dict, Any, Union
+from datetime import datetime, timedelta
 
 from .log_types import RotationConfig
 
 logger = logging.getLogger(__name__)
 
 class LogRotator:
-    """Handles log file rotation and compression.
+    """Handles log file rotation and cleanup."""
     
-    This class manages:
-    - Size-based rotation
-    - Age-based rotation
-    - Compression of old logs
-    - Cleanup of expired logs
-    """
-    
-    def __init__(self, config: RotationConfig):
-        """Initialize rotator with configuration.
+    def __init__(
+        self,
+        config: Union[str, RotationConfig],
+        max_size_mb: int = 100,
+        max_age_days: int = 30,
+        backup_count: int = 5
+    ):
+        """Initialize log rotator.
         
         Args:
-            config: Rotation configuration
+            config: Either a log directory path or a RotationConfig object
+            max_size_mb: Maximum size of log files in MB (ignored if config is RotationConfig)
+            max_age_days: Maximum age of log files in days (ignored if config is RotationConfig)
+            backup_count: Number of backup files to keep (ignored if config is RotationConfig)
         """
-        self.config = config
-        self._validate_config()
-        self._lock = threading.RLock()
-        self._file_locks = {}
+        if isinstance(config, str):
+            self.log_dir = Path(config)
+            self.max_size_bytes = max_size_mb * 1024 * 1024
+            self.max_age_seconds = max_age_days * 24 * 60 * 60
+            self.backup_count = backup_count
+        else:
+            self.log_dir = Path(config.backup_dir or "logs")
+            self.max_size_bytes = config.max_bytes
+            self.max_age_seconds = config.max_age_days * 24 * 60 * 60
+            self.backup_count = config.max_files
         
-    def _validate_config(self) -> None:
-        """Validate rotation configuration."""
-        if self.config.max_size_mb <= 0:
-            raise ValueError("max_size_mb must be positive")
-        if self.config.max_files < 0:
-            raise ValueError("max_files cannot be negative")
-        if self.config.max_age_days <= 0:
-            raise ValueError("max_age_days must be positive")
-        if self.config.compress_after_days <= 0:
-            raise ValueError("compress_after_days must be positive")
-            
-    def should_rotate(self, file_path: str) -> bool:
-        """Check if file should be rotated based on size.
+        # Ensure log directory exists
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+    
+    def _get_file_size(self, filepath: Path) -> int:
+        """Get file size in bytes.
         
         Args:
-            file_path: Path to log file
+            filepath: Path to file
             
         Returns:
-            bool: True if file should be rotated
+            int: File size in bytes
         """
         try:
-            size_mb = os.path.getsize(file_path) / (1024 * 1024)
-            return size_mb >= self.config.max_size_mb
+            return filepath.stat().st_size
         except OSError as e:
-            logger.error(f"Error checking file size: {e}")
-            return False
-            
-    def _is_file_locked(self, filepath: str) -> bool:
-        """Check if a file is locked on Windows.
+            logger.error(f"Error getting file size for {filepath}: {e}")
+            return 0
+    
+    def _get_file_age(self, filepath: Path) -> float:
+        """Get file age in seconds.
         
         Args:
-            filepath: Path to the file to check
+            filepath: Path to file
             
         Returns:
-            bool: True if file is locked, False otherwise
-        """
-        if platform.system() != 'Windows':
-            return False
-            
-        try:
-            filepath = str(filepath)
-            GENERIC_READ = 0x80000000
-            FILE_SHARE_READ = 0x00000001
-            OPEN_EXISTING = 3
-            INVALID_HANDLE_VALUE = -1
-            
-            handle = ctypes.windll.kernel32.CreateFileW(
-                filepath,
-                GENERIC_READ,
-                FILE_SHARE_READ,
-                None,
-                OPEN_EXISTING,
-                0,
-                None
-            )
-            
-            if handle == INVALID_HANDLE_VALUE:
-                return True
-                
-            ctypes.windll.kernel32.CloseHandle(handle)
-            return False
-        except Exception:
-            return True
-            
-    def _force_close_handle(self, filepath: str) -> None:
-        """Force close any open handles to a file on Windows.
-        
-        Args:
-            filepath: Path to the file
-        """
-        if platform.system() != 'Windows':
-            return
-            
-        try:
-            # Try to open file with full access and delete on close
-            handle = win32file.CreateFile(
-                str(filepath),
-                win32con.GENERIC_READ | win32con.GENERIC_WRITE,
-                0, None, win32con.OPEN_EXISTING,
-                win32con.FILE_ATTRIBUTE_NORMAL | win32con.FILE_FLAG_DELETE_ON_CLOSE,
-                None
-            )
-            win32file.CloseHandle(handle)
-        except pywintypes.error as e:
-            if e.winerror != 32:  # Not a sharing violation
-                logger.warning(f"Error closing handle for {filepath}: {e}")
-            
-    def _wait_for_file_unlock(self, file_path: str, max_retries: int = 5) -> bool:
-        """Wait for file to be unlocked.
-        
-        Args:
-            file_path: Path to file
-            max_retries: Maximum number of retries
-            
-        Returns:
-            bool: True if file is unlocked, False otherwise
-        """
-        for _ in range(max_retries):
-            try:
-                if platform.system() == 'Windows':
-                    # First check if file is locked
-                    if not self._is_file_locked(file_path):
-                        return True
-                        
-                    # Try to force close any open handles
-                    self._force_close_handle(file_path)
-                    time.sleep(0.2)  # Wait for handle to be released
-                    
-                    # Check again if file is unlocked
-                    if not self._is_file_locked(file_path):
-                        return True
-                else:
-                    with open(file_path, 'a'):
-                        return True
-            except (OSError, pywintypes.error) as e:
-                if platform.system() == 'Windows' and isinstance(e, pywintypes.error):
-                    if e.winerror != 32:  # Not a sharing violation
-                        return False
-                time.sleep(0.2)
-        return False
-            
-    def _safe_remove(self, path: str) -> bool:
-        """Safely remove a file with proper handle cleanup.
-        
-        Args:
-            path: Path to file to remove
-            
-        Returns:
-            bool: True if file was removed, False otherwise
+            float: File age in seconds
         """
         try:
-            path = Path(path)
-            if not path.exists():
-                return True
-                
-            if path.is_file():
-                # Wait for file to be unlocked on Windows
-                if platform.system() == 'Windows':
-                    retries = 5
-                    while retries > 0 and self._is_file_locked(path):
-                        time.sleep(0.2)
-                        retries -= 1
-                        
-                try:
-                    # Try to change permissions first
-                    if platform.system() == 'Windows':
-                        os.chmod(str(path), stat.S_IWRITE | stat.S_IREAD)
-                        # Also try to take ownership if needed
-                        try:
-                            security_info = win32security.GetFileSecurity(
-                                str(path), win32security.OWNER_SECURITY_INFORMATION
-                            )
-                            owner_sid = security_info.GetSecurityDescriptorOwner()
-                            if owner_sid:
-                                # Get current process token
-                                process_handle = win32api.GetCurrentProcess()
-                                token_handle = win32security.OpenProcessToken(
-                                    process_handle,
-                                    win32security.TOKEN_ADJUST_PRIVILEGES | win32security.TOKEN_QUERY
-                                )
-                                # Enable SeTakeOwnershipPrivilege
-                                privilege_id = win32security.LookupPrivilegeValue(
-                                    None, win32security.SE_TAKE_OWNERSHIP_NAME
-                                )
-                                win32security.AdjustTokenPrivileges(
-                                    token_handle, 0, [(privilege_id, win32security.SE_PRIVILEGE_ENABLED)]
-                                )
-                                # Set new owner
-                                win32security.SetFileSecurity(
-                                    str(path),
-                                    win32security.OWNER_SECURITY_INFORMATION,
-                                    security_info
-                                )
-                        except Exception as e:
-                            logger.warning(f"Failed to take ownership of {path}: {e}")
-                    else:
-                        os.chmod(str(path), 0o666)
-                    time.sleep(0.1)  # Give time for permission change to take effect
-                    path.unlink()
-                    return True
-                except PermissionError:
-                    # Try to force close any open handles on Windows
-                    if platform.system() == 'Windows':
-                        self._force_close_handle(path)
-                        time.sleep(0.2)  # Wait for handle to be released
-                    path.unlink()
-                    return True
-            else:
-                try:
-                    # Try to change permissions first
-                    if platform.system() == 'Windows':
-                        os.chmod(str(path), stat.S_IWRITE | stat.S_IREAD | stat.S_IEXEC)
-                        # Also try to take ownership if needed
-                        try:
-                            security_info = win32security.GetFileSecurity(
-                                str(path), win32security.OWNER_SECURITY_INFORMATION
-                            )
-                            owner_sid = security_info.GetSecurityDescriptorOwner()
-                            if owner_sid:
-                                # Get current process token
-                                process_handle = win32api.GetCurrentProcess()
-                                token_handle = win32security.OpenProcessToken(
-                                    process_handle,
-                                    win32security.TOKEN_ADJUST_PRIVILEGES | win32security.TOKEN_QUERY
-                                )
-                                # Enable SeTakeOwnershipPrivilege
-                                privilege_id = win32security.LookupPrivilegeValue(
-                                    None, win32security.SE_TAKE_OWNERSHIP_NAME
-                                )
-                                win32security.AdjustTokenPrivileges(
-                                    token_handle, 0, [(privilege_id, win32security.SE_PRIVILEGE_ENABLED)]
-                                )
-                                # Set new owner
-                                win32security.SetFileSecurity(
-                                    str(path),
-                                    win32security.OWNER_SECURITY_INFORMATION,
-                                    security_info
-                                )
-                        except Exception as e:
-                            logger.warning(f"Failed to take ownership of {path}: {e}")
-                    else:
-                        os.chmod(str(path), 0o777)
-                    time.sleep(0.1)  # Give time for permission change to take effect
-                    shutil.rmtree(path)
-                    return True
-                except PermissionError:
-                    # Try to force close any open handles on Windows
-                    if platform.system() == 'Windows':
-                        self._force_close_handle(path)
-                        time.sleep(0.2)  # Wait for handle to be released
-                    shutil.rmtree(path)
-                    return True
+            return time.time() - filepath.stat().st_mtime
+        except OSError as e:
+            logger.error(f"Error getting file age for {filepath}: {e}")
+            return 0
+    
+    def _rotate_file(self, filepath: Path) -> None:
+        """Rotate a single log file.
+        
+        Args:
+            filepath: Path to log file
+        """
+        try:
+            # Create backup directory if it doesn't exist
+            backup_dir = self.log_dir / "backups"
+            backup_dir.mkdir(exist_ok=True)
+            
+            # Generate backup filename with timestamp
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            backup_name = f"{filepath.stem}_{timestamp}{filepath.suffix}"
+            backup_path = backup_dir / backup_name
+            
+            # Move current file to backup
+            shutil.move(str(filepath), str(backup_path))
+            
+            # Create new empty file
+            filepath.touch()
+            
+            logger.info(f"Rotated log file {filepath} to {backup_path}")
+            
         except Exception as e:
-            logger.warning(f"Failed to remove {path}: {str(e)}")
-            return False
-            
-    def _cleanup_directory(self, directory: str) -> None:
-        """Clean up a directory and its contents.
-        
-        Args:
-            directory: Path to directory to clean up
-        """
+            logger.error(f"Error rotating file {filepath}: {e}")
+    
+    def _cleanup_old_backups(self) -> None:
+        """Clean up old backup files."""
         try:
-            directory = Path(directory)
-            if not directory.exists():
+            backup_dir = self.log_dir / "backups"
+            if not backup_dir.exists():
                 return
                 
-            # Handle symlinks
-            if directory.is_symlink():
-                directory.unlink()
-                return
-                
-            # Try to remove directory contents first
-            for item in directory.iterdir():
-                try:
-                    if item.is_file():
-                        # Wait for file to be unlocked on Windows
-                        if platform.system() == 'Windows':
-                            retries = 3
-                            while retries > 0 and self._is_file_locked(item):
-                                time.sleep(0.1)
-                                retries -= 1
-                        self._safe_remove(item)
-                    else:
-                        shutil.rmtree(item)
-                except Exception as e:
-                    logger.warning(f"Failed to remove {item}: {str(e)}")
-            
-            # Then try to remove the directory itself
-            try:
-                if platform.system() == 'Windows':
-                    # Wait a bit for Windows to release the directory
-                    time.sleep(0.1)
-                    # Try to take ownership if needed
-                    try:
-                        security_info = win32security.GetFileSecurity(
-                            str(directory), win32security.OWNER_SECURITY_INFORMATION
-                        )
-                        owner_sid = security_info.GetSecurityDescriptorOwner()
-                        if owner_sid:
-                            # Get current process token
-                            process_handle = win32api.GetCurrentProcess()
-                            token_handle = win32security.OpenProcessToken(
-                                process_handle,
-                                win32security.TOKEN_ADJUST_PRIVILEGES | win32security.TOKEN_QUERY
-                            )
-                            # Enable SeTakeOwnershipPrivilege
-                            privilege_id = win32security.LookupPrivilegeValue(
-                                None, win32security.SE_TAKE_OWNERSHIP_NAME
-                            )
-                            win32security.AdjustTokenPrivileges(
-                                token_handle, 0, [(privilege_id, win32security.SE_PRIVILEGE_ENABLED)]
-                            )
-                            # Set new owner
-                            win32security.SetFileSecurity(
-                                str(directory),
-                                win32security.OWNER_SECURITY_INFORMATION,
-                                security_info
-                            )
-                    except Exception as e:
-                        logger.warning(f"Failed to take ownership of {directory}: {e}")
-                directory.rmdir()
-            except Exception as e:
-                logger.warning(f"Failed to remove directory {directory}: {str(e)}")
-        except Exception as e:
-            logger.warning(f"Failed to clean up directory {directory}: {str(e)}")
-            
-    def rotate(self, file_path: str) -> Optional[str]:
-        """Rotate a log file.
-        
-        Args:
-            file_path: Path to log file to rotate
-            
-        Returns:
-            Optional[str]: Path to new log file if rotation successful, None otherwise
-        """
-        with self._lock:
-            try:
-                file_path = str(file_path)
-                if not os.path.exists(file_path):
-                    return None
-                    
-                # Wait for file to be unlocked
-                if not self._wait_for_file_unlock(file_path):
-                    logger.error(f"Could not unlock file {file_path} for rotation")
-                    return None
-                    
-                # Generate new filename with timestamp
-                timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-                base_name = os.path.splitext(file_path)[0]
-                new_name = f"{base_name}.{timestamp}.log"
-                
-                # Try to rename file
-                try:
-                    # First try to change permissions
-                    if platform.system() == 'Windows':
-                        os.chmod(file_path, stat.S_IWRITE | stat.S_IREAD)
-                        # Try to take ownership if needed
-                        try:
-                            security_info = win32security.GetFileSecurity(
-                                file_path, win32security.OWNER_SECURITY_INFORMATION
-                            )
-                            owner_sid = security_info.GetSecurityDescriptorOwner()
-                            if owner_sid:
-                                # Get current process token
-                                process_handle = win32api.GetCurrentProcess()
-                                token_handle = win32security.OpenProcessToken(
-                                    process_handle,
-                                    win32security.TOKEN_ADJUST_PRIVILEGES | win32security.TOKEN_QUERY
-                                )
-                                # Enable SeTakeOwnershipPrivilege
-                                privilege_id = win32security.LookupPrivilegeValue(
-                                    None, win32security.SE_TAKE_OWNERSHIP_NAME
-                                )
-                                win32security.AdjustTokenPrivileges(
-                                    token_handle, 0, [(privilege_id, win32security.SE_PRIVILEGE_ENABLED)]
-                                )
-                                # Set new owner
-                                win32security.SetFileSecurity(
-                                    file_path,
-                                    win32security.OWNER_SECURITY_INFORMATION,
-                                    security_info
-                                )
-                        except Exception as e:
-                            logger.warning(f"Failed to take ownership of {file_path}: {e}")
-                    else:
-                        os.chmod(file_path, 0o666)
-                    
-                    # Wait a bit for permissions to take effect
-                    time.sleep(0.1)
-                    
-                    # Try to rename
-                    os.rename(file_path, new_name)
-                    
-                    # Create new empty log file
-                    with open(file_path, 'w') as f:
-                        pass
-                    
-                    # Clean up old backups
-                    self._cleanup_old_backups(file_path)
-                    
-                    return new_name
-                    
-                except (OSError, PermissionError) as e:
-                    logger.error(f"Error rotating log file {file_path}: {e}")
-                    return None
-                    
-            except Exception as e:
-                logger.error(f"Unexpected error during log rotation: {e}")
-                return None
-
-    def _cleanup_old_backups(self, current_file: str) -> None:
-        """Clean up old backup files.
-        
-        Args:
-            current_file: Path to current log file
-        """
-        try:
-            base_name = os.path.splitext(current_file)[0]
-            backup_dir = os.path.dirname(current_file)
-            
             # Get all backup files
-            backup_files = []
-            for file in os.listdir(backup_dir):
-                if file.startswith(os.path.basename(base_name)) and file.endswith('.log'):
-                    full_path = os.path.join(backup_dir, file)
-                    if full_path != current_file:
-                        backup_files.append(full_path)
+            backup_files = sorted(
+                backup_dir.glob("*_*.*"),
+                key=lambda x: x.stat().st_mtime,
+                reverse=True
+            )
             
-            # Sort by modification time (oldest first)
-            backup_files.sort(key=lambda x: os.path.getmtime(x))
-            
-            # Remove excess files
-            while len(backup_files) > self.config.max_files:
-                oldest = backup_files.pop(0)
+            # Remove excess backups
+            for backup_file in backup_files[self.backup_count:]:
                 try:
-                    if platform.system() == 'Windows':
-                        # Try to change permissions first
-                        os.chmod(oldest, stat.S_IWRITE | stat.S_IREAD)
-                        # Try to take ownership if needed
-                        try:
-                            security_info = win32security.GetFileSecurity(
-                                oldest, win32security.OWNER_SECURITY_INFORMATION
-                            )
-                            owner_sid = security_info.GetSecurityDescriptorOwner()
-                            if owner_sid:
-                                # Get current process token
-                                process_handle = win32api.GetCurrentProcess()
-                                token_handle = win32security.OpenProcessToken(
-                                    process_handle,
-                                    win32security.TOKEN_ADJUST_PRIVILEGES | win32security.TOKEN_QUERY
-                                )
-                                # Enable SeTakeOwnershipPrivilege
-                                privilege_id = win32security.LookupPrivilegeValue(
-                                    None, win32security.SE_TAKE_OWNERSHIP_NAME
-                                )
-                                win32security.AdjustTokenPrivileges(
-                                    token_handle, 0, [(privilege_id, win32security.SE_PRIVILEGE_ENABLED)]
-                                )
-                                # Set new owner
-                                win32security.SetFileSecurity(
-                                    oldest,
-                                    win32security.OWNER_SECURITY_INFORMATION,
-                                    security_info
-                                )
-                        except Exception as e:
-                            logger.warning(f"Failed to take ownership of {oldest}: {e}")
-                    else:
-                        os.chmod(oldest, 0o666)
-                    
-                    # Wait a bit for permissions to take effect
-                    time.sleep(0.1)
-                    
-                    # Try to remove
-                    os.remove(oldest)
-                except Exception as e:
-                    logger.error(f"Error removing old backup {oldest}: {e}")
+                    backup_file.unlink()
+                    logger.info(f"Removed old backup file {backup_file}")
+                except OSError as e:
+                    logger.error(f"Error removing backup file {backup_file}: {e}")
                     
         except Exception as e:
             logger.error(f"Error cleaning up old backups: {e}")
-            
-    def compress_old_logs(self) -> None:
-        """Compress log files older than compress_after_days."""
-        try:
-            backup_dir = self.config.backup_dir
-            if not backup_dir:
-                return
-                
-            cutoff_time = time.time() - (self.config.compress_after_days * 86400)
-            
-            for f in os.listdir(backup_dir):
-                if f.endswith('.gz'):
-                    continue
-                    
-                file_path = os.path.join(backup_dir, f)
-                if os.path.getmtime(file_path) < cutoff_time:
-                    try:
-                        # Force close any open handles
-                        self._force_close_handle(file_path)
-                        
-                        # Wait for file to be unlocked
-                        if not self._wait_for_file_unlock(file_path):
-                            logger.warning(f"Could not unlock file {file_path} for compression")
-                            continue
-                            
-                        # Compress file
-                        with open(file_path, 'rb') as f_in:
-                            with gzip.open(file_path + '.gz', 'wb') as f_out:
-                                shutil.copyfileobj(f_in, f_out)
-                                
-                        # Remove original file
-                        if not self._safe_remove(file_path):
-                            logger.warning(f"Could not remove original file after compression: {file_path}")
-                    except (OSError, PermissionError) as e:
-                        logger.warning(f"Could not compress file {file_path}: {e}")
-                        
-        except OSError as e:
-            logger.error(f"Error compressing old logs: {e}")
-            
-    def get_rotation_info(self) -> Dict[str, Any]:
-        """Get current rotation configuration and stats.
-        
-        Returns:
-            Dict[str, Any]: Rotation information
-        """
-        return {
-            'max_size_mb': self.config.max_size_mb,
-            'max_files': self.config.max_files,
-            'max_age_days': self.config.max_age_days,
-            'compress_after_days': self.config.compress_after_days,
-            'backup_dir': self.config.backup_dir
-        }
-
-    def rotate_if_needed(self, file_path: str) -> Optional[str]:
-        """Check if rotation is needed and perform it if necessary.
+    
+    def check_rotation(self, filepath: Path) -> bool:
+        """Check if a file needs rotation.
         
         Args:
-            file_path: Path to log file
+            filepath: Path to log file
             
         Returns:
-            Optional[str]: Path to new log file if rotated, None otherwise
+            bool: True if file was rotated
         """
-        if not os.path.exists(file_path):
-            return None
+        if not filepath.exists():
+            return False
             
-        if self.should_rotate(file_path):
-            return self.rotate(file_path)
-        return None 
+        try:
+            # Check file size
+            if self._get_file_size(filepath) >= self.max_size_bytes:
+                self._rotate_file(filepath)
+                return True
+                
+            # Check file age
+            if self._get_file_age(filepath) >= self.max_age_seconds:
+                self._rotate_file(filepath)
+                return True
+                
+            return False
+            
+        except Exception as e:
+            logger.error(f"Error checking rotation for {filepath}: {e}")
+            return False
+    
+    def rotate_all(self) -> None:
+        """Rotate all log files that need rotation."""
+        try:
+            # Get all log files
+            log_files = list(self.log_dir.glob("*.json"))
+            
+            # Check each file
+            for log_file in log_files:
+                self.check_rotation(log_file)
+                
+            # Clean up old backups
+            self._cleanup_old_backups()
+            
+        except Exception as e:
+            logger.error(f"Error rotating all log files: {e}")
+    
+    def get_rotation_info(self) -> Dict[str, Any]:
+        """Get information about log rotation status.
+        
+        Returns:
+            Dict[str, Any]: Rotation status information
+        """
+        info = {
+            "log_dir": str(self.log_dir),
+            "max_size_mb": self.max_size_bytes / (1024 * 1024),
+            "max_age_days": self.max_age_seconds / (24 * 60 * 60),
+            "backup_count": self.backup_count,
+            "files": []
+        }
+        
+        try:
+            # Get all log files
+            log_files = list(self.log_dir.glob("*.json"))
+            
+            for log_file in log_files:
+                file_info = {
+                    "path": str(log_file),
+                    "size_mb": self._get_file_size(log_file) / (1024 * 1024),
+                    "age_days": self._get_file_age(log_file) / (24 * 60 * 60),
+                    "needs_rotation": False
+                }
+                
+                # Check if file needs rotation
+                if (file_info["size_mb"] >= info["max_size_mb"] or
+                    file_info["age_days"] >= info["max_age_days"]):
+                    file_info["needs_rotation"] = True
+                    
+                info["files"].append(file_info)
+                
+            # Get backup info
+            backup_dir = self.log_dir / "backups"
+            if backup_dir.exists():
+                backup_files = list(backup_dir.glob("*_*.*"))
+                info["backup_count"] = len(backup_files)
+                info["backup_size_mb"] = sum(
+                    f.stat().st_size for f in backup_files
+                ) / (1024 * 1024)
+                
+            return info
+            
+        except Exception as e:
+            logger.error(f"Error getting rotation info: {e}")
+            return info 

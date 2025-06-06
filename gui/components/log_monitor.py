@@ -14,7 +14,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt, QTimer
 from social.utils.log_manager import LogManager
-from social.utils.log_config import LogConfig
+from dreamos.core.config.config_manager import ConfigManager
 
 class LogMonitor(QWidget):
     """GUI component for monitoring and displaying logs."""
@@ -28,7 +28,7 @@ class LogMonitor(QWidget):
         super().__init__(parent)
         
         # Initialize LogManager
-        log_config = LogConfig(
+        log_config = ConfigManager(
             log_dir="logs/gui",
             batch_size=10,
             batch_timeout=0.5,

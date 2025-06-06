@@ -6,6 +6,7 @@ import datetime
 import json
 from pathlib import Path
 import requests
+from test_dashboard import render_test_dashboard
 
 from dreamos.core.self_discovery import journal
 
@@ -49,6 +50,7 @@ tabs = st.tabs([
     "Weekly Planner",
     "Journal",
     "Coding Log",
+    "Test Dashboard"
 ])
 
 # Daily Rituals Tab
@@ -181,3 +183,7 @@ with tabs[5]:
     rows = cur.fetchall()
     st.table(rows)
     conn.close()
+
+# Test Dashboard Tab
+with tabs[6]:
+    render_test_dashboard()

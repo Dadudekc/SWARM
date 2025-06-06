@@ -1,0 +1,18 @@
+{
+    "patch_dir": "patches",
+    "status_types": {
+        "pending": "Patch is waiting to be applied",
+        "applied": "Patch has been successfully applied",
+        "failed": "Patch failed to apply or verify"
+    },
+    "max_retries": 3,
+    "retry_delay": 300,
+    "validation_timeout": 60,
+    "log_level": "INFO",
+    "log_format": {
+        "platform": "patch_tracker",
+        "status": "string",
+        "message": "string",
+        "tags": ["string"]
+    }
+} 

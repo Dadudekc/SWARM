@@ -1,0 +1,80 @@
+{
+    "status": {
+        "status_file": "tests/test_error_analysis.json",
+        "status_types": {
+            "pending": "Test is waiting to be claimed",
+            "claimed": "Test has been claimed by an agent",
+            "fixed": "Test has been fixed and verified",
+            "failed": "Test failed after fix attempt",
+            "quarantined": "Test is quarantined due to platform issues"
+        },
+        "max_retries": 3,
+        "retry_delay": 300,
+        "quarantine_threshold": 3,
+        "log_level": "INFO",
+        "log_format": {
+            "platform": "test_status",
+            "status": "string",
+            "message": "string",
+            "tags": ["string"]
+        }
+    },
+    "devlog": {
+        "discord": {
+            "enabled": true,
+            "notify_on": {
+                "test_run_complete": true,
+                "test_failure": true,
+                "fix_attempt": true,
+                "test_progress": true
+            },
+            "embed_colors": {
+                "success": "0x00FF00",
+                "failure": "0xFF0000",
+                "in_progress": "0xFFA500",
+                "warning": "0xFFFF00"
+            }
+        },
+        "logging": {
+            "level": "INFO",
+            "format": "[{timestamp}] [{level}] {message}",
+            "retention_days": 7,
+            "max_file_size": 10485760,
+            "backup_count": 5,
+            "metrics_enabled": true,
+            "log_dir": "runtime/logs/test_devlog",
+            "batch_size": 10,
+            "batch_timeout": 1.0,
+            "max_retries": 3,
+            "retry_delay": 0.5,
+            "max_age_days": 30
+        },
+        "events": {
+            "test_run_complete": {
+                "enabled": true,
+                "include_summary": true,
+                "include_failures": true
+            },
+            "test_failure": {
+                "enabled": true,
+                "include_traceback": true,
+                "include_context": true
+            },
+            "fix_attempt": {
+                "enabled": true,
+                "include_code": true,
+                "include_error": true
+            },
+            "test_progress": {
+                "enabled": true,
+                "update_interval": 300,
+                "include_percentage": true
+            }
+        },
+        "storage": {
+            "test_history": "runtime/test_history",
+            "fix_history": "runtime/fix_history",
+            "max_history_size": 1000
+        }
+    }
+} 

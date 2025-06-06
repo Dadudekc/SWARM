@@ -21,21 +21,66 @@ class LLMAgent:
         chatgpt_bridge: ChatGPTBridge,
         system_prompt: Optional[str] = None
     ):
+        """Initialize the LLM agent.
+        
+        Args:
+            agent_id: Unique identifier for this agent
+            message_system: Optional message system for communication
+            chatgpt_bridge: Bridge to ChatGPT API
+            system_prompt: Optional system prompt for ChatGPT
+        """
         self.agent_id = agent_id
         self.message_system = message_system
         self.chatgpt_bridge = chatgpt_bridge
         self.conversation_history = []
         self.system_prompt = system_prompt or "You are a helpful AI assistant."
-        asyncio.create_task(self._setup_subscriptions())
+        self._subscription_task = None
+    
+    async def initialize(self):
+        """Initialize the agent and set up subscriptions."""
+        if self.message_system is not None:
+            self._subscription_task = asyncio.create_task(self._setup_subscriptions())
+            try:
+                await self._subscription_task
+            except Exception as e:
+                self.logger.error(
+                    platform="llm_agent",
+                    status="error",
+                    message=f"Failed to set up subscriptions: {str(e)}",
+                    tags=["init", "error"]
+                )
+                raise
     
     async def _setup_subscriptions(self):
         """Set up message subscriptions."""
         if self.message_system is None:
-            return  # Skip setup if no messaging system is wired
-        await self.message_system.subscribe(
-            topic=f"agent.{self.agent_id}.commands",
-            handler=self._handle_command
-        )
+            self.logger.warning(
+                platform="llm_agent",
+                status="warning",
+                message="No message system available - skipping subscriptions",
+                tags=["init", "warning"]
+            )
+            return
+            
+        try:
+            await self.message_system.subscribe(
+                topic=f"agent.{self.agent_id}.commands",
+                handler=self._handle_command
+            )
+            self.logger.info(
+                platform="llm_agent",
+                status="success",
+                message=f"Successfully subscribed to commands for {self.agent_id}",
+                tags=["init", "success"]
+            )
+        except Exception as e:
+            self.logger.error(
+                platform="llm_agent",
+                status="error",
+                message=f"Error setting up subscriptions: {str(e)}",
+                tags=["init", "error"]
+            )
+            raise
     
     async def _handle_command(self, message: Message):
         """Handle incoming messages."""
@@ -108,6 +153,13 @@ class LLMAgent:
     
     async def shutdown(self) -> None:
         """Clean up resources."""
+        if self._subscription_task:
+            self._subscription_task.cancel()
+            try:
+                await self._subscription_task
+            except asyncio.CancelledError:
+                pass
+                
         if self.message_system is not None:
             # Unsubscribe from messages
             await self.message_system.unsubscribe(self.agent_id, self._handle_command)

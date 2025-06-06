@@ -3,8 +3,9 @@
 
 """Configuration helpers for social media automation."""
 
-from . import social_config
+from .social_config import SocialConfig, social_config
 
 __all__ = [
+    'SocialConfig',
     'social_config',
 ]

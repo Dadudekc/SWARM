@@ -7,8 +7,8 @@ The Dream.OS logging system provides comprehensive logging capabilities across a
 ## Quick Start
 
 ```python
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 from social.utils.log_manager import LogManager
-from social.utils.log_config import LogConfig
 
 # Initialize with default config
 log = LogManager("agent1").get_logger()
@@ -186,8 +186,8 @@ python -m gui
 ### Programmatic Usage
 
 ```python
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 from social.utils.log_manager import LogManager
-from social.utils.log_config import LogConfig
 
 # Initialize LogManager
 log_config = LogConfig(

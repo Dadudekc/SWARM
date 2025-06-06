@@ -33,6 +33,32 @@ class MessagePriority(Enum):
     URGENT = 3
     CRITICAL = 4
 
+class MessageType(Enum):
+    """Types of messages in the system."""
+    COMMAND = auto()     # System command
+    RESPONSE = auto()    # Response to a command
+    NOTIFICATION = auto() # System notification
+    ERROR = auto()       # Error message
+    DEBUG = auto()       # Debug information
+    STATUS = auto()      # Status update
+    DATA = auto()        # Data transfer
+    HEARTBEAT = auto()   # Health check
+
+class MessageStatus(Enum):
+    """Message delivery and processing status."""
+    PENDING = auto()     # Message is queued
+    SENT = auto()        # Message has been sent
+    DELIVERED = auto()   # Message has been delivered
+    READ = auto()        # Message has been read
+    PROCESSING = auto()  # Message is being processed
+    COMPLETED = auto()   # Message processing completed
+    FAILED = auto()      # Message processing failed
+    CANCELLED = auto()   # Message was cancelled
+    TIMEOUT = auto()     # Message processing timed out
+    BLOCKED = auto()     # Message is blocked
+    RETRYING = auto()    # Message is being retried
+    DISCARDED = auto()   # Message was discarded
+
 class TaskStatus(Enum):
     """Task execution status."""
     PENDING = auto()     # Task is queued
@@ -50,15 +76,4 @@ class TaskPriority(Enum):
     NORMAL = 2
     HIGH = 3
     URGENT = 4
-    CRITICAL = 5
-
-class MessageType(Enum):
-    """Types of messages in the system."""
-    COMMAND = auto()     # System command
-    RESPONSE = auto()    # Response to a command
-    NOTIFICATION = auto() # System notification
-    ERROR = auto()       # Error message
-    DEBUG = auto()       # Debug information
-    STATUS = auto()      # Status update
-    DATA = auto()        # Data transfer
-    HEARTBEAT = auto()   # Health check 
+    CRITICAL = 5 

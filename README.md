@@ -166,82 +166,103 @@ logging:
     captain: captain.log
 ```
 
--### 5. Communication Infrastructure
-- **Message** (`dreamos.core.messaging.unified_message_system`):
-  ```json
-  {
-    "message_id": "abc123",
-    "sender_id": "agent_3",
-    "recipient_id": "agent_5",
-    "content": "Fix parser bug",
-    "mode": "[TASK]",
-    "priority": 2,
-    "timestamp": "2025-06-01T14:23:00Z",
-    "metadata": {}
-  }
-  ```
-- **Message History**: Persistent storage in `dreamos/data/message_history.json`
-- **DevLog**: Integration with Discord for external logging
-- **CellPhone/CaptainPhone**: Specialized communication channels
+## Messaging System
 
-Example message sending:
-```python
-from dreamos.core.messaging.cell_phone import CellPhone
+The Dream.OS messaging system is built on a robust mailbox-based architecture that enables secure and reliable agent-to-agent communication.
 
-cp = CellPhone()
-cp.send(to_agent="agent_2", message="Please run tests on module X")
+### Key Components
+
+- **Mailbox Handler**: Core messaging system that manages message routing, delivery, and cleanup
+- **Cell Phone**: High-level interface for agents to send and receive messages
+- **Message Queue**: Local queue for message buffering and status tracking
+
+### Directory Structure
+
+```
+data/
+  └── mailbox/
+      ├── agent0/
+      │   ├── inbox/
+      │   ├── outbox/
+      │   └── processed/
+      ├── agent1/
+      │   ├── inbox/
+      │   ├── outbox/
+      │   └── processed/
+      └── ...
 ```
 
-### 5. ChatGPT Bridge Integration
-- **ChatGPTBridge** (`dreamos.core.messaging.chatgpt_bridge`)
-  - Provides seamless integration with ChatGPT
-  - Uses undetected-chromedriver for reliable automation
-  - Supports direct agent-to-ChatGPT communication
-  - Maintains persistent browser session
-  - Handles message queuing and delivery
+### Features
 
-Example ChatGPT request:
+- **Secure Routing**: Messages are routed through dedicated inbox/outbox directories
+- **Message Processing**: Built-in support for message status tracking and cleanup
+- **Agent Groups**: Support for agent grouping and message filtering
+- **Sequence Numbers**: Automatic sequence number management for message ordering
+- **Cleanup**: Automatic cleanup of old processed messages
+
+### Usage
+
 ```python
+from agent_tools.mailbox.message_handler import MessageHandler
 from dreamos.core.messaging.cell_phone import CellPhone
-import asyncio
 
-# Initialize cell phone
-cp = CellPhone()
+# Initialize the message handler
+message_handler = MessageHandler(base_dir="data/mailbox")
 
-# Send ChatGPT request
-asyncio.run(
-    cp.send_message(
-        to_agent="chatgpt_bridge",
-        content="What's the best way to optimize this code?",
-        from_agent="agent_1"
-    )
+# Create a cell phone for an agent
+cell_phone = CellPhone(config={
+    "agent_id": "agent0",
+    "message_handler": message_handler,
+    "log_level": "INFO"
+})
+
+# Send a message
+success = cell_phone.send_message(
+    to_agent="agent1",
+    content="Hello from agent0!",
+    metadata={"priority": "high"}
 )
 
-# Receive response
-messages = asyncio.run(cp.receive_messages("agent_1"))
-for msg in messages:
-    print(f"ChatGPT says: {msg['content']}")
+# Get messages
+messages = cell_phone.get_messages()
+
+# Clear messages
+cell_phone.clear_messages()
 ```
 
-Configuration (`config/chatgpt_bridge.yaml`):
-```yaml
-# Chrome user data directory
-user_data_dir: "C:/Users/Victor/AppData/Local/Google/Chrome/User Data"
+### Message Format
 
-# Cursor window settings
-cursor_window_title: "Cursor – agent"
-
-# Timeouts and delays
-page_load_wait: 10
-response_wait: 5
-paste_delay: 0.5
-
-# Bridge inbox settings
-bridge_inbox:
-  path: "runtime/bridge_inbox"
-  pending_file: "pending_requests.json"
-  check_interval: 60
+```json
+{
+    "from": "agent0",
+    "to": "agent1",
+    "content": "Hello!",
+    "timestamp": "2024-03-21T12:00:00Z",
+    "metadata": {
+        "priority": "high",
+        "type": "notification"
+    }
+}
 ```
+
+### Best Practices
+
+1. **Message Cleanup**
+   - Use the built-in cleanup mechanism to prevent disk space issues
+   - Configure cleanup thresholds based on your needs
+
+2. **Error Handling**
+   - Always check return values from send_message()
+   - Handle message processing errors gracefully
+
+3. **Performance**
+   - Use message batching for bulk operations
+   - Implement proper error handling and retries
+
+4. **Security**
+   - Validate agent IDs before sending messages
+   - Use metadata for message categorization
+   - Implement proper access controls
 
 ## Usage
 

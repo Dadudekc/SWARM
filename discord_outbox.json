@@ -1,0 +1,7 @@
+{
+    "channel": "announcements",
+    "content": "🚨 **MAJOR ANNOUNCEMENT: Dream.OS Codebase Cleanup Initiative** 🚨\n\nToday marks the beginning of a major codebase cleanup and deduplication effort! We're taking a surgical approach to eliminate redundancy and improve maintainability.\n\n🎯 **Key Objectives:**\n• Unify configuration management\n• Standardize logging and messaging\n• Consolidate utilities\n• Clean up legacy code\n\n📋 **Target Areas:**\n• `dreamos/core/utils/`\n• `dreamos/core/logging/`\n• `dreamos/core/devlog/`\n• `dreamos/core/messaging/`\n• `social/config/` and `social/utils/`\n\n📚 **Documentation:**\nFull details in today's devlog: `docs/devlogs/2025-06-05-codebase-cleanup.md`\n\n🎮 **Next Steps:**\n1. Each agent will receive a cleanup directive\n2. Progress will be tracked in devlogs\n3. Major milestones will be announced\n4. Regular status updates will be shared\n\n💪 Let's make our codebase legendary!",
+    "type": "announcement",
+    "priority": "high",
+    "timestamp": "2025-06-05T00:00:00Z"
+} 

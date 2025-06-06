@@ -7,6 +7,7 @@ import types
 import importlib.util
 
 import pytest
+pytestmark = pytest.mark.pyqt5
 
 # Mock PyQt5 to avoid optional dependency issues during import
 sys.modules.setdefault("PyQt5", types.ModuleType("PyQt5"))

@@ -7,18 +7,31 @@ validates fixes, and escalates to Codex if needed.
 
 import asyncio
 import json
-import logging
-import os
-import subprocess
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any
 import pyautogui
 import pytest
+import os
+import sys
+import logging
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
+from .utils.file_utils import (
+    safe_read,
+    safe_write,
+    load_json,
+    save_json,
+    ensure_dir
+)
+from social.utils.log_manager import LogManager, LogConfig, LogLevel
+
+# Initialize logging
+log_manager = LogManager(LogConfig(
+    level=LogLevel.INFO,
+    log_dir="logs",
+    platforms={"autonomy": "autonomy.log"}
+))
+logger = log_manager
 
 class AutonomyLoopRunner:
     def __init__(self, config_path: str = "config/autonomy_config.json"):
@@ -31,13 +44,12 @@ class AutonomyLoopRunner:
         self.agent_ownership = self._load_agent_ownership()
         self.codex_agent = "codex"  # Special agent for quality control
         self.bridge_outbox = Path("bridge_outbox")
-        self.bridge_outbox.mkdir(exist_ok=True)
+        ensure_dir(self.bridge_outbox)
         
     def _load_config(self, config_path: str) -> Dict:
         """Load configuration from file."""
         try:
-            with open(config_path, 'r') as f:
-                return json.load(f)
+            return load_json(config_path, default={})
         except Exception as e:
             logger.error(f"Error loading config: {e}")
             return {}
@@ -45,8 +57,7 @@ class AutonomyLoopRunner:
     def _load_agent_ownership(self) -> Dict[str, str]:
         """Load agent ownership mapping."""
         try:
-            with open("config/agent_ownership.json", 'r') as f:
-                return json.load(f)
+            return load_json("config/agent_ownership.json", default={})
         except Exception as e:
             logger.error(f"Error loading agent ownership: {e}")
             return {}
@@ -126,11 +137,10 @@ Focus only on the relevant file. Return the fixed code.
         try:
             # Save prompt to bridge outbox
             prompt_file = self.bridge_outbox / f"agent-{agent_id}.json"
-            with open(prompt_file, 'w') as f:
-                json.dump({
-                    "prompt": prompt,
-                    "timestamp": datetime.utcnow().isoformat()
-                }, f, indent=4)
+            save_json({
+                "prompt": prompt,
+                "timestamp": datetime.utcnow().isoformat()
+            }, prompt_file)
                 
             # Use PyAutoGUI to type prompt
             # Note: This assumes the agent's input field is focused
@@ -155,9 +165,8 @@ Focus only on the relevant file. Return the fixed code.
         try:
             response_file = self.bridge_outbox / f"agent-{agent_id}-response.json"
             if response_file.exists():
-                with open(response_file, 'r') as f:
-                    data = json.load(f)
-                    return data.get("response")
+                data = load_json(response_file)
+                return data.get("response") if data else None
         except Exception as e:
             logger.error(f"Error retrieving response from agent {agent_id}: {e}")
         return None
@@ -180,9 +189,7 @@ Focus only on the relevant file. Return the fixed code.
     def apply_code_patch(self, file_path: str, response: str) -> bool:
         """Apply code patch to file."""
         try:
-            with open(file_path, 'w') as f:
-                f.write(response)
-            return True
+            return safe_write(file_path, response)
         except Exception as e:
             logger.error(f"Error applying code patch to {file_path}: {e}")
             return False
@@ -216,6 +223,7 @@ Can you produce a corrected version that will pass the test?
     def commit_code(self, file_path: str, message: str):
         """Commit code changes."""
         try:
+            import subprocess
             subprocess.run(["git", "add", file_path], check=True)
             subprocess.run(["git", "commit", "-m", message], check=True)
         except Exception as e:
