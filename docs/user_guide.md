@@ -10,7 +10,7 @@ This guide provides a quick introduction for new users.
    mkdir -p runtime/agent_comms/onboarding
    mkdir -p runtime/bridge_inbox
    ```
-3. Copy environment examples from `discord_bot/.env.example` and any trading modules, then edit with your credentials.
+3. Copy the environment example from `discord_bot/.env.example` and edit it with your credentials.
 4. Run the orchestrator and Discord bot:
    ```bash
    python dreamos/main.py

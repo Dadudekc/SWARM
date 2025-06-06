@@ -5,7 +5,7 @@
 
 ## Overview
 
-Dream.OS is a swarm-driven platform for coordinating autonomous agents. It aims to provide a reliable operating environment where multiple agents can collaborate on complex tasks across domains such as content generation, data analysis and trading automation. The system currently offers:
+Dream.OS is a swarm-driven platform for coordinating autonomous agents. It aims to provide a reliable operating environment where multiple agents can collaborate on complex tasks across domains such as content generation, data analysis and social media automation. The system currently offers:
 
 For a quick reference of the repository layout, see [docs/directory_overview.md](docs/directory_overview.md).
 
@@ -13,7 +13,6 @@ For a quick reference of the repository layout, see [docs/directory_overview.md]
 - Message processing and routing
 - Social media integration
 - UI automation and interaction
-- Trading bot integration
 - Stealth browser automation for low-detection web tasks
 - Dreamscribe narrative memory system
 
@@ -35,7 +34,7 @@ of the most important directories:
 
 ## Product Offerings
 
-The Dream.OS platform can be packaged in several ways to fit different business needs. See [docs/product_offerings.md](docs/product_offerings.md) for details on SaaS, social-media automation, trading bots, on-premise deployments, and a custom agent SDK.
+The Dream.OS platform can be packaged in several ways to fit different business needs. See [docs/product_offerings.md](docs/product_offerings.md) for details on SaaS, social-media automation, on-premise deployments, and a custom agent SDK.
 
 ## Project Goals
 
@@ -43,7 +42,7 @@ Dream.OS seeks to be a comprehensive operating system for AI agents. Our primary
 
 - Create a unified framework for orchestrating many autonomous agents.
 - Provide standard messaging, logging and monitoring utilities.
-- Offer modular integrations such as trading bots, Discord interfaces and a ChatGPT bridge.
+- Offer modular integrations such as Discord interfaces and a ChatGPT bridge.
 - Enable reproducible, automated workflows for research and production environments.
 
 ## Development Roadmap
@@ -54,7 +53,7 @@ The project is progressing through several planned phases. We are currently in *
    - Implemented agent lifecycle management, unified messaging and basic logging.
    - Introduced initial CLI and Discord tools.
 2. **Phase 2 – Feature Expansion (current)**
-   - Integrating trading agents and content loops.
+   - Expanding content loops.
    - Enhancing Discord and ChatGPT bridges.
    - Expanding tests and documentation.
 3. **Phase 3 – Scalability & Hardening (planned)**
@@ -92,8 +91,7 @@ touch dreamos/data/message_history.json
 
 # Copy and configure environment files
 cp discord_bot/.env.example discord_bot/.env
-cp Trading_/basicbot/.env.example Trading_/basicbot/.env
-# Edit both .env files with your tokens and credentials
+# Edit the `.env` file with your bot token and any other credentials
 ```
 
 ## Core Components
@@ -781,7 +779,7 @@ SOFTWARE.
 
 # Dream.OS Agent Control System
 
-A sophisticated agent control system with Discord bot integration for remote management and monitoring of autonomous agents, including trading bot integration.
+A sophisticated agent control system with Discord bot integration for remote management and monitoring of autonomous agents.
 
 ## Project Structure
 
@@ -804,12 +802,6 @@ Dream.OS/
 │   │   ├── governance/       # System governance
 │   │   └── onboarding/       # Agent onboarding
 │   └── config/               # Configuration files
-├── Trading_/                  # Trading bot system
-│   └── basicbot/             # Main trading bot implementation
-│       ├── analysis/         # Strategy analysis tools
-│       ├── ml_models/        # Machine learning components
-│       ├── strategies/       # Trading strategies
-│       └── tests/            # Test suite
 ├── docs/                      # Documentation
 │   ├── onboarding/           # Agent onboarding guides
 │   ├── development/          # Development guides
@@ -840,15 +832,7 @@ Dream.OS/
 - Rate limiting
 - Message history tracking
 
-### 3. Trading System
-- Machine learning-based trading strategies
-- Real-time market analysis
-- Risk management
-- Backtesting capabilities
-- Multi-broker support (Alpaca)
-- Discord alerts and notifications
-
-### 4. Content Loop Framework
+### 3. Content Loop Framework
 - Autonomous content generation
 - Task-based content seeding
 - Masterpiece development track
@@ -880,7 +864,6 @@ Dream.OS/
 - [Core API](docs/api/core.md)
 - [Agent API](docs/api/agents.md)
 - [Messaging API](docs/api/messaging.md)
-- [Trading API](docs/api/trading.md)
 - [StealthBrowser API](docs/api/stealth_browser.md)
 - [Dreamscribe API](docs/api/dreamscribe.md)
 
@@ -904,13 +887,6 @@ Dream.OS/
   - Rate limiting
   - Message history tracking
 
-- **Trading System**
-  - Machine learning-based trading strategies
-  - Real-time market analysis
-  - Risk management
-  - Backtesting capabilities
-  - Multi-broker support (Alpaca)
-  - Discord alerts and notifications
 
 ## Setup
 
@@ -918,11 +894,9 @@ Dream.OS/
 
 - Python 3.8+
 - Discord Bot Token
-- Alpaca API credentials (for trading)
 - Required Python packages:
   ```bash
   pip install discord.py pyautogui
-  pip install -r Trading_/basicbot/requirements.txt
   ```
 
 ### Installation
@@ -936,8 +910,7 @@ Dream.OS/
 2. Set up environment variables:
    ```bash
    cp discord_bot/env.example discord_bot/.env
-   cp Trading_/basicbot/.env.example Trading_/basicbot/.env
-   # Edit both .env files with your tokens and credentials
+   # Edit the `.env` file with your tokens and credentials
    ```
 
 3. Install the package:
@@ -959,15 +932,6 @@ Dream.OS/
    - Embed Links
    - Read Message History
 
-### Trading Bot Setup
-
-1. Set up Alpaca API credentials in `Trading_/basicbot/.env`
-2. Configure trading parameters in `Trading_/basicbot/tsla_trader/config.yaml`
-3. Run initial backtest:
-   ```bash
-   cd Trading_/basicbot
-   python backtester.py
-   ```
 
 ## Usage
 
@@ -986,13 +950,6 @@ python -m discord_bot.bot
 - `!status` - Get system status and recent messages
 - `!broadcast <message>` - Send message to all agents
 
-### Running the Trading Bot
-
-```bash
-cd Trading_/basicbot
-python start_paper_trading.py  # For paper trading
-python main_trader.py         # For live trading
-```
 
 ### Running the CLI Interface
 
@@ -1021,9 +978,6 @@ python tools/backup_restore.py restore backups/dreamos_backup.tar.gz
 # Cell phone system tests
 python test_cell_phone.py
 
-# Trading bot tests
-cd Trading_/basicbot
-pytest tests/
 ```
 
 ### Adding New Commands
@@ -1031,12 +985,6 @@ pytest tests/
 1. Add command to `discord_bot/commands.py`
 2. Update cooldowns in `discord_bot/config.json`
 3. Test the command locally
-
-### Adding New Trading Strategies
-
-1. Create new strategy in `Trading_/basicbot/strategies/`
-2. Add tests in `Trading_/basicbot/tests/`
-3. Update configuration in `Trading_/basicbot/tsla_trader/config.yaml`
 
 ## Security
 

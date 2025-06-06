@@ -24,8 +24,8 @@ This guide provides step-by-step instructions for setting up the SWARM project d
 
 ### 1. Clone Repository
 ```bash
-git clone https://github.com/Dadudekc/SWARM.git
-cd SWARM
+git clone https://github.com/victor-general/Dream.OS.git
+cd Dream.OS
 ```
 
 ### 2. Python Environment Setup

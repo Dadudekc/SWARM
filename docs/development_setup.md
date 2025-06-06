@@ -20,8 +20,8 @@ This guide provides detailed instructions for setting up your development enviro
 
 ### 1. Clone the Repository
 ```bash
-git clone https://github.com/Dadudekc/SWARM.git
-cd SWARM
+git clone https://github.com/victor-general/Dream.OS.git
+cd Dream.OS
 ```
 
 ### 2. Python Environment
