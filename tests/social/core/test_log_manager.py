@@ -7,8 +7,11 @@ from datetime import datetime
 
 import pytest
 
-from social.utils.log_manager import LogManager, LogConfig
-from social.utils.log_metrics import LogMetrics
+from dreamos.social.utils.log_manager import LogManager, LogConfig
+from dreamos.core.monitoring.metrics import LogMetrics
+
+# Mark all tests in this module as core functionality tests
+pytestmark = pytest.mark.core
 
 
 def reset_log_manager():
@@ -123,3 +126,38 @@ class TestLogManager:
         rotated_path = Path(rotated)
         assert rotated_path.exists()
         assert rotated_path.name != "system.log"
+
+    def test_log_cleanup(self, tmp_path):
+        """Test log cleanup functionality with proper Windows file handling."""
+        config = LogConfig(
+            log_dir=str(tmp_path),
+            max_bytes=200,
+            backup_count=2,  # Keep 2 backups for testing cleanup
+            max_age_days=1,  # Set max age to 1 day for testing
+            platforms={"system": "system.log"},
+        )
+        manager = LogManager(config)
+
+        # Write enough data to trigger multiple rotations
+        for _ in range(50):
+            manager.info("system", "x" * 10)
+            manager.rotate("system")
+
+        # Get all log files
+        log_files = list(tmp_path.glob("*.log*"))
+        assert len(log_files) > 2  # Should have main file + backups
+
+        # Perform cleanup
+        manager.cleanup()
+
+        # Verify cleanup
+        remaining_files = list(tmp_path.glob("*.log*"))
+        assert len(remaining_files) == 2  # Should only have main file + 1 backup
+
+        # Verify file handles are properly closed
+        for file_path in remaining_files:
+            try:
+                with open(file_path, 'a') as f:
+                    f.write("test")  # Should be able to write
+            except PermissionError:
+                pytest.fail(f"File handle not properly closed: {file_path}")

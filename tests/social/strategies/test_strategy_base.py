@@ -5,14 +5,15 @@ from selenium.common.exceptions import TimeoutException, WebDriverException, Ele
 from selenium.webdriver.common.by import By
 from datetime import datetime
 
-from social.utils.social_common import SocialMediaUtils
+from dreamos.social.utils.social_common import SocialMediaUtils
 from social.strategies.platform_strategy_base import PlatformStrategy
 from social.strategies.reddit.strategy import RedditStrategy
 from social.strategies.reddit.handlers import LoginHandler, LogoutHandler, PostHandler, CommentHandler
 from social.strategies.reddit.validators import MediaValidator
 from social.strategies.reddit.rate_limiting import RateLimiter
 from social.config.social_config import PlatformConfig
-from social.utils import LogConfig
+from dreamos.core.logging.log_config import LogConfig, LogLevel
+from dreamos.social.utils import rate_limiter
 from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.driver.proxy_manager import ProxyManager
 
@@ -72,19 +73,17 @@ def specific_strategy_mock_config():
         },
         "log_config": LogConfig(
             log_dir="tests/runtime/logs",
-            level="DEBUG",
-            output_format="text",
-            max_size_mb=10,
+            level=LogLevel.DEBUG,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            retention_days=30,
+            max_file_size=10 * 1024 * 1024,
+            backup_count=5,
+            metrics_enabled=True,
+            platforms={"reddit": "reddit.log"},
             batch_size=100,
             batch_timeout=5,
             max_retries=2,
-            retry_delay=0.1,
-            test_mode=True,
-            rotation_enabled=True,
-            max_files=5,
-            compress_after_days=1,
-            rotation_check_interval=60,
-            cleanup_interval=3600
+            retry_delay=0.1
         )
     }
     # Guarantee required keys for all downstream code/tests

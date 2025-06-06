@@ -21,8 +21,8 @@ import ntsecuritycon as con
 from typing import List, Dict, Any
 from contextlib import contextmanager
 
-from social.utils.log_writer import LogWriter, LogEntry
-from social.utils.log_config import LogConfig, LogLevel
+from dreamos.core.logging.log_writer import LogWriter
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 
 # --- Merged from test_batch_processing.py on 2025-06-05 ---
 def normalize_path(path: str) -> Path:
@@ -62,10 +62,16 @@ def test_config():
     return LogConfig(
         log_dir="test_logs",
         level=LogLevel.INFO,
+        format="[%(asctime)s] [%(levelname)s] %(message)s",
+        retention_days=30,
+        max_file_size=10 * 1024 * 1024,
+        backup_count=5,
+        metrics_enabled=True,
         platforms={"test": "test.log"},
-        max_size_mb=10,
         batch_size=100,
-        output_format="json"
+        batch_timeout=1.0,
+        max_retries=3,
+        retry_delay=0.5
     )
 
 @pytest.fixture
@@ -87,7 +93,7 @@ def sample_log_entry():
         "platform": "test_platform",
         "status": "success",
         "message": "Test log message",
-        "level": LogLevel.INFO.value
+        "level": LogLevel.INFO
     }
 
 class TestLogWriter:
@@ -156,7 +162,7 @@ class TestLogWriter:
             "platform": "test_platform",
             "status": "success",
             "message": "Test message with special chars: é, ñ, 漢字",
-            "level": LogLevel.INFO.value
+            "level": LogLevel.INFO
         }
         
         # Mock file operations
@@ -169,6 +175,7 @@ class TestLogWriter:
         mock_json_dump.assert_called_once()
         dumped_data = mock_json_dump.call_args[0][0]
         assert dumped_data[0]["message"] == entry["message"]
+        assert dumped_data[0]["level"] == LogLevel.INFO.value
     
     @patch("social.utils.log_writer.json.dump")
     @patch("builtins.open", new_callable=mock_open)
@@ -205,7 +212,7 @@ class TestLogWriter:
                 "platform": "test",
                 "status": "success",
                 "message": f"Message {i}",
-                "level": LogLevel.INFO.value
+                "level": LogLevel.INFO
             }
             for i in range(3)
         ]
@@ -235,7 +242,7 @@ class TestLogWriter:
             "platform": "test",
             "status": "success",
             "message": "Test message",
-            "level": LogLevel.INFO.value,
+            "level": LogLevel.INFO,
             "metadata": {"user_id": "123", "action": "login"}
         }
         
@@ -261,7 +268,7 @@ class TestLogWriter:
             "platform": "test",
             "status": "success",
             "message": "Test message",
-            "level": LogLevel.INFO.value
+            "level": LogLevel.INFO
         }
         
         # Mock file operations to simulate permission error
