@@ -186,6 +186,24 @@ class BasicCommands(Cog):
             self.logger.error(f"Error in devlog command: {e}")
             await ctx.send("An error occurred while logging the message.")
 
+    @commands.command(name="askgpt")
+    async def askgpt(self, ctx: commands.Context, *, prompt: str):
+        """Send a prompt to ChatGPT and return the response."""
+        try:
+            await ctx.trigger_typing()
+            from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
+
+            async with ChatGPTBridge() as bridge:
+                result = await bridge.chat([{"role": "user", "content": prompt}])
+
+            content = result.get("choices", [{}])[0].get("message", {}).get("content", "No response")
+            if len(content) > 1990:
+                content = content[:1990] + "..."
+            await ctx.send(content)
+        except Exception as e:
+            self.logger.error(f"askgpt error: {e}")
+            await ctx.send("Failed to query ChatGPT")
+
 async def setup(bot: commands.Bot):
     """Add the basic commands cog to the bot."""
     await bot.add_cog(BasicCommands(bot.orchestrator, bot.log_manager))
