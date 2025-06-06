@@ -1,0 +1,61 @@
+{
+    "task_id": "UTILS-008",
+    "priority": "high",
+    "type": "refactor",
+    "title": "Log Migration and Integration",
+    "description": "Create migration scripts and update imports",
+    "context": {
+        "source_files": [
+            "social/utils/*.py"
+        ],
+        "target_dir": "dreamos/core/logging/",
+        "archive_dir": "archive/deprecated/logging/"
+    },
+    "tasks": [
+        {
+            "id": "UTILS-008.1",
+            "description": "Create migration scripts",
+            "steps": [
+                "Create migration script for settings",
+                "Create migration script for handlers",
+                "Create migration script for metrics"
+            ]
+        },
+        {
+            "id": "UTILS-008.2",
+            "description": "Update imports",
+            "steps": [
+                "Find all imports of old logging",
+                "Update to new logging system",
+                "Verify imports work"
+            ]
+        },
+        {
+            "id": "UTILS-008.3",
+            "description": "Integration testing",
+            "steps": [
+                "Test migration scripts",
+                "Test updated imports",
+                "Verify system works"
+            ]
+        },
+        {
+            "id": "UTILS-008.4",
+            "description": "Documentation",
+            "steps": [
+                "Update migration guide",
+                "Update API documentation",
+                "Create examples"
+            ]
+        }
+    ],
+    "success_criteria": [
+        "Migration scripts working",
+        "All imports updated",
+        "System integrated correctly",
+        "Documentation complete"
+    ],
+    "dependencies": ["UTILS-003", "UTILS-004", "UTILS-005", "UTILS-006", "UTILS-007"],
+    "estimated_time": "4 hours",
+    "deadline": "2025-06-06T00:00:00Z"
+} 

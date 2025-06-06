@@ -1,0 +1,62 @@
+{
+    "task_id": "UTILS-007",
+    "priority": "high",
+    "type": "refactor",
+    "title": "Log Metrics Consolidation",
+    "description": "Merge metrics tracking and analysis into unified system",
+    "context": {
+        "source_files": [
+            "social/utils/log_metrics.py",
+            "social/utils/log_analyzer.py"
+        ],
+        "target_file": "dreamos/core/logging/metrics/",
+        "archive_dir": "archive/deprecated/logging/"
+    },
+    "tasks": [
+        {
+            "id": "UTILS-007.1",
+            "description": "Analyze existing components",
+            "steps": [
+                "Review log_metrics.py functionality",
+                "Review log_analyzer.py features",
+                "Identify integration points"
+            ]
+        },
+        {
+            "id": "UTILS-007.2",
+            "description": "Design metrics system",
+            "steps": [
+                "Create metrics directory structure",
+                "Design LogMetrics class",
+                "Design LogAnalyzer class"
+            ]
+        },
+        {
+            "id": "UTILS-007.3",
+            "description": "Implement metrics system",
+            "steps": [
+                "Create metrics tracking",
+                "Add analysis functionality",
+                "Implement reporting"
+            ]
+        },
+        {
+            "id": "UTILS-007.4",
+            "description": "Write tests",
+            "steps": [
+                "Create test cases for metrics",
+                "Add analysis tests",
+                "Verify reporting"
+            ]
+        }
+    ],
+    "success_criteria": [
+        "All metrics functionality preserved",
+        "Analysis functionality complete",
+        "Reporting working correctly",
+        "Tests passing"
+    ],
+    "dependencies": ["UTILS-003", "UTILS-004", "UTILS-005", "UTILS-006"],
+    "estimated_time": "4 hours",
+    "deadline": "2025-06-06T00:00:00Z"
+} 

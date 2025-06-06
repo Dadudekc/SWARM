@@ -1,0 +1,2 @@
+[console_scripts]
+project-scanner = scanner.scanner:main

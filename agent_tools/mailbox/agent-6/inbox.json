@@ -1,0 +1,62 @@
+{
+    "task_id": "UTILS-006",
+    "priority": "high",
+    "type": "refactor",
+    "title": "Log Pipeline Consolidation",
+    "description": "Merge batching and reading functionality into unified pipeline",
+    "context": {
+        "source_files": [
+            "social/utils/log_batcher.py",
+            "social/utils/log_reader.py"
+        ],
+        "target_file": "dreamos/core/logging/utils/pipeline.py",
+        "archive_dir": "archive/deprecated/logging/"
+    },
+    "tasks": [
+        {
+            "id": "UTILS-006.1",
+            "description": "Analyze existing components",
+            "steps": [
+                "Review log_batcher.py functionality",
+                "Review log_reader.py features",
+                "Identify integration points"
+            ]
+        },
+        {
+            "id": "UTILS-006.2",
+            "description": "Design pipeline",
+            "steps": [
+                "Create LogPipeline class",
+                "Design batch processing",
+                "Design reading interface"
+            ]
+        },
+        {
+            "id": "UTILS-006.3",
+            "description": "Implement pipeline",
+            "steps": [
+                "Create pipeline.py with all components",
+                "Add batch processing",
+                "Implement reading functionality"
+            ]
+        },
+        {
+            "id": "UTILS-006.4",
+            "description": "Write tests",
+            "steps": [
+                "Create test cases for pipeline",
+                "Add batch processing tests",
+                "Verify reading functionality"
+            ]
+        }
+    ],
+    "success_criteria": [
+        "All batching functionality preserved",
+        "Reading functionality complete",
+        "Pipeline working correctly",
+        "Tests passing"
+    ],
+    "dependencies": ["UTILS-003", "UTILS-004", "UTILS-005"],
+    "estimated_time": "4 hours",
+    "deadline": "2025-06-06T00:00:00Z"
+} 

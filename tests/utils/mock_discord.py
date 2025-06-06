@@ -465,27 +465,55 @@ class VoiceClient:
     async def connect(self, *args, **kwargs) -> None:
         """Mock connect method."""
         self.is_connected = True
-        
+    
     async def disconnect(self, *args, **kwargs) -> None:
         """Mock disconnect method."""
         self.is_connected = False
-        
+    
     async def play(self, *args, **kwargs) -> None:
         """Mock play method."""
         self.is_playing = True
-        
+    
     def stop(self, *args, **kwargs) -> None:
         """Mock stop method."""
         self.is_playing = False
 
-# Add VoiceClient to the discord module
-discord = SimpleNamespace()
-discord.VoiceClient = VoiceClient
+@dataclass
+class Interaction:
+    """Mock Discord Interaction class."""
+    id: int = 1
+    type: int = 2  # ApplicationCommand
+    data: Dict[str, Any] = field(default_factory=dict)
+    guild_id: Optional[int] = None
+    channel_id: Optional[int] = None
+    member: Optional[MockMember] = None
+    user: Optional[MockMember] = None
+    token: str = "mock_token"
+    version: int = 1
+    application_id: int = 1
+    message: Optional[MockMessage] = None
+    
+    async def response(self, **kwargs) -> None:
+        """Send a response to the interaction."""
+        pass
+    
+    async def followup(self, **kwargs) -> MockMessage:
+        """Send a followup message."""
+        return MockMessage(
+            id=1,
+            content=kwargs.get("content", ""),
+            channel=MockChannel(id=1, name="test"),
+            author=MockMember(id=1, name="Bot")
+        )
 
 class View:
-    pass
-class Interaction:
-    pass
+    """Mock Discord View class."""
+    children: List[Any] = field(default_factory=list)
+    
+    def add_item(self, item: Any) -> None:
+        """Add an item to the view."""
+        self.children.append(item)
+
 ui = SimpleNamespace()
 ui.View = View
 mock_discord_ns = SimpleNamespace()

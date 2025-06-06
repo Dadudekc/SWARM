@@ -1,0 +1,42 @@
+{
+  "Agent-1": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379516281148932187/LyGIVKt7XPxgqESesyS2kv4VyPK5PsaqMpi0Wy9wxny-x32cntt0dKWHy4VDWG9KUTya",
+    "footer": "The Dream Weaver | Agent-1",
+    "avatar_url": "https://example.com/agent1.png"
+  },
+  "Agent-2": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379520833298370612/ktwzUBvGMc9MQ-fJM7O7h7w_Gow_OGP-flR9AC_3FeVkpIMfGMcOuRmBp1PYSRdiB3cu",
+    "footer": "The System Forge | Agent-2",
+    "avatar_url": "https://example.com/agent2.png"
+  },
+  "Agent-3": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379521053956767865/t7VAQEeV3iQ7vPrHAeC_lrvGjEr1DoFUTaZzJ9H_pcxfgd0XpaB3yAvYx8le8DYgCdt2",
+    "footer": "The Data Nexus | Agent-3",
+    "avatar_url": "https://example.com/agent3.png"
+  },
+  "Agent-4": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379521130036986030/TQ6tCSFlQoWTHm08nvFRkwt7kCh3NbD9SuchRVQe_C5n-TNE-CPzCKPejoU8PhfJ103X",
+    "footer": "The Protocol Sage | Agent-4",
+    "avatar_url": "https://example.com/agent4.png"
+  },
+  "Agent-5": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379521219011018782/oIVkblu5kW4toxQarsK1QdoKWvkJcBFj2zd2oeov_fazTZptGAiDodj6MhOKgp1lPmtR",
+    "footer": "The Content Catalyst | Agent-5",
+    "avatar_url": "https://example.com/agent5.png"
+  },
+  "Agent-6": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379521295443820585/VAiCqv8oXt8q-v35_d7xsk3CgLLDFWebplMO0pcsdUt2IV516HpMNY0TQWwsLbVNy7ZX",
+    "footer": "The Meta Architect | Agent-6",
+    "avatar_url": "https://example.com/agent6.png"
+  },
+  "Agent-7": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379521475643441362/Mey1PrqkGoPlwsF6OsVTkSntS8F8lvt2IvYdFo5P1Lz_tPdtdv-LzNZGvr-7ozbxs9m4",
+    "footer": "The Artifact Forger | Agent-7",
+    "avatar_url": "https://example.com/agent7.png"
+  },
+  "Agent-8": {
+    "webhook_url": "https://discordapp.com/api/webhooks/1379521575115558962/kRR5ZT-oblECb9GmNQCR_QD3qMJTdJgzqIh5ZjMAu8LxzFszQsA2kJfncubT12YLvpIk",
+    "footer": "The Lore Keeper | Agent-8",
+    "avatar_url": "https://example.com/agent8.png"
+  }
+} 

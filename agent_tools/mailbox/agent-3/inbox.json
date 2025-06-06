@@ -1,0 +1,72 @@
+{
+    "task_id": "UTILS-003",
+    "priority": "high",
+    "type": "refactor",
+    "title": "New Logging System Implementation",
+    "description": "Create new modular logging system under dreamos/core/logging/",
+    "context": {
+        "target_dir": "dreamos/core/logging/",
+        "source_dir": "social/utils/",
+        "structure": {
+            "handlers": ["file.py", "discord.py", "metrics.py"],
+            "formatters": ["json.py"],
+            "utils": ["rotation.py", "batching.py"]
+        }
+    },
+    "tasks": [
+        {
+            "id": "UTILS-003.1",
+            "description": "Create directory structure",
+            "steps": [
+                "Create logging/ directory and subdirectories",
+                "Create __init__.py files",
+                "Set up package structure"
+            ]
+        },
+        {
+            "id": "UTILS-003.2",
+            "description": "Implement core components",
+            "steps": [
+                "Create config.py for logging configuration",
+                "Create manager.py for main logging manager",
+                "Implement base handler and formatter classes"
+            ]
+        },
+        {
+            "id": "UTILS-003.3",
+            "description": "Implement handlers",
+            "steps": [
+                "Create file handler with rotation support",
+                "Create Discord handler with webhook support",
+                "Create metrics handler for analytics"
+            ]
+        },
+        {
+            "id": "UTILS-003.4",
+            "description": "Implement utilities",
+            "steps": [
+                "Create rotation utility for log files",
+                "Create batching utility for log aggregation",
+                "Add helper functions"
+            ]
+        },
+        {
+            "id": "UTILS-003.5",
+            "description": "Documentation",
+            "steps": [
+                "Add docstrings to all components",
+                "Create usage examples",
+                "Document configuration options"
+            ]
+        }
+    ],
+    "success_criteria": [
+        "All components implemented",
+        "Clean modular structure",
+        "Comprehensive documentation",
+        "Ready for migration"
+    ],
+    "dependencies": ["UTILS-002"],
+    "estimated_time": "6 hours",
+    "deadline": "2025-06-06T00:00:00Z"
+} 

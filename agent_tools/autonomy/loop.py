@@ -30,7 +30,7 @@ from agent_tools.general_tools.browser.integration import StealthBrowserBridge
 from agent_tools.mailbox.message_handler import MessageHandler
 
 # Constants & paths
-ROOT = Path(__file__).resolve().parent.parent
+ROOT = Path(__file__).resolve().parent.parent.parent  # Go up to project root
 INBOX = ROOT / "runtime" / "agent_comms" / "agent0" / "inbox.json"
 DEVLOG = ROOT / "runtime" / "agent_comms" / "agent0" / "devlog.md"
 GIT_REPO = ROOT
@@ -49,7 +49,7 @@ class AutonomyLoop:
     def __init__(self):
         """Initialize the autonomy loop."""
         # Initialize components
-        self.message_handler = MessageHandler(base_dir="data/mailbox")
+        self.message_handler = MessageHandler(base_dir=str(ROOT / "data" / "mailbox"))
         self.cell_phone = CellPhone(config={
             "agent_id": "agent0",
             "message_handler": self.message_handler,
@@ -57,9 +57,9 @@ class AutonomyLoop:
         })
         self.gpt_bridge = ChatGPTBridge(api_key=os.getenv("OPENAI_API_KEY"))
         self.cursor = CursorController()
-        self.codex_bridge = StealthBrowserBridge(config_path="config/stealth_bridge.yaml")
-        self.request_queue = RequestQueue("data/requests/queue.json")
-        self.health_monitor = BridgeHealthMonitor("data/health/status.json")
+        self.codex_bridge = StealthBrowserBridge(config_path=str(ROOT / "config" / "stealth_bridge.yaml"))
+        self.request_queue = RequestQueue(str(ROOT / "data" / "requests" / "queue.json"))
+        self.health_monitor = BridgeHealthMonitor(str(ROOT / "data" / "health" / "status.json"))
         
         # Initialize LLM agent for ChatGPT integration
         self.llm_agent = LLMAgent(

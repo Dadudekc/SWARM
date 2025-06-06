@@ -1,0 +1,9 @@
+{
+  "tests/test_gui_example.py::TestGUIExample::test_mouse_positions[position0]": true,
+  "tests/test_gui_example.py::TestGUIExample::test_keyboard_operations": true,
+  "tests/test_gui_example.py::TestGUIExample::test_mouse_positions[position1]": true,
+  "tests/test_gui_example.py::TestGUIExample::test_screenshot_capture": true,
+  "tests/test_gui_example.py::TestGUIExample::test_failsafe": true,
+  "tests/test_gui_example.py::TestGUIExample::test_basic_mouse_operations": true,
+  "tests/test_gui_example.py::TestGUIExample::test_mouse_positions[position2]": true
+}
