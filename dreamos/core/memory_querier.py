@@ -5,6 +5,7 @@ Enables agents to query and analyze their narrative memory corpus.
 """
 
 import time
+import difflib
 from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 from .dreamscribe import Dreamscribe
@@ -195,22 +196,14 @@ class MemoryQuerier:
         Returns:
             Similarity score between 0 and 1
         """
-        # Simple content-based similarity for now
-        # TODO: Implement more sophisticated similarity metrics
+        # Use SequenceMatcher ratio as a lightweight similarity metric
         content1 = memory1["content"].lower()
         content2 = memory2["content"].lower()
-        
-        # Calculate word overlap
-        words1 = set(content1.split())
-        words2 = set(content2.split())
-        
-        if not words1 or not words2:
+
+        if not content1 or not content2:
             return 0.0
-            
-        intersection = len(words1 & words2)
-        union = len(words1 | words2)
-        
-        return intersection / union if union > 0 else 0.0
+
+        return difflib.SequenceMatcher(None, content1, content2).ratio()
         
     def get_agent_insights(
         self,

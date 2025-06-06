@@ -6,6 +6,7 @@ import time
 import logging
 import secrets
 import hashlib
+import hmac
 from typing import Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 from dataclasses import dataclass
@@ -187,7 +188,8 @@ class TokenHandler:
         Returns:
             Signed token
         """
-        # In a real implementation, this would use a proper signing algorithm
-        return hashlib.sha256(
-            f"{token}:{self.secret_key}".encode()
-        ).hexdigest() 
+        # HMAC signing provides tamper-resistance using the secret key
+        signer = hmac.new(
+            self.secret_key.encode(), token.encode(), hashlib.sha256
+        )
+        return signer.hexdigest()
