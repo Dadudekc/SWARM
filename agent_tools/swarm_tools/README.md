@@ -1,85 +1,68 @@
-# Project Scanner
+# DevLog Watcher
 
-A modular and extensible project analysis tool that provides comprehensive insights into your codebase.
+Automatically syncs local devlog entries to Discord using webhooks.
 
 ## Features
 
-- **Dependency Analysis**: Track imports, identify circular dependencies, and map project structure
-- **Code Quality Metrics**: Calculate cyclomatic complexity, detect code duplication, and measure test coverage
-- **Architecture Insights**: Group related files, identify core vs. peripheral components
-- **Test Analysis**: Separate test files and analyze test coverage
-- **ChatGPT Context**: Generate detailed context for AI-assisted development
-
-## Installation
-
-```bash
-pip install -r requirements.txt
-```
+- Monitors local devlog files for changes
+- Extracts tags and metadata from entries
+- Posts updates to Discord with proper formatting
+- Handles multiple agents simultaneously
+- Prevents duplicate posts
+- Async I/O for better performance
 
 ## Usage
 
-```python
-from scanner.scanner import Scanner
+1. Ensure your webhook configuration is set up in `agent_webhooks.json`:
 
-# Initialize scanner
-scanner = Scanner(project_root="path/to/project")
-
-# Scan project
-analysis = scanner.scan_project(
-    ignore_patterns=["venv", "__pycache__", "node_modules"],
-    categorize_agents=True,
-    generate_init=True
-)
+```json
+{
+    "Agent-1": {
+        "webhook_url": "YOUR_WEBHOOK_URL",
+        "footer": "The Dream Architect | Agent-1",
+        "avatar_url": "OPTIONAL_AVATAR_URL"
+    }
+    // ... other agents
+}
 ```
 
-## Project Structure
-
-```
-scanner/
-├── analyzers/
-│   ├── dependency_analyzer.py
-│   └── quality_analyzer.py
-├── models/
-│   └── analysis.py
-├── utils/
-│   └── file_utils.py
-├── scanner.py
-└── tests/
-    ├── conftest.py
-    ├── test_analyzers.py
-    ├── test_models.py
-    ├── test_scanner.py
-    └── test_utils.py
-```
-
-## Output Files
-
-- `project_analysis.json`: Complete project analysis
-- `test_analysis.json`: Test file analysis
-- `chatgpt_project_context.json`: Context for AI-assisted development
-
-## Development
-
-### Running Tests
+2. Run the watcher:
 
 ```bash
-pytest tests/
+python -m agent_tools.swarm_tools.devlog_watcher
 ```
 
-### Adding New Analyzers
+## DevLog Format
 
-1. Create a new analyzer class in `analyzers/`
-2. Implement required methods
-3. Add tests in `tests/test_analyzers.py`
-4. Update `scanner.py` to use the new analyzer
+Entries should follow this format:
 
-### Contributing
+```markdown
+# Title of Update
 
-1. Fork the repository
-2. Create a feature branch
-3. Add tests for new features
-4. Submit a pull request
+Content of the update with #tags for metadata.
 
-## License
+#done #update #error:description
+```
 
-MIT License 
+### Supported Tags
+
+- `#done` - Task completed
+- `#update` - Progress update
+- `#error` - Error or issue
+- `#wip` - Work in progress
+- `#blocked` - Blocked by dependency
+- `#idea` - New idea or proposal
+
+## Configuration
+
+The watcher uses the following configuration:
+
+- `agent_webhooks.json` - Webhook URLs and metadata
+- `agent_tools/mailbox/{agent_id}/logs/` - Devlog file locations
+
+## Dependencies
+
+- watchdog - File system monitoring
+- aiofiles - Async file I/O
+- aiohttp - Async HTTP client
+- python-dotenv - Environment variable management 
