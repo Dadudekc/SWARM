@@ -127,9 +127,27 @@ class Dreamscribe:
         Returns:
             List of extracted insights
         """
-        # TODO: Implement NLP-based insight extraction
-        # For now, return empty list
-        return []
+        # Basic keyword extraction as a placeholder for full NLP processing
+        content = fragment.get("content", "")
+        words = [w.strip(".,!?\"'()").lower() for w in content.split()]
+
+        # Allow configurable stop words via insight_patterns
+        stop_words = set(self.insight_patterns.get("stop_words", []))
+        freq: Dict[str, int] = {}
+        for word in words:
+            if not word or word in stop_words:
+                continue
+            freq[word] = freq.get(word, 0) + 1
+
+        # Pick top 3 keywords with simple confidence metric
+        total = sum(freq.values()) or 1
+        top_words = sorted(freq.items(), key=lambda kv: kv[1], reverse=True)[:3]
+        insights = [
+            {"content": w, "confidence": min(count / total, 1.0)}
+            for w, count in top_words
+        ]
+
+        return insights
     
     def _find_connections(self, fragment: Dict[str, Any]) -> List[str]:
         """Find connections between memory fragments.
