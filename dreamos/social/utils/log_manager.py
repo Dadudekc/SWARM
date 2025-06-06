@@ -86,7 +86,9 @@ class LogManager:
             max_size_mb=max(1, self._config.max_bytes // (1024 * 1024)),
             max_files=self._config.backup_count,
             max_age_days=self._config.max_age_days,
-            backup_dir=str(Path(self._config.log_dir) / "backups"),
+            # Let LogRotator manage the "backups" directory itself. Passing the
+            # base log directory avoids creating nested "backups/backups" paths.
+            backup_dir=str(self._config.log_dir),
             max_bytes=self._config.max_bytes,
         )
         self._rotator = LogRotator(rotation_config)
@@ -211,15 +213,36 @@ class LogManager:
         try:
             log_dir = Path(self._config.log_dir)
             max_age_days = self._config.max_age_days
-            
+            cutoff = None
             if max_age_days > 0:
                 cutoff = datetime.now() - timedelta(days=max_age_days)
-                for log_file in log_dir.glob('*.log*'):
+
+            for pattern in self._config.platforms.values():
+                stem = Path(pattern).stem
+                suffix = Path(pattern).suffix
+                backups = sorted(
+                    list(log_dir.glob(f"{stem}_*{suffix}")) +
+                    list(log_dir.glob(f"{stem}{suffix}.*")),
+                    key=lambda p: p.stat().st_mtime,
+                    reverse=True,
+                )
+
+                # Determine which files to keep
+                keep = set(backups[: max(0, self._config.backup_count - 1)])
+
+                for file_path in backups[max(0, self._config.backup_count - 1):]:
                     try:
-                        if log_file.stat().st_mtime < cutoff.timestamp():
-                            log_file.unlink()
-                    except Exception as e:
-                        logging.error(f"Error removing old log file {log_file}: {e}")
+                        file_path.unlink()
+                    except Exception:
+                        pass
+
+                if cutoff:
+                    for file_path in keep:
+                        try:
+                            if file_path.stat().st_mtime < cutoff.timestamp():
+                                file_path.unlink()
+                        except Exception:
+                            pass
         except Exception as e:
             logging.error(f"Error during cleanup: {e}")
 
