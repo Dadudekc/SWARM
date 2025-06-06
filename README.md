@@ -949,6 +949,7 @@ python -m discord_bot.bot
 - `!message <agent_id> <message>` - Send a custom message
 - `!status` - Get system status and recent messages
 - `!broadcast <message>` - Send message to all agents
+- `!askgpt <text>` - Query ChatGPT and return the reply
 
 
 ### Running the CLI Interface
