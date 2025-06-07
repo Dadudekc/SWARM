@@ -1,8 +1,8 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import test_mocks
+from . import mock_discord
 
 __all__ = [
-    'test_mocks',
+    'mock_discord',
 ]
