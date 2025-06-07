@@ -1,18 +1,10 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import conftest
-from . import cursor_chatgpt_bridge
+from . import run_overnight_tests
 from . import run_tests
-from . import setup
-from . import test_chatgpt_bridge
-from . import test_debug_time
 
 __all__ = [
-    'conftest',
-    'cursor_chatgpt_bridge',
+    'run_overnight_tests',
     'run_tests',
-    'setup',
-    'test_chatgpt_bridge',
-    'test_debug_time',
 ]

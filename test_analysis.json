@@ -20,7 +20,7 @@
     "run_tests.py": {
         "language": ".py",
         "functions": [
-            "run_test"
+            "main"
         ],
         "classes": {},
         "routes": [],
@@ -1331,14 +1331,13 @@
     "scripts\\overnight_test_runner.py": {
         "language": ".py",
         "functions": [
-            "main",
+            "run",
             "__init__",
             "_load_test_analysis",
             "_load_high_scores",
             "_save_test_analysis",
             "_save_high_scores",
-            "send_prompt_to_agent",
-            "run"
+            "send_prompt_to_agent"
         ],
         "classes": {
             "TestRunner": {
@@ -1348,17 +1347,16 @@
                     "_load_high_scores",
                     "_save_test_analysis",
                     "_save_high_scores",
-                    "send_prompt_to_agent",
-                    "run"
+                    "send_prompt_to_agent"
                 ],
                 "docstring": "Coordinates test running and agent debugging.",
                 "base_classes": [],
                 "maturity": "Core Asset",
-                "agent_type": "ActionAgent"
+                "agent_type": "Utility"
             }
         },
         "routes": [],
-        "complexity": 15
+        "complexity": 13
     },
     "tests\\conftest.py": {
         "language": ".py",
@@ -5070,6 +5068,15 @@
         "language": ".py",
         "functions": [
             "test_imports"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "run_overnight_tests.py": {
+        "language": ".py",
+        "functions": [
+            "main"
         ],
         "classes": {},
         "routes": [],
