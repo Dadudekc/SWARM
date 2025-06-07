@@ -1,7 +1,14 @@
 {
     "project_root": "D:\\SWARM\\Dream.OS",
-    "num_files_analyzed": 58,
+    "num_files_analyzed": 42,
     "analysis_details": {
+        "run_overnight.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
         "__init__.py": {
             "language": ".py",
             "functions": [],
@@ -9,133 +16,12 @@
             "routes": [],
             "complexity": 0
         },
-        "run_overnight_tests.py": {
-            "language": ".py",
-            "functions": [
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
-        },
-        "run_tests.py": {
-            "language": ".py",
-            "functions": [
-                "main"
-            ],
-            "classes": {},
-            "routes": [],
-            "complexity": 1
-        },
-        "agent_tools\\__init__.py": {
+        "archive\\dupe_logging\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
-        },
-        "agent_tools\\autonomy\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "agent_tools\\mailbox\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "archive\\deprecated\\auth_managers\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "archive\\deprecated\\auth_managers\\core_auth_manager.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_attempt_login",
-                "login",
-                "logout",
-                "verify_session",
-                "refresh_token",
-                "cleanup_expired_sessions",
-                "login_operation"
-            ],
-            "classes": {
-                "AuthManager": {
-                    "methods": [
-                        "__init__",
-                        "_attempt_login",
-                        "login",
-                        "logout",
-                        "verify_session",
-                        "refresh_token",
-                        "cleanup_expired_sessions"
-                    ],
-                    "docstring": "Authentication manager implementing the platform-agnostic interface.",
-                    "base_classes": [
-                        "AbstractAuthInterface"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 15
-        },
-        "archive\\deprecated\\auth_managers\\core_session_manager.py": {
-            "language": ".py",
-            "functions": [
-                "extend",
-                "is_valid",
-                "time_remaining",
-                "__init__",
-                "start_cleanup",
-                "stop_cleanup",
-                "create_session",
-                "get_session",
-                "invalidate_session",
-                "cleanup_expired",
-                "_generate_session_id",
-                "cleanup_loop"
-            ],
-            "classes": {
-                "Session": {
-                    "methods": [
-                        "extend",
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Represents an active user session.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "SessionManager": {
-                    "methods": [
-                        "__init__",
-                        "start_cleanup",
-                        "stop_cleanup",
-                        "create_session",
-                        "get_session",
-                        "invalidate_session",
-                        "cleanup_expired",
-                        "_generate_session_id"
-                    ],
-                    "docstring": "Manages user sessions with automatic cleanup.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 23
         },
         "archive\\deprecated\\auth_managers\\legacy_auth_manager.py": {
             "language": ".py",
@@ -219,23 +105,6 @@
             "routes": [],
             "complexity": 23
         },
-        "archive\\dupe_logging\\base_log_manager.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {
-                "LogLevel": {
-                    "methods": [],
-                    "docstring": "Standard log levels for consistent logging across the application.",
-                    "base_classes": [
-                        "Enum"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 0
-        },
         "backups\\auth_backup_20250605_161813\\auth\\base.py": {
             "language": ".py",
             "functions": [
@@ -258,6 +127,42 @@
             },
             "routes": [],
             "complexity": 6
+        },
+        "backups\\auth_backup_20250605_161813\\auth\\interface.py": {
+            "language": ".py",
+            "functions": [
+                "login",
+                "logout",
+                "verify_session",
+                "refresh_token"
+            ],
+            "classes": {
+                "AuthError": {
+                    "methods": [],
+                    "docstring": "Base class for authentication errors.",
+                    "base_classes": [
+                        "Exception"
+                    ],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                },
+                "AbstractAuthInterface": {
+                    "methods": [
+                        "login",
+                        "logout",
+                        "verify_session",
+                        "refresh_token"
+                    ],
+                    "docstring": "Abstract base class defining the authentication interface.",
+                    "base_classes": [
+                        "ABC"
+                    ],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 8
         },
         "backups\\auth_backup_20250605_161813\\auth\\manager.py": {
             "language": ".py",
@@ -428,42 +333,6 @@
             "routes": [],
             "complexity": 0
         },
-        "backups\\auth_backup_20250605_162224\\auth\\interface.py": {
-            "language": ".py",
-            "functions": [
-                "login",
-                "logout",
-                "verify_session",
-                "refresh_token"
-            ],
-            "classes": {
-                "AuthError": {
-                    "methods": [],
-                    "docstring": "Base class for authentication errors.",
-                    "base_classes": [
-                        "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "AbstractAuthInterface": {
-                    "methods": [
-                        "login",
-                        "logout",
-                        "verify_session",
-                        "refresh_token"
-                    ],
-                    "docstring": "Abstract base class defining the authentication interface.",
-                    "base_classes": [
-                        "ABC"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 8
-        },
         "backups\\auth_backup_20250605_162224\\auth\\manager.py": {
             "language": ".py",
             "functions": [
@@ -533,50 +402,60 @@
             "routes": [],
             "complexity": 9
         },
-        "backups\\auth_backup_20250605_162224\\auth\\token.py": {
+        "backups\\auth_backup_20250605_162224\\auth\\session.py": {
             "language": ".py",
             "functions": [
+                "extend",
                 "is_valid",
                 "time_remaining",
                 "__init__",
-                "generate_token",
-                "validate_token",
-                "get_token_info",
-                "refresh_token",
-                "invalidate_token",
+                "start_cleanup",
+                "stop_cleanup",
+                "create_session",
+                "get_session",
+                "invalidate_session",
                 "cleanup_expired",
-                "_sign_token"
+                "_generate_session_id",
+                "cleanup_loop"
             ],
             "classes": {
-                "TokenInfo": {
+                "Session": {
                     "methods": [
+                        "extend",
                         "is_valid",
                         "time_remaining"
                     ],
-                    "docstring": "Represents token metadata.",
+                    "docstring": "Represents an active user session.",
                     "base_classes": [],
                     "maturity": "Core Asset",
                     "agent_type": "Utility"
                 },
-                "TokenHandler": {
+                "SessionManager": {
                     "methods": [
                         "__init__",
-                        "generate_token",
-                        "validate_token",
-                        "get_token_info",
-                        "refresh_token",
-                        "invalidate_token",
+                        "start_cleanup",
+                        "stop_cleanup",
+                        "create_session",
+                        "get_session",
+                        "invalidate_session",
                         "cleanup_expired",
-                        "_sign_token"
+                        "_generate_session_id"
                     ],
-                    "docstring": "Handles token generation, validation, and refresh.",
+                    "docstring": "Manages user sessions with automatic cleanup.",
                     "base_classes": [],
                     "maturity": "Core Asset",
                     "agent_type": "Utility"
                 }
             },
             "routes": [],
-            "complexity": 20
+            "complexity": 23
+        },
+        "backups\\auth_backup_20250605_162224\\auth\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "backups\\auth_backup_20250605_162744\\auth\\base.py": {
             "language": ".py",
@@ -636,6 +515,40 @@
             },
             "routes": [],
             "complexity": 8
+        },
+        "backups\\auth_backup_20250605_162744\\auth\\manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_attempt_login",
+                "login",
+                "logout",
+                "verify_session",
+                "refresh_token",
+                "cleanup_expired_sessions",
+                "login_operation"
+            ],
+            "classes": {
+                "AuthManager": {
+                    "methods": [
+                        "__init__",
+                        "_attempt_login",
+                        "login",
+                        "logout",
+                        "verify_session",
+                        "refresh_token",
+                        "cleanup_expired_sessions"
+                    ],
+                    "docstring": "Authentication manager implementing the platform-agnostic interface.",
+                    "base_classes": [
+                        "AbstractAuthInterface"
+                    ],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 15
         },
         "backups\\auth_backup_20250605_162744\\auth\\retry.py": {
             "language": ".py",
@@ -772,49 +685,33 @@
             "routes": [],
             "complexity": 0
         },
-        "discord_bot\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "discord_bot\\cogs\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\agent_control\\agent_operations.py": {
+        "dreamos\\core\\system_init.py": {
             "language": ".py",
             "functions": [
+                "main",
                 "__init__",
-                "list_agents",
-                "cleanup"
+                "initialize_core_systems",
+                "establish_communication_channels",
+                "begin_monitoring",
+                "report_status"
             ],
             "classes": {
-                "AgentOperations": {
+                "SystemInitializer": {
                     "methods": [
                         "__init__",
-                        "list_agents",
-                        "cleanup"
+                        "initialize_core_systems",
+                        "establish_communication_channels",
+                        "begin_monitoring",
+                        "report_status"
                     ],
-                    "docstring": "Handles agent-specific operations.",
+                    "docstring": "Handles system initialization and communication setup.",
                     "base_classes": [],
                     "maturity": "Core Asset",
                     "agent_type": "Utility"
                 }
             },
             "routes": [],
-            "complexity": 6
+            "complexity": 11
         },
         "dreamos\\core\\agent_control\\__init__.py": {
             "language": ".py",
@@ -882,6 +779,51 @@
             "routes": [],
             "complexity": 8
         },
+        "dreamos\\core\\auth\\token.py": {
+            "language": ".py",
+            "functions": [
+                "is_valid",
+                "time_remaining",
+                "__init__",
+                "generate_token",
+                "validate_token",
+                "get_token_info",
+                "refresh_token",
+                "invalidate_token",
+                "cleanup_expired",
+                "_sign_token"
+            ],
+            "classes": {
+                "TokenInfo": {
+                    "methods": [
+                        "is_valid",
+                        "time_remaining"
+                    ],
+                    "docstring": "Represents token metadata.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                },
+                "TokenHandler": {
+                    "methods": [
+                        "__init__",
+                        "generate_token",
+                        "validate_token",
+                        "get_token_info",
+                        "refresh_token",
+                        "invalidate_token",
+                        "cleanup_expired",
+                        "_sign_token"
+                    ],
+                    "docstring": "Handles token generation, validation, and refresh.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 20
+        },
         "dreamos\\core\\auth\\__init__.py": {
             "language": ".py",
             "functions": [],
@@ -889,90 +831,60 @@
             "routes": [],
             "complexity": 0
         },
-        "dreamos\\core\\autonomy\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\autonomy\\base\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\autonomy\\utils\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\logging\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\messaging\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\core\\utils\\core_utils.py": {
-            "language": ".py",
-            "functions": [
-                "async_retry",
-                "track_operation",
-                "ensure_dir",
-                "atomic_write",
-                "safe_read",
-                "safe_write",
-                "load_json",
-                "save_json",
-                "read_json",
-                "backup_file",
-                "transform_coordinates",
-                "ensure_dir",
-                "write_json",
-                "read_yaml",
-                "write_yaml",
-                "load_yaml",
-                "__init__",
-                "add_error",
-                "get_errors",
-                "clear_errors",
-                "decorator",
-                "decorator"
-            ],
-            "classes": {
-                "ErrorTracker": {
-                    "methods": [
-                        "__init__",
-                        "add_error",
-                        "get_errors",
-                        "clear_errors"
-                    ],
-                    "docstring": "Track and manage operation errors.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 26
-        },
         "dreamos\\core\\utils\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "dreamos\\social\\utils\\base_log_manager.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "LogLevel": {
+                    "methods": [],
+                    "docstring": "Standard log levels for consistent logging across the application.",
+                    "base_classes": [
+                        "Enum"
+                    ],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\social\\utils\\cleanup.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_is_file_locked",
+                "_force_close_handle",
+                "_wait_for_file_unlock",
+                "safe_remove",
+                "cleanup_directory",
+                "cleanup_temp_files"
+            ],
+            "classes": {
+                "FileCleanup": {
+                    "methods": [
+                        "__init__",
+                        "_is_file_locked",
+                        "_force_close_handle",
+                        "_wait_for_file_unlock",
+                        "safe_remove",
+                        "cleanup_directory",
+                        "cleanup_temp_files"
+                    ],
+                    "docstring": "Handles safe file cleanup with proper lock handling.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 14
         },
         "dreamos\\social\\utils\\json_settings.py": {
             "language": ".py",
@@ -1020,6 +932,97 @@
             "routes": [],
             "complexity": 19
         },
+        "dreamos\\social\\utils\\log_pipeline.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_get_file_lock",
+                "_is_file_locked",
+                "_force_close_handle",
+                "_wait_for_file_unlock",
+                "add_entry",
+                "flush",
+                "read_logs",
+                "get_log_info",
+                "stop",
+                "__del__"
+            ],
+            "classes": {
+                "LogPipeline": {
+                    "methods": [
+                        "__init__",
+                        "_get_file_lock",
+                        "_is_file_locked",
+                        "_force_close_handle",
+                        "_wait_for_file_unlock",
+                        "add_entry",
+                        "flush",
+                        "read_logs",
+                        "get_log_info",
+                        "stop",
+                        "__del__"
+                    ],
+                    "docstring": "Unified log handling system combining batching and reading functionality.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 22
+        },
+        "dreamos\\social\\utils\\media_validator.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "validate_files",
+                "validate",
+                "validate_media"
+            ],
+            "classes": {
+                "MediaValidator": {
+                    "methods": [
+                        "__init__",
+                        "validate_files",
+                        "validate",
+                        "validate_media"
+                    ],
+                    "docstring": "Validates media files for upload.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "dreamos\\social\\utils\\rate_limiter.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "check_rate_limit",
+                "set_rate_limit",
+                "reset_limits",
+                "get_remaining"
+            ],
+            "classes": {
+                "RateLimiter": {
+                    "methods": [
+                        "__init__",
+                        "check_rate_limit",
+                        "set_rate_limit",
+                        "reset_limits",
+                        "get_remaining"
+                    ],
+                    "docstring": "Handles rate limiting for API operations.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
         "dreamos\\social\\utils\\social_common.py": {
             "language": ".py",
             "functions": [
@@ -1062,36 +1065,6 @@
             "routes": [],
             "complexity": 0
         },
-        "scripts\\overnight_test_runner.py": {
-            "language": ".py",
-            "functions": [
-                "run",
-                "__init__",
-                "_load_test_analysis",
-                "_load_high_scores",
-                "_save_test_analysis",
-                "_save_high_scores",
-                "send_prompt_to_agent"
-            ],
-            "classes": {
-                "TestRunner": {
-                    "methods": [
-                        "__init__",
-                        "_load_test_analysis",
-                        "_load_high_scores",
-                        "_save_test_analysis",
-                        "_save_high_scores",
-                        "send_prompt_to_agent"
-                    ],
-                    "docstring": "Coordinates test running and agent debugging.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 13
-        },
         "scripts\\__init__.py": {
             "language": ".py",
             "functions": [],
@@ -1106,128 +1079,6 @@
             "routes": [],
             "complexity": 0
         },
-        "social\\utils\\cleanup.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_is_file_locked",
-                "_force_close_handle",
-                "_wait_for_file_unlock",
-                "safe_remove",
-                "cleanup_directory",
-                "cleanup_temp_files"
-            ],
-            "classes": {
-                "FileCleanup": {
-                    "methods": [
-                        "__init__",
-                        "_is_file_locked",
-                        "_force_close_handle",
-                        "_wait_for_file_unlock",
-                        "safe_remove",
-                        "cleanup_directory",
-                        "cleanup_temp_files"
-                    ],
-                    "docstring": "Handles safe file cleanup with proper lock handling.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 14
-        },
-        "social\\utils\\log_pipeline.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "_get_file_lock",
-                "_is_file_locked",
-                "_force_close_handle",
-                "_wait_for_file_unlock",
-                "add_entry",
-                "flush",
-                "read_logs",
-                "get_log_info",
-                "stop",
-                "__del__"
-            ],
-            "classes": {
-                "LogPipeline": {
-                    "methods": [
-                        "__init__",
-                        "_get_file_lock",
-                        "_is_file_locked",
-                        "_force_close_handle",
-                        "_wait_for_file_unlock",
-                        "add_entry",
-                        "flush",
-                        "read_logs",
-                        "get_log_info",
-                        "stop",
-                        "__del__"
-                    ],
-                    "docstring": "Unified log handling system combining batching and reading functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 22
-        },
-        "social\\utils\\media_validator.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "validate_files",
-                "validate",
-                "validate_media"
-            ],
-            "classes": {
-                "MediaValidator": {
-                    "methods": [
-                        "__init__",
-                        "validate_files",
-                        "validate",
-                        "validate_media"
-                    ],
-                    "docstring": "Validates media files for upload.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 8
-        },
-        "social\\utils\\rate_limiter.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "check_rate_limit",
-                "set_rate_limit",
-                "reset_limits",
-                "get_remaining"
-            ],
-            "classes": {
-                "RateLimiter": {
-                    "methods": [
-                        "__init__",
-                        "check_rate_limit",
-                        "set_rate_limit",
-                        "reset_limits",
-                        "get_remaining"
-                    ],
-                    "docstring": "Handles rate limiting for API operations.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 10
-        },
         "social\\utils\\__init__.py": {
             "language": ".py",
             "functions": [],
@@ -1235,28 +1086,7 @@
             "routes": [],
             "complexity": 0
         },
-        "tests\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tests\\core\\autonomy\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tests\\utils\\mock_discord\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "tools\\__init__.py": {
+        "tests\\utils\\test_mocks.py": {
             "language": ".py",
             "functions": [],
             "classes": {},

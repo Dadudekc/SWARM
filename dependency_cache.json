@@ -1,852 +1,342 @@
 {
-    "run_tests.py": {
-        "hash": "81d463386e42c5590a2755731a57ed61"
-    },
     "__init__.py": {
-        "hash": "88312a4814208f4a3fc194202d264a75"
-    },
-    "agent_tools\\__init__.py": {
-        "hash": "7e92d1d0ae7ee844b194c50053e7d4a5"
-    },
-    "agent_tools\\autonomy\\__init__.py": {
-        "hash": "3e07119d19d99f38b46e62f4cbec1b2c"
-    },
-    "agent_tools\\mailbox\\__init__.py": {
-        "hash": "517fb5e4b099b82d660c85c165f42024"
-    },
-    "archive\\deprecated\\auth_managers\\__init__.py": {
-        "hash": "7d08a222a9b87c522fb6b3696bc225a7"
+        "hash": "72d0e81660e8eabd4178186de6cab0d4"
     },
     "backups\\auth_backup_20250605_162224\\auth\\__init__.py": {
-        "hash": "b6ffca9120be87a2518ce8e3075fa418"
+        "hash": "0629d515a1559598a5c8bd9c11fa6bb2"
     },
     "backups\\auth_backup_20250605_162744\\auth\\__init__.py": {
-        "hash": "b6ffca9120be87a2518ce8e3075fa418"
-    },
-    "discord_bot\\__init__.py": {
-        "hash": "8b1128ac33dc337fb5781bfeb267e96a"
-    },
-    "discord_bot\\cogs\\__init__.py": {
-        "hash": "59db3fed0a4faad2f50fcaa9979c40ec"
-    },
-    "dreamos\\core\\__init__.py": {
-        "hash": "3295bbfe96993668334cb2891f0dbb31"
-    },
-    "dreamos\\core\\agent_control\\agent_operations.py": {
-        "hash": "1cb9d632bcc5c64f320aaa0126eeeb53"
+        "hash": "e9468eda76fa17b631827601ebabb34b"
     },
     "dreamos\\core\\agent_control\\__init__.py": {
-        "hash": "a594969f375123938a383682f116ed6b"
+        "hash": "bda2b4953804a072e93a6b6e48c85759"
     },
     "dreamos\\core\\auth\\__init__.py": {
-        "hash": "b6ffca9120be87a2518ce8e3075fa418"
-    },
-    "dreamos\\core\\autonomy\\__init__.py": {
-        "hash": "8c53a32945fda8b4b0a87ec96250227b"
-    },
-    "dreamos\\core\\autonomy\\base\\__init__.py": {
-        "hash": "f362a5fa7834aa99cec92281857713d6"
-    },
-    "dreamos\\core\\autonomy\\utils\\__init__.py": {
-        "hash": "c2a2a1ec04ef7d8987b3c5fc624c9ef6"
-    },
-    "dreamos\\core\\logging\\__init__.py": {
-        "hash": "c6192401249be64056b067b1026150df"
-    },
-    "dreamos\\core\\messaging\\__init__.py": {
-        "hash": "50c4fc9e8254c6b1a3dfbe0ecc9b538f"
-    },
-    "dreamos\\core\\utils\\core_utils.py": {
-        "hash": "37053b9a0e1f6c031e9f9f74f42c14fe"
+        "hash": "0fd97eb1684832c5537adfb7fc4f9c4b"
     },
     "dreamos\\social\\utils\\__init__.py": {
-        "hash": "7edeeb6ee90f6b064ca0184a43f31d67"
-    },
-    "scripts\\overnight_test_runner.py": {
-        "hash": "a8c3a4e7e0c1f3f116a1887b4f219117"
+        "hash": "e79edefd975e10a194f2c69b60ab7add"
     },
     "scripts\\__init__.py": {
-        "hash": "922c6d3f6f1c27009cc07e3fa2de964a"
+        "hash": "6dc5cd00455a64a766467a3236931b7c"
     },
     "social\\utils\\__init__.py": {
-        "hash": "dbcdbd3e7e0fcfa7fee4d29920139928"
+        "hash": "1b23bb9bb873fcfaf53c3c85611ac1c2"
     },
-    "tests\\__init__.py": {
-        "hash": "0ba883c0604ed390be164d2b10a59022"
+    "tests\\utils\\test_mocks.py": {
+        "hash": "f22aaedcb4fc00641609d815ef341e9b"
     },
-    "tests\\core\\autonomy\\__init__.py": {
-        "hash": "1fca3c00647f4ef968b3b230c5bc05aa"
+    "archive\\dupe_logging\\__init__.py": {
+        "hash": "c0ee5e62ca08ccbfd1b80ec670b5c8c6"
     },
-    "tests\\utils\\mock_discord\\__init__.py": {
-        "hash": "8659930ab774e401599c6e38b86ba301"
+    "dreamos\\core\\system_init.py": {
+        "hash": "009ebc9bfc7748530daa51168ea3b7b7"
     },
-    "tools\\__init__.py": {
-        "hash": "25c55bfa9f32a1e74b1acdff7e36bcb5"
+    "backups\\auth_backup_20250605_161813\\auth\\__init__.py": {
+        "hash": "5efafeb9eb1ba5c7e160755aee887dba"
     },
-    "crime_report_generator\\data_sources\\austin_scraper.py": {
-        "hash": "1a2abf19e3538aa13b0c9232dcf01606"
-    },
-    "agent_tools\\security\\__init__.py": {
-        "hash": "e2ab1e79cc1dc8311a8a6760b37cfc58"
-    },
-    "dreamos\\core\\autonomy\\core_response_loop_daemon.py": {
-        "hash": "519579cddfa5cc8fe2af7826c82431b7"
-    },
-    "tests\\social\\strategies\\test_reddit_strategy.py": {
-        "hash": "46eb541ff179b2c9360b4658b569cdc0"
-    },
-    "tests\\core\\test_log_config.py": {
-        "hash": "aacb02ab124e02c85190ef9863825325"
-    },
-    "dreamos\\core\\autonomy\\utils\\test_async_file_watcher.py": {
-        "hash": "989863e0abd5efbe0f37ecdca76e40aa"
-    },
-    "crime_report_generator\\tests\\processors\\test_cleaner.py": {
-        "hash": "6e74b4e752a6c731ba49ce5f5e402d96"
-    },
-    "agent_tools\\swarm_tools\\browser\\config.py": {
-        "hash": "abf49f8b8fe789f8ff6b9d1f1e8719db"
-    },
-    "tests\\core\\autonomy\\test_base_response_loop_daemon.py": {
-        "hash": "e4964fdca35b42e41cb172c4f99426b5"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\utils\\debug_utils.py": {
-        "hash": "c7680c5e0c61c41da1d9244c9bedb6aa"
-    },
-    "dreamos\\core\\codex\\codex_quality_controller.py": {
-        "hash": "04885154ca86f19040ef86a00920efe2"
-    },
-    "crime_report_generator\\processors\\aggregator.py": {
-        "hash": "0c1f9958588e434758b3b41811f875d9"
-    },
-    "backups\\auth_backup_20250605_162744\\auth\\manager.py": {
-        "hash": "2377beca29e4b2475217a6fe0af3f897"
-    },
-    "backups\\auth_backup_20250605_162224\\auth\\session.py": {
-        "hash": "6228621a824522ca8e5d8444e91ec0a8"
-    },
-    "tools\\life_os_dashboard.py": {
-        "hash": "133ef1aa7fb3e2fccdd069f6581d1869"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_scanner_edge_cases.py": {
-        "hash": "8a3d0cea373333782f5571bdf46b68c6"
-    },
-    "archive\\tests\\error_management_legacy_tests.py": {
-        "hash": "604958837bcd5206223c3d6e3bf8c3fb"
-    },
-    "dreamos\\core\\autonomy\\content_loop.py": {
-        "hash": "77964c724b976199913f5769ad77a1ef"
-    },
-    "dreamos\\core\\monitoring\\__init__.py": {
-        "hash": "3958bd01b77bad5fc75725c8b006a8ab"
-    },
-    "tests\\core\\autonomy\\benchmarks\\test_response_loop_benchmarks.py": {
-        "hash": "ed3ad99453d4ec18b5b9d7057b3d9a58"
-    },
-    "tests\\agent_control\\test_captain.py": {
-        "hash": "98baee818c8dfcdc3e787b19c0c05150"
-    },
-    "social\\core\\log_metrics.py": {
-        "hash": "83382cda34983f1ffa67ee95877d346b"
-    },
-    "tests\\core\\test_file_ops.py": {
-        "hash": "7a60d031c8e3d10d86c51edb432ea24b"
-    },
-    "tests\\social\\utils\\test_media_validator.py": {
-        "hash": "cc7848294b3f086b8fd7411a55d9e03c"
-    },
-    "crime_report_generator\\reports\\crimegrade_scraper.py": {
-        "hash": "589724f586697e9a838b57db520a8072"
-    },
-    "bridge\\monitoring.py": {
-        "hash": "5c9b4f1a3261c92fe22fa0b60d65cf72"
-    },
-    "social\\strategies\\instagram_strategy.py": {
-        "hash": "4452eba2c9f7f0e98e46775fb131de36"
-    },
-    "tests\\integration\\__init__.py": {
-        "hash": "1cae5d5eb2294ab3ba5480f4946db3ee"
-    },
-    "dreamos\\core\\agent_control\\coordinate_transformer.py": {
-        "hash": "c56131e6098dba535e64fca0e70ec69e"
-    },
-    "tests\\core\\test_agent_processor.py": {
-        "hash": "6b315128142395aa699a594dd2b5b399"
-    },
-    "agent_tools\\swarm_tools\\devlog_watcher.py": {
-        "hash": "7d1ed1ee2b7dd36ab6771fe4039a5c43"
-    },
-    "agent_tools\\swarm_tools\\tests\\__init__.py": {
-        "hash": "ac4faf3014fc93764774455ab289b269"
-    },
-    "tests\\social\\strategies\\test_analytics.py": {
-        "hash": "4e57e5b95ad53941eba1365c7f47c250"
-    },
-    "crime_report_generator\\tests\\processors\\test_categorizer.py": {
-        "hash": "6a0df086cbac382a983193b70bd998a9"
-    },
-    "dreamos\\social\\utils\\log_manager.py": {
-        "hash": "089292fd87c9a548c2a1b24763acc90a"
-    },
-    "archive\\dupe_logging\\log_level.py": {
-        "hash": "f4e5069a6a1b5354253401e88943710d"
-    },
-    "crime_report_generator\\main.py": {
-        "hash": "fc06deff7d936104be5154133ec6d9e0"
-    },
-    "dreamos\\core\\auth\\session.py": {
-        "hash": "2c94448d85a5a0e8901c32dc002fb6eb"
-    },
-    "dreamos\\core\\ui\\log_console.py": {
-        "hash": "61d5e0a25e417267412565093dde993f"
-    },
-    "tests\\utils\\mock_discord\\client.py": {
-        "hash": "91384e8edceed4db7b70e7ea5bb8120a"
-    },
-    "dreamos\\social\\utils\\base_log_manager.py": {
-        "hash": "fbf11da3375285096a197415ab22bfda"
-    },
-    "social\\__init__.py": {
-        "hash": "8e32497bf3434e7d641127388e781b67"
-    },
-    "archive\\orphans\\test_debug_loop.py": {
-        "hash": "726b2bd2d7ca865fca43d9866c2bbec2"
-    },
-    "dreamos\\core\\resumer_v2\\agent_state_manager.py": {
-        "hash": "45630e1ff31d3f5e4668cf9f614c1dde"
-    },
-    "dreamos\\core\\messaging\\message_handler.py": {
-        "hash": "fbf199140d3c9f4177ab5ac25bb9870f"
-    },
-    "dreamos\\core\\shared\\__init__.py": {
-        "hash": "d192cb7e8a637b7188e1423c42e3bd8c"
-    },
-    "tests\\core\\test_config.py": {
-        "hash": "811b61fc09e7fe413bd2d1e93d8f94aa"
-    },
-    "dreamos\\core\\menu.py": {
-        "hash": "8bb30bc15f0800db3af14f093ea622fb"
-    },
-    "dreamos\\core\\utils\\system_ops.py": {
-        "hash": "909862574a48daf9997b3ca777d47dbc"
-    },
-    "tests\\agent_control\\__init__.py": {
-        "hash": "7be57319e977beba939cc4543330a7f5"
-    },
-    "dreamos\\core\\autonomy\\base\\test_runner_stress.py": {
-        "hash": "b616b81b69cd60e55c2afd01df2e9626"
-    },
-    "social\\utils\\log_manager.py": {
-        "hash": "68d2156c3d2ec6cc4b23dc9ce896fbc3"
-    },
-    "dreamos\\core\\messaging\\messaging.py": {
-        "hash": "33bf4401fdd82d562687dfdc89f6cf54"
-    },
-    "social\\core\\redis_manager.py": {
-        "hash": "2e704b0e46115c1b4c78bd1bf99cb065"
-    },
-    "tests\\core\\test_init_mailbox.py": {
-        "hash": "e53fdbbd96b4f6953372c743bd4a8434"
-    },
-    "tests\\social\\strategies\\test_platform_interface.py": {
-        "hash": "704ea90f7d2aee18106925582d93d889"
-    },
-    "social\\utils\\json_settings.py": {
-        "hash": "08c2f68dbede03ab63f1f3d54bc1ece3"
-    },
-    "dreamos\\core\\agent_interface.py": {
-        "hash": "4e0c631aff5bb33a0707ad2ecfbd4ce3"
-    },
-    "dreamos\\core\\ui\\agent_status_panel.py": {
-        "hash": "37710909412356856b73f0ad898dab49"
-    },
-    "tests\\self_discovery\\test_journal.py": {
-        "hash": "c0e631668b96c068d06797cf69915b38"
-    },
-    "tests\\quarantine\\__init__.py": {
-        "hash": "c172c3d816e59d471568a74dcf1e3544"
-    },
-    "dreamos\\core\\autonomy\\base\\autonomy_loop_runner.py": {
-        "hash": "d23a913dc69f7a4b0a756bc88131a29f"
-    },
-    "dreamos\\core\\autonomy\\base\\test_state_manager.py": {
-        "hash": "c66c6b019d3cf1861c56e075cda5cd36"
-    },
-    "tests\\social\\__init__.py": {
-        "hash": "20cb32d8d16e4502c31dfc5ec4f0a846"
-    },
-    "dreamos\\core\\config\\__init__.py": {
-        "hash": "b67e40f5aed3dd21e9acadccb4228f89"
-    },
-    "tests\\core\\autonomy\\test_processor_factory.py": {
-        "hash": "897cf02a9858ea3c5e49f64ea3907f96"
-    },
-    "dreamos\\core\\cli.py": {
-        "hash": "60fc6485a21d60a147f6596f6389ab6a"
-    },
-    "tests\\core\\autonomy\\error\\test_error_reporter.py": {
-        "hash": "5b50364b175ccfcd3c3c211bc39f93b1"
-    },
-    "agent_tools\\config\\migrator.py": {
-        "hash": "77df1f0a001a938c12e548e7087d8f3b"
-    },
-    "dreamos\\core\\autonomy\\midnight_runner.py": {
-        "hash": "d3482bb53ee3c772cb2108a38db441cf"
-    },
-    "backups\\auth_backup_20250605_161813\\auth\\interface.py": {
-        "hash": "15a1cbbb2336dd0f7bcfcd6bf367ffb8"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_scanner.py": {
-        "hash": "ef442d06e14f6128916ee12895d02ee2"
-    },
-    "dreamos\\core\\autonomy\\base\\test_runner_advanced.py": {
-        "hash": "da9a1ada5b37e8d7c0131f39fb99725e"
-    },
-    "tests\\discord\\test_discord_commands.py": {
-        "hash": "97b97221d7f5d1bb0b3935636b6c85a1"
-    },
-    "dreamos\\core\\autonomy\\error\\base.py": {
-        "hash": "43057554654937a1cf1a8ae0b404a119"
-    },
-    "tests\\core\\test_queue.py": {
-        "hash": "4c297de437420933bc760487f10ec45b"
-    },
-    "dreamos\\core\\autonomy\\test_devlog_bridge.py": {
-        "hash": "f9e283cc102fe5f75a5961710816d4b3"
-    },
-    "crime_report_generator\\scheduler\\__init__.py": {
-        "hash": "93b89028c8061206600ecaae4951c1d2"
-    },
-    "crime_report_generator\\tests\\processors\\test_aggregator.py": {
-        "hash": "2bb993942cbc260aa460e68fa3dfda14"
-    },
-    "social\\strategies\\twitter\\media_handler.py": {
-        "hash": "9f8186c8b183460722b854c0410491ef"
-    },
-    "agent_tools\\swarm_tools\\analyzers\\quality_analyzer.py": {
-        "hash": "4d6e7a45f90a3bcaf843954ecc819842"
-    },
-    "cursor_chatgpt_bridge.py": {
-        "hash": "1df4013080b34cbbfce366e4c4828381"
-    },
-    "dreamos\\core\\security\\identity_utils.py": {
-        "hash": "d77221236ec69374d3b094ae16e54a57"
-    },
-    "tests\\fixtures\\runner_fixtures.py": {
-        "hash": "7aac15774895b4626796019121ec0671"
-    },
-    "tests\\social\\strategies\\reddit\\__init__.py": {
-        "hash": "17f20d8200ca65c20fcf502cdd1fe933"
-    },
-    "social\\constants\\platform_constants.py": {
-        "hash": "b5c3960b49e0a52aba521fb7b70dcd09"
-    },
-    "tests\\utils\\mock_discord.py": {
-        "hash": "3f57b1fc9a65cb342396f5a63258ebb2"
-    },
-    "tests\\social\\strategies\\base\\test_strategy_base.py": {
-        "hash": "090f04b228bc6a231b9ae6da3ef57b1b"
-    },
-    "social\\strategies\\reddit\\__init__.py": {
-        "hash": "fedf9bdfe8648e82e7d88244cd98ff33"
-    },
-    "tests\\core\\utils\\test_file_ops.py": {
-        "hash": "63335f32b02ae21aea12347453f5e9bd"
-    },
-    "agent_tools\\setup.py": {
-        "hash": "705d614f553b53373b40830fa4c5e53c"
-    },
-    "tests\\core\\security\\test_security_config.py": {
-        "hash": "7f28f7b87ebede4954094ddb73939347"
-    },
-    "dreamos\\core\\autonomy\\error_tracking.py": {
-        "hash": "2a83803561d524fee8054b0edffe75f5"
-    },
-    "tools\\test_log_analyzer.py": {
-        "hash": "f9ecbbf01c47313b4af34502aa22c238"
-    },
-    "crime_report_generator\\tests\\processors\\__init__.py": {
-        "hash": "048bd6bb227976afc9ab46565efa757b"
-    },
-    "dreamos\\core\\auth\\retry.py": {
-        "hash": "c7890c31086986680f286ec79ed1852b"
-    },
-    "tests\\core\\security\\test_auth_manager.py": {
-        "hash": "b9b0137f9a7c708972939876811b3247"
-    },
-    "crime_report_generator\\data_sources\\__init__.py": {
-        "hash": "77f440e3e17a69aadd50550a35788f4d"
-    },
-    "tests\\core\\security\\__init__.py": {
-        "hash": "ea8dc4b986aaf1b84c7573103d5875e5"
-    },
-    "dreamos\\core\\codex\\__init__.py": {
-        "hash": "b97f415f129f7c2e21ea3c4fe4e62fd9"
-    },
-    "tools\\odyssey_generator.py": {
-        "hash": "ce8c92cd17a3a75a92ac1a19815dd963"
-    },
-    "tools\\visualize_agent_layout.py": {
-        "hash": "e6cd6e43f27f90b0207754cc91cebac9"
-    },
-    "tests\\core\\autonomy\\error\\__init__.py": {
-        "hash": "389d3d8a50c4e676faef7e2bb3f32439"
-    },
-    "social\\strategies\\facebook_strategy.py": {
-        "hash": "c5bc236bd1a18ae7d07c1c5d4c88daeb"
-    },
-    "social\\strategies\\twitter\\rate_limiting\\rate_limiter.py": {
-        "hash": "4758cdcc40f5950df28b844bc89d2fc6"
-    },
-    "tools\\send_task.py": {
-        "hash": "5b7ed7c67916411c0373d5c7577dcce6"
-    },
-    "tests\\utils\\mock_discord\\commands.py": {
-        "hash": "95cf83513a683df0a712d432e62e73d1"
-    },
-    "dreamos\\core\\autonomy\\handlers\\bridge_outbox_handler.py": {
-        "hash": "ce690a4990e0aba950e2fcd2c4813479"
-    },
-    "dreamos\\core\\autonomy\\base\\test_runner_core.py": {
-        "hash": "9a7cbdfd3b4f73f5e5f5e3bd54838b22"
-    },
-    "dreamos\\core\\messaging\\enums.py": {
-        "hash": "07aaee23fcc1311352c7e93c935c808a"
-    },
-    "dreamos\\core\\agent_control\\response_capture.py": {
-        "hash": "5ab29ba79e8a0da6b33e597f74fc16c9"
-    },
-    "tests\\core\\autonomy\\error\\test_error_tracker.py": {
-        "hash": "f056b5bd8deafcf51326e4ac9922d077"
-    },
-    "dreamos\\core\\ai\\__init__.py": {
-        "hash": "72cc497d217f371f2925d4e20a29450c"
-    },
-    "dreamos\\core\\autonomy\\base\\test_runner.py": {
-        "hash": "c00e2772940da089f782d17e8a018789"
-    },
-    "dreamos\\core\\resumer_v2\\atomic_file_manager.py": {
-        "hash": "1e6be2ebcd92bcc34a93c72ec7dda544"
-    },
-    "dreamos\\core\\agent_control\\periodic_restart.py": {
-        "hash": "9fb71fbbaa32daadcde4f772e86b9160"
-    },
-    "dreamos\\core\\agent_control\\controller.py": {
-        "hash": "85b7ececf59f4d68a6ac1599e6ac2951"
-    },
-    "backups\\auth_backup_20250605_162224\\auth\\base.py": {
-        "hash": "fa3fcaddebedfd8585d6254cf1ec6fac"
-    },
-    "dreamos\\core\\shared\\coordinate_manager.py": {
-        "hash": "cddc3f1a422237d7f0ec4966d46f6443"
-    },
-    "dreamos\\social\\utils\\log_pipeline.py": {
-        "hash": "e685cb4d97bff9dd5f34f90f28ad326f"
-    },
-    "tests\\community\\test_base.py": {
-        "hash": "c746b52ef612e61552623262332a9ab4"
-    },
-    "dreamos\\social\\utils\\media_validator.py": {
-        "hash": "b3cea04394373d9d45e2a9ffe04c3a1f"
-    },
-    "dreamos\\core\\logging\\log_writer.py": {
-        "hash": "94fed8244f09c39f95064f9f699bb254"
-    },
-    "tools\\dry_scanner.py": {
-        "hash": "c64c70b1f0afd9f02e40caccad9a2d37"
-    },
-    "dreamos\\core\\ai\\memory_querier.py": {
-        "hash": "10cef05c7e1f1fd99a3bef425646058b"
-    },
-    "agent_tools\\swarm_tools\\browser\\stealth_browser.py": {
-        "hash": "bf5bec2af7ce5c245619f155df2d6e05"
-    },
-    "discord_bot\\cogs\\basic.py": {
-        "hash": "ad7ac77b743a369d3cc5d522a7436eb3"
-    },
-    "dreamos\\core\\security\\auth_manager.py": {
-        "hash": "61c02450b02d88ba871414f6cb610f51"
-    },
-    "tests\\dreamos\\test_cli.py": {
-        "hash": "f8b9bd0715d67e04cc887ae40e80fb4b"
-    },
-    "tests\\social\\strategies\\test_twitter_strategy.py": {
-        "hash": "9417336e594730bfd80eabb42b5763b1"
-    },
-    "tests\\discord\\__init__.py": {
-        "hash": "7ad8c02e03f19c390e7f2e7e06dd5229"
-    },
-    "tests\\test_messaging\\test_history.py": {
-        "hash": "948cd0e96c2d8c76f087e32ad0099b46"
-    },
-    "agent_tools\\swarm_tools\\analyzers\\ast_analyzer.py": {
-        "hash": "18e98e81c529ddffe5e377dbe8b949ae"
-    },
-    "dreamos\\core\\autonomy\\core_response_processor.py": {
-        "hash": "873ce597cdc1d66fd35effd650629759"
-    },
-    "tests\\utils\\mock_discord\\webhook.py": {
-        "hash": "621dbcc4d41c2205e12e505dc5591c82"
-    },
-    "tests\\core\\autonomy\\test_bridge_writer.py": {
-        "hash": "46ed26be4859f8f9dc135b71c867fc78"
-    },
-    "dreamos\\core\\shared\\persistent_queue.py": {
-        "hash": "c99b27dd0f41defbb655a5a72e7d5269"
-    },
-    "gui\\components\\__init__.py": {
-        "hash": "ecde4b3045f03fed626d980e2fc76cc0"
-    },
-    "dreamos\\core\\ai\\llm_agent.py": {
-        "hash": "c9033e084e989734773a9abc5ad4ac1b"
-    },
-    "discord_bot\\agent_interface.py": {
-        "hash": "61a9526cd16230ef8b6f483349f26e0f"
-    },
-    "dreamos\\core\\autonomy\\error\\tracker.py": {
-        "hash": "90c95684d6953df989a58cc613e70d66"
-    },
-    "tests\\social\\core\\__init__.py": {
-        "hash": "e980c07f01dfea01b31f7d617f8bc3ac"
-    },
-    "dreamos\\core\\autonomy\\base\\response_loop_daemon.py": {
-        "hash": "442c3f192a15866f0ca7f5155c828d27"
-    },
-    "dreamos\\core\\agent_control\\agent_controller.py": {
-        "hash": "15dd9ae3e01b0f94bfe90f4186b56d40"
-    },
-    "agent_tools\\config\\config_loader.py": {
-        "hash": "c03e514a570a41be4c62e50169ebf23f"
-    },
-    "dreamos\\core\\utils\\agent_helpers.py": {
-        "hash": "7c6f281c177046d6c827bb2aad92b4c1"
-    },
-    "agent_tools\\swarm_tools\\browser\\__init__.py": {
-        "hash": "9f9a4d207fbcea247e036ee2f135e7ca"
-    },
-    "crime_report_generator\\agents\\report_agent.py": {
-        "hash": "534630ed5047150275b3ce6d740a7b24"
-    },
-    "tools\\autopitch_machine.py": {
-        "hash": "dfdaba5c91cb33eab2c26a9fa44eaf31"
-    },
-    "dreamos\\core\\autonomy\\handlers\\bridge\\bridge_outbox_handler.py": {
-        "hash": "5178b153a58325673760d7ccb562b870"
-    },
-    "dreamos\\core\\messaging\\test_chatgpt_bridge.py": {
-        "hash": "b45ba3e2af88dc7ce5b92883c128c8c6"
-    },
-    "scripts\\migrate_auth_to_core.py": {
-        "hash": "4e6fc8a32744df5c529c4e3b6fead878"
-    },
-    "discord_bot\\discord_commands.py": {
-        "hash": "cc5484006995d3c09d349055d14dff79"
-    },
-    "dreamos\\utils\\__init__.py": {
-        "hash": "5dcf4d6c48e9251a05bd1d15d54eb00f"
-    },
-    "social\\core\\rate_limiter.py": {
-        "hash": "2ed4777622c4d1da19c576bd68b66165"
-    },
-    "social\\utils\\log_rotator.py": {
-        "hash": "603625df10ddfcc87e6c814e7f81934e"
-    },
-    "dreamos\\social\\utils\\rate_limiter.py": {
-        "hash": "e74291bc843ccdb2493618b3cb194f82"
-    },
-    "tools\\run_menu.py": {
-        "hash": "8d4936116c53eb2fbc0986f3110c684f"
-    },
-    "social\\constants\\__init__.py": {
-        "hash": "67cb386dac982486eb0011db74955156"
-    },
-    "dreamos\\core\\messaging\\base.py": {
-        "hash": "5b6f70e4402373987d03f3fcc8710dea"
-    },
-    "tests\\social\\test_audience_analytics.py": {
-        "hash": "e339cb53ae0ce03147bdc3e52da94c81"
-    },
-    "tests\\social\\strategies\\test_reddit_rate_limiter.py": {
-        "hash": "92ec923f4ade2c7bdf0f537fe9b7c240"
-    },
-    "dreamos\\core\\agent_control\\menu_builder.py": {
-        "hash": "df442bccff06e39f3722d5d5eece18d1"
-    },
-    "dreamos\\core\\security\\session_manager.py": {
-        "hash": "7d013c86659c9c8012c9b5081eb96d34"
-    },
-    "agent_tools\\activate_test_debug.py": {
-        "hash": "1c49722196e708e8423f55f9ee82c36b"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\utils\\__init__.py": {
-        "hash": "707935dc3fbfb57157c36b940379150e"
-    },
-    "social\\driver\\proxy_manager.py": {
-        "hash": "6b7d972549b2944ea0d3327661cff26c"
-    },
-    "discord_bot\\voicebot.py": {
-        "hash": "bcb8dd23e4e8a459e10623038f56d59f"
-    },
-    "crime_report_generator\\scheduler\\report_scheduler.py": {
-        "hash": "61c84224c1a0e9574ac0ea3b195abc56"
-    },
-    "tests\\core\\autonomy\\test_response_processors.py": {
-        "hash": "8772964c4b6f0480dd2c615aacb3d546"
-    },
-    "dreamos\\core\\monitoring\\health\\__init__.py": {
-        "hash": "a189c2ebc01b5f771baca2b84298b2a0"
-    },
-    "dreamos\\core\\captain\\task_scheduler.py": {
-        "hash": "36e266cc87b378c5cb1cb3d33f690015"
-    },
-    "tests\\reports\\__init__.py": {
-        "hash": "e6b8aab826d71bc90cf9d2a2e7922552"
-    },
-    "archive\\deprecated\\config_managers\\stub_config_manager.py": {
-        "hash": "2ffc0e654d722850465cca5a075f00e4"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_models_edge_cases.py": {
-        "hash": "649020d3139e469930695e8fe9b943a1"
-    },
-    "tests\\test_messaging\\test_router.py": {
-        "hash": "fd59e4e068fdcc6bf87986fe0512227d"
-    },
-    "tests\\voice\\test_voicebot.py": {
-        "hash": "442163591f6b8e0725f2f058d27b4694"
-    },
-    "runtime\\bridge_inbox\\test_bridge.py": {
-        "hash": "40c45a7fec922c18da103e4585b61fef"
-    },
-    "crime_report_generator\\reports\\zip_mapper.py": {
-        "hash": "51a558e34d3d1c232db85a5418da6fb3"
-    },
-    "discord_bot\\notifier.py": {
-        "hash": "9900691ce21d533302cf74acc3ba4d15"
-    },
-    "dreamos\\core\\autonomy\\memory\\tests\\__init__.py": {
-        "hash": "8e669f60dd10b8861e5dfacddbf8cb19"
-    },
-    "social\\strategies\\reddit\\rate_limiting\\__init__.py": {
-        "hash": "e1d02902db2d05dd01de900b451dd5ad"
-    },
-    "dreamos\\core\\autonomy\\processor_factory.py": {
-        "hash": "d116ce40f9e0470a5f07a4b15873ea67"
-    },
-    "dreamos\\social\\utils\\log_types.py": {
-        "hash": "8be1b6386e60b6aab18bf8ad2cd7ed23"
-    },
-    "social\\strategies\\__init__.py": {
-        "hash": "7187ee7430687c4bf0a29ffe2228248e"
-    },
-    "dreamos\\social\\utils\\log_batcher.py": {
-        "hash": "837f5709322d65b017bb9dcd310525db"
-    },
-    "dreamos\\core\\autonomy\\bridge_writer.py": {
-        "hash": "34984f05a85c6bff2f42eec058fa8504"
-    },
-    "dreamos\\core\\captain\\__init__.py": {
-        "hash": "f5dacc5f976eefa03c8054d4625fb840"
-    },
-    "dreamos\\core\\ai\\chatgpt_bridge.py": {
-        "hash": "8ecdb06c0eaa122f27e0a6989d2420c3"
-    },
-    "dreamos\\core\\auth\\token.py": {
-        "hash": "80da8982d62e72ce57c8f6e44d4f68c2"
-    },
-    "agent_tools\\config\\__init__.py": {
-        "hash": "4f921e28010bf63a5306aa8ff35f47e2"
-    },
-    "social\\strategies\\reddit\\handlers\\post_handler.py": {
-        "hash": "d964fb070242e48ad22507236abc47e5"
-    },
-    "crime_report_generator\\tests\\__init__.py": {
-        "hash": "f1c5ac3e4a5063766bf89f2fbc49e836"
-    },
-    "agent_tools\\config\\test_config.py": {
-        "hash": "1d62b482861fa4f86f14d2c2832b5ea4"
-    },
-    "dreamos\\core\\autonomy\\logging\\__init__.py": {
-        "hash": "d2363fc84dedea50a316321a2aa93d4d"
-    },
-    "dreamos\\core\\messaging\\history.py": {
-        "hash": "fbe5165c260095edfc8fbe83966bf5e6"
-    },
-    "tests\\social\\core\\test_write_log.py": {
-        "hash": "82216494a7dcae5ffd597838af924135"
-    },
-    "tests\\voice\\test_tts.py": {
-        "hash": "b83aa3e7e3ce58160bba22cd199c9ecd"
-    },
-    "bridge\\bridge_response_processor.py": {
-        "hash": "543ca1689d134eb1af59b9ae4655524f"
-    },
-    "dreamos\\core\\agent_control\\screenshot_logger.py": {
-        "hash": "ab420ae8f90eed9a5c9983868a0df6ff"
-    },
-    "dreamos\\core\\agent_control\\main.py": {
-        "hash": "a142b48de204e7b89c13db82b7548c1f"
-    },
-    "social\\utils\\log_types.py": {
-        "hash": "1af94b326d30e97e6c7f961fbc912065"
-    },
-    "dreamos\\core\\utils\\region_finder.py": {
-        "hash": "e6721f1aea74ca675515f948e8032aab"
-    },
-    "tools\\capture_copy_button.py": {
-        "hash": "80a0d6bf7b79fb326b62cd3328a6d8f3"
-    },
-    "tests\\cli\\test_cellphone_cli.py": {
-        "hash": "c0dce5b1ee376f78a996a2087d387936"
-    },
-    "tests\\core\\autonomy\\test_response_loop_daemon.py": {
-        "hash": "b782a15839d303132fed7e36c8a716ad"
-    },
-    "tests\\social\\strategies\\reddit\\rate_limiting\\__init__.py": {
-        "hash": "562e9c14777a4b4405dab1f95689c97e"
+    "dreamos\\core\\utils\\__init__.py": {
+        "hash": "6a3d73ae8780ceb8d2f02479109f3303"
     },
     "agent_tools\\swarm_tools\\scanner.py": {
         "hash": "1b3bd0ed1752ad51cdab7ce36e35adf0"
     },
-    "dreamos\\core\\agents\\__init__.py": {
-        "hash": "1c5ae2bfb22e2551552ab7f24bbf43c9"
-    },
-    "agent_tools\\swarm_tools\\analyzers\\__init__.py": {
-        "hash": "37a4f15eae5ba58844bd43db94687cdd"
-    },
-    "tests\\core\\test_agent_loop_dreamscribe.py": {
-        "hash": "30e3f8b3850ea1f194dc2944f7c8ccf8"
-    },
-    "dreamos\\utils\\discord_client.py": {
-        "hash": "8eea4d4aa0e61d2d54a755fae612b140"
-    },
-    "tests\\voice\\__init__.py": {
-        "hash": "ce55c00cf6ce9823e4d87a49aab230de"
-    },
-    "tests\\core\\test_file_utils.py": {
-        "hash": "e9e582c479380e7c7321b92f33b514c9"
-    },
-    "dreamos\\core\\log_manager.py": {
-        "hash": "369e8568c673e8298d19410b096919fc"
-    },
-    "social\\strategies\\stocktwits_strategy.py": {
-        "hash": "bbc02cbe7cd55a3168f0caa3c2f1cf15"
-    },
-    "crime_report_generator\\tests\\scheduler\\__init__.py": {
-        "hash": "bdb3785ab2ca9ea76a114e57c9e8be4c"
-    },
-    "social\\community\\__init__.py": {
-        "hash": "2fa41eec24abf7a512a26e447a927359"
-    },
-    "agent_tools\\mailbox\\standardize.py": {
-        "hash": "606c0672e5b489bdcc8bf48997f396d9"
-    },
-    "crime_report_generator\\tests\\visualizations\\__init__.py": {
-        "hash": "b851229abcf6f91dcc3b0eb46f32362e"
-    },
-    "agent_tools\\swarm_tools\\weekly_digest.py": {
-        "hash": "064fe290cdee144d21a0b4de164b5e3f"
-    },
-    "dreamos\\core\\security\\security_config.py": {
-        "hash": "0b8ce256ddc7e24c820c2d25b6245d70"
-    },
-    "tests\\social\\strategies\\__init__.py": {
-        "hash": "c56363e1b4b0047eb34f13b2c131e5e0"
-    },
-    "agent_tools\\utils\\init_mailbox.py": {
-        "hash": "b781cded1e7c9dbf19c6db10d7bc2880"
-    },
-    "agent_tools\\swarm_tools\\tests\\conftest.py": {
-        "hash": "53ef961e429a8eaaef0cff5bb3abf610"
-    },
-    "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
-        "hash": "79b174fcb38b7c377149fa031ba6eba8"
-    },
-    "setup.py": {
-        "hash": "58600f9e053536a79b35ed5db955729f"
-    },
-    "dreamos\\core\\autonomy\\base\\file_handler.py": {
-        "hash": "a1332463110f36f78d175966f8259b13"
-    },
-    "agent_tools\\agent_resumer.py": {
-        "hash": "b476cb145c9f4486c14d462a5c1231d9"
-    },
-    "tests\\swarm_tools\\test_weekly_digest.py": {
-        "hash": "5ba1de2fcad9470b55825e41f1de2396"
-    },
-    "dreamos\\core\\autonomy\\handlers\\__init__.py": {
-        "hash": "6b9ee404db56de63e45d35a4971c8f60"
-    },
-    "social\\strategies\\reddit\\config.py": {
-        "hash": "6025becbd71a3eb6e2374bc046602a44"
-    },
-    "archive\\deprecated\\message_processors\\__init__.py": {
-        "hash": "52e00f45e1de613692ee41e7d0fc1496"
-    },
-    "bridge\\discord_hook.py": {
-        "hash": "cc4a3948e9b952e4fc33ac618401d797"
-    },
-    "dreamos\\core\\messaging\\response_collector.py": {
-        "hash": "a939d3c6c74f2b8993011372f855cc3d"
-    },
-    "agent_tools\\swarm_tools\\models\\__init__.py": {
-        "hash": "624a4a374cd2688e38c2b5f98a92d832"
-    },
-    "dreamos\\core\\messaging\\cell_phone.py": {
-        "hash": "857abfacf582bb9b12f63de015e2bcd5"
-    },
     "dreamos\\core\\messaging\\ui.py": {
         "hash": "38989c5d6f8f6568870e00538862cedb"
     },
-    "social\\strategies\\twitter\\login_handler.py": {
-        "hash": "3289aa544ead41f1480843e23d0f07ce"
-    },
-    "dreamos\\core\\messaging\\test_captain_phone.py": {
-        "hash": "952c95dc2a6f13268740723625e1a894"
-    },
-    "agent_tools\\config\\utils.py": {
-        "hash": "878f152aac5520c054d4fbcbdb492338"
-    },
-    "dreamos\\core\\autonomy\\handlers\\base_handler.py": {
-        "hash": "6e009497f7db97ef6bccc001174c66de"
+    "dreamos\\core\\autonomy\\base\\test_runner_stress.py": {
+        "hash": "b616b81b69cd60e55c2afd01df2e9626"
     },
     "dreamos\\core\\captain\\captain.py": {
         "hash": "d29e4546165ff77f07c0ac9ab518b441"
     },
-    "discord_bot\\tts.py": {
-        "hash": "4b45e305e194baf39d3f3ea9059cb35e"
+    "agent_tools\\swarm_tools\\browser\\debug_helper.py": {
+        "hash": "d734a1f2fa9186c44deacc7556d10809"
     },
-    "social\\strategies\\linkedin_strategy.py": {
-        "hash": "a2e8b6a3136334ab4a4316c1eaa29dff"
+    "tests\\utils\\mock_discord\\__init__.py": {
+        "hash": "8659930ab774e401599c6e38b86ba301"
+    },
+    "archive\\dupe_logging\\log_level.py": {
+        "hash": "f4e5069a6a1b5354253401e88943710d"
+    },
+    "dreamos\\core\\autonomy\\agent_state.py": {
+        "hash": "a2cb63abf765e51d48ee9af100274ea5"
+    },
+    "tools\\odyssey_generator.py": {
+        "hash": "ce8c92cd17a3a75a92ac1a19815dd963"
+    },
+    "agent_tools\\config\\schema.py": {
+        "hash": "14d01b15090e4990eb5ac1eca805f1e2"
+    },
+    "tests\\test_markers.py": {
+        "hash": "7dcdf9017de847e099be5c8ed20710ee"
+    },
+    "dreamos\\core\\auth\\retry.py": {
+        "hash": "c7890c31086986680f286ec79ed1852b"
+    },
+    "agent_tools\\config\\utils.py": {
+        "hash": "878f152aac5520c054d4fbcbdb492338"
+    },
+    "agent_tools\\swarm_tools\\analyzers\\dependency_analyzer.py": {
+        "hash": "0c61802a6daa6150f5e58bda26751ee2"
+    },
+    "agent_tools\\mailbox\\agent-1\\workspace\\test_devlog.py": {
+        "hash": "ccffb24372dcb62b2bfc1a64f639c8c5"
+    },
+    "archive\\dupe_logging\\base_log_manager.py": {
+        "hash": "fbf11da3375285096a197415ab22bfda"
+    },
+    "agent_tools\\autonomy\\loop.py": {
+        "hash": "897a99e7d33addf6d2dd41c9d8c7741a"
+    },
+    "tests\\utils\\mock_discord\\helpers.py": {
+        "hash": "36d48dbe741b849ec22a6e1fdd14fe09"
+    },
+    "dreamos\\social\\utils\\log_batcher.py": {
+        "hash": "837f5709322d65b017bb9dcd310525db"
+    },
+    "dreamos\\core\\autonomy\\error\\types.py": {
+        "hash": "1aeaa5a589baaa8b712abb58c6051da8"
+    },
+    "crime_report_generator\\tests\\agents\\__init__.py": {
+        "hash": "bb4d727d11ca5a437c624f78fb3b609a"
+    },
+    "scripts\\migrate_auth_to_core.py": {
+        "hash": "4e6fc8a32744df5c529c4e3b6fead878"
+    },
+    "tests\\test_messaging\\test_unified_system.py": {
+        "hash": "93e82ff62780b3a3ed5bf8db747813be"
+    },
+    "dreamos\\core\\utils\\test_helpers.py": {
+        "hash": "e35db5771c68d001f7c1c8fc471031a5"
+    },
+    "tools\\backup_restore.py": {
+        "hash": "df984f0a54a7b2503bdb2fa45d0cb34b"
+    },
+    "agent_tools\\setup.py": {
+        "hash": "705d614f553b53373b40830fa4c5e53c"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\__init__.py": {
+        "hash": "5d520ba017372e22dfb4b8e4b53d58f4"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_models.py": {
+        "hash": "20b52cca13100f1f007a9acad566315e"
+    },
+    "social\\strategies\\strategy_base.py": {
+        "hash": "e99937b3ad23d65857b776efe4d76832"
+    },
+    "dreamos\\core\\ai\\__init__.py": {
+        "hash": "72cc497d217f371f2925d4e20a29450c"
+    },
+    "social\\strategies\\reddit\\__init__.py": {
+        "hash": "fedf9bdfe8648e82e7d88244cd98ff33"
+    },
+    "dreamos\\core\\messaging\\__init__.py": {
+        "hash": "50c4fc9e8254c6b1a3dfbe0ecc9b538f"
+    },
+    "dreamos\\core\\messaging\\request_queue.py": {
+        "hash": "5d87b462158a29f4ba6cb8c151f6b810"
+    },
+    "discord_bot\\__init__.py": {
+        "hash": "8b1128ac33dc337fb5781bfeb267e96a"
+    },
+    "dreamos\\core\\messaging\\cell_phone.py": {
+        "hash": "857abfacf582bb9b12f63de015e2bcd5"
+    },
+    "dreamos\\core\\ui\\theme_manager.py": {
+        "hash": "5ba882d2d61238bfb77f6a6c2d5e07a4"
+    },
+    "tests\\core\\test_messaging.py": {
+        "hash": "39c98e63d459b93eec2495a630511bb3"
+    },
+    "dreamos\\core\\autonomy\\handlers\\bridge_outbox_handler.py": {
+        "hash": "ce690a4990e0aba950e2fcd2c4813479"
+    },
+    "dreamos\\core\\autonomy\\base\\response_loop_daemon.py": {
+        "hash": "442c3f192a15866f0ca7f5155c828d27"
+    },
+    "social\\strategies\\twitter\\media_handler.py": {
+        "hash": "9f8186c8b183460722b854c0410491ef"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_scanner_edge_cases.py": {
+        "hash": "8a3d0cea373333782f5571bdf46b68c6"
+    },
+    "social\\strategies\\twitter\\login_handler.py": {
+        "hash": "3289aa544ead41f1480843e23d0f07ce"
+    },
+    "social\\strategies\\platform_strategy_base.py": {
+        "hash": "4f16a85575ff2d5431580e59c42ea9ac"
+    },
+    "tools\\prepare_release.py": {
+        "hash": "36be576faab44bf02e557c3118d94c16"
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_core.py": {
+        "hash": "9a7cbdfd3b4f73f5e5f5e3bd54838b22"
+    },
+    "social\\utils\\devlog_manager.py": {
+        "hash": "c0f6aa5bde7a079ef36c264daf9c5be0"
+    },
+    "tools\\test_regions.py": {
+        "hash": "3524d1856f27536c816dc02b8212a001"
+    },
+    "dreamos\\core\\ui\\log_console.py": {
+        "hash": "61d5e0a25e417267412565093dde993f"
     },
     "dreamos\\core\\agent_control\\system_orchestrator.py": {
         "hash": "b1e00a279e217700cd627649821c209f"
     },
-    "tests\\social\\utils\\test_devlog_manager.py": {
-        "hash": "79a7ca2e0692828b7290839bb0e1365c"
+    "dreamos\\core\\autonomy\\midnight_runner.py": {
+        "hash": "d3482bb53ee3c772cb2108a38db441cf"
+    },
+    "dreamos\\core\\messaging\\test_cell_phone.py": {
+        "hash": "305ca078dbcbbbd09c8c36b4eadb926f"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_analyzers.py": {
+        "hash": "2880df80c43f668650715e134b6f64a6"
+    },
+    "discord_bot\\cogs\\help_menu.py": {
+        "hash": "5313408e8549dff915fcdec6e5587f4a"
+    },
+    "agent_tools\\swarm_tools\\setup.py": {
+        "hash": "6b15def78232df5585b23a80f9e73e02"
+    },
+    "social\\utils\\json_settings.py": {
+        "hash": "08c2f68dbede03ab63f1f3d54bc1ece3"
+    },
+    "backups\\auth_backup_20250605_162224\\auth\\interface.py": {
+        "hash": "15a1cbbb2336dd0f7bcfcd6bf367ffb8"
+    },
+    "dreamos\\social\\__init__.py": {
+        "hash": "619ac5b62bd3c3f07336a755de81af3c"
+    },
+    "tests\\core\\autonomy\\test_response_processors.py": {
+        "hash": "8772964c4b6f0480dd2c615aacb3d546"
+    },
+    "archive\\deprecated\\auth_managers\\core_auth_manager.py": {
+        "hash": "2377beca29e4b2475217a6fe0af3f897"
+    },
+    "dreamos\\core\\messaging\\base.py": {
+        "hash": "5b6f70e4402373987d03f3fcc8710dea"
+    },
+    "tests\\integration\\test_discord_import.py": {
+        "hash": "5c53ac6ebc6e7d0d7ae190253108a710"
+    },
+    "tests\\core\\test_file_ops.py": {
+        "hash": "7a60d031c8e3d10d86c51edb432ea24b"
+    },
+    "tests\\social\\core\\test_log_manager.py": {
+        "hash": "b23633ce01d6fa4b57f2a17e95982fdb"
+    },
+    "agent_tools\\__init__.py": {
+        "hash": "7e92d1d0ae7ee844b194c50053e7d4a5"
+    },
+    "tools\\__init__.py": {
+        "hash": "25c55bfa9f32a1e74b1acdff7e36bcb5"
+    },
+    "social\\__init__.py": {
+        "hash": "8e32497bf3434e7d641127388e781b67"
+    },
+    "setup.py": {
+        "hash": "58600f9e053536a79b35ed5db955729f"
+    },
+    "tests\\test_imports.py": {
+        "hash": "fa30cd980d65b2c5ed1342924464047f"
+    },
+    "archive\\deprecated\\auth_managers\\core_session_manager.py": {
+        "hash": "6228621a824522ca8e5d8444e91ec0a8"
+    },
+    "tests\\social\\test_content_scheduler.py": {
+        "hash": "9636a64e3946b40b05762ebc6d26d45e"
+    },
+    "tools\\check_cursor_coords.py": {
+        "hash": "3987f5691f43751258df2756f93706d5"
+    },
+    "dreamos\\core\\messaging\\messaging.py": {
+        "hash": "33bf4401fdd82d562687dfdc89f6cf54"
+    },
+    "dreamos\\core\\messaging\\test_message_system.py": {
+        "hash": "26c545bd634f40f86c6b4f61bdb9ff04"
+    },
+    "run_tests.py": {
+        "hash": "81d463386e42c5590a2755731a57ed61"
+    },
+    "tools\\capture_copy_button.py": {
+        "hash": "80a0d6bf7b79fb326b62cd3328a6d8f3"
+    },
+    "agent_tools\\swarm_tools\\__init__.py": {
+        "hash": "44dd3621c1a194abbcd0e1c833c18864"
+    },
+    "social\\strategies\\reddit\\handlers\\__init__.py": {
+        "hash": "6ce81135b6366fff208a0a928d3671a3"
+    },
+    "scripts\\migrate_bridge_config.py": {
+        "hash": "dbb94312748945c60baea2da3381ffc7"
+    },
+    "social\\strategies\\linkedin_strategy.py": {
+        "hash": "a2e8b6a3136334ab4a4316c1eaa29dff"
+    },
+    "dreamos\\social\\utils\\log_entry.py": {
+        "hash": "c406e0ce1e9c6b4a1800c4dbe74a58be"
+    },
+    "dreamos\\core\\autonomy\\utils\\response_utils.py": {
+        "hash": "f17a23128f720bb53415d5cc67d84bff"
     },
     "social\\strategies\\reddit\\handlers\\comment_handler.py": {
         "hash": "d5990c0a62799efdbbd29817a2e86c28"
     },
-    "agent_tools\\security\\security_overlay_generator.py": {
-        "hash": "b1672c1c160d75bd39a4446c2f239dc9"
+    "backups\\auth_backup_20250605_162224\\auth\\base.py": {
+        "hash": "fa3fcaddebedfd8585d6254cf1ec6fac"
     },
-    "dreamos\\core\\autonomy\\base\\test_runner_lifecycle.py": {
-        "hash": "4f1b6094f5cdc04d9c1b92ea570d9dd0"
+    "dreamos\\core\\messaging\\router.py": {
+        "hash": "487c24d6494b1372fb982ddd6c890833"
     },
-    "dreamos\\core\\autonomy\\agent_loop.py": {
-        "hash": "b1f26a8f9427df32140bb7f1d677106b"
+    "dreamos\\core\\autonomy\\handlers\\base_handler.py": {
+        "hash": "6e009497f7db97ef6bccc001174c66de"
     },
-    "bridge\\response_loop_daemon.py": {
-        "hash": "a797126cd47c5d27c1c8634e951c3b12"
+    "dreamos\\core\\security\\security_config.py": {
+        "hash": "0b8ce256ddc7e24c820c2d25b6245d70"
     },
-    "social\\utils\\social_common.py": {
-        "hash": "7fdadb1c9f8870f9cb5f832dda136193"
+    "dreamos\\core\\agent_control\\__main__.py": {
+        "hash": "1064286c31d1e2aa5de30a48722bbec9"
     },
-    "tests\\core\\test_agent_bus.py": {
-        "hash": "f386f4f4e6d445fbd381266feb7114f9"
+    "social\\strategies\\reddit\\handlers\\login_handler.py": {
+        "hash": "c2867df108bccaa3c1b715d19613f399"
     },
-    "dreamos\\social\\__init__.py": {
-        "hash": "619ac5b62bd3c3f07336a755de81af3c"
+    "crime_report_generator\\visualizations\\crime_visualizer.py": {
+        "hash": "791604742b9be71347b079cc1dafc084"
+    },
+    "social\\core\\redis_manager.py": {
+        "hash": "2e704b0e46115c1b4c78bd1bf99cb065"
+    },
+    "tests\\mailbox\\__init__.py": {
+        "hash": "4464972d7e1a0afde055e3c239e52ea0"
+    },
+    "dreamos\\core\\autonomy\\core_response_loop_daemon.py": {
+        "hash": "519579cddfa5cc8fe2af7826c82431b7"
+    },
+    "dreamos\\core\\messaging\\captain_phone.py": {
+        "hash": "59b7fd280a314fd13b804cf19e7d56d6"
+    },
+    "crime_report_generator\\tests\\processors\\test_cleaner.py": {
+        "hash": "6e74b4e752a6c731ba49ce5f5e402d96"
+    },
+    "tests\\core\\autonomy\\test_response_loop_daemon.py": {
+        "hash": "b782a15839d303132fed7e36c8a716ad"
+    },
+    "dreamos\\core\\logging\\log_manager.py": {
+        "hash": "6e626fd780feb039e1a6695d7c20e824"
+    },
+    "dreamos\\core\\auth\\session.py": {
+        "hash": "2c94448d85a5a0e8901c32dc002fb6eb"
+    },
+    "social\\strategies\\twitter_strategy.py": {
+        "hash": "5ec26d8901ff32de1bf5c8f91ab1172a"
+    },
+    "tests\\social\\strategies\\base\\__init__.py": {
+        "hash": "ca267b929711b6f0b45903df44ca8c0e"
+    },
+    "dreamos\\core\\messaging\\message.py": {
+        "hash": "50629d4206959eaec30929bcece00e04"
     },
     "dreamos\\core\\autonomy\\base\\state_manager.py": {
         "hash": "5384ab3aec243c006ca09c67e1d86caa"
@@ -854,989 +344,1502 @@
     "social\\strategies\\reddit\\login_handler.py": {
         "hash": "daa742a6e673d8ad4112d3b2f6a59cb4"
     },
-    "dreamos\\core\\automation\\browser_control.py": {
-        "hash": "882079dc6cab44896d071dd2e4bc770f"
-    },
-    "bridge\\chatgpt_bridge_loop.py": {
-        "hash": "7bcfab65ed364366a534ff82ac5d98c6"
-    },
-    "tests\\test_config.py": {
-        "hash": "414df13ad7558f3a142524fcdc41173d"
-    },
-    "gui\\components\\log_monitor.py": {
-        "hash": "34e9a4addd3068a65b91e4d0142c2824"
-    },
-    "dreamos\\core\\messaging\\captain_phone.py": {
-        "hash": "59b7fd280a314fd13b804cf19e7d56d6"
-    },
-    "dreamos\\core\\monitoring\\health\\base.py": {
-        "hash": "112edffa5e52ee4ab792da9f99780f1f"
-    },
-    "tests\\utils\\mock_discord\\base.py": {
-        "hash": "14c3b91a78528486a48730c6be8a8d2d"
-    },
-    "dreamos\\core\\messaging\\test_cell_phone.py": {
-        "hash": "305ca078dbcbbbd09c8c36b4eadb926f"
-    },
-    "tests\\reports\\test_crime_report_pipeline.py": {
-        "hash": "8d8d4cdf04a088fad88f2f1dfe64a327"
-    },
-    "dreamos\\core\\autonomy\\handlers\\bridge\\base_bridge_handler.py": {
-        "hash": "5d91b21e025748ffee044f8e75bf8fb1"
-    },
-    "dreamos\\social\\utils\\cleanup.py": {
-        "hash": "b18776549d291cb7251281d075d28360"
-    },
-    "agent_tools\\swarm_tools\\utils\\file_utils.py": {
-        "hash": "5806a7ed6c35d3d1e72b7769cfe841cb"
-    },
-    "crime_report_generator\\reports\\__init__.py": {
-        "hash": "0d360195b4cbf6dfcead9cf069297915"
-    },
-    "tests\\test_messaging\\test_queue.py": {
-        "hash": "b240327c9639101e4f468defae90d86a"
-    },
-    "dreamos\\core\\utils\\test_helpers.py": {
-        "hash": "e35db5771c68d001f7c1c8fc471031a5"
-    },
-    "social\\strategies\\twitter\\__init__.py": {
-        "hash": "42fa6c599819cd48cdcc5b342f54c5a3"
-    },
-    "dreamos\\core\\resumer_v2\\tests\\test_atomic_file_manager.py": {
-        "hash": "2789148bcd219bd2eff7328fc027ba7d"
-    },
-    "tests\\cli\\__init__.py": {
-        "hash": "31a6d0785f0a9d5b6bc806a3c4ff7ef1"
-    },
-    "agent_tools\\mailbox\\agent-1\\workspace\\__init__.py": {
-        "hash": "9f1fff1b2393e75b83ae6df778fe8017"
-    },
-    "tools\\test_selenium_imports.py": {
-        "hash": "fafc0cae292262962bff1ff33c41d83e"
-    },
-    "dreamos\\core\\agents\\test_fix_loop.py": {
-        "hash": "9745f77af91531046cd441cebe55c0a5"
-    },
-    "dreamos\\core\\message.py": {
-        "hash": "bf36a2066d5a45a98999d519e6f3e078"
-    },
-    "social\\utils\\log_entry.py": {
-        "hash": "24e6669f066a8d46272688d582a6dfa2"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_models.py": {
-        "hash": "20b52cca13100f1f007a9acad566315e"
-    },
-    "dreamos\\core\\agent_control\\devlog_manager.py": {
-        "hash": "c0917c56c78549e91d05770b7481f281"
-    },
-    "tests\\core\\test_special_chars.py": {
-        "hash": "1b8191be21949cb756d630a9c00d2088"
-    },
-    "tests\\test_messaging\\__init__.py": {
-        "hash": "e2c480308ee14a2d2f177fcfafa936fd"
-    },
-    "social\\core\\driver_manager.py": {
-        "hash": "415842b94c1083e31248ba69549e9c2f"
-    },
-    "dreamos\\core\\autonomy\\auto_trigger_runner.py": {
-        "hash": "2e62ceb645fc5d1cd71230303808db6c"
-    },
-    "tests\\test_markers.py": {
-        "hash": "7dcdf9017de847e099be5c8ed20710ee"
-    },
-    "tests\\social\\core\\test_batch_processing.py": {
-        "hash": "0f180158d0800504dc83542b158578e5"
-    },
-    "tests\\utils\\mock_discord\\models.py": {
-        "hash": "afbad07cc02a7ccecbbeb28fe175276e"
-    },
-    "tests\\auth\\test_auth_interface.py": {
-        "hash": "2ad8a52fbd2cd70d930e160b6c34778c"
-    },
-    "social\\strategies\\strategy_base.py": {
-        "hash": "e99937b3ad23d65857b776efe4d76832"
-    },
-    "agent_tools\\mailbox\\agent-1\\workspace\\test_devlog.py": {
-        "hash": "ccffb24372dcb62b2bfc1a64f639c8c5"
-    },
-    "dreamos\\core\\agents\\perpetual_test_fixer.py": {
-        "hash": "373dd8143f66374f7ccee5e517a22ba4"
-    },
-    "dreamos\\core\\messaging\\test_message_system.py": {
-        "hash": "26c545bd634f40f86c6b4f61bdb9ff04"
-    },
-    "dreamos\\core\\utils\\logging_utils.py": {
-        "hash": "e993045b840941082edaa0284e63cc93"
-    },
-    "dreamos\\core\\messaging\\chatgpt_bridge.py": {
-        "hash": "0b1dbcc9507fd0f70840f5f2c6c9bdee"
-    },
-    "social\\community\\audience_analytics.py": {
-        "hash": "6e53da86a2ad85208e63a33805349370"
-    },
-    "conftest.py": {
-        "hash": "dadb4d6b75e0aed969041a7f728e8335"
-    },
-    "tests\\social\\utils\\test_log_batcher.py": {
-        "hash": "c4c057a36be2074508f5edaf5c11b8ae"
-    },
-    "tests\\social\\strategies\\test_rate_limiting.py": {
-        "hash": "64ef1e7828eeadb7ef9923e81d88ad35"
-    },
-    "social\\core\\dispatcher.py": {
-        "hash": "413f7fd04312f8546381b7578effb2a8"
-    },
-    "social\\strategies\\reddit_media.py": {
-        "hash": "fff0bb5caec0fc854fa8785119e780fc"
-    },
-    "tools\\reorganize_social.py": {
-        "hash": "9a99ff6fd09549b22688f141bd20dbf1"
-    },
-    "dreamos\\core\\messaging\\message.py": {
-        "hash": "50629d4206959eaec30929bcece00e04"
-    },
-    "dreamos\\core\\security\\__init__.py": {
-        "hash": "b05a6bbd73d58aa599f18d5280b388b3"
-    },
-    "dreamos\\core\\agent_control\\captain.py": {
-        "hash": "bc36bb0c0677f6f0b40ff2adbb46c5bd"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_utils.py": {
-        "hash": "e84897b449e162aa451b62789a9ca6f3"
-    },
-    "tools\\test_regions.py": {
-        "hash": "3524d1856f27536c816dc02b8212a001"
-    },
-    "agent_tools\\config\\test_migrator.py": {
-        "hash": "7c441ca7d08c99b02ceba6da845f9678"
-    },
-    "dreamos\\core\\messaging\\pipeline.py": {
-        "hash": "5c50b803b6979e4415736c5544098c26"
-    },
-    "tests\\core\\security\\test_session_manager.py": {
-        "hash": "74c47935e28c12815385aa72182a6270"
-    },
-    "tests\\integration\\test_discord_import.py": {
-        "hash": "5c53ac6ebc6e7d0d7ae190253108a710"
-    },
-    "dreamos\\core\\utils\\file_utils.py": {
-        "hash": "35df5a7304c8f01bedc33208f60e2a02"
-    },
-    "archive\\tests\\__init__.py": {
-        "hash": "3a71c5cd19863c82ce70c391635f701a"
-    },
-    "dreamos\\core\\logging\\log_config.py": {
-        "hash": "6d37925d965e0db0072ff16ab4f542b9"
-    },
-    "dreamos\\core\\autonomy\\autonomy_loop_runner.py": {
-        "hash": "b149fa0d4c09808495c2b052c3dcf6dc"
-    },
-    "agent_tools\\swarm_tools\\discord_devlog.py": {
-        "hash": "5e4734b6756ab962694fc37b806024cd"
-    },
-    "dreamos\\core\\autonomy\\autonomy_loop.py": {
-        "hash": "7a267b349225279ad80ff58db45583ee"
-    },
-    "tests\\auth\\__init__.py": {
-        "hash": "b1c3849ca256a348c5373b99818ac11f"
-    },
-    "tests\\social\\strategies\\test_content_management.py": {
-        "hash": "5a87fafdca7471b2eefd4c6b1c698ff8"
-    },
-    "tests\\messaging\\test_unified_message_system.py": {
-        "hash": "91fb1d692de77ed67ba625b83f6ac3e6"
-    },
-    "tests\\utils\\mock_discord\\helpers.py": {
-        "hash": "36d48dbe741b849ec22a6e1fdd14fe09"
-    },
-    "tools\\devlog_pitcher.py": {
-        "hash": "88cbdb84bbba1ed3635252fee75671b3"
-    },
-    "tests\\core\\test_dreamscribe.py": {
-        "hash": "29fbb2756926c91ad018d999473e6c4e"
-    },
-    "dreamos\\core\\autonomy\\error\\__init__.py": {
-        "hash": "d3e5256c04a36768c7eadd6709077de0"
-    },
-    "tests\\discord\\test_help_menu.py": {
-        "hash": "f0bceff3b7442d6984185743852708b8"
-    },
-    "agent_tools\\swarm_tools\\browser\\debug_helper.py": {
-        "hash": "d734a1f2fa9186c44deacc7556d10809"
-    },
-    "test_chatgpt_bridge.py": {
-        "hash": "4a5fddc62994fed296136671736d7144"
-    },
-    "tests\\discord\\test_notifier.py": {
-        "hash": "9e177b44969ce7f42f963df2b1de1375"
-    },
-    "social\\strategies\\reddit\\rate_limiting\\rate_limiter.py": {
-        "hash": "8fbaccc6699c3ebc8357c6a04113e133"
-    },
-    "crime_report_generator\\reports\\report_formatter.py": {
-        "hash": "f160b020a2a7635d008531124fbae39e"
-    },
-    "tests\\utils\\test_mocks.py": {
-        "hash": "ecfa3ff4c09ed470c09bd23973da157c"
-    },
-    "tests\\utils\\__init__.py": {
-        "hash": "6a0010e557951946551580593951ba6d"
-    },
-    "tests\\quarantine\\test_quarantine.py": {
-        "hash": "37d144c6d5fd0e2bb2b1667bd5a7e39c"
-    },
-    "dreamos\\core\\messaging\\utils\\__init__.py": {
-        "hash": "6a3d73ae8780ceb8d2f02479109f3303"
-    },
-    "tests\\swarm_tools\\__init__.py": {
-        "hash": "7338297a0f16decb3d78ea157a3eeefb"
-    },
-    "tests\\autonomy\\test_task_completion.py": {
-        "hash": "c2bc01c3e818f3c318f709d7b6dd4390"
-    },
-    "crime_report_generator\\tests\\scheduler\\test_report_scheduler.py": {
-        "hash": "b8e1eccb40702ccdbd0182fba9fdc17b"
-    },
-    "crime_report_generator\\tests\\reports\\__init__.py": {
-        "hash": "5bf010cd27ff13083c0d180676caf1d8"
-    },
-    "dreamos\\core\\autonomy\\test_state.py": {
-        "hash": "20cb5a86684f79ca5e196b29651a8ad1"
-    },
-    "dreamos\\core\\autonomy\\memory\\tests\\test_response_memory_tracker.py": {
-        "hash": "e3cd32fdc43fd0458aa41cc0bfc75eb2"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\task_manager.py": {
-        "hash": "3750e45d313e337d45d7cab09f396a63"
-    },
-    "tests\\fixtures\\__init__.py": {
-        "hash": "40de47e6a0b5e23efb304c9fd98cfeef"
-    },
-    "dreamos\\core\\agent_control\\agent_control.py": {
-        "hash": "c8fc49faa995a194b1a394f41a1cda82"
-    },
-    "scripts\\cleanup_project.py": {
-        "hash": "94bcedb8c57f7a987f3c3f6479c65f01"
-    },
-    "dreamos\\core\\agent_control\\task_manager.py": {
-        "hash": "fe89967a4b6c10f353b35a09258cf74f"
-    },
-    "agent_tools\\config\\schema.py": {
-        "hash": "14d01b15090e4990eb5ac1eca805f1e2"
-    },
-    "crime_report_generator\\tests\\agents\\test_report_agent.py": {
-        "hash": "3a3112c3e1d29e72d179e960bb803266"
-    },
-    "dreamos\\core\\messaging\\message_processor.py": {
-        "hash": "b70ec781cc5c351aecb9dacf92bd0ca0"
-    },
-    "tests\\core\\__init__.py": {
-        "hash": "ac5d3b8b73e7046ae2435646fc12d79f"
-    },
-    "runtime\\bridge_inbox\\cursor_chatgpt_bridge.py": {
-        "hash": "7986d05e869a2078e40d36981d4e3813"
-    },
-    "social\\strategies\\reddit\\handlers\\login_handler.py": {
-        "hash": "c2867df108bccaa3c1b715d19613f399"
-    },
-    "tests\\social\\strategies\\reddit\\test_reddit_platform_rate_limiter.py": {
-        "hash": "3754867e73b26efbde2a56bf27c3b72c"
-    },
-    "dreamos\\core\\agent_control\\__main__.py": {
-        "hash": "1064286c31d1e2aa5de30a48722bbec9"
-    },
-    "tests\\swarm_tools\\test_devlog_watcher.py": {
-        "hash": "7cd46d854a897d81b6bd1cbe83be13ae"
-    },
-    "tools\\recalibrate_coords.py": {
-        "hash": "14102f8cfa1f800788983b25af9635a5"
-    },
-    "agent_tools\\swarm_tools\\analyzers\\dependency_analyzer.py": {
-        "hash": "0c61802a6daa6150f5e58bda26751ee2"
-    },
-    "agent_tools\\autonomy\\loop.py": {
-        "hash": "897a99e7d33addf6d2dd41c9d8c7741a"
-    },
-    "gui\\__init__.py": {
-        "hash": "e3e9df2c9b8584f7f44d0252e089d2f0"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\test_runner.py": {
-        "hash": "f78dbd37d498f21c29bd6dbf921fbcfe"
-    },
-    "agent_tools\\captain_prompt.py": {
-        "hash": "10f8eda480c4cb7869b6b896649074e4"
-    },
-    "dreamos\\bridge.py": {
-        "hash": "55c9a41fe08b2b78e9c0cea445b7ac25"
-    },
-    "crime_report_generator\\tests\\agents\\__init__.py": {
-        "hash": "bb4d727d11ca5a437c624f78fb3b609a"
-    },
-    "dreamos\\core\\self_discovery\\journal.py": {
-        "hash": "64959c80334ffb69c38f7e630e0662fa"
-    },
-    "social\\utils\\devlog_manager.py": {
-        "hash": "c0f6aa5bde7a079ef36c264daf9c5be0"
-    },
-    "tests\\utils\\test_utils.py": {
-        "hash": "eb8d8376a5f499e8a44e289bc86a71bb"
-    },
-    "tests\\utils\\mock_discord\\discord.py": {
-        "hash": "5cb19cc22b232826aa309cd856aad494"
-    },
-    "tests\\core\\test_content_loop.py": {
-        "hash": "bc6cbbf31042283b215af142143dc6cc"
-    },
-    "dreamos\\core\\autonomy\\agent_state.py": {
-        "hash": "a2cb63abf765e51d48ee9af100274ea5"
-    },
-    "dreamos\\core\\autonomy\\memory\\tests\\conftest.py": {
-        "hash": "3b3b3721059f80babea68ea50fff2b4d"
-    },
-    "tests\\auth\\test_session.py": {
-        "hash": "5885afca8ef367c23996a0f881d471de"
-    },
-    "archive\\deprecated\\config_managers\\social_config_v2.py": {
-        "hash": "b340af32f386d9aa27556ebc4c5cb338"
-    },
-    "tests\\auth\\test_token.py": {
-        "hash": "ebd31c8acdb4959ee0bec1a470a39f67"
-    },
-    "archive\\deprecated\\config_managers\\social_config_manager.py": {
-        "hash": "f1f668969e0c58fdc730f29da4b21c71"
-    },
-    "social\\driver\\utils.py": {
-        "hash": "b3d8aec763a4ce6e87f29b9377f50d75"
-    },
-    "tests\\integration\\test_pyqt5_import.py": {
-        "hash": "afc066ca4324e9f40c23d8fed1f101b9"
-    },
-    "social\\strategies\\reddit\\post_handler.py": {
-        "hash": "542bf84c695a019079c0ff0c8645fba5"
-    },
-    "dreamos\\core\\metrics.py": {
-        "hash": "60648a5ef3656e72e885304ab65551b6"
-    },
-    "dreamos\\core\\messaging\\message_loop.py": {
-        "hash": "86f6fdb64e6c679fb312e171f6463010"
-    },
-    "dreamos\\core\\resumer_v2\\__init__.py": {
-        "hash": "626164a79032fd44229ab9214d6d613b"
-    },
-    "tests\\dreamos\\__init__.py": {
-        "hash": "e5e8db64cdd403c6b506726464fd3821"
-    },
-    "dreamos\\core\\autonomy\\error\\error_tracker.py": {
-        "hash": "ac950b4f2f7685a12da8b8b8067fa2a5"
-    },
-    "tests\\mailbox\\__init__.py": {
-        "hash": "4464972d7e1a0afde055e3c239e52ea0"
-    },
-    "tests\\self_discovery\\__init__.py": {
-        "hash": "926436ce2f782d12e49f298b82f8f8f6"
-    },
-    "dreamos\\core\\config.py": {
-        "hash": "de1f8f33512f0cdd6d259214e92dd374"
-    },
-    "dreamos\\core\\autonomy\\base\\response_loop.py": {
-        "hash": "2af4acf97f55665560e2a9563d3c3fa4"
-    },
-    "tests\\social\\strategies\\reddit\\test_post_handler.py": {
-        "hash": "1b88ade6b309e5743f932a56a4f07eb4"
-    },
-    "dreamos\\core\\autonomy\\memory\\response_memory_tracker.py": {
-        "hash": "7f26b7e63f270e43fb70ac679824736c"
-    },
-    "tools\\zip_resolver.py": {
-        "hash": "52ec23e58b9bdbf66162b9be60c1183d"
-    },
-    "tests\\test_messaging\\test_unified_system.py": {
-        "hash": "93e82ff62780b3a3ed5bf8db747813be"
-    },
-    "dreamos\\core\\messaging\\request_queue.py": {
-        "hash": "5d87b462158a29f4ba6cb8c151f6b810"
-    },
-    "dreamos\\core\\resumer_v2\\tests\\test_quantum_agent_resumer.py": {
-        "hash": "19d0624fb7c7ad890ffe042e407e3f0f"
-    },
-    "dreamos\\core\\messaging\\message_queue.py": {
-        "hash": "43cb92b4921a9373e23a7a4f405ff781"
-    },
-    "agent_tools\\swarm_tools\\__main__.py": {
-        "hash": "2b47e423732e7f8ff8578f5ceb64153d"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_analyzers_edge_cases.py": {
-        "hash": "251476097438a0b51800f9dce2fe5a29"
-    },
-    "tests\\core\\test_agent_io.py": {
-        "hash": "1174ed3228a36b31fe76cf24362efe80"
-    },
-    "agent_tools\\agent_restart.py": {
-        "hash": "ebc73485a93c265558a0670d50ca73cd"
-    },
-    "crime_report_generator\\processors\\__init__.py": {
-        "hash": "f7ec0d66ede4a653a517fe17697eb969"
-    },
-    "dreamos\\core\\monitoring\\bridge_health.py": {
-        "hash": "0a1d4f526bf3a644a019688a377f1b24"
-    },
-    "tests\\core\\utils\\__init__.py": {
-        "hash": "16dc226ad9375db27a3aeec232922d76"
-    },
-    "agent_tools\\swarm_tools\\browser\\cookie_manager.py": {
-        "hash": "7536f225330fd60939dd1e78fd26f080"
-    },
-    "dreamos\\core\\messaging\\common.py": {
-        "hash": "1ada493b7012e3ef5e0c72bcb582d9f3"
-    },
-    "dreamos\\core\\autonomy\\utils\\response_utils.py": {
-        "hash": "f17a23128f720bb53415d5cc67d84bff"
-    },
-    "dreamos\\core\\integrations\\chatgpt_bridge.py": {
-        "hash": "62528967f3f120511af80c022023d610"
-    },
-    "crime_report_generator\\visualizations\\__init__.py": {
-        "hash": "aeeea964fe18a974c7d3a9d61e62c347"
-    },
-    "dreamos\\core\\resumer_v2\\quantum_agent_resumer.py": {
-        "hash": "8aea8d5a11eccd8642d90b25ffa2d435"
-    },
-    "runtime\\bridge_inbox\\__init__.py": {
-        "hash": "573c28ddefcce2c39e5f415873da677a"
-    },
-    "dreamos\\core\\messaging\\types.py": {
-        "hash": "1f4668200f3c7a1a04fd707032655577"
-    },
-    "tests\\reports\\test_report_formatter.py": {
-        "hash": "114002404be98ec19a9c14d7bcb63b18"
-    },
-    "tests\\social\\strategies\\test_media_handling.py": {
-        "hash": "8bbf603a57cafe5011431a1347fafcce"
-    },
-    "tests\\community\\__init__.py": {
-        "hash": "4389018b28e02f673141294e3fda5cd1"
-    },
-    "dreamos\\core\\autonomy\\test_watcher.py": {
-        "hash": "919553be098c1251824d5004f68e666c"
-    },
-    "crime_report_generator\\reports\\crime_report_pipeline.py": {
-        "hash": "6c4c578ad575f6979104e3eb677ccfee"
-    },
-    "dreamos\\core\\resumer_v2\\tests\\__init__.py": {
-        "hash": "dd1dd2a60d2b4896e44a35bcd27ea4e5"
-    },
-    "crime_report_generator\\data_sources\\houston_scraper.py": {
-        "hash": "4ab6fc84a1c0d8b87274958f7b7740d5"
-    },
-    "tests\\social\\strategies\\test_reddit_media.py": {
-        "hash": "85662db8919ee061fb75e5e9da6bf889"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\utils\\config.py": {
-        "hash": "7da698194f0577d40b4269aa1cff69ae"
-    },
-    "tests\\messaging\\__init__.py": {
-        "hash": "6137fb6899d7ce01a8fab5d83fcf9823"
-    },
-    "crime_report_generator\\__init__.py": {
-        "hash": "afa1fcf0e3905752f39cb2826962a872"
-    },
-    "social\\strategies\\reddit\\validators\\__init__.py": {
-        "hash": "5e9a10fdcf6490744bb0ca17bd0de320"
-    },
-    "tests\\social\\utils\\test_log_rotator.py": {
-        "hash": "f7ad426e80ca62ec4d5178bd434453ec"
-    },
-    "dreamos\\core\\ui\\theme_manager.py": {
-        "hash": "5ba882d2d61238bfb77f6a6c2d5e07a4"
-    },
-    "crime_report_generator\\reports\\report_generator.py": {
-        "hash": "95fd6a2af2dd2139d8a18158628fa5e4"
-    },
-    "discord_bot\\bot.py": {
-        "hash": "fb976183050222ead103793a3eb73006"
-    },
-    "tests\\social\\strategies\\reddit\\rate_limiting\\test_rate_limiter.py": {
-        "hash": "9ef2e882464a15c73155c8c1d0055ad6"
-    },
-    "crime_report_generator\\processors\\categorizer.py": {
-        "hash": "a9f3740e298330bcff6b5d2b00c87681"
-    },
-    "dreamos\\social\\utils\\log_rotator.py": {
-        "hash": "134e9791d1531507fba1956e720dc1fc"
-    },
-    "tests\\social\\core\\test_log_metrics.py": {
-        "hash": "fe3fe65ee1354694d461980e7a45429b"
-    },
-    "agent_tools\\mailbox\\message_handler.py": {
-        "hash": "bbcf01ff8553be53ec2dfb269dc5e0ea"
-    },
-    "tests\\social\\strategies\\test_strategy_base.py": {
-        "hash": "4aa78833fa25bb3a0c7adccc026905ec"
-    },
-    "dreamos\\core\\logging\\log_manager.py": {
-        "hash": "6e626fd780feb039e1a6695d7c20e824"
-    },
-    "agent_tools\\swarm_tools\\models\\analysis.py": {
-        "hash": "acd77abb8e2054af535a224fb4e9fab2"
-    },
-    "dreamos\\core\\autonomy\\logging\\log_manager.py": {
-        "hash": "4b7fd41c73412db410ef85e4422cc5e1"
-    },
-    "dreamos\\core\\autonomy\\handlers\\bridge\\__init__.py": {
-        "hash": "d13e3f794a5c01f9f1b1e076c602d2b9"
-    },
-    "bridge\\test_bridge_loop.py": {
-        "hash": "0ddcb648c213cc979e33a401dfecc5ff"
-    },
-    "agent_tools\\autonomy\\task_completion.py": {
-        "hash": "38516ede082ba44e5ef901d6b0f39b74"
-    },
-    "tools\\backup_restore.py": {
-        "hash": "df984f0a54a7b2503bdb2fa45d0cb34b"
-    },
-    "archive\\deprecated\\config_managers\\legacy_social_config.py": {
-        "hash": "444b6ea0b426611d43af89ffc3a5a8c9"
-    },
-    "tools\\create_minimal_core.py": {
-        "hash": "ddc3313f630405bfd9188e299cb18570"
-    },
-    "dreamos\\core\\autonomy\\error\\error_reporter.py": {
-        "hash": "65842104ef708726d8813fbe4a484d85"
-    },
-    "tests\\core\\test_utils.py": {
-        "hash": "3004d8a2f49697f7166e825defd11520"
-    },
-    "dreamos\\core\\shared\\coordinate_utils.py": {
-        "hash": "d0fbe96d56b890ad0a01040c70a28533"
-    },
-    "dreamos\\social\\utils\\log_level.py": {
-        "hash": "83c66b8c5d1ead9ab6067053459fa571"
-    },
-    "tools\\prepare_release.py": {
-        "hash": "36be576faab44bf02e557c3118d94c16"
-    },
-    "dreamos\\core\\agent_control\\cursor_controller.py": {
-        "hash": "e40cce20018d23be4c41acedbb21eb7e"
-    },
-    "tools\\daily_trigger.py": {
-        "hash": "9333fca47f68555cb0a411f3848b2875"
-    },
-    "agent_tools\\swarm_tools\\tests\\test_analyzers.py": {
-        "hash": "2880df80c43f668650715e134b6f64a6"
-    },
-    "social\\strategies\\reddit\\validators\\media_validator.py": {
-        "hash": "6dfe5c75e046c84da2652b853c94f74e"
-    },
-    "tests\\social\\utils\\test_log_config.py": {
-        "hash": "2d98f458b7ed4af6a7e6e675e14984f7"
-    },
-    "dreamos\\social\\utils\\log_config.py": {
-        "hash": "bc759dfb917544d07036dc3748081262"
-    },
-    "discord_bot\\cogs\\help_menu.py": {
-        "hash": "5313408e8549dff915fcdec6e5587f4a"
-    },
-    "tests\\core\\test_coordinates.py": {
-        "hash": "c312c373dd37b6a225599af08c242302"
-    },
-    "dreamos\\core\\agent_control\\timing.py": {
-        "hash": "06e8e18d1d52ea52e78367cd056d746a"
-    },
-    "dreamos\\core\\autonomy\\controller.py": {
-        "hash": "9a2b4e6077bdd6b0ef44331e3ce07e83"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\fix_manager.py": {
-        "hash": "f6df5eb1d35c993b6e59c4d7a6e7763f"
-    },
-    "tests\\quarantine\\test_discord_commands__with_coords.py": {
-        "hash": "40499a99158ae4c238b7f853f795061d"
-    },
-    "social\\driver\\undetected_driver.py": {
-        "hash": "e2113c0dcb18c77cb7548fe9d8aab5c9"
-    },
-    "tests\\social\\utils\\__init__.py": {
-        "hash": "b195ba6e92faac7c4c3375a508b5c18d"
-    },
-    "crime_report_generator\\tests\\visualizations\\test_crime_visualizer.py": {
-        "hash": "b0dacf6cfa1e77446368943222daa325"
-    },
-    "dreamos\\core\\autonomy\\validation_engine.py": {
-        "hash": "a90d23d5cae18627d7662677ebd6ae2f"
-    },
-    "tests\\core\\autonomy\\test_runner.py": {
-        "hash": "ea97fd40b491237ae55c5ca0d077ceab"
-    },
-    "tools\\performance_monitor.py": {
-        "hash": "70c688f72ed5165a460f699e571a6b66"
-    },
-    "agent_tools\\swarm_tools\\browser\\integration.py": {
-        "hash": "ec88013ef9033cb2d672731f5736d8c6"
-    },
-    "gui\\main_window.py": {
-        "hash": "11f2375981c5336a92b9f1991c65a69c"
-    },
-    "archive\\deprecated\\message_processors\\legacy_message_processor.py": {
-        "hash": "ae1bf7ee777ca332118074f5eb752442"
-    },
-    "dreamos\\core\\messaging\\utils\\core_utils.py": {
-        "hash": "f72b34b9fd5b59c1896abc19faf29de7"
-    },
-    "tests\\social\\strategies\\base\\__init__.py": {
-        "hash": "ca267b929711b6f0b45903df44ca8c0e"
-    },
-    "discord_bot\\commands.py": {
-        "hash": "e4111405c5c485157bd596d9e60fe9ac"
-    },
-    "crime_report_generator\\reports\\arcgis_fetcher.py": {
-        "hash": "069aae9630f119c2f9769f1208212bff"
-    },
-    "dreamos\\core\\messaging\\phones.py": {
-        "hash": "5f7feb07bbaac494fd587f4c7de9ba1b"
-    },
-    "tests\\agent_control\\test_tasks.py": {
-        "hash": "ce18160e61f34673c15baf0501860c2c"
-    },
-    "dreamos\\core\\config\\bridge_config.py": {
-        "hash": "4c217ca0a2920d86017645f196f5ff0f"
-    },
-    "agent_tools\\swarm_tools\\browser\\login_handler.py": {
-        "hash": "4ab96e7b364fc5b1f08e61288b32baab"
-    },
-    "tests\\core\\security\\test_identity_utils.py": {
-        "hash": "20ab4158f8f179f7ac6b85cb014e1608"
-    },
-    "social\\driver\\__init__.py": {
-        "hash": "d753074f15cb47ec088f96930ba2a615"
-    },
-    "dreamos\\core\\logging\\agent_logger.py": {
-        "hash": "52a233105183c2295943cf749d5cf7ad"
-    },
-    "tests\\social\\strategies\\test_auth_handling.py": {
-        "hash": "64d7bb2fb187378125894f6a4e61634e"
-    },
-    "archive\\deprecated\\config_managers\\agent_config_manager.py": {
-        "hash": "1ed5d89aa1ffb449e90822c36232b790"
-    },
-    "dreamos\\core\\autonomy\\test_loop.py": {
-        "hash": "a9d946918cf589c87ac23717db446687"
-    },
-    "social\\strategies\\reddit\\handlers\\__init__.py": {
-        "hash": "6ce81135b6366fff208a0a928d3671a3"
-    },
     "dreamos\\core\\autonomy\\error\\error_handler.py": {
         "hash": "49f09aeee19205c17c27f5f6b60f9c4c"
     },
-    "social\\strategies\\reddit\\media.py": {
-        "hash": "18ae742fa2d0f4d721644d6289ed2409"
-    },
-    "tools\\layout_snapshot.py": {
-        "hash": "3b367cb88bbf52a634c09906366dad57"
-    },
-    "crime_report_generator\\processors\\cleaner.py": {
-        "hash": "25841052e558ac5d93168b8fca7bcb50"
-    },
-    "tests\\social\\test_content_scheduler.py": {
-        "hash": "9636a64e3946b40b05762ebc6d26d45e"
-    },
-    "dreamos\\core\\autonomy\\error\\types.py": {
-        "hash": "1aeaa5a589baaa8b712abb58c6051da8"
-    },
-    "archive\\deprecated\\config_managers\\__init__.py": {
-        "hash": "128a457197b4c68ba41974917b5f318e"
-    },
-    "dreamos\\core\\agent_control\\ui_automation.py": {
-        "hash": "a8b47afdeeaab9031951b838a3cdb8e0"
-    },
-    "social\\utils\\log_metrics.py": {
-        "hash": "470218da9af6ce9684a5e5a34355a466"
-    },
-    "tests\\social\\core\\test_log_manager.py": {
-        "hash": "b23633ce01d6fa4b57f2a17e95982fdb"
-    },
-    "dreamos\\core\\messaging\\queue.py": {
-        "hash": "642354c1075da9d012d13e977cbdff98"
-    },
-    "tools\\odyssey_board.py": {
-        "hash": "64959e3ab07c1ba028709b8b6e3ee0e8"
-    },
-    "tools\\test_dashboard.py": {
-        "hash": "1f5c49b0edf186578f54ce1b59ae0609"
-    },
-    "runtime\\bridge_inbox\\chatgpt_client.py": {
-        "hash": "47aa22ac5d2457efe4fe2807a404c4d8"
-    },
-    "dreamos\\core\\response_collector_new.py": {
-        "hash": "c714a3e47082cd0a6c1419febb5a44db"
-    },
-    "bridge\\bridge_response_loop_daemon.py": {
-        "hash": "a760c56002f6fd34489dfd64bcbe6796"
-    },
-    "archive\\dupe_logging\\__init__.py": {
-        "hash": "4690346d3bc59b143de6e669566aa0d0"
-    },
-    "social\\core\\__init__.py": {
-        "hash": "71f8cfe4fb89a4eb6464bb3b1fa12ef9"
-    },
-    "dreamos\\core\\system_init.py": {
-        "hash": "972323c36e0917d6a7b09dfd668a9af2"
-    },
-    "social\\strategies\\reddit\\strategy.py": {
-        "hash": "f707e1fba8d069c867f308fff62e7336"
-    },
-    "agent_tools\\swarm_tools\\browser\\__main__.py": {
-        "hash": "9a5fdcea7084e08faafa14f7c34d8596"
-    },
-    "tests\\core\\autonomy\\error\\test_error_handler.py": {
-        "hash": "f0e3dc97885ae2ffbb25e95b5501305d"
-    },
-    "social\\community\\base.py": {
-        "hash": "7d66950a71ec048465d246a329a44f92"
-    },
-    "crime_report_generator\\reports\\summarizer.py": {
-        "hash": "e47d8db7ebe171d33e5020bcfa96c7d8"
-    },
-    "scripts\\migrate_bridge_config.py": {
-        "hash": "dbb94312748945c60baea2da3381ffc7"
-    },
-    "dreamos\\core\\autonomy\\startup.py": {
-        "hash": "1879f09baa1356ccf8ed6fb3d3869bde"
-    },
-    "tests\\social\\core\\test_dispatcher.py": {
-        "hash": "ba02205dd9ab38e7f17253e11e87ed24"
-    },
-    "agent_tools\\utils\\retry_utils.py": {
-        "hash": "3766f668e2361d2aca58e3c8bdb9ed9a"
-    },
-    "dreamos\\core\\config\\config_manager.py": {
-        "hash": "ac61a368405d929566bb4e4316577f19"
-    },
-    "tests\\utils\\test_file_ops.py": {
-        "hash": "38535822b829eef661c2e6cb168105c8"
-    },
-    "agent_tools\\cursor_chatgpt_bridge.py": {
-        "hash": "b5c8c6644b9dd31dd32e0fd36ab90e21"
-    },
-    "tests\\messaging\\test_chatgpt_bridge.py": {
-        "hash": "be29adffbc6a7b073c32cb6e48b36c31"
-    },
-    "tests\\mailbox\\test_message_handler.py": {
-        "hash": "078a41d81ff4ba603bd31dc8cf4f1e8b"
-    },
-    "tools\\analyze_logs.py": {
-        "hash": "e5e7c6301f66e52f9b18449825917ed7"
-    },
-    "docs\\examples\\llm_agent_example.py": {
-        "hash": "fdbf0391dda07335a0b7e2a55fcabc44"
-    },
-    "social\\strategies\\twitter_strategy.py": {
-        "hash": "5ec26d8901ff32de1bf5c8f91ab1172a"
-    },
-    "agent_tools\\swarm_tools\\setup.py": {
-        "hash": "6b15def78232df5585b23a80f9e73e02"
-    },
-    "discord_bot\\voice_cli.py": {
-        "hash": "6e6c81d8c92e5174b58a889415023321"
-    },
-    "tools\\check_cursor_coords.py": {
-        "hash": "3987f5691f43751258df2756f93706d5"
-    },
-    "tests\\core\\test_auth.py": {
-        "hash": "afc7bc39bcee2b7a70f91dcc26a552cc"
-    },
-    "tests\\agent_control\\test_control.py": {
-        "hash": "fec3801071b4c8ff58f0caa9e8b6af61"
-    },
-    "dreamos\\core\\autonomy\\base\\runner_lifecycle.py": {
-        "hash": "b44a69486371708cc4a06c314a0c5dda"
-    },
-    "agent_tools\\swarm_tools\\utils\\__init__.py": {
-        "hash": "384b31ea5c533b4ac9a9bc9a6ad255f9"
-    },
-    "crime_report_generator\\tests\\reports\\test_report_generator.py": {
-        "hash": "423a4faed848290b66f6ed1de0958d06"
-    },
-    "dreamos\\core\\messaging\\unified_message_system.py": {
-        "hash": "74521cb7235d9aeba558b28c02faab12"
-    },
-    "dreamos\\core\\messaging\\router.py": {
-        "hash": "487c24d6494b1372fb982ddd6c890833"
-    },
-    "dreamos\\core\\agent_control\\coordinate_calibrator.py": {
-        "hash": "bb00e0d48f0ad623756ae48982417ea9"
-    },
-    "dreamos\\core\\monitoring\\metrics.py": {
-        "hash": "cc86b6fe97bbe6e035ffc52b9f9da766"
-    },
-    "tests\\autonomy\\__init__.py": {
-        "hash": "40fb16217d1f2e752d435279f35a26ad"
-    },
-    "archive\\deprecated\\config_managers\\log_config.py": {
-        "hash": "10e026a6085e1d0590f4420c1fe9db87"
-    },
-    "tests\\social\\utils\\test_log_manager_utils.py": {
-        "hash": "7c1e8a947f90a68adb85872718b04004"
-    },
-    "social\\config\\__init__.py": {
-        "hash": "2bf2b98e92145247fa8bf7cbafe237ea"
-    },
-    "dreamos\\core\\autonomy\\utils\\async_file_watcher.py": {
-        "hash": "200433758f3e6c6b7121e4a50a587d66"
-    },
-    "tests\\reports\\test_zip_mapper.py": {
-        "hash": "45bff34520d9d5c1ddce2e765e47e5b9"
-    },
-    "tests\\test_imports.py": {
-        "hash": "fa30cd980d65b2c5ed1342924464047f"
-    },
-    "dreamos\\core\\resumer_v2\\tests\\test_utils.py": {
-        "hash": "45a10fd14a31c1d7b1da75a3e7208933"
-    },
-    "agent_tools\\swarm_tools\\__init__.py": {
-        "hash": "44dd3621c1a194abbcd0e1c833c18864"
-    },
-    "dreamos\\core\\autonomy\\state.py": {
-        "hash": "1b435310283b9fbfd0af7d532fed1354"
-    },
-    "tests\\social\\strategies\\reddit\\test_strategy.py": {
-        "hash": "2ea0d07b4fd91c7bc6c5820417197790"
-    },
-    "social\\community\\content_scheduler.py": {
-        "hash": "e9e4372907b2ba497c0832d5241e3e27"
-    },
-    "agent_tools\\mailbox\\task_handler.py": {
-        "hash": "4e2d0cf1b32cb370a1a1ffb06fdf3460"
+    "agent_tools\\autonomy\\__init__.py": {
+        "hash": "3e07119d19d99f38b46e62f4cbec1b2c"
     },
     "dreamos\\core\\ai\\dreamscribe.py": {
         "hash": "2e799d8ce2f9f1028fc297a04111c014"
     },
-    "dreamos\\core\\autonomy\\test_debug\\utils\\state.py": {
-        "hash": "b0861a82c65f4495c0ad19774c5c9417"
-    },
-    "social\\config\\social_config.py": {
-        "hash": "e16f51bf8f4ede2a22baa8b895dfc72d"
-    },
-    "gui\\__main__.py": {
-        "hash": "610338ea7e853ffe327fc69afed28f9e"
-    },
-    "social\\strategies\\reddit\\handlers\\logout_handler.py": {
-        "hash": "8eaaca474fca895d448bbbc52f6f757d"
-    },
-    "dreamos\\core\\auth\\manager.py": {
-        "hash": "83f348d0381cf981b90ee07d5beeb0ca"
-    },
-    "tests\\conftest.py": {
-        "hash": "271de971441e184b515530ca8150c08b"
-    },
-    "tests\\core\\test_memory_querier.py": {
-        "hash": "cd8240298aaa168c763e72eab59ded58"
-    },
-    "agent_tools\\utils\\__init__.py": {
-        "hash": "a4b0cc92c72f7f2c73c7b94d84eea164"
-    },
-    "archive\\orphans\\__init__.py": {
-        "hash": "9ef532dda345ff9f6df1345aec027fc3"
-    },
-    "bridge\\__init__.py": {
-        "hash": "dcffe800c9f252ce638a622beaf656a8"
-    },
-    "dreamos\\core\\autonomy\\base\\test_response_loop.py": {
-        "hash": "c3253204e3ecc8f3227e145694f54f53"
-    },
-    "tests\\auth\\test_retry_mechanism.py": {
-        "hash": "9ea9bc4a380b18eb350f897d1aa1498c"
-    },
-    "dreamos\\core\\ui\\__init__.py": {
-        "hash": "05397c248de46827dbbde126cd967036"
-    },
-    "dreamos\\core\\messaging\\message_record.py": {
-        "hash": "68e9c311e990cc4677aec9d08ab1e5e3"
-    },
-    "crime_report_generator\\agents\\__init__.py": {
-        "hash": "fa26545c6a82d8afa30a543ed6dcde5a"
-    },
-    "tests\\core\\test_messaging.py": {
-        "hash": "39c98e63d459b93eec2495a630511bb3"
-    },
-    "tests\\core\\autonomy\\benchmarks\\__init__.py": {
-        "hash": "2dfdbbccffb6295f6cd099032080a41f"
-    },
-    "dreamos\\social\\utils\\log_writer.py": {
-        "hash": "6a577dbadecde73213edeaf3a73f99c7"
-    },
-    "tools\\print_metrics_summary.py": {
-        "hash": "9d04c2721caa4bd1ce58998332814279"
-    },
-    "dreamos\\core\\automation\\__init__.py": {
-        "hash": "a533bbf63b03df5150bc89af5aa9074f"
-    },
-    "dreamos\\__init__.py": {
-        "hash": "205164fecf841a4627fd873c808d4495"
-    },
-    "dreamos\\core\\resumer_v2\\tests\\test_agent_state_manager.py": {
-        "hash": "31852335978d06ffd59ad14842533e58"
-    },
-    "social\\strategies\\twitter\\post_handler.py": {
-        "hash": "e488336dab811b139970c72a4a5c0a4a"
-    },
-    "dreamos\\core\\autonomy\\test_debug\\__init__.py": {
-        "hash": "5d520ba017372e22dfb4b8e4b53d58f4"
-    },
-    "social\\strategies\\platform_strategy_base.py": {
-        "hash": "4f16a85575ff2d5431580e59c42ea9ac"
-    },
     "docs\\examples\\__init__.py": {
         "hash": "5ad36579dbbff88c23af47ca27b361e8"
     },
-    "tests\\agent_control\\test_devlog_manager.py": {
-        "hash": "8a7763c43ac07c330d53b65b041bf4dd"
+    "dreamos\\core\\autonomy\\validation_engine.py": {
+        "hash": "a90d23d5cae18627d7662677ebd6ae2f"
     },
-    "dreamos\\core\\messaging\\message_system.py": {
-        "hash": "f0bd61194c4fd9779df51d438e4e13d8"
+    "social\\driver\\__init__.py": {
+        "hash": "d753074f15cb47ec088f96930ba2a615"
     },
-    "social\\strategies\\reddit_strategy.py": {
-        "hash": "815d0b8adfa6b7b07ff01ee14b7cdb36"
+    "social\\utils\\log_pipeline.py": {
+        "hash": "e685cb4d97bff9dd5f34f90f28ad326f"
     },
-    "test_debug_time.py": {
-        "hash": "6d99f61028e811e33a45da81fc75ecbc"
+    "tests\\test_messaging\\__init__.py": {
+        "hash": "e2c480308ee14a2d2f177fcfafa936fd"
     },
-    "tools\\calibrate_coordinates.py": {
-        "hash": "cdf603a8a52c3a3926f5c605f1b6cc29"
+    "dreamos\\core\\autonomy\\error\\tracker.py": {
+        "hash": "90c95684d6953df989a58cc613e70d66"
     },
-    "crime_report_generator\\visualizations\\crime_visualizer.py": {
-        "hash": "791604742b9be71347b079cc1dafc084"
+    "agent_tools\\mailbox\\task_handler.py": {
+        "hash": "4e2d0cf1b32cb370a1a1ffb06fdf3460"
     },
-    "dreamos\\core\\autonomy\\memory\\__init__.py": {
-        "hash": "c136ca0ba0154058a92bf5b7796802d8"
+    "archive\\orphans\\test_debug_loop.py": {
+        "hash": "726b2bd2d7ca865fca43d9866c2bbec2"
     },
-    "dreamos\\core\\integrations\\__init__.py": {
-        "hash": "724ce8c87db4b43ac7e3ad66bb942d83"
+    "dreamos\\core\\autonomy\\test_debug\\utils\\__init__.py": {
+        "hash": "707935dc3fbfb57157c36b940379150e"
     },
-    "dreamos\\core\\self_discovery\\__init__.py": {
-        "hash": "a4a034936e9914d73c3952c9e76645da"
+    "tools\\create_minimal_core.py": {
+        "hash": "ddc3313f630405bfd9188e299cb18570"
     },
-    "tools\\overlap_heatmap.py": {
-        "hash": "81622af6da5f915d7cd855d5441c33a3"
+    "dreamos\\core\\autonomy\\error\\base.py": {
+        "hash": "43057554654937a1cf1a8ae0b404a119"
     },
-    "dreamos\\social\\utils\\log_entry.py": {
-        "hash": "c406e0ce1e9c6b4a1800c4dbe74a58be"
+    "dreamos\\core\\messaging\\chatgpt_bridge.py": {
+        "hash": "0b1dbcc9507fd0f70840f5f2c6c9bdee"
     },
-    "social\\strategies\\reddit\\handlers\\media_handler.py": {
-        "hash": "e65cd963d21a07321c05c2add371868a"
+    "dreamos\\core\\logging\\__init__.py": {
+        "hash": "c6192401249be64056b067b1026150df"
     },
     "tests\\messaging\\test_cell_phone.py": {
         "hash": "6b2ad247d72d96857c4b3af592bffe78"
     },
-    "dreamos\\core\\autonomy\\base\\runner_core.py": {
-        "hash": "f9ba051033a3fb792bae6bf01fc6cee9"
+    "crime_report_generator\\tests\\scheduler\\test_report_scheduler.py": {
+        "hash": "b8e1eccb40702ccdbd0182fba9fdc17b"
+    },
+    "tests\\core\\test_agent_io.py": {
+        "hash": "1174ed3228a36b31fe76cf24362efe80"
+    },
+    "dreamos\\core\\config.py": {
+        "hash": "de1f8f33512f0cdd6d259214e92dd374"
+    },
+    "dreamos\\core\\agent_interface.py": {
+        "hash": "4e0c631aff5bb33a0707ad2ecfbd4ce3"
+    },
+    "tests\\discord\\test_notifier.py": {
+        "hash": "9e177b44969ce7f42f963df2b1de1375"
+    },
+    "dreamos\\core\\integrations\\chatgpt_bridge.py": {
+        "hash": "62528967f3f120511af80c022023d610"
+    },
+    "dreamos\\core\\shared\\coordinate_utils.py": {
+        "hash": "d0fbe96d56b890ad0a01040c70a28533"
+    },
+    "dreamos\\core\\autonomy\\base\\autonomy_loop_runner.py": {
+        "hash": "d23a913dc69f7a4b0a756bc88131a29f"
+    },
+    "tests\\social\\strategies\\test_twitter_strategy.py": {
+        "hash": "9417336e594730bfd80eabb42b5763b1"
+    },
+    "crime_report_generator\\processors\\categorizer.py": {
+        "hash": "a9f3740e298330bcff6b5d2b00c87681"
+    },
+    "agent_tools\\agent_resumer.py": {
+        "hash": "b476cb145c9f4486c14d462a5c1231d9"
+    },
+    "social\\strategies\\reddit\\handlers\\post_handler.py": {
+        "hash": "d964fb070242e48ad22507236abc47e5"
+    },
+    "dreamos\\core\\messaging\\utils\\__init__.py": {
+        "hash": "6a3d73ae8780ceb8d2f02479109f3303"
+    },
+    "tests\\social\\core\\test_write_log.py": {
+        "hash": "82216494a7dcae5ffd597838af924135"
+    },
+    "agent_tools\\cursor_chatgpt_bridge.py": {
+        "hash": "b5c8c6644b9dd31dd32e0fd36ab90e21"
+    },
+    "agent_tools\\mailbox\\__init__.py": {
+        "hash": "517fb5e4b099b82d660c85c165f42024"
+    },
+    "dreamos\\core\\autonomy\\autonomy_loop.py": {
+        "hash": "7a267b349225279ad80ff58db45583ee"
+    },
+    "tests\\fixtures\\__init__.py": {
+        "hash": "40de47e6a0b5e23efb304c9fd98cfeef"
+    },
+    "tools\\test_dashboard.py": {
+        "hash": "1f5c49b0edf186578f54ce1b59ae0609"
+    },
+    "tests\\social\\strategies\\reddit\\test_strategy.py": {
+        "hash": "2ea0d07b4fd91c7bc6c5820417197790"
+    },
+    "tests\\cli\\test_cellphone_cli.py": {
+        "hash": "c0dce5b1ee376f78a996a2087d387936"
+    },
+    "dreamos\\core\\shared\\coordinate_manager.py": {
+        "hash": "cddc3f1a422237d7f0ec4966d46f6443"
+    },
+    "social\\core\\dispatcher.py": {
+        "hash": "413f7fd04312f8546381b7578effb2a8"
+    },
+    "tests\\core\\test_utils.py": {
+        "hash": "3004d8a2f49697f7166e825defd11520"
+    },
+    "agent_tools\\swarm_tools\\discord_devlog.py": {
+        "hash": "5e4734b6756ab962694fc37b806024cd"
+    },
+    "tools\\visualize_agent_layout.py": {
+        "hash": "e6cd6e43f27f90b0207754cc91cebac9"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\fix_manager.py": {
+        "hash": "f6df5eb1d35c993b6e59c4d7a6e7763f"
+    },
+    "dreamos\\core\\messaging\\message_system.py": {
+        "hash": "f0bd61194c4fd9779df51d438e4e13d8"
+    },
+    "crime_report_generator\\tests\\__init__.py": {
+        "hash": "f1c5ac3e4a5063766bf89f2fbc49e836"
+    },
+    "dreamos\\core\\autonomy\\__init__.py": {
+        "hash": "8c53a32945fda8b4b0a87ec96250227b"
+    },
+    "tests\\social\\strategies\\test_reddit_media.py": {
+        "hash": "85662db8919ee061fb75e5e9da6bf889"
+    },
+    "social\\strategies\\reddit\\rate_limiting\\__init__.py": {
+        "hash": "e1d02902db2d05dd01de900b451dd5ad"
+    },
+    "tests\\core\\autonomy\\error\\test_error_tracker.py": {
+        "hash": "f056b5bd8deafcf51326e4ac9922d077"
+    },
+    "dreamos\\social\\utils\\log_level.py": {
+        "hash": "83c66b8c5d1ead9ab6067053459fa571"
+    },
+    "archive\\tests\\error_management_legacy_tests.py": {
+        "hash": "604958837bcd5206223c3d6e3bf8c3fb"
+    },
+    "dreamos\\core\\agent_control\\task_manager.py": {
+        "hash": "fe89967a4b6c10f353b35a09258cf74f"
+    },
+    "dreamos\\core\\messaging\\types.py": {
+        "hash": "1f4668200f3c7a1a04fd707032655577"
+    },
+    "discord_bot\\tts.py": {
+        "hash": "4b45e305e194baf39d3f3ea9059cb35e"
+    },
+    "tests\\quarantine\\test_discord_commands__with_coords.py": {
+        "hash": "40499a99158ae4c238b7f853f795061d"
+    },
+    "agent_tools\\swarm_tools\\browser\\__main__.py": {
+        "hash": "9a5fdcea7084e08faafa14f7c34d8596"
+    },
+    "social\\strategies\\reddit\\rate_limiting\\rate_limiter.py": {
+        "hash": "8fbaccc6699c3ebc8357c6a04113e133"
+    },
+    "tools\\recalibrate_coords.py": {
+        "hash": "14102f8cfa1f800788983b25af9635a5"
+    },
+    "tests\\fixtures\\runner_fixtures.py": {
+        "hash": "7aac15774895b4626796019121ec0671"
+    },
+    "tests\\core\\utils\\test_file_ops.py": {
+        "hash": "63335f32b02ae21aea12347453f5e9bd"
+    },
+    "tests\\social\\core\\__init__.py": {
+        "hash": "e980c07f01dfea01b31f7d617f8bc3ac"
+    },
+    "tests\\core\\__init__.py": {
+        "hash": "ac5d3b8b73e7046ae2435646fc12d79f"
+    },
+    "agent_tools\\swarm_tools\\browser\\integration.py": {
+        "hash": "ec88013ef9033cb2d672731f5736d8c6"
+    },
+    "dreamos\\core\\agent_control\\ui_automation.py": {
+        "hash": "a8b47afdeeaab9031951b838a3cdb8e0"
+    },
+    "dreamos\\core\\menu.py": {
+        "hash": "8bb30bc15f0800db3af14f093ea622fb"
+    },
+    "dreamos\\core\\agent_control\\agent_controller.py": {
+        "hash": "15dd9ae3e01b0f94bfe90f4186b56d40"
+    },
+    "dreamos\\core\\ui\\agent_status_panel.py": {
+        "hash": "37710909412356856b73f0ad898dab49"
+    },
+    "dreamos\\core\\ui\\__init__.py": {
+        "hash": "05397c248de46827dbbde126cd967036"
+    },
+    "dreamos\\core\\messaging\\enums.py": {
+        "hash": "07aaee23fcc1311352c7e93c935c808a"
+    },
+    "dreamos\\core\\self_discovery\\__init__.py": {
+        "hash": "a4a034936e9914d73c3952c9e76645da"
+    },
+    "crime_report_generator\\reports\\crimegrade_scraper.py": {
+        "hash": "589724f586697e9a838b57db520a8072"
+    },
+    "discord_bot\\agent_interface.py": {
+        "hash": "61a9526cd16230ef8b6f483349f26e0f"
+    },
+    "dreamos\\core\\messaging\\phones.py": {
+        "hash": "5f7feb07bbaac494fd587f4c7de9ba1b"
+    },
+    "tests\\swarm_tools\\test_devlog_watcher.py": {
+        "hash": "7cd46d854a897d81b6bd1cbe83be13ae"
+    },
+    "discord_bot\\voicebot.py": {
+        "hash": "bcb8dd23e4e8a459e10623038f56d59f"
+    },
+    "crime_report_generator\\reports\\arcgis_fetcher.py": {
+        "hash": "069aae9630f119c2f9769f1208212bff"
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_atomic_file_manager.py": {
+        "hash": "2789148bcd219bd2eff7328fc027ba7d"
+    },
+    "social\\utils\\media_validator.py": {
+        "hash": "b3cea04394373d9d45e2a9ffe04c3a1f"
+    },
+    "social\\config\\__init__.py": {
+        "hash": "2bf2b98e92145247fa8bf7cbafe237ea"
+    },
+    "agent_tools\\security\\__init__.py": {
+        "hash": "e2ab1e79cc1dc8311a8a6760b37cfc58"
+    },
+    "tests\\discord\\test_help_menu.py": {
+        "hash": "f0bceff3b7442d6984185743852708b8"
+    },
+    "dreamos\\core\\messaging\\message_handler.py": {
+        "hash": "fbf199140d3c9f4177ab5ac25bb9870f"
+    },
+    "tests\\social\\strategies\\test_media_handling.py": {
+        "hash": "8bbf603a57cafe5011431a1347fafcce"
+    },
+    "archive\\orphans\\__init__.py": {
+        "hash": "9ef532dda345ff9f6df1345aec027fc3"
+    },
+    "tests\\voice\\test_tts.py": {
+        "hash": "b83aa3e7e3ce58160bba22cd199c9ecd"
+    },
+    "dreamos\\core\\autonomy\\state.py": {
+        "hash": "1b435310283b9fbfd0af7d532fed1354"
     },
     "run_overnight_tests.py": {
         "hash": "c423e5050573011efe5d08f42adc6cd4"
     },
-    "archive\\deprecated\\auth_managers\\core_auth_manager.py": {
-        "hash": "2377beca29e4b2475217a6fe0af3f897"
+    "dreamos\\core\\agent_control\\response_capture.py": {
+        "hash": "5ab29ba79e8a0da6b33e597f74fc16c9"
     },
-    "archive\\deprecated\\auth_managers\\core_session_manager.py": {
-        "hash": "6228621a824522ca8e5d8444e91ec0a8"
+    "dreamos\\social\\utils\\log_writer.py": {
+        "hash": "6a577dbadecde73213edeaf3a73f99c7"
+    },
+    "social\\utils\\rate_limiter.py": {
+        "hash": "e74291bc843ccdb2493618b3cb194f82"
+    },
+    "tests\\utils\\__init__.py": {
+        "hash": "6a0010e557951946551580593951ba6d"
+    },
+    "dreamos\\core\\autonomy\\handlers\\bridge\\__init__.py": {
+        "hash": "d13e3f794a5c01f9f1b1e076c602d2b9"
+    },
+    "tests\\utils\\mock_discord\\client.py": {
+        "hash": "91384e8edceed4db7b70e7ea5bb8120a"
+    },
+    "dreamos\\core\\autonomy\\memory\\tests\\test_response_memory_tracker.py": {
+        "hash": "e3cd32fdc43fd0458aa41cc0bfc75eb2"
+    },
+    "dreamos\\social\\utils\\log_rotator.py": {
+        "hash": "134e9791d1531507fba1956e720dc1fc"
+    },
+    "social\\strategies\\__init__.py": {
+        "hash": "7187ee7430687c4bf0a29ffe2228248e"
+    },
+    "dreamos\\core\\autonomy\\agent_loop.py": {
+        "hash": "b1f26a8f9427df32140bb7f1d677106b"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\debug_utils.py": {
+        "hash": "c7680c5e0c61c41da1d9244c9bedb6aa"
+    },
+    "crime_report_generator\\tests\\reports\\test_report_generator.py": {
+        "hash": "423a4faed848290b66f6ed1de0958d06"
+    },
+    "runtime\\bridge_inbox\\test_bridge.py": {
+        "hash": "40c45a7fec922c18da103e4585b61fef"
+    },
+    "tests\\reports\\test_zip_mapper.py": {
+        "hash": "45bff34520d9d5c1ddce2e765e47e5b9"
+    },
+    "agent_tools\\config\\__init__.py": {
+        "hash": "4f921e28010bf63a5306aa8ff35f47e2"
+    },
+    "tests\\core\\test_special_chars.py": {
+        "hash": "1b8191be21949cb756d630a9c00d2088"
+    },
+    "dreamos\\core\\messaging\\message_processor.py": {
+        "hash": "b70ec781cc5c351aecb9dacf92bd0ca0"
+    },
+    "dreamos\\core\\logging\\log_writer.py": {
+        "hash": "94fed8244f09c39f95064f9f699bb254"
+    },
+    "dreamos\\core\\autonomy\\base\\__init__.py": {
+        "hash": "f362a5fa7834aa99cec92281857713d6"
+    },
+    "agent_tools\\swarm_tools\\analyzers\\ast_analyzer.py": {
+        "hash": "18e98e81c529ddffe5e377dbe8b949ae"
+    },
+    "crime_report_generator\\tests\\processors\\__init__.py": {
+        "hash": "048bd6bb227976afc9ab46565efa757b"
+    },
+    "agent_tools\\swarm_tools\\devlog_watcher.py": {
+        "hash": "7d1ed1ee2b7dd36ab6771fe4039a5c43"
+    },
+    "social\\constants\\__init__.py": {
+        "hash": "67cb386dac982486eb0011db74955156"
+    },
+    "tests\\social\\core\\test_batch_processing.py": {
+        "hash": "0f180158d0800504dc83542b158578e5"
+    },
+    "tests\\social\\utils\\test_log_batcher.py": {
+        "hash": "c4c057a36be2074508f5edaf5c11b8ae"
+    },
+    "dreamos\\core\\utils\\agent_helpers.py": {
+        "hash": "7c6f281c177046d6c827bb2aad92b4c1"
+    },
+    "backups\\auth_backup_20250605_162224\\auth\\token.py": {
+        "hash": "80da8982d62e72ce57c8f6e44d4f68c2"
+    },
+    "dreamos\\core\\autonomy\\content_loop.py": {
+        "hash": "77964c724b976199913f5769ad77a1ef"
+    },
+    "dreamos\\core\\autonomy\\test_loop.py": {
+        "hash": "a9d946918cf589c87ac23717db446687"
+    },
+    "archive\\deprecated\\config_managers\\agent_config_manager.py": {
+        "hash": "1ed5d89aa1ffb449e90822c36232b790"
+    },
+    "discord_bot\\bot.py": {
+        "hash": "fb976183050222ead103793a3eb73006"
+    },
+    "tools\\run_menu.py": {
+        "hash": "8d4936116c53eb2fbc0986f3110c684f"
+    },
+    "bridge\\test_bridge_loop.py": {
+        "hash": "0ddcb648c213cc979e33a401dfecc5ff"
+    },
+    "dreamos\\core\\utils\\logging_utils.py": {
+        "hash": "e993045b840941082edaa0284e63cc93"
+    },
+    "social\\community\\base.py": {
+        "hash": "7d66950a71ec048465d246a329a44f92"
+    },
+    "dreamos\\core\\captain\\__init__.py": {
+        "hash": "f5dacc5f976eefa03c8054d4625fb840"
+    },
+    "tests\\social\\utils\\test_log_manager_utils.py": {
+        "hash": "7c1e8a947f90a68adb85872718b04004"
+    },
+    "tests\\utils\\mock_discord\\discord.py": {
+        "hash": "5cb19cc22b232826aa309cd856aad494"
+    },
+    "social\\community\\content_scheduler.py": {
+        "hash": "e9e4372907b2ba497c0832d5241e3e27"
+    },
+    "tests\\social\\utils\\test_log_config.py": {
+        "hash": "2d98f458b7ed4af6a7e6e675e14984f7"
+    },
+    "agent_tools\\activate_test_debug.py": {
+        "hash": "1c49722196e708e8423f55f9ee82c36b"
+    },
+    "tests\\agent_control\\test_captain.py": {
+        "hash": "98baee818c8dfcdc3e787b19c0c05150"
+    },
+    "tests\\social\\strategies\\test_analytics.py": {
+        "hash": "4e57e5b95ad53941eba1365c7f47c250"
+    },
+    "dreamos\\core\\metrics.py": {
+        "hash": "60648a5ef3656e72e885304ab65551b6"
+    },
+    "crime_report_generator\\reports\\__init__.py": {
+        "hash": "0d360195b4cbf6dfcead9cf069297915"
+    },
+    "social\\strategies\\reddit\\validators\\media_validator.py": {
+        "hash": "6dfe5c75e046c84da2652b853c94f74e"
+    },
+    "tools\\calibrate_coordinates.py": {
+        "hash": "cdf603a8a52c3a3926f5c605f1b6cc29"
+    },
+    "dreamos\\core\\agent_control\\coordinate_transformer.py": {
+        "hash": "c56131e6098dba535e64fca0e70ec69e"
+    },
+    "agent_tools\\swarm_tools\\weekly_digest.py": {
+        "hash": "064fe290cdee144d21a0b4de164b5e3f"
+    },
+    "bridge\\response_loop_daemon.py": {
+        "hash": "a797126cd47c5d27c1c8634e951c3b12"
+    },
+    "dreamos\\core\\__init__.py": {
+        "hash": "3295bbfe96993668334cb2891f0dbb31"
+    },
+    "agent_tools\\utils\\retry_utils.py": {
+        "hash": "3766f668e2361d2aca58e3c8bdb9ed9a"
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner.py": {
+        "hash": "c00e2772940da089f782d17e8a018789"
+    },
+    "gui\\main_window.py": {
+        "hash": "11f2375981c5336a92b9f1991c65a69c"
+    },
+    "dreamos\\bridge.py": {
+        "hash": "55c9a41fe08b2b78e9c0cea445b7ac25"
+    },
+    "tests\\core\\autonomy\\test_base_response_loop_daemon.py": {
+        "hash": "e4964fdca35b42e41cb172c4f99426b5"
+    },
+    "tests\\core\\autonomy\\error\\__init__.py": {
+        "hash": "389d3d8a50c4e676faef7e2bb3f32439"
+    },
+    "dreamos\\core\\autonomy\\memory\\response_memory_tracker.py": {
+        "hash": "7f26b7e63f270e43fb70ac679824736c"
+    },
+    "dreamos\\core\\autonomy\\utils\\async_file_watcher.py": {
+        "hash": "200433758f3e6c6b7121e4a50a587d66"
+    },
+    "social\\core\\rate_limiter.py": {
+        "hash": "2ed4777622c4d1da19c576bd68b66165"
+    },
+    "tests\\voice\\__init__.py": {
+        "hash": "ce55c00cf6ce9823e4d87a49aab230de"
+    },
+    "dreamos\\core\\security\\__init__.py": {
+        "hash": "b05a6bbd73d58aa599f18d5280b388b3"
+    },
+    "dreamos\\core\\captain\\task_scheduler.py": {
+        "hash": "36e266cc87b378c5cb1cb3d33f690015"
+    },
+    "conftest.py": {
+        "hash": "dadb4d6b75e0aed969041a7f728e8335"
+    },
+    "dreamos\\core\\messaging\\pipeline.py": {
+        "hash": "5c50b803b6979e4415736c5544098c26"
+    },
+    "crime_report_generator\\main.py": {
+        "hash": "fc06deff7d936104be5154133ec6d9e0"
+    },
+    "agent_tools\\swarm_tools\\analyzers\\quality_analyzer.py": {
+        "hash": "4d6e7a45f90a3bcaf843954ecc819842"
+    },
+    "dreamos\\core\\monitoring\\health\\base.py": {
+        "hash": "112edffa5e52ee4ab792da9f99780f1f"
+    },
+    "agent_tools\\utils\\init_mailbox.py": {
+        "hash": "b781cded1e7c9dbf19c6db10d7bc2880"
+    },
+    "dreamos\\core\\agent_control\\periodic_restart.py": {
+        "hash": "9fb71fbbaa32daadcde4f772e86b9160"
+    },
+    "crime_report_generator\\agents\\__init__.py": {
+        "hash": "fa26545c6a82d8afa30a543ed6dcde5a"
+    },
+    "dreamos\\core\\autonomy\\processor_factory.py": {
+        "hash": "d116ce40f9e0470a5f07a4b15873ea67"
+    },
+    "dreamos\\core\\utils\\file_utils.py": {
+        "hash": "35df5a7304c8f01bedc33208f60e2a02"
+    },
+    "social\\strategies\\facebook_strategy.py": {
+        "hash": "c5bc236bd1a18ae7d07c1c5d4c88daeb"
+    },
+    "gui\\components\\__init__.py": {
+        "hash": "ecde4b3045f03fed626d980e2fc76cc0"
+    },
+    "scripts\\cleanup_project.py": {
+        "hash": "94bcedb8c57f7a987f3c3f6479c65f01"
+    },
+    "agent_tools\\swarm_tools\\browser\\__init__.py": {
+        "hash": "9f9a4d207fbcea247e036ee2f135e7ca"
+    },
+    "tests\\test_messaging\\test_queue.py": {
+        "hash": "b240327c9639101e4f468defae90d86a"
+    },
+    "tests\\social\\strategies\\test_platform_interface.py": {
+        "hash": "704ea90f7d2aee18106925582d93d889"
+    },
+    "agent_tools\\security\\security_overlay_generator.py": {
+        "hash": "b1672c1c160d75bd39a4446c2f239dc9"
+    },
+    "tests\\social\\strategies\\__init__.py": {
+        "hash": "c56363e1b4b0047eb34f13b2c131e5e0"
+    },
+    "dreamos\\social\\utils\\log_config.py": {
+        "hash": "bc759dfb917544d07036dc3748081262"
+    },
+    "dreamos\\core\\monitoring\\metrics.py": {
+        "hash": "cc86b6fe97bbe6e035ffc52b9f9da766"
+    },
+    "tests\\social\\utils\\test_log_rotator.py": {
+        "hash": "f7ad426e80ca62ec4d5178bd434453ec"
+    },
+    "social\\utils\\social_common.py": {
+        "hash": "7fdadb1c9f8870f9cb5f832dda136193"
+    },
+    "dreamos\\core\\messaging\\test_captain_phone.py": {
+        "hash": "952c95dc2a6f13268740723625e1a894"
+    },
+    "crime_report_generator\\scheduler\\__init__.py": {
+        "hash": "93b89028c8061206600ecaae4951c1d2"
+    },
+    "dreamos\\core\\log_manager.py": {
+        "hash": "369e8568c673e8298d19410b096919fc"
+    },
+    "dreamos\\core\\autonomy\\logging\\log_manager.py": {
+        "hash": "4b7fd41c73412db410ef85e4422cc5e1"
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_utils.py": {
+        "hash": "45a10fd14a31c1d7b1da75a3e7208933"
+    },
+    "crime_report_generator\\reports\\report_formatter.py": {
+        "hash": "f160b020a2a7635d008531124fbae39e"
+    },
+    "tools\\reorganize_social.py": {
+        "hash": "9a99ff6fd09549b22688f141bd20dbf1"
+    },
+    "crime_report_generator\\visualizations\\__init__.py": {
+        "hash": "aeeea964fe18a974c7d3a9d61e62c347"
+    },
+    "crime_report_generator\\tests\\scheduler\\__init__.py": {
+        "hash": "bdb3785ab2ca9ea76a114e57c9e8be4c"
+    },
+    "agent_tools\\mailbox\\agent-1\\workspace\\__init__.py": {
+        "hash": "9f1fff1b2393e75b83ae6df778fe8017"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_models_edge_cases.py": {
+        "hash": "649020d3139e469930695e8fe9b943a1"
+    },
+    "archive\\deprecated\\config_managers\\social_config_manager.py": {
+        "hash": "f1f668969e0c58fdc730f29da4b21c71"
+    },
+    "social\\strategies\\reddit_strategy.py": {
+        "hash": "815d0b8adfa6b7b07ff01ee14b7cdb36"
+    },
+    "tests\\core\\autonomy\\benchmarks\\__init__.py": {
+        "hash": "2dfdbbccffb6295f6cd099032080a41f"
+    },
+    "discord_bot\\notifier.py": {
+        "hash": "9900691ce21d533302cf74acc3ba4d15"
+    },
+    "social\\community\\__init__.py": {
+        "hash": "2fa41eec24abf7a512a26e447a927359"
+    },
+    "dreamos\\__init__.py": {
+        "hash": "205164fecf841a4627fd873c808d4495"
+    },
+    "agent_tools\\captain_prompt.py": {
+        "hash": "10f8eda480c4cb7869b6b896649074e4"
+    },
+    "dreamos\\core\\messaging\\test_chatgpt_bridge.py": {
+        "hash": "b45ba3e2af88dc7ce5b92883c128c8c6"
+    },
+    "dreamos\\core\\cli.py": {
+        "hash": "60fc6485a21d60a147f6596f6389ab6a"
+    },
+    "tests\\agent_control\\test_control.py": {
+        "hash": "fec3801071b4c8ff58f0caa9e8b6af61"
+    },
+    "tests\\auth\\test_token.py": {
+        "hash": "ebd31c8acdb4959ee0bec1a470a39f67"
+    },
+    "tests\\core\\security\\__init__.py": {
+        "hash": "ea8dc4b986aaf1b84c7573103d5875e5"
+    },
+    "social\\strategies\\reddit\\validators\\__init__.py": {
+        "hash": "5e9a10fdcf6490744bb0ca17bd0de320"
+    },
+    "tools\\zip_resolver.py": {
+        "hash": "52ec23e58b9bdbf66162b9be60c1183d"
+    },
+    "dreamos\\core\\messaging\\message_queue.py": {
+        "hash": "43cb92b4921a9373e23a7a4f405ff781"
+    },
+    "dreamos\\core\\autonomy\\autonomy_loop_runner.py": {
+        "hash": "b149fa0d4c09808495c2b052c3dcf6dc"
+    },
+    "tests\\auth\\test_retry_mechanism.py": {
+        "hash": "9ea9bc4a380b18eb350f897d1aa1498c"
+    },
+    "dreamos\\core\\autonomy\\memory\\tests\\conftest.py": {
+        "hash": "3b3b3721059f80babea68ea50fff2b4d"
+    },
+    "cursor_chatgpt_bridge.py": {
+        "hash": "1df4013080b34cbbfce366e4c4828381"
+    },
+    "tests\\social\\strategies\\base\\test_strategy_base.py": {
+        "hash": "090f04b228bc6a231b9ae6da3ef57b1b"
+    },
+    "agent_tools\\swarm_tools\\__main__.py": {
+        "hash": "2b47e423732e7f8ff8578f5ceb64153d"
+    },
+    "dreamos\\core\\autonomy\\base\\runner_lifecycle.py": {
+        "hash": "b44a69486371708cc4a06c314a0c5dda"
+    },
+    "tests\\social\\strategies\\reddit\\rate_limiting\\test_rate_limiter.py": {
+        "hash": "9ef2e882464a15c73155c8c1d0055ad6"
+    },
+    "dreamos\\core\\autonomy\\memory\\tests\\__init__.py": {
+        "hash": "8e669f60dd10b8861e5dfacddbf8cb19"
+    },
+    "runtime\\bridge_inbox\\chatgpt_client.py": {
+        "hash": "47aa22ac5d2457efe4fe2807a404c4d8"
+    },
+    "test_debug_time.py": {
+        "hash": "6d99f61028e811e33a45da81fc75ecbc"
+    },
+    "dreamos\\core\\agents\\perpetual_test_fixer.py": {
+        "hash": "373dd8143f66374f7ccee5e517a22ba4"
+    },
+    "dreamos\\core\\autonomy\\controller.py": {
+        "hash": "9a2b4e6077bdd6b0ef44331e3ce07e83"
+    },
+    "dreamos\\core\\ai\\memory_querier.py": {
+        "hash": "10cef05c7e1f1fd99a3bef425646058b"
+    },
+    "tests\\utils\\test_file_ops.py": {
+        "hash": "38535822b829eef661c2e6cb168105c8"
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_advanced.py": {
+        "hash": "da9a1ada5b37e8d7c0131f39fb99725e"
+    },
+    "archive\\deprecated\\config_managers\\legacy_social_config.py": {
+        "hash": "444b6ea0b426611d43af89ffc3a5a8c9"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\test_runner.py": {
+        "hash": "f78dbd37d498f21c29bd6dbf921fbcfe"
+    },
+    "agent_tools\\utils\\__init__.py": {
+        "hash": "a4b0cc92c72f7f2c73c7b94d84eea164"
+    },
+    "social\\core\\__init__.py": {
+        "hash": "71f8cfe4fb89a4eb6464bb3b1fa12ef9"
+    },
+    "tests\\core\\autonomy\\test_runner.py": {
+        "hash": "ea97fd40b491237ae55c5ca0d077ceab"
+    },
+    "dreamos\\core\\security\\session_manager.py": {
+        "hash": "7d013c86659c9c8012c9b5081eb96d34"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_utils.py": {
+        "hash": "e84897b449e162aa451b62789a9ca6f3"
+    },
+    "tests\\agent_control\\test_tasks.py": {
+        "hash": "ce18160e61f34673c15baf0501860c2c"
+    },
+    "social\\utils\\log_types.py": {
+        "hash": "1af94b326d30e97e6c7f961fbc912065"
+    },
+    "dreamos\\utils\\__init__.py": {
+        "hash": "5dcf4d6c48e9251a05bd1d15d54eb00f"
+    },
+    "tests\\utils\\mock_discord\\models.py": {
+        "hash": "afbad07cc02a7ccecbbeb28fe175276e"
+    },
+    "social\\driver\\proxy_manager.py": {
+        "hash": "6b7d972549b2944ea0d3327661cff26c"
+    },
+    "dreamos\\core\\autonomy\\logging\\__init__.py": {
+        "hash": "d2363fc84dedea50a316321a2aa93d4d"
+    },
+    "dreamos\\core\\autonomy\\core_response_processor.py": {
+        "hash": "873ce597cdc1d66fd35effd650629759"
+    },
+    "tests\\core\\autonomy\\benchmarks\\test_response_loop_benchmarks.py": {
+        "hash": "ed3ad99453d4ec18b5b9d7057b3d9a58"
+    },
+    "tests\\integration\\test_pyqt5_import.py": {
+        "hash": "afc066ca4324e9f40c23d8fed1f101b9"
+    },
+    "dreamos\\core\\config\\bridge_config.py": {
+        "hash": "4c217ca0a2920d86017645f196f5ff0f"
+    },
+    "tests\\social\\strategies\\reddit\\__init__.py": {
+        "hash": "17f20d8200ca65c20fcf502cdd1fe933"
+    },
+    "dreamos\\core\\automation\\__init__.py": {
+        "hash": "a533bbf63b03df5150bc89af5aa9074f"
+    },
+    "archive\\deprecated\\message_processors\\__init__.py": {
+        "hash": "52e00f45e1de613692ee41e7d0fc1496"
+    },
+    "agent_tools\\swarm_tools\\browser\\login_handler.py": {
+        "hash": "4ab96e7b364fc5b1f08e61288b32baab"
+    },
+    "tools\\layout_snapshot.py": {
+        "hash": "3b367cb88bbf52a634c09906366dad57"
+    },
+    "dreamos\\core\\autonomy\\base\\file_handler.py": {
+        "hash": "a1332463110f36f78d175966f8259b13"
+    },
+    "dreamos\\core\\autonomy\\error\\error_reporter.py": {
+        "hash": "65842104ef708726d8813fbe4a484d85"
+    },
+    "dreamos\\core\\agents\\test_fix_loop.py": {
+        "hash": "9745f77af91531046cd441cebe55c0a5"
+    },
+    "social\\utils\\log_rotator.py": {
+        "hash": "603625df10ddfcc87e6c814e7f81934e"
+    },
+    "bridge\\chatgpt_bridge_loop.py": {
+        "hash": "7bcfab65ed364366a534ff82ac5d98c6"
+    },
+    "tests\\auth\\test_auth_interface.py": {
+        "hash": "2ad8a52fbd2cd70d930e160b6c34778c"
+    },
+    "dreamos\\core\\autonomy\\handlers\\bridge\\bridge_outbox_handler.py": {
+        "hash": "5178b153a58325673760d7ccb562b870"
+    },
+    "agent_tools\\swarm_tools\\models\\__init__.py": {
+        "hash": "624a4a374cd2688e38c2b5f98a92d832"
+    },
+    "dreamos\\core\\autonomy\\bridge_writer.py": {
+        "hash": "34984f05a85c6bff2f42eec058fa8504"
+    },
+    "dreamos\\core\\resumer_v2\\atomic_file_manager.py": {
+        "hash": "1e6be2ebcd92bcc34a93c72ec7dda544"
+    },
+    "agent_tools\\swarm_tools\\browser\\config.py": {
+        "hash": "abf49f8b8fe789f8ff6b9d1f1e8719db"
+    },
+    "dreamos\\core\\autonomy\\memory\\__init__.py": {
+        "hash": "c136ca0ba0154058a92bf5b7796802d8"
+    },
+    "tests\\social\\strategies\\test_strategy_base.py": {
+        "hash": "4aa78833fa25bb3a0c7adccc026905ec"
+    },
+    "tests\\discord\\__init__.py": {
+        "hash": "7ad8c02e03f19c390e7f2e7e06dd5229"
+    },
+    "agent_tools\\swarm_tools\\tests\\__init__.py": {
+        "hash": "ac4faf3014fc93764774455ab289b269"
+    },
+    "tests\\discord\\test_discord_commands.py": {
+        "hash": "97b97221d7f5d1bb0b3935636b6c85a1"
+    },
+    "crime_report_generator\\processors\\cleaner.py": {
+        "hash": "25841052e558ac5d93168b8fca7bcb50"
+    },
+    "social\\core\\driver_manager.py": {
+        "hash": "415842b94c1083e31248ba69549e9c2f"
+    },
+    "archive\\deprecated\\config_managers\\__init__.py": {
+        "hash": "128a457197b4c68ba41974917b5f318e"
+    },
+    "social\\strategies\\twitter\\__init__.py": {
+        "hash": "42fa6c599819cd48cdcc5b342f54c5a3"
+    },
+    "agent_tools\\config\\test_migrator.py": {
+        "hash": "7c441ca7d08c99b02ceba6da845f9678"
+    },
+    "docs\\examples\\llm_agent_example.py": {
+        "hash": "fdbf0391dda07335a0b7e2a55fcabc44"
+    },
+    "tests\\social\\strategies\\test_reddit_strategy.py": {
+        "hash": "46eb541ff179b2c9360b4658b569cdc0"
+    },
+    "dreamos\\core\\message.py": {
+        "hash": "bf36a2066d5a45a98999d519e6f3e078"
+    },
+    "tools\\dry_scanner.py": {
+        "hash": "c64c70b1f0afd9f02e40caccad9a2d37"
+    },
+    "tests\\self_discovery\\test_journal.py": {
+        "hash": "c0e631668b96c068d06797cf69915b38"
+    },
+    "tools\\analyze_logs.py": {
+        "hash": "e5e7c6301f66e52f9b18449825917ed7"
+    },
+    "crime_report_generator\\tests\\visualizations\\__init__.py": {
+        "hash": "b851229abcf6f91dcc3b0eb46f32362e"
+    },
+    "tests\\core\\autonomy\\error\\test_error_reporter.py": {
+        "hash": "5b50364b175ccfcd3c3c211bc39f93b1"
+    },
+    "dreamos\\core\\autonomy\\utils\\test_async_file_watcher.py": {
+        "hash": "989863e0abd5efbe0f37ecdca76e40aa"
+    },
+    "tests\\social\\core\\test_log_metrics.py": {
+        "hash": "fe3fe65ee1354694d461980e7a45429b"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\config.py": {
+        "hash": "7da698194f0577d40b4269aa1cff69ae"
+    },
+    "dreamos\\core\\agent_control\\captain.py": {
+        "hash": "bc36bb0c0677f6f0b40ff2adbb46c5bd"
+    },
+    "dreamos\\core\\resumer_v2\\agent_state_manager.py": {
+        "hash": "45630e1ff31d3f5e4668cf9f614c1dde"
+    },
+    "tests\\agent_control\\__init__.py": {
+        "hash": "7be57319e977beba939cc4543330a7f5"
+    },
+    "agent_tools\\config\\config_loader.py": {
+        "hash": "c03e514a570a41be4c62e50169ebf23f"
+    },
+    "discord_bot\\discord_commands.py": {
+        "hash": "cc5484006995d3c09d349055d14dff79"
+    },
+    "tests\\core\\test_content_loop.py": {
+        "hash": "bc6cbbf31042283b215af142143dc6cc"
+    },
+    "social\\strategies\\reddit\\post_handler.py": {
+        "hash": "542bf84c695a019079c0ff0c8645fba5"
+    },
+    "crime_report_generator\\scheduler\\report_scheduler.py": {
+        "hash": "61c84224c1a0e9574ac0ea3b195abc56"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_analyzers_edge_cases.py": {
+        "hash": "251476097438a0b51800f9dce2fe5a29"
+    },
+    "dreamos\\core\\autonomy\\base\\response_loop.py": {
+        "hash": "2af4acf97f55665560e2a9563d3c3fa4"
+    },
+    "agent_tools\\swarm_tools\\browser\\cookie_manager.py": {
+        "hash": "7536f225330fd60939dd1e78fd26f080"
+    },
+    "social\\utils\\log_entry.py": {
+        "hash": "24e6669f066a8d46272688d582a6dfa2"
+    },
+    "tests\\core\\test_coordinates.py": {
+        "hash": "c312c373dd37b6a225599af08c242302"
+    },
+    "agent_tools\\swarm_tools\\models\\analysis.py": {
+        "hash": "acd77abb8e2054af535a224fb4e9fab2"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\state.py": {
+        "hash": "b0861a82c65f4495c0ad19774c5c9417"
+    },
+    "dreamos\\core\\monitoring\\bridge_health.py": {
+        "hash": "0a1d4f526bf3a644a019688a377f1b24"
+    },
+    "tests\\reports\\test_crime_report_pipeline.py": {
+        "hash": "8d8d4cdf04a088fad88f2f1dfe64a327"
+    },
+    "dreamos\\core\\autonomy\\test_devlog_bridge.py": {
+        "hash": "f9e283cc102fe5f75a5961710816d4b3"
+    },
+    "dreamos\\core\\autonomy\\error\\__init__.py": {
+        "hash": "d3e5256c04a36768c7eadd6709077de0"
+    },
+    "social\\strategies\\reddit\\strategy.py": {
+        "hash": "f707e1fba8d069c867f308fff62e7336"
+    },
+    "social\\driver\\utils.py": {
+        "hash": "b3d8aec763a4ce6e87f29b9377f50d75"
+    },
+    "tests\\utils\\test_utils.py": {
+        "hash": "eb8d8376a5f499e8a44e289bc86a71bb"
+    },
+    "tests\\core\\security\\test_identity_utils.py": {
+        "hash": "20ab4158f8f179f7ac6b85cb014e1608"
+    },
+    "tests\\core\\test_agent_bus.py": {
+        "hash": "f386f4f4e6d445fbd381266feb7114f9"
+    },
+    "social\\strategies\\twitter\\post_handler.py": {
+        "hash": "e488336dab811b139970c72a4a5c0a4a"
+    },
+    "tests\\social\\strategies\\reddit\\rate_limiting\\__init__.py": {
+        "hash": "562e9c14777a4b4405dab1f95689c97e"
+    },
+    "dreamos\\core\\agent_control\\cursor_controller.py": {
+        "hash": "e40cce20018d23be4c41acedbb21eb7e"
+    },
+    "tests\\core\\test_file_utils.py": {
+        "hash": "e9e582c479380e7c7321b92f33b514c9"
+    },
+    "tests\\social\\utils\\test_media_validator.py": {
+        "hash": "cc7848294b3f086b8fd7411a55d9e03c"
+    },
+    "dreamos\\core\\messaging\\utils\\core_utils.py": {
+        "hash": "f72b34b9fd5b59c1896abc19faf29de7"
+    },
+    "dreamos\\core\\response_collector_new.py": {
+        "hash": "c714a3e47082cd0a6c1419febb5a44db"
+    },
+    "tests\\messaging\\__init__.py": {
+        "hash": "6137fb6899d7ce01a8fab5d83fcf9823"
+    },
+    "dreamos\\social\\utils\\log_types.py": {
+        "hash": "8be1b6386e60b6aab18bf8ad2cd7ed23"
+    },
+    "runtime\\bridge_inbox\\cursor_chatgpt_bridge.py": {
+        "hash": "7986d05e869a2078e40d36981d4e3813"
+    },
+    "agent_tools\\config\\migrator.py": {
+        "hash": "77df1f0a001a938c12e548e7087d8f3b"
+    },
+    "dreamos\\core\\codex\\__init__.py": {
+        "hash": "b97f415f129f7c2e21ea3c4fe4e62fd9"
+    },
+    "dreamos\\core\\codex\\codex_quality_controller.py": {
+        "hash": "04885154ca86f19040ef86a00920efe2"
+    },
+    "tests\\messaging\\test_unified_message_system.py": {
+        "hash": "91fb1d692de77ed67ba625b83f6ac3e6"
+    },
+    "dreamos\\core\\autonomy\\test_state.py": {
+        "hash": "20cb5a86684f79ca5e196b29651a8ad1"
+    },
+    "bridge\\discord_hook.py": {
+        "hash": "cc4a3948e9b952e4fc33ac618401d797"
+    },
+    "archive\\deprecated\\config_managers\\stub_config_manager.py": {
+        "hash": "2ffc0e654d722850465cca5a075f00e4"
+    },
+    "tests\\auth\\test_session.py": {
+        "hash": "5885afca8ef367c23996a0f881d471de"
+    },
+    "social\\strategies\\instagram_strategy.py": {
+        "hash": "4452eba2c9f7f0e98e46775fb131de36"
+    },
+    "agent_tools\\mailbox\\message_handler.py": {
+        "hash": "bbcf01ff8553be53ec2dfb269dc5e0ea"
+    },
+    "tests\\messaging\\test_chatgpt_bridge.py": {
+        "hash": "be29adffbc6a7b073c32cb6e48b36c31"
+    },
+    "tests\\agent_control\\test_devlog_manager.py": {
+        "hash": "8a7763c43ac07c330d53b65b041bf4dd"
+    },
+    "bridge\\monitoring.py": {
+        "hash": "5c9b4f1a3261c92fe22fa0b60d65cf72"
+    },
+    "dreamos\\core\\monitoring\\__init__.py": {
+        "hash": "3958bd01b77bad5fc75725c8b006a8ab"
+    },
+    "dreamos\\core\\utils\\system_ops.py": {
+        "hash": "909862574a48daf9997b3ca777d47dbc"
+    },
+    "tests\\core\\test_init_mailbox.py": {
+        "hash": "e53fdbbd96b4f6953372c743bd4a8434"
+    },
+    "social\\core\\log_metrics.py": {
+        "hash": "83382cda34983f1ffa67ee95877d346b"
+    },
+    "crime_report_generator\\__init__.py": {
+        "hash": "afa1fcf0e3905752f39cb2826962a872"
+    },
+    "social\\driver\\undetected_driver.py": {
+        "hash": "e2113c0dcb18c77cb7548fe9d8aab5c9"
+    },
+    "tests\\test_messaging\\test_router.py": {
+        "hash": "fd59e4e068fdcc6bf87986fe0512227d"
+    },
+    "gui\\__init__.py": {
+        "hash": "e3e9df2c9b8584f7f44d0252e089d2f0"
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_lifecycle.py": {
+        "hash": "4f1b6094f5cdc04d9c1b92ea570d9dd0"
+    },
+    "tests\\core\\security\\test_session_manager.py": {
+        "hash": "74c47935e28c12815385aa72182a6270"
+    },
+    "archive\\deprecated\\config_managers\\social_config_v2.py": {
+        "hash": "b340af32f386d9aa27556ebc4c5cb338"
+    },
+    "tools\\send_task.py": {
+        "hash": "5b7ed7c67916411c0373d5c7577dcce6"
+    },
+    "dreamos\\core\\agent_control\\screenshot_logger.py": {
+        "hash": "ab420ae8f90eed9a5c9983868a0df6ff"
+    },
+    "tools\\devlog_pitcher.py": {
+        "hash": "88cbdb84bbba1ed3635252fee75671b3"
+    },
+    "tests\\autonomy\\__init__.py": {
+        "hash": "40fb16217d1f2e752d435279f35a26ad"
+    },
+    "dreamos\\core\\autonomy\\error\\error_tracker.py": {
+        "hash": "ac950b4f2f7685a12da8b8b8067fa2a5"
+    },
+    "dreamos\\core\\utils\\region_finder.py": {
+        "hash": "e6721f1aea74ca675515f948e8032aab"
+    },
+    "tools\\life_os_dashboard.py": {
+        "hash": "133ef1aa7fb3e2fccdd069f6581d1869"
+    },
+    "tools\\test_log_analyzer.py": {
+        "hash": "f9ecbbf01c47313b4af34502aa22c238"
+    },
+    "agent_tools\\swarm_tools\\tests\\test_scanner.py": {
+        "hash": "ef442d06e14f6128916ee12895d02ee2"
+    },
+    "archive\\deprecated\\config_managers\\log_config.py": {
+        "hash": "10e026a6085e1d0590f4420c1fe9db87"
+    },
+    "dreamos\\core\\utils\\core_utils.py": {
+        "hash": "37053b9a0e1f6c031e9f9f74f42c14fe"
+    },
+    "social\\strategies\\reddit_media.py": {
+        "hash": "fff0bb5caec0fc854fa8785119e780fc"
+    },
+    "dreamos\\core\\resumer_v2\\__init__.py": {
+        "hash": "626164a79032fd44229ab9214d6d613b"
+    },
+    "social\\utils\\cleanup.py": {
+        "hash": "b18776549d291cb7251281d075d28360"
+    },
+    "tests\\community\\__init__.py": {
+        "hash": "4389018b28e02f673141294e3fda5cd1"
+    },
+    "social\\constants\\platform_constants.py": {
+        "hash": "b5c3960b49e0a52aba521fb7b70dcd09"
+    },
+    "dreamos\\core\\autonomy\\auto_trigger_runner.py": {
+        "hash": "2e62ceb645fc5d1cd71230303808db6c"
+    },
+    "tests\\core\\test_auth.py": {
+        "hash": "afc7bc39bcee2b7a70f91dcc26a552cc"
+    },
+    "tests\\social\\strategies\\test_content_management.py": {
+        "hash": "5a87fafdca7471b2eefd4c6b1c698ff8"
+    },
+    "crime_report_generator\\processors\\__init__.py": {
+        "hash": "f7ec0d66ede4a653a517fe17697eb969"
+    },
+    "dreamos\\core\\self_discovery\\journal.py": {
+        "hash": "64959c80334ffb69c38f7e630e0662fa"
+    },
+    "dreamos\\social\\utils\\log_manager.py": {
+        "hash": "089292fd87c9a548c2a1b24763acc90a"
+    },
+    "dreamos\\core\\agent_control\\agent_selection_dialog.py": {
+        "hash": "79b174fcb38b7c377149fa031ba6eba8"
+    },
+    "agent_tools\\swarm_tools\\tests\\conftest.py": {
+        "hash": "53ef961e429a8eaaef0cff5bb3abf610"
+    },
+    "archive\\deprecated\\message_processors\\legacy_message_processor.py": {
+        "hash": "ae1bf7ee777ca332118074f5eb752442"
+    },
+    "dreamos\\core\\config\\__init__.py": {
+        "hash": "b67e40f5aed3dd21e9acadccb4228f89"
+    },
+    "crime_report_generator\\reports\\crime_report_pipeline.py": {
+        "hash": "6c4c578ad575f6979104e3eb677ccfee"
+    },
+    "bridge\\bridge_response_loop_daemon.py": {
+        "hash": "a760c56002f6fd34489dfd64bcbe6796"
+    },
+    "crime_report_generator\\data_sources\\austin_scraper.py": {
+        "hash": "1a2abf19e3538aa13b0c9232dcf01606"
+    },
+    "runtime\\bridge_inbox\\__init__.py": {
+        "hash": "573c28ddefcce2c39e5f415873da677a"
+    },
+    "tests\\test_messaging\\test_history.py": {
+        "hash": "948cd0e96c2d8c76f087e32ad0099b46"
+    },
+    "dreamos\\core\\monitoring\\health\\__init__.py": {
+        "hash": "a189c2ebc01b5f771baca2b84298b2a0"
+    },
+    "dreamos\\core\\agent_control\\timing.py": {
+        "hash": "06e8e18d1d52ea52e78367cd056d746a"
+    },
+    "dreamos\\core\\messaging\\queue.py": {
+        "hash": "642354c1075da9d012d13e977cbdff98"
+    },
+    "dreamos\\core\\shared\\__init__.py": {
+        "hash": "d192cb7e8a637b7188e1423c42e3bd8c"
+    },
+    "gui\\__main__.py": {
+        "hash": "610338ea7e853ffe327fc69afed28f9e"
+    },
+    "dreamos\\core\\ai\\chatgpt_bridge.py": {
+        "hash": "8ecdb06c0eaa122f27e0a6989d2420c3"
+    },
+    "scripts\\overnight_test_runner.py": {
+        "hash": "a8c3a4e7e0c1f3f116a1887b4f219117"
+    },
+    "tests\\core\\test_queue.py": {
+        "hash": "4c297de437420933bc760487f10ec45b"
+    },
+    "archive\\deprecated\\auth_managers\\__init__.py": {
+        "hash": "7d08a222a9b87c522fb6b3696bc225a7"
+    },
+    "tools\\print_metrics_summary.py": {
+        "hash": "9d04c2721caa4bd1ce58998332814279"
+    },
+    "gui\\components\\log_monitor.py": {
+        "hash": "34e9a4addd3068a65b91e4d0142c2824"
+    },
+    "social\\strategies\\reddit\\handlers\\logout_handler.py": {
+        "hash": "8eaaca474fca895d448bbbc52f6f757d"
+    },
+    "discord_bot\\voice_cli.py": {
+        "hash": "6e6c81d8c92e5174b58a889415023321"
+    },
+    "social\\utils\\log_manager.py": {
+        "hash": "68d2156c3d2ec6cc4b23dc9ce896fbc3"
+    },
+    "dreamos\\core\\autonomy\\base\\test_response_loop.py": {
+        "hash": "c3253204e3ecc8f3227e145694f54f53"
+    },
+    "dreamos\\core\\messaging\\common.py": {
+        "hash": "1ada493b7012e3ef5e0c72bcb582d9f3"
+    },
+    "dreamos\\core\\autonomy\\startup.py": {
+        "hash": "1879f09baa1356ccf8ed6fb3d3869bde"
+    },
+    "discord_bot\\commands.py": {
+        "hash": "e4111405c5c485157bd596d9e60fe9ac"
+    },
+    "dreamos\\core\\autonomy\\base\\runner_core.py": {
+        "hash": "f9ba051033a3fb792bae6bf01fc6cee9"
+    },
+    "dreamos\\core\\resumer_v2\\quantum_agent_resumer.py": {
+        "hash": "8aea8d5a11eccd8642d90b25ffa2d435"
+    },
+    "crime_report_generator\\reports\\summarizer.py": {
+        "hash": "e47d8db7ebe171d33e5020bcfa96c7d8"
+    },
+    "dreamos\\core\\agent_control\\coordinate_calibrator.py": {
+        "hash": "bb00e0d48f0ad623756ae48982417ea9"
+    },
+    "tests\\social\\utils\\test_devlog_manager.py": {
+        "hash": "79a7ca2e0692828b7290839bb0e1365c"
+    },
+    "dreamos\\core\\security\\auth_manager.py": {
+        "hash": "61c02450b02d88ba871414f6cb610f51"
+    },
+    "dreamos\\core\\agent_control\\menu_builder.py": {
+        "hash": "df442bccff06e39f3722d5d5eece18d1"
+    },
+    "tests\\self_discovery\\__init__.py": {
+        "hash": "926436ce2f782d12e49f298b82f8f8f6"
+    },
+    "crime_report_generator\\data_sources\\houston_scraper.py": {
+        "hash": "4ab6fc84a1c0d8b87274958f7b7740d5"
+    },
+    "dreamos\\core\\messaging\\response_collector.py": {
+        "hash": "a939d3c6c74f2b8993011372f855cc3d"
+    },
+    "dreamos\\core\\config\\config_manager.py": {
+        "hash": "ac61a368405d929566bb4e4316577f19"
+    },
+    "social\\utils\\log_metrics.py": {
+        "hash": "470218da9af6ce9684a5e5a34355a466"
+    },
+    "tests\\core\\test_log_config.py": {
+        "hash": "aacb02ab124e02c85190ef9863825325"
+    },
+    "dreamos\\core\\autonomy\\handlers\\bridge\\base_bridge_handler.py": {
+        "hash": "5d91b21e025748ffee044f8e75bf8fb1"
+    },
+    "dreamos\\core\\messaging\\message_loop.py": {
+        "hash": "86f6fdb64e6c679fb312e171f6463010"
+    },
+    "dreamos\\core\\autonomy\\test_debug\\task_manager.py": {
+        "hash": "3750e45d313e337d45d7cab09f396a63"
+    },
+    "dreamos\\core\\agent_control\\main.py": {
+        "hash": "a142b48de204e7b89c13db82b7548c1f"
+    },
+    "tests\\autonomy\\test_task_completion.py": {
+        "hash": "c2bc01c3e818f3c318f709d7b6dd4390"
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_agent_state_manager.py": {
+        "hash": "31852335978d06ffd59ad14842533e58"
+    },
+    "tests\\utils\\mock_discord\\base.py": {
+        "hash": "14c3b91a78528486a48730c6be8a8d2d"
+    },
+    "dreamos\\core\\agent_control\\devlog_manager.py": {
+        "hash": "c0917c56c78549e91d05770b7481f281"
+    },
+    "tests\\community\\test_base.py": {
+        "hash": "c746b52ef612e61552623262332a9ab4"
+    },
+    "dreamos\\core\\automation\\browser_control.py": {
+        "hash": "882079dc6cab44896d071dd2e4bc770f"
+    },
+    "tests\\integration\\__init__.py": {
+        "hash": "1cae5d5eb2294ab3ba5480f4946db3ee"
+    },
+    "tools\\test_selenium_imports.py": {
+        "hash": "fafc0cae292262962bff1ff33c41d83e"
+    },
+    "agent_tools\\config\\test_config.py": {
+        "hash": "1d62b482861fa4f86f14d2c2832b5ea4"
+    },
+    "agent_tools\\agent_restart.py": {
+        "hash": "ebc73485a93c265558a0670d50ca73cd"
+    },
+    "dreamos\\core\\logging\\agent_logger.py": {
+        "hash": "52a233105183c2295943cf749d5cf7ad"
+    },
+    "tests\\core\\autonomy\\__init__.py": {
+        "hash": "1fca3c00647f4ef968b3b230c5bc05aa"
+    },
+    "social\\strategies\\twitter\\rate_limiting\\rate_limiter.py": {
+        "hash": "4758cdcc40f5950df28b844bc89d2fc6"
+    },
+    "dreamos\\core\\ai\\llm_agent.py": {
+        "hash": "c9033e084e989734773a9abc5ad4ac1b"
+    },
+    "tests\\social\\strategies\\reddit\\test_reddit_platform_rate_limiter.py": {
+        "hash": "3754867e73b26efbde2a56bf27c3b72c"
+    },
+    "tests\\core\\utils\\__init__.py": {
+        "hash": "16dc226ad9375db27a3aeec232922d76"
+    },
+    "crime_report_generator\\processors\\aggregator.py": {
+        "hash": "0c1f9958588e434758b3b41811f875d9"
+    },
+    "tests\\core\\test_agent_processor.py": {
+        "hash": "6b315128142395aa699a594dd2b5b399"
+    },
+    "tests\\core\\test_config.py": {
+        "hash": "811b61fc09e7fe413bd2d1e93d8f94aa"
+    },
+    "bridge\\bridge_response_processor.py": {
+        "hash": "543ca1689d134eb1af59b9ae4655524f"
+    },
+    "tests\\reports\\__init__.py": {
+        "hash": "e6b8aab826d71bc90cf9d2a2e7922552"
+    },
+    "tests\\social\\strategies\\reddit\\test_post_handler.py": {
+        "hash": "1b88ade6b309e5743f932a56a4f07eb4"
+    },
+    "tests\\core\\test_memory_querier.py": {
+        "hash": "cd8240298aaa168c763e72eab59ded58"
+    },
+    "dreamos\\core\\messaging\\message_record.py": {
+        "hash": "68e9c311e990cc4677aec9d08ab1e5e3"
+    },
+    "tests\\social\\utils\\__init__.py": {
+        "hash": "b195ba6e92faac7c4c3375a508b5c18d"
+    },
+    "tests\\cli\\__init__.py": {
+        "hash": "31a6d0785f0a9d5b6bc806a3c4ff7ef1"
+    },
+    "social\\community\\audience_analytics.py": {
+        "hash": "6e53da86a2ad85208e63a33805349370"
+    },
+    "tests\\core\\autonomy\\error\\test_error_handler.py": {
+        "hash": "f0e3dc97885ae2ffbb25e95b5501305d"
+    },
+    "agent_tools\\swarm_tools\\utils\\file_utils.py": {
+        "hash": "5806a7ed6c35d3d1e72b7769cfe841cb"
+    },
+    "tests\\social\\core\\test_dispatcher.py": {
+        "hash": "ba02205dd9ab38e7f17253e11e87ed24"
+    },
+    "crime_report_generator\\reports\\report_generator.py": {
+        "hash": "95fd6a2af2dd2139d8a18158628fa5e4"
+    },
+    "tests\\core\\autonomy\\test_processor_factory.py": {
+        "hash": "897cf02a9858ea3c5e49f64ea3907f96"
+    },
+    "dreamos\\core\\messaging\\unified_message_system.py": {
+        "hash": "74521cb7235d9aeba558b28c02faab12"
+    },
+    "discord_bot\\cogs\\basic.py": {
+        "hash": "ad7ac77b743a369d3cc5d522a7436eb3"
+    },
+    "crime_report_generator\\agents\\report_agent.py": {
+        "hash": "534630ed5047150275b3ce6d740a7b24"
+    },
+    "tests\\conftest.py": {
+        "hash": "271de971441e184b515530ca8150c08b"
+    },
+    "dreamos\\core\\messaging\\history.py": {
+        "hash": "fbe5165c260095edfc8fbe83966bf5e6"
+    },
+    "tests\\utils\\mock_discord\\commands.py": {
+        "hash": "95cf83513a683df0a712d432e62e73d1"
+    },
+    "social\\strategies\\reddit\\media.py": {
+        "hash": "18ae742fa2d0f4d721644d6289ed2409"
+    },
+    "bridge\\__init__.py": {
+        "hash": "dcffe800c9f252ce638a622beaf656a8"
+    },
+    "agent_tools\\autonomy\\task_completion.py": {
+        "hash": "38516ede082ba44e5ef901d6b0f39b74"
+    },
+    "tests\\core\\autonomy\\test_bridge_writer.py": {
+        "hash": "46ed26be4859f8f9dc135b71c867fc78"
+    },
+    "dreamos\\utils\\discord_client.py": {
+        "hash": "8eea4d4aa0e61d2d54a755fae612b140"
+    },
+    "crime_report_generator\\tests\\processors\\test_categorizer.py": {
+        "hash": "6a0df086cbac382a983193b70bd998a9"
+    },
+    "tools\\autopitch_machine.py": {
+        "hash": "dfdaba5c91cb33eab2c26a9fa44eaf31"
+    },
+    "tests\\core\\test_agent_loop_dreamscribe.py": {
+        "hash": "30e3f8b3850ea1f194dc2944f7c8ccf8"
+    },
+    "social\\strategies\\reddit\\config.py": {
+        "hash": "6025becbd71a3eb6e2374bc046602a44"
+    },
+    "tests\\mailbox\\test_message_handler.py": {
+        "hash": "078a41d81ff4ba603bd31dc8cf4f1e8b"
+    },
+    "dreamos\\core\\autonomy\\error_tracking.py": {
+        "hash": "2a83803561d524fee8054b0edffe75f5"
+    },
+    "tests\\dreamos\\test_cli.py": {
+        "hash": "f8b9bd0715d67e04cc887ae40e80fb4b"
+    },
+    "crime_report_generator\\tests\\reports\\__init__.py": {
+        "hash": "5bf010cd27ff13083c0d180676caf1d8"
+    },
+    "dreamos\\core\\agent_control\\controller.py": {
+        "hash": "85b7ececf59f4d68a6ac1599e6ac2951"
+    },
+    "tests\\social\\strategies\\test_rate_limiting.py": {
+        "hash": "64ef1e7828eeadb7ef9923e81d88ad35"
+    },
+    "agent_tools\\swarm_tools\\analyzers\\__init__.py": {
+        "hash": "37a4f15eae5ba58844bd43db94687cdd"
+    },
+    "dreamos\\core\\resumer_v2\\tests\\__init__.py": {
+        "hash": "dd1dd2a60d2b4896e44a35bcd27ea4e5"
+    },
+    "dreamos\\core\\shared\\persistent_queue.py": {
+        "hash": "c99b27dd0f41defbb655a5a72e7d5269"
+    },
+    "dreamos\\core\\integrations\\__init__.py": {
+        "hash": "724ce8c87db4b43ac7e3ad66bb942d83"
+    },
+    "tests\\swarm_tools\\test_weekly_digest.py": {
+        "hash": "5ba1de2fcad9470b55825e41f1de2396"
+    },
+    "social\\strategies\\reddit\\handlers\\media_handler.py": {
+        "hash": "e65cd963d21a07321c05c2add371868a"
+    },
+    "tests\\voice\\test_voicebot.py": {
+        "hash": "442163591f6b8e0725f2f058d27b4694"
+    },
+    "tests\\__init__.py": {
+        "hash": "0ba883c0604ed390be164d2b10a59022"
+    },
+    "tools\\performance_monitor.py": {
+        "hash": "70c688f72ed5165a460f699e571a6b66"
+    },
+    "tools\\overlap_heatmap.py": {
+        "hash": "81622af6da5f915d7cd855d5441c33a3"
+    },
+    "tests\\quarantine\\__init__.py": {
+        "hash": "c172c3d816e59d471568a74dcf1e3544"
+    },
+    "social\\strategies\\stocktwits_strategy.py": {
+        "hash": "bbc02cbe7cd55a3168f0caa3c2f1cf15"
+    },
+    "dreamos\\core\\auth\\manager.py": {
+        "hash": "83f348d0381cf981b90ee07d5beeb0ca"
+    },
+    "crime_report_generator\\reports\\zip_mapper.py": {
+        "hash": "51a558e34d3d1c232db85a5418da6fb3"
+    },
+    "dreamos\\core\\agent_control\\agent_control.py": {
+        "hash": "c8fc49faa995a194b1a394f41a1cda82"
+    },
+    "tests\\social\\strategies\\test_auth_handling.py": {
+        "hash": "64d7bb2fb187378125894f6a4e61634e"
+    },
+    "crime_report_generator\\tests\\visualizations\\test_crime_visualizer.py": {
+        "hash": "b0dacf6cfa1e77446368943222daa325"
+    },
+    "tests\\reports\\test_report_formatter.py": {
+        "hash": "114002404be98ec19a9c14d7bcb63b18"
+    },
+    "tests\\auth\\__init__.py": {
+        "hash": "b1c3849ca256a348c5373b99818ac11f"
+    },
+    "tests\\swarm_tools\\__init__.py": {
+        "hash": "7338297a0f16decb3d78ea157a3eeefb"
+    },
+    "dreamos\\core\\logging\\log_config.py": {
+        "hash": "6d37925d965e0db0072ff16ab4f542b9"
+    },
+    "dreamos\\core\\autonomy\\test_watcher.py": {
+        "hash": "919553be098c1251824d5004f68e666c"
+    },
+    "tests\\social\\strategies\\test_reddit_rate_limiter.py": {
+        "hash": "92ec923f4ade2c7bdf0f537fe9b7c240"
+    },
+    "tools\\odyssey_board.py": {
+        "hash": "64959e3ab07c1ba028709b8b6e3ee0e8"
+    },
+    "tests\\core\\test_dreamscribe.py": {
+        "hash": "29fbb2756926c91ad018d999473e6c4e"
+    },
+    "archive\\tests\\__init__.py": {
+        "hash": "3a71c5cd19863c82ce70c391635f701a"
+    },
+    "tests\\utils\\mock_discord\\webhook.py": {
+        "hash": "621dbcc4d41c2205e12e505dc5591c82"
+    },
+    "agent_tools\\mailbox\\standardize.py": {
+        "hash": "606c0672e5b489bdcc8bf48997f396d9"
+    },
+    "test_chatgpt_bridge.py": {
+        "hash": "4a5fddc62994fed296136671736d7144"
+    },
+    "tests\\core\\security\\test_auth_manager.py": {
+        "hash": "b9b0137f9a7c708972939876811b3247"
+    },
+    "discord_bot\\cogs\\__init__.py": {
+        "hash": "59db3fed0a4faad2f50fcaa9979c40ec"
+    },
+    "tools\\daily_trigger.py": {
+        "hash": "9333fca47f68555cb0a411f3848b2875"
+    },
+    "agent_tools\\swarm_tools\\utils\\__init__.py": {
+        "hash": "384b31ea5c533b4ac9a9bc9a6ad255f9"
+    },
+    "tests\\core\\security\\test_security_config.py": {
+        "hash": "7f28f7b87ebede4954094ddb73939347"
+    },
+    "dreamos\\core\\agent_control\\agent_operations.py": {
+        "hash": "1cb9d632bcc5c64f320aaa0126eeeb53"
+    },
+    "tests\\utils\\mock_discord.py": {
+        "hash": "3f57b1fc9a65cb342396f5a63258ebb2"
+    },
+    "tests\\social\\__init__.py": {
+        "hash": "20cb32d8d16e4502c31dfc5ec4f0a846"
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_quantum_agent_resumer.py": {
+        "hash": "19d0624fb7c7ad890ffe042e407e3f0f"
+    },
+    "social\\config\\social_config.py": {
+        "hash": "e16f51bf8f4ede2a22baa8b895dfc72d"
+    },
+    "crime_report_generator\\tests\\processors\\test_aggregator.py": {
+        "hash": "2bb993942cbc260aa460e68fa3dfda14"
+    },
+    "dreamos\\core\\autonomy\\base\\test_state_manager.py": {
+        "hash": "c66c6b019d3cf1861c56e075cda5cd36"
+    },
+    "dreamos\\core\\autonomy\\handlers\\__init__.py": {
+        "hash": "6b9ee404db56de63e45d35a4971c8f60"
+    },
+    "tests\\quarantine\\test_quarantine.py": {
+        "hash": "37d144c6d5fd0e2bb2b1667bd5a7e39c"
+    },
+    "tests\\dreamos\\__init__.py": {
+        "hash": "e5e8db64cdd403c6b506726464fd3821"
+    },
+    "tests\\test_config.py": {
+        "hash": "414df13ad7558f3a142524fcdc41173d"
+    },
+    "dreamos\\core\\security\\identity_utils.py": {
+        "hash": "d77221236ec69374d3b094ae16e54a57"
+    },
+    "agent_tools\\swarm_tools\\browser\\stealth_browser.py": {
+        "hash": "bf5bec2af7ce5c245619f155df2d6e05"
+    },
+    "dreamos\\core\\agents\\__init__.py": {
+        "hash": "1c5ae2bfb22e2551552ab7f24bbf43c9"
+    },
+    "dreamos\\core\\autonomy\\utils\\__init__.py": {
+        "hash": "c2a2a1ec04ef7d8987b3c5fc624c9ef6"
+    },
+    "crime_report_generator\\tests\\agents\\test_report_agent.py": {
+        "hash": "3a3112c3e1d29e72d179e960bb803266"
+    },
+    "crime_report_generator\\data_sources\\__init__.py": {
+        "hash": "77f440e3e17a69aadd50550a35788f4d"
+    },
+    "tests\\social\\test_audience_analytics.py": {
+        "hash": "e339cb53ae0ce03147bdc3e52da94c81"
+    },
+    "run_overnight.py": {
+        "hash": "f477d34723c8050729ecb7d2e5cd4dec"
     },
     "archive\\deprecated\\auth_managers\\legacy_auth_manager.py": {
         "hash": "2377beca29e4b2475217a6fe0af3f897"
@@ -1844,11 +1847,11 @@
     "archive\\deprecated\\auth_managers\\legacy_session_manager.py": {
         "hash": "6228621a824522ca8e5d8444e91ec0a8"
     },
-    "archive\\dupe_logging\\base_log_manager.py": {
-        "hash": "fbf11da3375285096a197415ab22bfda"
-    },
     "backups\\auth_backup_20250605_161813\\auth\\base.py": {
         "hash": "fa3fcaddebedfd8585d6254cf1ec6fac"
+    },
+    "backups\\auth_backup_20250605_161813\\auth\\interface.py": {
+        "hash": "15a1cbbb2336dd0f7bcfcd6bf367ffb8"
     },
     "backups\\auth_backup_20250605_161813\\auth\\manager.py": {
         "hash": "2377beca29e4b2475217a6fe0af3f897"
@@ -1862,26 +1865,23 @@
     "backups\\auth_backup_20250605_161813\\auth\\token.py": {
         "hash": "80da8982d62e72ce57c8f6e44d4f68c2"
     },
-    "backups\\auth_backup_20250605_161813\\auth\\__init__.py": {
-        "hash": "b6ffca9120be87a2518ce8e3075fa418"
-    },
-    "backups\\auth_backup_20250605_162224\\auth\\interface.py": {
-        "hash": "15a1cbbb2336dd0f7bcfcd6bf367ffb8"
-    },
     "backups\\auth_backup_20250605_162224\\auth\\manager.py": {
         "hash": "2377beca29e4b2475217a6fe0af3f897"
     },
     "backups\\auth_backup_20250605_162224\\auth\\retry.py": {
         "hash": "c7890c31086986680f286ec79ed1852b"
     },
-    "backups\\auth_backup_20250605_162224\\auth\\token.py": {
-        "hash": "80da8982d62e72ce57c8f6e44d4f68c2"
+    "backups\\auth_backup_20250605_162224\\auth\\session.py": {
+        "hash": "6228621a824522ca8e5d8444e91ec0a8"
     },
     "backups\\auth_backup_20250605_162744\\auth\\base.py": {
         "hash": "fa3fcaddebedfd8585d6254cf1ec6fac"
     },
     "backups\\auth_backup_20250605_162744\\auth\\interface.py": {
         "hash": "15a1cbbb2336dd0f7bcfcd6bf367ffb8"
+    },
+    "backups\\auth_backup_20250605_162744\\auth\\manager.py": {
+        "hash": "2377beca29e4b2475217a6fe0af3f897"
     },
     "backups\\auth_backup_20250605_162744\\auth\\retry.py": {
         "hash": "c7890c31086986680f286ec79ed1852b"
@@ -1898,28 +1898,31 @@
     "dreamos\\core\\auth\\interface.py": {
         "hash": "15a1cbbb2336dd0f7bcfcd6bf367ffb8"
     },
-    "dreamos\\core\\utils\\__init__.py": {
-        "hash": "529bd312e22694ec6f3ba9d147fd3405"
+    "dreamos\\core\\auth\\token.py": {
+        "hash": "80da8982d62e72ce57c8f6e44d4f68c2"
+    },
+    "dreamos\\social\\utils\\base_log_manager.py": {
+        "hash": "fbf11da3375285096a197415ab22bfda"
+    },
+    "dreamos\\social\\utils\\cleanup.py": {
+        "hash": "b18776549d291cb7251281d075d28360"
     },
     "dreamos\\social\\utils\\json_settings.py": {
         "hash": "08c2f68dbede03ab63f1f3d54bc1ece3"
+    },
+    "dreamos\\social\\utils\\log_pipeline.py": {
+        "hash": "e685cb4d97bff9dd5f34f90f28ad326f"
+    },
+    "dreamos\\social\\utils\\media_validator.py": {
+        "hash": "b3cea04394373d9d45e2a9ffe04c3a1f"
+    },
+    "dreamos\\social\\utils\\rate_limiter.py": {
+        "hash": "e74291bc843ccdb2493618b3cb194f82"
     },
     "dreamos\\social\\utils\\social_common.py": {
         "hash": "7fdadb1c9f8870f9cb5f832dda136193"
     },
     "social\\strategies\\twitter\\rate_limiting\\__init__.py": {
         "hash": "e1d02902db2d05dd01de900b451dd5ad"
-    },
-    "social\\utils\\cleanup.py": {
-        "hash": "b18776549d291cb7251281d075d28360"
-    },
-    "social\\utils\\log_pipeline.py": {
-        "hash": "e685cb4d97bff9dd5f34f90f28ad326f"
-    },
-    "social\\utils\\media_validator.py": {
-        "hash": "b3cea04394373d9d45e2a9ffe04c3a1f"
-    },
-    "social\\utils\\rate_limiter.py": {
-        "hash": "e74291bc843ccdb2493618b3cb194f82"
     }
 }

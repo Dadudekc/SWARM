@@ -18,11 +18,13 @@ sys.path.append(str(project_root))
 
 from .config import ConfigManager
 from .logging.log_config import setup_logging
+from .messaging.message_processor import MessageProcessor
 from .shared.coordinate_manager import CoordinateManager
 from .messaging.cell_phone import CellPhone
 from .logging.agent_logger import AgentLogger
 from .agent_control.ui_automation import UIAutomation
 from .agent_control.agent_operations import AgentOperations
+from tests.utils.test_utils import TEST_RUNTIME_DIR
 
 logger = logging.getLogger('system_init')
 
@@ -36,6 +38,7 @@ class SystemInitializer:
             agent_id: The ID of the agent to initialize for (default: "system")
         """
         self.agent_id = agent_id
+        self.message_processor = None
         self.coordinate_manager = None
         self.cell_phone = None
         self.agent_logger = None
@@ -57,6 +60,9 @@ class SystemInitializer:
                 
             # Initialize cell phone (message queue)
             self.cell_phone = CellPhone()
+            
+            # Initialize message processor with runtime directory
+            self.message_processor = MessageProcessor(runtime_dir=str(TEST_RUNTIME_DIR))
             
             # Initialize agent logger with agent ID
             self.agent_logger = AgentLogger(self.agent_id)
