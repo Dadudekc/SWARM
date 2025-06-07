@@ -1,0 +1,4 @@
+# Sample prompts for overnight testing of autonomy features
+prompts:
+  - "Run the autonomy unit test suite and report results"
+  - "Analyze recent failures and attempt automatic fixes"
