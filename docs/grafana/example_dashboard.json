@@ -1,0 +1,12 @@
+{
+  "dashboard": {
+    "title": "Dream.OS Metrics",
+    "panels": [
+      {
+        "type": "graph",
+        "title": "Total Logs",
+        "targets": [{"expr": "total_logs"}]
+      }
+    ]
+  }
+}

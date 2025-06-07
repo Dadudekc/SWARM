@@ -188,7 +188,10 @@ class LogWriter:
             
             # Open the actual file
             try:
+                file_existed = Path(file_path).exists()
                 f = open(file_path, mode)
+                if not file_existed and platform_module.system() != 'Windows':
+                    os.chmod(file_path, 0o600)
                 if platform_module.system() == 'Windows':
                     self._file_locks[file_path] = {'handle': handle, 'file': f}
                 else:

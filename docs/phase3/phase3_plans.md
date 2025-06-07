@@ -1,18 +1,19 @@
 # Phase 3 Preparation
 
-This document outlines the initial preparation work for **Phase 3 – Scalability & Hardening**.
+This document outlines the preparation work for **Phase 3 – Scalability & Hardening**.
+The initial milestones are now complete and prototypes are available.
 
 ## CONTAINERIZE-AGENTS-001
-- Draft Dockerfile for the core agent runtime.
-- Integrate container build into CI using `docker build`.
-- Explore Docker Compose for multi-agent orchestration.
+- Dockerfile added for the core agent runtime.
+- CI can build the container using `docker build`.
+- Docker Compose exploration is ongoing.
 
 ## SETUP-METRICS-DASHBOARD-002
-- Prototype a real-time metrics feed using the existing `LogMetrics` data.
-- Expose metrics through a simple Flask endpoint for Grafana/Prometheus.
-- Provide example dashboard configuration.
+- Real-time metrics feed implemented using `LogMetrics` data.
+- Flask endpoint `/metrics` serves JSON for Grafana/Prometheus.
+- Example dashboard configuration provided.
 
 ## SECURITY-HARDENING-003
-- Review sandboxing of agent workspaces.
-- Audit log file permissions and use restrictive defaults.
-- Document best practices for running containers with least privilege.
+- Log directories default to `700` and files to `600`.
+- Documentation lists container hardening best practices.
+- Further sandboxing work planned.
