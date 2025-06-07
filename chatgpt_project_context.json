@@ -1,14 +1,7 @@
 {
     "project_root": "D:\\SWARM\\Dream.OS",
-    "num_files_analyzed": 42,
+    "num_files_analyzed": 38,
     "analysis_details": {
-        "run_overnight.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
         "__init__.py": {
             "language": ".py",
             "functions": [],
@@ -16,12 +9,69 @@
             "routes": [],
             "complexity": 0
         },
-        "archive\\dupe_logging\\__init__.py": {
+        "archive\\deprecated\\auth_managers\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "archive\\deprecated\\auth_managers\\core_auth_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_attempt_login",
+                "login",
+                "logout",
+                "verify_session",
+                "refresh_token",
+                "cleanup_expired_sessions",
+                "login_operation"
+            ],
+            "classes": {
+                "AuthManager": {
+                    "methods": [
+                        "__init__",
+                        "_attempt_login",
+                        "login",
+                        "logout",
+                        "verify_session",
+                        "refresh_token",
+                        "cleanup_expired_sessions"
+                    ],
+                    "docstring": "Authentication manager implementing the platform-agnostic interface.",
+                    "base_classes": [
+                        "AbstractAuthInterface"
+                    ],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 15
+        },
+        "backups\\auth_backup_20250605_161813\\auth\\base.py": {
+            "language": ".py",
+            "functions": [
+                "__post_init__",
+                "is_valid",
+                "time_remaining"
+            ],
+            "classes": {
+                "ExpirableMixin": {
+                    "methods": [
+                        "__post_init__",
+                        "is_valid",
+                        "time_remaining"
+                    ],
+                    "docstring": "Mixin providing expiration-related functionality.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 6
         },
         "archive\\deprecated\\auth_managers\\legacy_auth_manager.py": {
             "language": ".py",
@@ -105,29 +155,6 @@
             "routes": [],
             "complexity": 23
         },
-        "backups\\auth_backup_20250605_161813\\auth\\base.py": {
-            "language": ".py",
-            "functions": [
-                "__post_init__",
-                "is_valid",
-                "time_remaining"
-            ],
-            "classes": {
-                "ExpirableMixin": {
-                    "methods": [
-                        "__post_init__",
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Mixin providing expiration-related functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 6
-        },
         "backups\\auth_backup_20250605_161813\\auth\\interface.py": {
             "language": ".py",
             "functions": [
@@ -164,74 +191,22 @@
             "routes": [],
             "complexity": 8
         },
-        "backups\\auth_backup_20250605_161813\\auth\\manager.py": {
+        "archive\\dupe_logging\\base_log_manager.py": {
             "language": ".py",
-            "functions": [
-                "__init__",
-                "_attempt_login",
-                "login",
-                "logout",
-                "verify_session",
-                "refresh_token",
-                "cleanup_expired_sessions",
-                "login_operation"
-            ],
+            "functions": [],
             "classes": {
-                "AuthManager": {
-                    "methods": [
-                        "__init__",
-                        "_attempt_login",
-                        "login",
-                        "logout",
-                        "verify_session",
-                        "refresh_token",
-                        "cleanup_expired_sessions"
-                    ],
-                    "docstring": "Authentication manager implementing the platform-agnostic interface.",
-                    "base_classes": [
-                        "AbstractAuthInterface"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 15
-        },
-        "backups\\auth_backup_20250605_161813\\auth\\retry.py": {
-            "language": ".py",
-            "functions": [
-                "retry",
-                "__init__",
-                "calculate_delay",
-                "execute",
-                "decorator",
-                "wrapper"
-            ],
-            "classes": {
-                "RetryError": {
+                "LogLevel": {
                     "methods": [],
-                    "docstring": "Base class for retry-related errors.",
+                    "docstring": "Standard log levels for consistent logging across the application.",
                     "base_classes": [
-                        "Exception"
+                        "Enum"
                     ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "RetryMechanism": {
-                    "methods": [
-                        "__init__",
-                        "calculate_delay",
-                        "execute"
-                    ],
-                    "docstring": "Implements retry logic with exponential backoff.",
-                    "base_classes": [],
                     "maturity": "Core Asset",
                     "agent_type": "Utility"
                 }
             },
             "routes": [],
-            "complexity": 9
+            "complexity": 0
         },
         "backups\\auth_backup_20250605_161813\\auth\\session.py": {
             "language": ".py",
@@ -333,6 +308,29 @@
             "routes": [],
             "complexity": 0
         },
+        "backups\\auth_backup_20250605_162224\\auth\\base.py": {
+            "language": ".py",
+            "functions": [
+                "__post_init__",
+                "is_valid",
+                "time_remaining"
+            ],
+            "classes": {
+                "ExpirableMixin": {
+                    "methods": [
+                        "__post_init__",
+                        "is_valid",
+                        "time_remaining"
+                    ],
+                    "docstring": "Mixin providing expiration-related functionality.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
         "backups\\auth_backup_20250605_162224\\auth\\manager.py": {
             "language": ".py",
             "functions": [
@@ -401,6 +399,51 @@
             },
             "routes": [],
             "complexity": 9
+        },
+        "backups\\auth_backup_20250605_162224\\auth\\token.py": {
+            "language": ".py",
+            "functions": [
+                "is_valid",
+                "time_remaining",
+                "__init__",
+                "generate_token",
+                "validate_token",
+                "get_token_info",
+                "refresh_token",
+                "invalidate_token",
+                "cleanup_expired",
+                "_sign_token"
+            ],
+            "classes": {
+                "TokenInfo": {
+                    "methods": [
+                        "is_valid",
+                        "time_remaining"
+                    ],
+                    "docstring": "Represents token metadata.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                },
+                "TokenHandler": {
+                    "methods": [
+                        "__init__",
+                        "generate_token",
+                        "validate_token",
+                        "get_token_info",
+                        "refresh_token",
+                        "invalidate_token",
+                        "cleanup_expired",
+                        "_sign_token"
+                    ],
+                    "docstring": "Handles token generation, validation, and refresh.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
+            "routes": [],
+            "complexity": 20
         },
         "backups\\auth_backup_20250605_162224\\auth\\session.py": {
             "language": ".py",
@@ -685,63 +728,12 @@
             "routes": [],
             "complexity": 0
         },
-        "dreamos\\core\\system_init.py": {
-            "language": ".py",
-            "functions": [
-                "main",
-                "__init__",
-                "initialize_core_systems",
-                "establish_communication_channels",
-                "begin_monitoring",
-                "report_status"
-            ],
-            "classes": {
-                "SystemInitializer": {
-                    "methods": [
-                        "__init__",
-                        "initialize_core_systems",
-                        "establish_communication_channels",
-                        "begin_monitoring",
-                        "report_status"
-                    ],
-                    "docstring": "Handles system initialization and communication setup.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 11
-        },
-        "dreamos\\core\\agent_control\\__init__.py": {
+        "dreamos\\core\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
-        },
-        "dreamos\\core\\auth\\base.py": {
-            "language": ".py",
-            "functions": [
-                "__post_init__",
-                "is_valid",
-                "time_remaining"
-            ],
-            "classes": {
-                "ExpirableMixin": {
-                    "methods": [
-                        "__post_init__",
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Mixin providing expiration-related functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 6
         },
         "dreamos\\core\\auth\\interface.py": {
             "language": ".py",
@@ -779,50 +771,40 @@
             "routes": [],
             "complexity": 8
         },
-        "dreamos\\core\\auth\\token.py": {
+        "dreamos\\core\\auth\\retry.py": {
             "language": ".py",
             "functions": [
-                "is_valid",
-                "time_remaining",
+                "retry",
                 "__init__",
-                "generate_token",
-                "validate_token",
-                "get_token_info",
-                "refresh_token",
-                "invalidate_token",
-                "cleanup_expired",
-                "_sign_token"
+                "calculate_delay",
+                "execute",
+                "decorator",
+                "wrapper"
             ],
             "classes": {
-                "TokenInfo": {
-                    "methods": [
-                        "is_valid",
-                        "time_remaining"
+                "RetryError": {
+                    "methods": [],
+                    "docstring": "Base class for retry-related errors.",
+                    "base_classes": [
+                        "Exception"
                     ],
-                    "docstring": "Represents token metadata.",
-                    "base_classes": [],
                     "maturity": "Core Asset",
                     "agent_type": "Utility"
                 },
-                "TokenHandler": {
+                "RetryMechanism": {
                     "methods": [
                         "__init__",
-                        "generate_token",
-                        "validate_token",
-                        "get_token_info",
-                        "refresh_token",
-                        "invalidate_token",
-                        "cleanup_expired",
-                        "_sign_token"
+                        "calculate_delay",
+                        "execute"
                     ],
-                    "docstring": "Handles token generation, validation, and refresh.",
+                    "docstring": "Implements retry logic with exponential backoff.",
                     "base_classes": [],
                     "maturity": "Core Asset",
                     "agent_type": "Utility"
                 }
             },
             "routes": [],
-            "complexity": 20
+            "complexity": 9
         },
         "dreamos\\core\\auth\\__init__.py": {
             "language": ".py",
@@ -835,23 +817,6 @@
             "language": ".py",
             "functions": [],
             "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "dreamos\\social\\utils\\base_log_manager.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {
-                "LogLevel": {
-                    "methods": [],
-                    "docstring": "Standard log levels for consistent logging across the application.",
-                    "base_classes": [
-                        "Enum"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
             "routes": [],
             "complexity": 0
         },
@@ -996,33 +961,6 @@
             "routes": [],
             "complexity": 8
         },
-        "dreamos\\social\\utils\\rate_limiter.py": {
-            "language": ".py",
-            "functions": [
-                "__init__",
-                "check_rate_limit",
-                "set_rate_limit",
-                "reset_limits",
-                "get_remaining"
-            ],
-            "classes": {
-                "RateLimiter": {
-                    "methods": [
-                        "__init__",
-                        "check_rate_limit",
-                        "set_rate_limit",
-                        "reset_limits",
-                        "get_remaining"
-                    ],
-                    "docstring": "Handles rate limiting for API operations.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 10
-        },
         "dreamos\\social\\utils\\social_common.py": {
             "language": ".py",
             "functions": [
@@ -1065,13 +1003,6 @@
             "routes": [],
             "complexity": 0
         },
-        "scripts\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
         "social\\strategies\\twitter\\rate_limiting\\__init__.py": {
             "language": ".py",
             "functions": [],
@@ -1079,14 +1010,34 @@
             "routes": [],
             "complexity": 0
         },
-        "social\\utils\\__init__.py": {
+        "social\\utils\\rate_limiter.py": {
             "language": ".py",
-            "functions": [],
-            "classes": {},
+            "functions": [
+                "__init__",
+                "check_rate_limit",
+                "set_rate_limit",
+                "reset_limits",
+                "get_remaining"
+            ],
+            "classes": {
+                "RateLimiter": {
+                    "methods": [
+                        "__init__",
+                        "check_rate_limit",
+                        "set_rate_limit",
+                        "reset_limits",
+                        "get_remaining"
+                    ],
+                    "docstring": "Handles rate limiting for API operations.",
+                    "base_classes": [],
+                    "maturity": "Core Asset",
+                    "agent_type": "Utility"
+                }
+            },
             "routes": [],
-            "complexity": 0
+            "complexity": 10
         },
-        "tests\\utils\\test_mocks.py": {
+        "tests\\utils\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
