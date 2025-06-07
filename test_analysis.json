@@ -1,0 +1,5078 @@
+{
+    "conftest.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "agent_tools\\activate_test_debug.py": {
+        "language": ".py",
+        "functions": [
+            "get_agent_coords",
+            "send_prompt_to_agent",
+            "activate_test_debug_mode"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "run_tests.py": {
+        "language": ".py",
+        "functions": [
+            "run_test"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "test_chatgpt_bridge.py": {
+        "language": ".py",
+        "functions": [
+            "test_bridge"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "test_debug_time.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "agent_tools\\config\\test_migrator.py": {
+        "language": ".py",
+        "functions": [
+            "temp_dir",
+            "legacy_ini",
+            "legacy_json",
+            "legacy_yaml",
+            "test_migrate_ini",
+            "test_migrate_json",
+            "test_migrate_yaml",
+            "test_migrate_invalid_file",
+            "test_migrate_with_unknown_fields",
+            "test_migrate_with_invalid_values",
+            "test_migrate_with_missing_agent_id",
+            "test_save_migration_report"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "agent_tools\\config\\test_config.py": {
+        "language": ".py",
+        "functions": [
+            "config_dir",
+            "default_config",
+            "agent_config",
+            "test_config_loader_loads_default",
+            "test_config_loader_formats_paths",
+            "test_config_validator_validates_schema",
+            "test_config_validator_validates_agent_name",
+            "test_config_validator_validates_webhook_url",
+            "test_config_validator_validates_commit_message",
+            "test_config_validator_validates_ip_addresses",
+            "test_config_validator_validates_numeric_limits",
+            "test_config_validator_validates_command_paths",
+            "test_config_loader_handles_missing_files",
+            "test_config_loader_merges_nested_configs"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "agent_tools\\mailbox\\agent-1\\workspace\\test_devlog.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "agent_tools\\swarm_tools\\tests\\conftest.py": {
+        "language": ".py",
+        "functions": [
+            "temp_project_dir",
+            "sample_file_analysis",
+            "sample_project_analysis"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "agent_tools\\swarm_tools\\tests\\test_analyzers_edge_cases.py": {
+        "language": ".py",
+        "functions": [
+            "complex_code",
+            "complex_dependencies",
+            "test_quality_analyzer_complex_nesting",
+            "test_quality_analyzer_duplicate_detection",
+            "test_dependency_analyzer_complex_imports",
+            "test_dependency_analyzer_circular_deps",
+            "test_dependency_analyzer_core_components",
+            "test_dependency_analyzer_module_grouping",
+            "test_quality_analyzer_class_inheritance",
+            "test_quality_analyzer_empty_file",
+            "test_dependency_analyzer_empty_file",
+            "test_quality_analyzer_invalid_syntax",
+            "test_dependency_analyzer_invalid_syntax"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "agent_tools\\swarm_tools\\tests\\test_analyzers.py": {
+        "language": ".py",
+        "functions": [
+            "sample_files",
+            "test_dependency_analyzer_initialization",
+            "test_analyze_dependencies",
+            "test_identify_core_components",
+            "test_group_into_modules",
+            "test_quality_analyzer_initialization",
+            "test_analyze_file_quality",
+            "test_analyze_test_coverage"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "agent_tools\\swarm_tools\\tests\\test_models.py": {
+        "language": ".py",
+        "functions": [
+            "test_class_info_initialization",
+            "test_file_analysis_initialization",
+            "test_project_analysis_initialization",
+            "test_project_analysis_to_dict"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "agent_tools\\swarm_tools\\tests\\test_models_edge_cases.py": {
+        "language": ".py",
+        "functions": [
+            "test_class_info_edge_cases",
+            "test_file_analysis_edge_cases",
+            "test_project_analysis_edge_cases",
+            "test_serialization_edge_cases"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "agent_tools\\swarm_tools\\tests\\test_scanner_edge_cases.py": {
+        "language": ".py",
+        "functions": [
+            "complex_project"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "agent_tools\\swarm_tools\\tests\\test_scanner.py": {
+        "language": ".py",
+        "functions": [
+            "temp_project",
+            "test_save_results"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "agent_tools\\swarm_tools\\tests\\test_utils.py": {
+        "language": ".py",
+        "functions": [
+            "test_is_valid_file",
+            "test_is_test_file",
+            "test_get_file_extension",
+            "test_normalize_path",
+            "test_create_directory",
+            "test_create_directory_existing",
+            "test_create_directory_with_parents",
+            "test_create_directory_permission_error",
+            "test_create_directory_invalid_path",
+            "test_create_directory_max_length",
+            "test_create_directory_concurrent",
+            "create_dir"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "agent_tools\\swarm_tools\\tests\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "archive\\orphans\\test_debug_loop.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_config",
+            "_load_state",
+            "_save_state",
+            "stop",
+            "_parse_test_failure",
+            "_analyze_failure",
+            "_get_recent_logs",
+            "_has_pending_changes",
+            "_get_source_file"
+        ],
+        "classes": {
+            "TestDebugLoop": {
+                "methods": [
+                    "__init__",
+                    "_load_config",
+                    "_load_state",
+                    "_save_state",
+                    "stop",
+                    "_parse_test_failure",
+                    "_analyze_failure",
+                    "_get_recent_logs",
+                    "_has_pending_changes",
+                    "_get_source_file"
+                ],
+                "docstring": "Manages continuous test autonomy mode.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "archive\\tests\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "archive\\tests\\error_management_legacy_tests.py": {
+        "language": ".py",
+        "functions": [
+            "test_record_success",
+            "test_error_count",
+            "test_error_filtering",
+            "test_error_summary",
+            "test_error_severity_mapping",
+            "test_generate_filtered_report",
+            "test_save_report_custom_filename",
+            "test_report_directory_creation",
+            "test_report_statistics"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "bridge\\test_bridge_loop.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_create_test_response",
+            "_verify_prompt_generation",
+            "_verify_response_archival",
+            "_cleanup_test_files",
+            "run_test"
+        ],
+        "classes": {
+            "BridgeLoopTester": {
+                "methods": [
+                    "__init__",
+                    "_create_test_response",
+                    "_verify_prompt_generation",
+                    "_verify_response_archival",
+                    "_cleanup_test_files",
+                    "run_test"
+                ],
+                "docstring": "Tests the full bridge loop functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 12
+    },
+    "crime_report_generator\\tests\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "crime_report_generator\\tests\\agents\\test_report_agent.py": {
+        "language": ".py",
+        "functions": [
+            "mock_distributor",
+            "sample_crime_data",
+            "mock_data_source",
+            "mock_social_config",
+            "agent",
+            "test_process_data",
+            "test_generate_report",
+            "test_schedule_report",
+            "test_distribute_report",
+            "test_remove_job",
+            "test_shutdown",
+            "test_invalid_social_platform",
+            "test_data_processing_error",
+            "test_report_generation_error"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "crime_report_generator\\tests\\agents\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "crime_report_generator\\tests\\processors\\test_aggregator.py": {
+        "language": ".py",
+        "functions": [
+            "sample_df",
+            "test_aggregate_by_type",
+            "test_aggregate_by_district",
+            "test_top_locations",
+            "test_empty_dataframe",
+            "test_missing_columns",
+            "test_lowest_activity_locations",
+            "test_top_locations_with_min_count"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "crime_report_generator\\tests\\processors\\test_categorizer.py": {
+        "language": ".py",
+        "functions": [
+            "sample_raw_data",
+            "categorizer",
+            "test_categorize_offense",
+            "test_categorize_description",
+            "test_categorize_dataframe",
+            "test_unknown_offense",
+            "test_empty_dataframe",
+            "test_missing_columns",
+            "test_case_insensitivity"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "crime_report_generator\\tests\\processors\\test_cleaner.py": {
+        "language": ".py",
+        "functions": [
+            "sample_raw_data",
+            "sample_messy_data",
+            "test_clean_dates",
+            "test_clean_crime_types",
+            "test_clean_counts",
+            "test_clean_locations",
+            "test_clean_status",
+            "test_clean_complete_dataset",
+            "test_handle_missing_data",
+            "test_handle_invalid_data"
+        ],
+        "classes": {
+            "TestDataCleaner": {
+                "methods": [
+                    "test_clean_dates",
+                    "test_clean_crime_types",
+                    "test_clean_counts",
+                    "test_clean_locations",
+                    "test_clean_status",
+                    "test_clean_complete_dataset",
+                    "test_handle_missing_data",
+                    "test_handle_invalid_data"
+                ],
+                "docstring": "Test cases for the DataCleaner class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 18
+    },
+    "crime_report_generator\\tests\\processors\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "crime_report_generator\\tests\\reports\\test_report_generator.py": {
+        "language": ".py",
+        "functions": [
+            "sample_crime_data",
+            "report_generator",
+            "test_generate_markdown_report",
+            "test_generate_html_report",
+            "test_generate_pdf_report",
+            "test_report_summary_statistics",
+            "test_empty_dataframe",
+            "test_missing_required_columns",
+            "test_custom_template"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "crime_report_generator\\tests\\reports\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "crime_report_generator\\tests\\scheduler\\test_report_scheduler.py": {
+        "language": ".py",
+        "functions": [
+            "sample_crime_data",
+            "mock_data_source",
+            "mock_distributor",
+            "scheduler",
+            "test_schedule_report",
+            "test_generate_scheduled_report",
+            "test_distribute_report",
+            "test_invalid_report_type",
+            "test_invalid_format",
+            "test_data_source_error",
+            "test_distributor_error"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "crime_report_generator\\tests\\scheduler\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "crime_report_generator\\tests\\visualizations\\test_crime_visualizer.py": {
+        "language": ".py",
+        "functions": [
+            "sample_crime_data",
+            "visualizer",
+            "test_create_category_pie_chart",
+            "test_create_trend_line_chart",
+            "test_create_location_bar_chart",
+            "test_create_category_trend_chart",
+            "test_empty_dataframe",
+            "test_missing_required_columns",
+            "test_save_visualization",
+            "test_custom_styling"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 10
+    },
+    "crime_report_generator\\tests\\visualizations\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\agents\\perpetual_test_fixer.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "on_modified",
+            "__init__",
+            "_process_failures",
+            "get_status"
+        ],
+        "classes": {
+            "TestFailureHandler": {
+                "methods": [
+                    "__init__",
+                    "on_modified"
+                ],
+                "docstring": "Handles test file changes and triggers test runs.",
+                "base_classes": [
+                    "FileSystemEventHandler"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "PerpetualTestFixer": {
+                "methods": [
+                    "__init__",
+                    "_process_failures",
+                    "get_status"
+                ],
+                "docstring": "Coordinates test failures with agents and Codex validation.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 10
+    },
+    "dreamos\\core\\agents\\test_fix_loop.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_get_next_batch",
+            "get_status"
+        ],
+        "classes": {
+            "TestFixLoop": {
+                "methods": [
+                    "__init__",
+                    "_get_next_batch",
+                    "get_status"
+                ],
+                "docstring": "Coordinates test fixing with agent rotation and PyAutoGUI injection.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\core\\autonomy\\test_devlog_bridge.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_config"
+        ],
+        "classes": {
+            "TestDevLogBridge": {
+                "methods": [
+                    "__init__",
+                    "_load_config"
+                ],
+                "docstring": "Bridges test automation with devlog system.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "dreamos\\core\\autonomy\\test_state.py": {
+        "language": ".py",
+        "functions": [
+            "state_manager"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "dreamos\\core\\autonomy\\test_loop.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "get_test_results"
+        ],
+        "classes": {
+            "TestLoop": {
+                "methods": [
+                    "__init__",
+                    "get_test_results"
+                ],
+                "docstring": "Manages the test execution loop.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "dreamos\\core\\autonomy\\test_watcher.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_parse_test_failures",
+            "_get_agent_for_test",
+            "_mark_files_clean",
+            "_get_file_for_test"
+        ],
+        "classes": {
+            "TestWatcher": {
+                "methods": [
+                    "__init__",
+                    "_parse_test_failures",
+                    "_get_agent_for_test",
+                    "_mark_files_clean",
+                    "_get_file_for_test"
+                ],
+                "docstring": "Monitors test suite and manages repair tasks.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 10
+    },
+    "dreamos\\core\\autonomy\\base\\test_response_loop.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "response_files",
+            "__init__",
+            "_validate_response"
+        ],
+        "classes": {
+            "TestResponseLoop": {
+                "methods": [
+                    "__init__",
+                    "_validate_response"
+                ],
+                "docstring": "Test implementation of BaseResponseLoop.",
+                "base_classes": [
+                    null
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "runner"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [],
+                "docstring": "Test implementation of BaseRunner.",
+                "base_classes": [
+                    "BaseRunner"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 2
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_advanced.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_core.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "__init__",
+            "parse_test_failures",
+            "__init__"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__",
+                    "parse_test_failures"
+                ],
+                "docstring": "Test implementation of RunnerCore for testing.",
+                "base_classes": [
+                    null
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestError": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": null,
+                "base_classes": [
+                    "Exception"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 7
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_lifecycle.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "__init__"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Test implementation of RunnerLifecycleMixin.",
+                "base_classes": [
+                    "RunnerLifecycleMixin"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 3
+    },
+    "dreamos\\core\\autonomy\\base\\test_runner_stress.py": {
+        "language": ".py",
+        "functions": [
+            "stress_config",
+            "__init__"
+        ],
+        "classes": {
+            "StressRunner": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Stress test implementation of RunnerCore.",
+                "base_classes": [
+                    null
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 3
+    },
+    "dreamos\\core\\autonomy\\base\\test_state_manager.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "state_manager",
+            "agent_id",
+            "test_cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "dreamos\\core\\autonomy\\memory\\tests\\conftest.py": {
+        "language": ".py",
+        "functions": [
+            "test_data_dir",
+            "test_config"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "dreamos\\core\\autonomy\\memory\\tests\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\autonomy\\memory\\tests\\test_response_memory_tracker.py": {
+        "language": ".py",
+        "functions": [
+            "temp_memory_file",
+            "memory_tracker",
+            "sample_message",
+            "test_initialization",
+            "test_track_processing",
+            "test_is_processed",
+            "test_persistence",
+            "test_invalid_file_handling",
+            "test_get_stats",
+            "test_concurrent_access",
+            "test_metadata_persistence",
+            "test_error_handling",
+            "add_hash"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "dreamos\\core\\autonomy\\test_debug\\fix_manager.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_analyze_failure",
+            "_get_source_content",
+            "_write_source_content",
+            "_extract_missing_import",
+            "_add_import_statement",
+            "_extract_assertion_values",
+            "_update_assertion",
+            "_extract_error_pattern",
+            "_apply_generic_fix",
+            "_fix_type_error",
+            "_fix_value_error",
+            "_fix_attribute_error",
+            "_fix_key_error"
+        ],
+        "classes": {
+            "FixManager": {
+                "methods": [
+                    "__init__",
+                    "_analyze_failure",
+                    "_get_source_content",
+                    "_write_source_content",
+                    "_extract_missing_import",
+                    "_add_import_statement",
+                    "_extract_assertion_values",
+                    "_update_assertion",
+                    "_extract_error_pattern",
+                    "_apply_generic_fix",
+                    "_fix_type_error",
+                    "_fix_value_error",
+                    "_fix_attribute_error",
+                    "_fix_key_error"
+                ],
+                "docstring": "Manages test failure analysis and fixes.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 28
+    },
+    "dreamos\\core\\autonomy\\test_debug\\task_manager.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_tasks",
+            "_save_tasks",
+            "_get_working_tasks",
+            "_get_future_tasks",
+            "has_pending_changes",
+            "_get_test_file"
+        ],
+        "classes": {
+            "TaskManager": {
+                "methods": [
+                    "__init__",
+                    "_load_tasks",
+                    "_save_tasks",
+                    "_get_working_tasks",
+                    "_get_future_tasks",
+                    "has_pending_changes",
+                    "_get_test_file"
+                ],
+                "docstring": "Manages task creation and updates.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "dreamos\\core\\autonomy\\test_debug\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\autonomy\\test_debug\\test_runner.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_extract_test_name",
+            "_extract_error"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__",
+                    "_extract_test_name",
+                    "_extract_error"
+                ],
+                "docstring": "Manages test execution and result parsing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 6
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\config.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_config",
+            "_validate_config",
+            "get_path",
+            "get_test_config",
+            "get_fix_config",
+            "update_config",
+            "_deep_merge"
+        ],
+        "classes": {
+            "ConfigManager": {
+                "methods": [
+                    "__init__",
+                    "_load_config",
+                    "_validate_config",
+                    "get_path",
+                    "get_test_config",
+                    "get_fix_config",
+                    "update_config",
+                    "_deep_merge"
+                ],
+                "docstring": "Manages configuration loading and validation.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 16
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\debug_utils.py": {
+        "language": ".py",
+        "functions": [
+            "parse_test_failures",
+            "create_fix_request",
+            "save_fix_request",
+            "load_fix_request",
+            "archive_fix_request",
+            "extract_agent_id"
+        ],
+        "classes": {
+            "TestDebugUtils": {
+                "methods": [
+                    "parse_test_failures",
+                    "create_fix_request",
+                    "save_fix_request",
+                    "load_fix_request",
+                    "archive_fix_request"
+                ],
+                "docstring": "Shared utilities for test debugging.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "DebugUtils": {
+                "methods": [
+                    "extract_agent_id"
+                ],
+                "docstring": "Utilities for test debugging operations.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 12
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\state.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "_load_state",
+            "save_state",
+            "increment_cycle",
+            "add_failed_test",
+            "add_passed_test",
+            "add_processing_test",
+            "remove_processing_test",
+            "get_state"
+        ],
+        "classes": {
+            "StateManager": {
+                "methods": [
+                    "__init__",
+                    "_load_state",
+                    "save_state",
+                    "increment_cycle",
+                    "add_failed_test",
+                    "add_passed_test",
+                    "add_processing_test",
+                    "remove_processing_test",
+                    "get_state"
+                ],
+                "docstring": "Manages state persistence and retrieval.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 18
+    },
+    "dreamos\\core\\autonomy\\test_debug\\utils\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\autonomy\\utils\\test_async_file_watcher.py": {
+        "language": ".py",
+        "functions": [
+            "temp_dir",
+            "file_watcher"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "dreamos\\core\\messaging\\test_captain_phone.py": {
+        "language": ".py",
+        "functions": [
+            "setUp",
+            "tearDown",
+            "test_send_message",
+            "test_broadcast_message",
+            "test_empty_message",
+            "test_invalid_agent_name",
+            "test_invalid_message_mode",
+            "test_invalid_priority",
+            "test_priority_message",
+            "test_response_timeout",
+            "test_save_response",
+            "test_send_message_with_response"
+        ],
+        "classes": {
+            "TestCaptainPhone": {
+                "methods": [
+                    "setUp",
+                    "tearDown",
+                    "test_send_message",
+                    "test_broadcast_message",
+                    "test_empty_message",
+                    "test_invalid_agent_name",
+                    "test_invalid_message_mode",
+                    "test_invalid_priority",
+                    "test_priority_message",
+                    "test_response_timeout",
+                    "test_save_response",
+                    "test_send_message_with_response"
+                ],
+                "docstring": "Test suite for CaptainPhone.",
+                "base_classes": [
+                    "unittest.TestCase"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 24
+    },
+    "dreamos\\core\\messaging\\test_cell_phone.py": {
+        "language": ".py",
+        "functions": [
+            "setUp",
+            "tearDown",
+            "test_send_message",
+            "test_empty_message",
+            "test_invalid_agent_name",
+            "test_invalid_message_mode",
+            "test_invalid_priority",
+            "test_send_priority_message",
+            "test_send_with_metadata",
+            "test_get_message_history",
+            "test_acknowledge_message"
+        ],
+        "classes": {
+            "TestCellPhone": {
+                "methods": [
+                    "setUp",
+                    "tearDown",
+                    "test_send_message",
+                    "test_empty_message",
+                    "test_invalid_agent_name",
+                    "test_invalid_message_mode",
+                    "test_invalid_priority",
+                    "test_send_priority_message",
+                    "test_send_with_metadata",
+                    "test_get_message_history",
+                    "test_acknowledge_message"
+                ],
+                "docstring": "Test suite for CellPhone.",
+                "base_classes": [
+                    "unittest.TestCase"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 22
+    },
+    "dreamos\\core\\messaging\\test_chatgpt_bridge.py": {
+        "language": ".py",
+        "functions": [
+            "setUp",
+            "tearDown",
+            "test_browser_launch",
+            "test_session_management",
+            "test_send_prompt_success",
+            "test_send_prompt_retry",
+            "test_send_prompt_max_retries",
+            "test_request_queuing",
+            "test_health_check",
+            "test_message_routing",
+            "test_error_message_routing"
+        ],
+        "classes": {
+            "TestChatGPTBridge": {
+                "methods": [
+                    "setUp",
+                    "tearDown",
+                    "test_browser_launch",
+                    "test_session_management",
+                    "test_send_prompt_success",
+                    "test_send_prompt_retry",
+                    "test_send_prompt_max_retries",
+                    "test_request_queuing",
+                    "test_health_check",
+                    "test_message_routing",
+                    "test_error_message_routing"
+                ],
+                "docstring": "Test suite for ChatGPTBridge.",
+                "base_classes": [
+                    "unittest.TestCase"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 22
+    },
+    "dreamos\\core\\messaging\\test_message_system.py": {
+        "language": ".py",
+        "functions": [
+            "setUp",
+            "tearDown",
+            "test_send_message",
+            "test_error_handling",
+            "test_get_history_by_agent",
+            "test_message_persistence",
+            "test_acknowledge_message"
+        ],
+        "classes": {
+            "TestMessageSystem": {
+                "methods": [
+                    "setUp",
+                    "tearDown",
+                    "test_send_message",
+                    "test_error_handling",
+                    "test_get_history_by_agent",
+                    "test_message_persistence",
+                    "test_acknowledge_message"
+                ],
+                "docstring": "Test the message system functionality.",
+                "base_classes": [
+                    "unittest.TestCase"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 14
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_atomic_file_manager.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_agent_state_manager.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_quantum_agent_resumer.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\resumer_v2\\tests\\test_utils.py": {
+        "language": ".py",
+        "functions": [
+            "test_file_manager",
+            "mock_event_collector",
+            "performance_timer",
+            "state_validator",
+            "create_test_state",
+            "create_test_task",
+            "__init__",
+            "corrupt_state_file",
+            "restore_state_file",
+            "create_test_task",
+            "create_test_tasks",
+            "simulate_file_corruption",
+            "__init__",
+            "get_events_by_type",
+            "clear_events",
+            "register_handler",
+            "__init__",
+            "start",
+            "stop",
+            "get_average_time",
+            "get_min_time",
+            "get_max_time",
+            "validate_state_structure",
+            "validate_task_structure",
+            "validate_state_transition",
+            "validate_task_transition"
+        ],
+        "classes": {
+            "TestFileManager": {
+                "methods": [
+                    "__init__",
+                    "corrupt_state_file",
+                    "restore_state_file",
+                    "create_test_task",
+                    "create_test_tasks",
+                    "simulate_file_corruption"
+                ],
+                "docstring": "Helper class for managing test files and state.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockEventCollector": {
+                "methods": [
+                    "__init__",
+                    "get_events_by_type",
+                    "clear_events",
+                    "register_handler"
+                ],
+                "docstring": "Collects and validates events during testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "PerformanceTimer": {
+                "methods": [
+                    "__init__",
+                    "start",
+                    "stop",
+                    "get_average_time",
+                    "get_min_time",
+                    "get_max_time"
+                ],
+                "docstring": "Utility for measuring operation performance.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "StateValidator": {
+                "methods": [
+                    "validate_state_structure",
+                    "validate_task_structure",
+                    "validate_state_transition",
+                    "validate_task_transition"
+                ],
+                "docstring": "Advanced state validation utilities.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 46
+    },
+    "dreamos\\core\\resumer_v2\\tests\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "dreamos\\core\\utils\\test_helpers.py": {
+        "language": ".py",
+        "functions": [
+            "load_test_config",
+            "setup_test_env",
+            "cleanup_test_env",
+            "mock_logger"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "runtime\\bridge_inbox\\test_bridge.py": {
+        "language": ".py",
+        "functions": [
+            "ensure_test_environment",
+            "test_bridge"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "scripts\\overnight_test_runner.py": {
+        "language": ".py",
+        "functions": [
+            "main",
+            "__init__",
+            "_load_test_analysis",
+            "_load_high_scores",
+            "_save_test_analysis",
+            "_save_high_scores",
+            "send_prompt_to_agent",
+            "run"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__",
+                    "_load_test_analysis",
+                    "_load_high_scores",
+                    "_save_test_analysis",
+                    "_save_high_scores",
+                    "send_prompt_to_agent",
+                    "run"
+                ],
+                "docstring": "Coordinates test running and agent debugging.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "ActionAgent"
+            }
+        },
+        "routes": [],
+        "complexity": 15
+    },
+    "tests\\conftest.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_environment",
+            "clean_test_dirs",
+            "test_env",
+            "temp_dir",
+            "test_file",
+            "test_json",
+            "test_yaml",
+            "test_log_dir",
+            "test_bridge_outbox",
+            "test_config",
+            "mock_message",
+            "mock_agent",
+            "MOCK_AGENT_CONFIG",
+            "pytest_configure",
+            "pytest_collection_modifyitems"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 15
+    },
+    "tests\\test_config.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_environment",
+            "cleanup_test_environment",
+            "test_config_defaults",
+            "test_config_custom_values",
+            "test_invalid_log_dir",
+            "test_log_level",
+            "test_json_config_access",
+            "test_json_config_integration_with_log_manager",
+            "test_bridge_specific_config",
+            "test_config_validation",
+            "test_file_permissions",
+            "setup_teardown",
+            "test_env",
+            "test_config",
+            "test_data_dir",
+            "test_output_dir",
+            "test_runtime_dir",
+            "test_temp_dir"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\test_imports.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\test_markers.py": {
+        "language": ".py",
+        "functions": [
+            "is_claimed_by_agent",
+            "get_claiming_agent",
+            "get_claim_issue",
+            "agent_claimed",
+            "agent_fixed",
+            "agent_skipped",
+            "agent_in_progress"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 7
+    },
+    "tests\\agent_control\\test_captain.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\agent_control\\test_control.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_env",
+            "mock_coords",
+            "mock_config_file",
+            "mock_pyautogui",
+            "agent_control",
+            "transformer",
+            "test_agent_control_initialization",
+            "test_load_coordinates",
+            "test_load_coordinates_missing_file",
+            "test_move_to_agent",
+            "test_click_input_box",
+            "test_click_copy_button",
+            "test_get_response_region",
+            "test_get_response_region_missing_agent",
+            "test_coordinate_transformer_initialization",
+            "test_coordinate_transformer_screen_size",
+            "test_transform_coordinates",
+            "test_transform_coordinate_dict"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\agent_control\\test_devlog_manager.py": {
+        "language": ".py",
+        "functions": [
+            "dummy_loop",
+            "all",
+            "decorator",
+            "__init__",
+            "get_channel",
+            "command",
+            "event",
+            "decorator"
+        ],
+        "classes": {
+            "_Intents": {
+                "methods": [
+                    "all"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Kiddie Script",
+                "agent_type": "Utility"
+            },
+            "DummyBot": {
+                "methods": [
+                    "__init__",
+                    "get_channel",
+                    "command",
+                    "event"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 13
+    },
+    "tests\\agent_control\\test_tasks.py": {
+        "language": ".py",
+        "functions": [
+            "agent_control",
+            "is_headless_or_mocked",
+            "test_window_focus_verification",
+            "test_screenshot_quality"
+        ],
+        "classes": {
+            "TestAgent1Tasks": {
+                "methods": [
+                    "agent_control",
+                    "is_headless_or_mocked",
+                    "test_window_focus_verification",
+                    "test_screenshot_quality"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\agent_control\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\auth\\test_auth_interface.py": {
+        "language": ".py",
+        "functions": [
+            "test_auth_interface_contract",
+            "test_auth_interface_methods",
+            "test_auth_interface_method_signatures",
+            "test_auth_interface_implementation",
+            "login",
+            "logout",
+            "verify_session",
+            "refresh_token",
+            "login",
+            "logout",
+            "verify_session",
+            "refresh_token"
+        ],
+        "classes": {
+            "AuthError": {
+                "methods": [],
+                "docstring": "Base class for authentication errors.",
+                "base_classes": [
+                    "Exception"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "AbstractAuthInterface": {
+                "methods": [
+                    "login",
+                    "logout",
+                    "verify_session",
+                    "refresh_token"
+                ],
+                "docstring": "Abstract base class defining the authentication interface.",
+                "base_classes": [
+                    "ABC"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "IncompleteAuth": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [
+                    "AbstractAuthInterface"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestAuth": {
+                "methods": [
+                    "login",
+                    "logout",
+                    "verify_session",
+                    "refresh_token"
+                ],
+                "docstring": null,
+                "base_classes": [
+                    "AbstractAuthInterface"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\auth\\test_retry_mechanism.py": {
+        "language": ".py",
+        "functions": [
+            "test_exponential_backoff",
+            "test_retry_with_success",
+            "test_retry_with_failure",
+            "test_retry_delay_timing",
+            "test_retry_with_custom_error",
+            "test_retry_with_mock",
+            "__init__",
+            "calculate_delay",
+            "execute",
+            "operation",
+            "operation",
+            "operation",
+            "operation"
+        ],
+        "classes": {
+            "RetryError": {
+                "methods": [],
+                "docstring": "Base class for retry-related errors.",
+                "base_classes": [
+                    "Exception"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "RetryMechanism": {
+                "methods": [
+                    "__init__",
+                    "calculate_delay",
+                    "execute"
+                ],
+                "docstring": "Implements retry logic with exponential backoff.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 16
+    },
+    "tests\\auth\\test_session.py": {
+        "language": ".py",
+        "functions": [
+            "test_session_manager_initialization",
+            "test_session_manager_default_config",
+            "test_session_creation",
+            "test_session_expiration",
+            "test_session_cleanup",
+            "test_session_update",
+            "test_session_deletion"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 7
+    },
+    "tests\\auth\\test_token.py": {
+        "language": ".py",
+        "functions": [
+            "test_token_info_creation",
+            "test_token_info_expiration",
+            "test_token_handler_initialization",
+            "test_token_generation",
+            "test_token_validation",
+            "test_token_refresh",
+            "test_token_invalidation",
+            "test_token_cleanup",
+            "test_token_custom_ttl",
+            "test_token_custom_scope",
+            "test_token_custom_data"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\auth\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\autonomy\\test_task_completion.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config",
+            "mock_discord_devlog",
+            "task_completion_hook",
+            "test_extract_mentioned_agents",
+            "test_generate_tags",
+            "test_format_task_summary",
+            "test_load_config"
+        ],
+        "classes": {
+            "TestTaskCompletionHook": {
+                "methods": [
+                    "test_extract_mentioned_agents",
+                    "test_generate_tags",
+                    "test_format_task_summary"
+                ],
+                "docstring": "Test the TaskCompletionHook class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestTaskCompletionManager": {
+                "methods": [
+                    "test_load_config"
+                ],
+                "docstring": "Test the TaskCompletionManager class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\autonomy\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\cli\\test_cellphone_cli.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_environment",
+            "run_cli_command",
+            "test_cli_help",
+            "test_cli_required_args",
+            "test_cli_welcome_message",
+            "test_cli_custom_message",
+            "test_cli_invalid_priority",
+            "test_cli_invalid_mode",
+            "test_cli_message_with_mode",
+            "test_cli_concurrent_messages"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 10
+    },
+    "tests\\cli\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\community\\test_base.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config_dir",
+            "temp_log_dir",
+            "base_instance",
+            "test_init",
+            "test_create_default_config",
+            "test_save_config",
+            "test_save_config_permission_error",
+            "test_load_config",
+            "test_load_nonexistent_config",
+            "test_load_invalid_config",
+            "test_update_metrics",
+            "test_update_metrics_invalid_type",
+            "test_update_metrics_nested"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "tests\\community\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\core\\test_agent_bus.py": {
+        "language": ".py",
+        "functions": [
+            "message_system"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\core\\test_agent_io.py": {
+        "language": ".py",
+        "functions": [
+            "message_system"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\core\\test_agent_loop_dreamscribe.py": {
+        "language": ".py",
+        "functions": [
+            "mock_agent_control",
+            "agent_loop",
+            "agent_loop"
+        ],
+        "classes": {
+            "MockQtWidgets": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "MockQtCore": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "MockQtGui": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QMainWindow": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QWidget": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QVBoxLayout": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QPushButton": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QLabel": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QFrame": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QSizePolicy": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "Qt": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QSize": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QObject": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "pyqtSignal": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Kiddie Script",
+                "agent_type": "Utility"
+            },
+            "QFont": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QColor": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "QPalette": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\core\\test_agent_processor.py": {
+        "language": ".py",
+        "functions": [
+            "message_system"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\core\\test_config.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "test_config_defaults",
+            "test_config_custom_values",
+            "test_invalid_log_dir"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\core\\test_auth.py": {
+        "language": ".py",
+        "functions": [
+            "test_auth_module_imports",
+            "test_auth_files_exist",
+            "test_auth_functionality"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\core\\test_coordinates.py": {
+        "language": ".py",
+        "functions": [
+            "move_to_coords",
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\core\\test_content_loop.py": {
+        "language": ".py",
+        "functions": [
+            "content_loop",
+            "test_content_event_logging",
+            "test_task_completion_logging",
+            "test_insight_logging",
+            "test_content_history_filtering",
+            "test_invalid_event_type"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\core\\test_dreamscribe.py": {
+        "language": ".py",
+        "functions": [
+            "dreamscribe",
+            "test_memory_ingestion",
+            "test_narrative_threading",
+            "test_insight_patterns",
+            "test_memory_connections"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\core\\test_file_ops.py": {
+        "language": ".py",
+        "functions": [
+            "temp_dir",
+            "sample_data",
+            "test_read_write_json",
+            "test_read_write_yaml",
+            "test_ensure_dir",
+            "test_safe_rmdir",
+            "test_rotate_file",
+            "test_safe_file_handle",
+            "test_read_nonexistent_file",
+            "test_invalid_json",
+            "test_invalid_yaml",
+            "test_rotate_nonexistent_file",
+            "test_safe_rmdir_nonexistent",
+            "test_safe_rmdir_nonempty_without_recursive",
+            "test_cross_platform_paths",
+            "test_file_ops_error_hierarchy"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 16
+    },
+    "tests\\core\\test_file_utils.py": {
+        "language": ".py",
+        "functions": [
+            "temp_dir",
+            "sample_data",
+            "test_ensure_dir",
+            "test_safe_write",
+            "test_safe_read",
+            "test_load_save_json",
+            "test_load_save_yaml",
+            "test_find_files",
+            "test_cleanup_old_files",
+            "test_safe_write_errors",
+            "test_safe_read_errors",
+            "test_json_errors",
+            "test_yaml_errors",
+            "test_ensure_dir_permissions",
+            "test_cross_platform_paths",
+            "not_serializable"
+        ],
+        "classes": {
+            "InvalidData": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 16
+    },
+    "tests\\core\\test_init_mailbox.py": {
+        "language": ".py",
+        "functions": [
+            "test_imports",
+            "temp_mailbox_dir",
+            "test_agent_id",
+            "mailbox",
+            "test_get_initial_state",
+            "test_init_mailbox_creates_files",
+            "test_init_mailbox_file_contents",
+            "test_init_mailbox_duplicate",
+            "test_reset_mailbox_creates_backup",
+            "test_reset_mailbox_restores_state",
+            "test_reset_nonexistent_mailbox",
+            "test_init_mailbox_invalid_agent_id",
+            "test_init_mailbox_invalid_directory",
+            "test_reset_mailbox_permission_error",
+            "test_concurrent_mailbox_operations",
+            "test_mailbox_file_permissions",
+            "test_mailbox_file_encoding",
+            "test_mailbox_file_corruption",
+            "test_mailbox_directory_cleanup",
+            "raise_oserror",
+            "mock_copytree",
+            "init_operation",
+            "reset_operation"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 23
+    },
+    "tests\\core\\test_log_config.py": {
+        "language": ".py",
+        "functions": [
+            "test_log_level_ordering",
+            "test_log_level_from_string",
+            "test_log_config_defaults",
+            "test_log_config_serialization",
+            "test_path_helpers",
+            "test_retention_date"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\core\\test_memory_querier.py": {
+        "language": ".py",
+        "functions": [
+            "setup_teardown",
+            "memory_querier",
+            "test_get_recent_memory",
+            "test_summarize_topic",
+            "test_find_similar_threads",
+            "test_get_agent_insights",
+            "test_get_task_history"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 7
+    },
+    "tests\\core\\test_messaging.py": {
+        "language": ".py",
+        "functions": [
+            "mock_agent_control",
+            "mock_message_pipeline",
+            "gui_test_env",
+            "persistent_queue",
+            "test_full_message_loop",
+            "test_message_loop_error_handling",
+            "test_message_loop_invalid_agent",
+            "test_queue_clear_agent",
+            "test_queue_clear_history",
+            "test_response_collector",
+            "test_response_collector_mock",
+            "test_real_ui_automation",
+            "test_message_creation",
+            "test_message_serialization"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "tests\\core\\test_queue.py": {
+        "language": ".py",
+        "functions": [
+            "queue",
+            "test_queue_initialization",
+            "test_add_message",
+            "test_get_message",
+            "test_clear_queue",
+            "test_persistent_storage",
+            "test_message_priority",
+            "test_queue_size_limit",
+            "test_invalid_message",
+            "test_empty_queue",
+            "test_message_history",
+            "test_clear_history",
+            "test_queue_status",
+            "test_queue_shutdown"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "tests\\core\\test_special_chars.py": {
+        "language": ".py",
+        "functions": [
+            "test_multiline_text"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\core\\test_utils.py": {
+        "language": ".py",
+        "functions": [
+            "create_mock_embed",
+            "create_mock_file",
+            "test_mock_guild",
+            "test_mock_channel",
+            "test_mock_member",
+            "test_mock_message",
+            "test_mock_context",
+            "test_mock_bot",
+            "test_create_mock_embed",
+            "test_mock_discord_file",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__"
+        ],
+        "classes": {
+            "MockGuild": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord guild for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockChannel": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord channel for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMember": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord member for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMessage": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord message for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockContext": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord context for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockBot": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord bot for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockFile": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 24
+    },
+    "tests\\core\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\core\\autonomy\\test_base_response_loop_daemon.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config_dir",
+            "mock_processor",
+            "daemon",
+            "__init__"
+        ],
+        "classes": {
+            "MockResponseProcessor": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock response processor for testing.",
+                "base_classes": [
+                    "ResponseProcessor"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\core\\autonomy\\test_bridge_writer.py": {
+        "language": ".py",
+        "functions": [
+            "test_config",
+            "bridge_writer",
+            "mock_response",
+            "test_get_status"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\core\\autonomy\\test_processor_factory.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config",
+            "mock_discord",
+            "test_processor_mode_enum",
+            "test_create_core_processor",
+            "test_create_bridge_processor",
+            "test_create_invalid_mode",
+            "test_factory_config_passing",
+            "test_factory_discord_passing",
+            "test_factory_error_handling",
+            "test_factory_singleton_behavior",
+            "test_factory_type_safety",
+            "test_factory_missing_config",
+            "test_factory_missing_discord"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "tests\\core\\autonomy\\test_response_loop_daemon.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config",
+            "mock_response",
+            "mock_response_file"
+        ],
+        "classes": {
+            "TestResourceManager": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "TestResponseErrorHandler": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "TestBaseResponseLoopDaemon": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "TestCoreResponseLoopDaemon": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "TestResponseLoopIntegration": {
+                "methods": [],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\core\\autonomy\\test_response_processors.py": {
+        "language": ".py",
+        "functions": [
+            "temp_workspace",
+            "mock_discord",
+            "mock_validator",
+            "core_processor",
+            "bridge_processor"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\core\\autonomy\\test_runner.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "get_test_results"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__",
+                    "get_test_results"
+                ],
+                "docstring": "Manages test execution and debugging.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\core\\autonomy\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\core\\autonomy\\benchmarks\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\core\\autonomy\\benchmarks\\test_response_loop_benchmarks.py": {
+        "language": ".py",
+        "functions": [
+            "benchmark_config",
+            "benchmark_responses"
+        ],
+        "classes": {
+            "ResponseLoopBenchmarks": {
+                "methods": [],
+                "docstring": "Benchmark suite for response loop performance.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\core\\autonomy\\error\\test_error_handler.py": {
+        "language": ".py",
+        "functions": [
+            "error_tracker",
+            "error_handler",
+            "test_error_severity_mapping"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\core\\autonomy\\error\\test_error_reporter.py": {
+        "language": ".py",
+        "functions": [
+            "error_tracker",
+            "report_dir",
+            "error_reporter",
+            "test_generate_report",
+            "test_save_report"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\core\\autonomy\\error\\test_error_tracker.py": {
+        "language": ".py",
+        "functions": [
+            "error_tracker",
+            "test_record_error",
+            "test_can_execute"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\core\\autonomy\\error\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\core\\security\\test_auth_manager.py": {
+        "language": ".py",
+        "functions": [
+            "auth_config",
+            "security_config",
+            "auth_manager",
+            "test_register_user",
+            "test_authenticate",
+            "test_login_attempts",
+            "test_token_validation",
+            "test_user_info",
+            "test_role_management",
+            "test_user_persistence",
+            "test_concurrent_access",
+            "register_and_login"
+        ],
+        "classes": {
+            "TestAuthManager": {
+                "methods": [
+                    "test_register_user",
+                    "test_authenticate",
+                    "test_login_attempts",
+                    "test_token_validation",
+                    "test_user_info",
+                    "test_role_management",
+                    "test_user_persistence",
+                    "test_concurrent_access"
+                ],
+                "docstring": "Test suite for AuthManager class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\core\\security\\test_identity_utils.py": {
+        "language": ".py",
+        "functions": [
+            "identity_config",
+            "test_generate_agent_id",
+            "test_validate_password",
+            "test_password_hashing",
+            "test_generate_token",
+            "test_format_agent_name"
+        ],
+        "classes": {
+            "TestIdentityUtils": {
+                "methods": [
+                    "test_generate_agent_id",
+                    "test_validate_password",
+                    "test_password_hashing",
+                    "test_generate_token",
+                    "test_format_agent_name"
+                ],
+                "docstring": "Test suite for IdentityUtils class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\core\\security\\test_security_config.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config_dir",
+            "security_config",
+            "test_default_config",
+            "test_config_persistence",
+            "test_config_validation",
+            "test_invalid_section",
+            "test_config_file_corruption",
+            "test_config_file_permissions",
+            "test_config_section_updates",
+            "test_config_reload"
+        ],
+        "classes": {
+            "TestSecurityConfig": {
+                "methods": [
+                    "test_default_config",
+                    "test_config_persistence",
+                    "test_config_validation",
+                    "test_invalid_section",
+                    "test_config_file_corruption",
+                    "test_config_file_permissions",
+                    "test_config_section_updates",
+                    "test_config_reload"
+                ],
+                "docstring": "Test suite for SecurityConfig class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\core\\security\\test_session_manager.py": {
+        "language": ".py",
+        "functions": [
+            "session_config",
+            "security_config",
+            "session_manager",
+            "test_create_session",
+            "test_session_limit",
+            "test_session_timeout",
+            "test_session_metadata",
+            "test_invalidate_session",
+            "test_session_persistence",
+            "test_cleanup_expired_sessions",
+            "test_concurrent_access",
+            "create_sessions"
+        ],
+        "classes": {
+            "TestSessionManager": {
+                "methods": [
+                    "test_create_session",
+                    "test_session_limit",
+                    "test_session_timeout",
+                    "test_session_metadata",
+                    "test_invalidate_session",
+                    "test_session_persistence",
+                    "test_cleanup_expired_sessions",
+                    "test_concurrent_access"
+                ],
+                "docstring": "Test suite for SessionManager class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\core\\security\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\core\\utils\\test_file_ops.py": {
+        "language": ".py",
+        "functions": [
+            "temp_dir",
+            "test_data",
+            "test_safe_file_handle",
+            "test_ensure_dir",
+            "test_safe_rmdir",
+            "test_json_operations",
+            "test_yaml_operations",
+            "test_rotate_file",
+            "test_safe_write_read",
+            "test_permission_errors"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 10
+    },
+    "tests\\core\\utils\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\discord\\test_discord_commands.py": {
+        "language": ".py",
+        "functions": [
+            "mock_bot",
+            "mock_context",
+            "mock_orchestrator",
+            "mock_log_manager"
+        ],
+        "classes": {
+            "TestBasicCommands": {
+                "methods": [],
+                "docstring": "Test the basic commands functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestAgentCommands": {
+                "methods": [],
+                "docstring": "Test the agent command functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\discord\\test_help_menu.py": {
+        "language": ".py",
+        "functions": [
+            "mock_bot",
+            "mock_context"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\discord\\test_notifier.py": {
+        "language": ".py",
+        "functions": [
+            "mock_bot",
+            "mock_webhook",
+            "mock_channel",
+            "notifier"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\discord\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\dreamos\\test_cli.py": {
+        "language": ".py",
+        "functions": [
+            "test_cli_script_exists",
+            "test_cli_help",
+            "test_cli_version",
+            "test_cli_invalid_command"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\dreamos\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\fixtures\\runner_fixtures.py": {
+        "language": ".py",
+        "functions": [
+            "runner_config",
+            "mock_logger",
+            "mock_bridge_handler",
+            "mock_agent_error",
+            "test_data_dir",
+            "sample_test_output",
+            "mock_file_operations",
+            "__init__",
+            "__init__",
+            "info",
+            "error",
+            "warning",
+            "debug",
+            "__init__",
+            "set_response",
+            "__init__",
+            "__init__",
+            "write_file",
+            "read_file",
+            "delete_file",
+            "file_exists"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Test implementation of RunnerCore.",
+                "base_classes": [
+                    null
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockLogger": {
+                "methods": [
+                    "__init__",
+                    "info",
+                    "error",
+                    "warning",
+                    "debug"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockBridgeHandler": {
+                "methods": [
+                    "__init__",
+                    "set_response"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "MockAgentError": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": null,
+                "base_classes": [
+                    "Exception"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockFileOps": {
+                "methods": [
+                    "__init__",
+                    "write_file",
+                    "read_file",
+                    "delete_file",
+                    "file_exists"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 35
+    },
+    "tests\\fixtures\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\integration\\test_discord_import.py": {
+        "language": ".py",
+        "functions": [
+            "test_discord_import"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\integration\\test_pyqt5_import.py": {
+        "language": ".py",
+        "functions": [
+            "test_pyqt5_import"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\integration\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\mailbox\\test_message_handler.py": {
+        "language": ".py",
+        "functions": [
+            "setUp",
+            "tearDown",
+            "test_sequence_initialization",
+            "test_sequence_advancement",
+            "test_agent_routing",
+            "test_invalid_agent",
+            "test_message_processing",
+            "test_cleanup_old_messages",
+            "test_agent_groups"
+        ],
+        "classes": {
+            "TestMessageHandler": {
+                "methods": [
+                    "setUp",
+                    "tearDown",
+                    "test_sequence_initialization",
+                    "test_sequence_advancement",
+                    "test_agent_routing",
+                    "test_invalid_agent",
+                    "test_message_processing",
+                    "test_cleanup_old_messages",
+                    "test_agent_groups"
+                ],
+                "docstring": null,
+                "base_classes": [
+                    "unittest.TestCase"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\mailbox\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\messaging\\test_cell_phone.py": {
+        "language": ".py",
+        "functions": [
+            "reset_singleton",
+            "cell_phone",
+            "test_basic_message_sending",
+            "test_message_priorities",
+            "test_message_modes",
+            "test_rate_limiting",
+            "test_empty_message",
+            "test_invalid_priority",
+            "test_invalid_message_mode",
+            "test_invalid_agent_name",
+            "test_status_tracking",
+            "test_concurrent_messages",
+            "test_message_history",
+            "test_message_validation",
+            "test_send_message_validation",
+            "test_message_queue_operations",
+            "test_shutdown",
+            "test_singleton_behavior"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\messaging\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\quarantine\\test_discord_commands__with_coords.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "__init__"
+        ],
+        "classes": {
+            "TestAgentCommandsWithCoordinates": {
+                "methods": [],
+                "docstring": "Test the agent command functionality with coordinate dependencies.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockContext": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord context.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMessage": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord message.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\messaging\\test_chatgpt_bridge.py": {
+        "language": ".py",
+        "functions": [
+            "pytest_collection_modifyitems",
+            "setup_test_environment",
+            "cell_phone",
+            "bridge"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\messaging\\test_unified_message_system.py": {
+        "language": ".py",
+        "functions": [
+            "load_ums",
+            "test_send_and_receive"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\quarantine\\test_quarantine.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_utils",
+            "mock_config",
+            "mock_logger",
+            "mock_memory",
+            "login_handler",
+            "temp_log_dir",
+            "log_config",
+            "log_manager",
+            "test_is_logged_in_when_login_form_present",
+            "test_login_success",
+            "test_retry_on_login_failure",
+            "test_max_retries_exceeded",
+            "test_rate_limit_persistent",
+            "test_basic_logging",
+            "test_log_levels",
+            "test_get_entries",
+            "test_metadata",
+            "test_error_handling",
+            "test_twitter_strategy_is_logged_in",
+            "test_invalid_media_rejection",
+            "test_valid_media_processing",
+            "test_log_levels",
+            "test_get_entries",
+            "test_metadata",
+            "test_error_handling",
+            "test_verify_session_valid",
+            "test_login_failure_missing_button",
+            "test_login_retry_click_failure",
+            "test_login_missing_credentials",
+            "test_reddit_strategy_integration",
+            "test_reddit_strategy_error_recovery",
+            "test_devlog_embed_validation",
+            "test_config_defaults",
+            "test_config_custom_values"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 35
+    },
+    "tests\\quarantine\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\reports\\test_crime_report_pipeline.py": {
+        "language": ".py",
+        "functions": [
+            "mock_data",
+            "test_generate_report_both_sources",
+            "test_generate_report_arcgis_only",
+            "test_generate_report_json_format",
+            "test_main_stdout",
+            "test_main_file_output",
+            "test_main_invalid_year",
+            "test_main_multiple_zips"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\reports\\test_report_formatter.py": {
+        "language": ".py",
+        "functions": [
+            "sample_data",
+            "test_format_markdown_report",
+            "test_format_discord_report",
+            "test_format_instagram_report",
+            "test_format_report_invalid_format",
+            "test_format_report_missing_data"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\reports\\test_zip_mapper.py": {
+        "language": ".py",
+        "functions": [
+            "test_get_zip_info_local_cache",
+            "test_get_zip_info_api_fallback",
+            "test_get_zip_info_api_error",
+            "test_format_location",
+            "test_get_zip_details",
+            "test_montgomery_zips_completeness"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\reports\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\self_discovery\\test_journal.py": {
+        "language": ".py",
+        "functions": [
+            "test_calculate_relapse_risk",
+            "test_add_entry_and_stats"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\self_discovery\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\test_audience_analytics.py": {
+        "language": ".py",
+        "functions": [
+            "analytics_instance",
+            "test_init",
+            "test_create_default_config",
+            "test_track_growth",
+            "test_track_growth_invalid_data",
+            "test_analyze_demographics",
+            "test_analyze_demographics_invalid_data",
+            "test_generate_insights",
+            "test_generate_insights_invalid_data",
+            "test_export_report",
+            "test_export_report_invalid_format",
+            "test_export_report_permission_error",
+            "test_get_audience_metrics",
+            "test_get_audience_metrics_invalid_platform"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "tests\\social\\test_content_scheduler.py": {
+        "language": ".py",
+        "functions": [
+            "scheduler_instance",
+            "test_init",
+            "test_create_default_config",
+            "test_schedule_post",
+            "test_schedule_post_invalid_data",
+            "test_schedule_post_rate_limit",
+            "test_get_schedule",
+            "test_get_schedule_invalid_platform",
+            "test_optimize_timing",
+            "test_optimize_timing_invalid_platform",
+            "test_analyze_performance",
+            "test_analyze_performance_no_data",
+            "test_get_optimal_time",
+            "test_get_optimal_time_invalid_platform",
+            "test_save_config_permission_error",
+            "test_load_config_invalid_format"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 16
+    },
+    "tests\\social\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\core\\test_batch_processing.py": {
+        "language": ".py",
+        "functions": [
+            "normalize_path",
+            "safe_file_handle",
+            "test_batch_processing",
+            "test_batch_processing_large",
+            "cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\social\\core\\test_dispatcher.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_directories",
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "mock_strategy",
+            "mock_limits",
+            "mock_rate_limiter",
+            "log_manager",
+            "test_retry_on_login_failure",
+            "test_max_retries_exceeded",
+            "test_rate_limit_respect",
+            "test_rate_limit_persistent",
+            "test_valid_media_processing",
+            "test_invalid_media_rejection",
+            "login_side_effect",
+            "is_logged_in_side_effect"
+        ],
+        "classes": {
+            "TestDispatcherRetryLogic": {
+                "methods": [
+                    "test_retry_on_login_failure",
+                    "test_max_retries_exceeded"
+                ],
+                "docstring": "Test suite for dispatcher retry functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestDispatcherRateLimiting": {
+                "methods": [
+                    "test_rate_limit_respect",
+                    "test_rate_limit_persistent"
+                ],
+                "docstring": "Test suite for dispatcher rate limiting functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestDispatcherMediaValidation": {
+                "methods": [
+                    "test_valid_media_processing",
+                    "test_invalid_media_rejection"
+                ],
+                "docstring": "Test suite for dispatcher media validation functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 22
+    },
+    "tests\\social\\core\\test_log_manager.py": {
+        "language": ".py",
+        "functions": [
+            "reset_log_manager",
+            "cleanup",
+            "metrics",
+            "test_metrics_initialization",
+            "test_metrics_increment_logs",
+            "test_metrics_record_error",
+            "test_metrics_record_rotation",
+            "test_metrics_reset",
+            "test_log_rotation",
+            "test_log_cleanup"
+        ],
+        "classes": {
+            "TestLogMetrics": {
+                "methods": [
+                    "test_metrics_initialization",
+                    "test_metrics_increment_logs",
+                    "test_metrics_record_error",
+                    "test_metrics_record_rotation",
+                    "test_metrics_reset"
+                ],
+                "docstring": "Test suite for log metrics functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestLogManager": {
+                "methods": [
+                    "test_log_rotation",
+                    "test_log_cleanup"
+                ],
+                "docstring": "Test suite for log manager functionality.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 17
+    },
+    "tests\\social\\core\\test_log_metrics.py": {
+        "language": ".py",
+        "functions": [
+            "metrics",
+            "test_metrics_initialization",
+            "test_metrics_increment_logs",
+            "test_metrics_record_error",
+            "test_metrics_record_rotation",
+            "test_metrics_reset"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\social\\core\\test_write_log.py": {
+        "language": ".py",
+        "functions": [
+            "normalize_path",
+            "safe_file_handle",
+            "test_write_log",
+            "test_write_log_batch",
+            "test_write_log_encoding",
+            "cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\social\\core\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\strategies\\test_analytics.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "track_engagement",
+            "get_content_metrics",
+            "get_platform_metrics",
+            "calculate_engagement_rate",
+            "analytics_manager",
+            "test_engagement_tracking",
+            "test_content_metrics",
+            "test_platform_metrics",
+            "test_engagement_rate"
+        ],
+        "classes": {
+            "AnalyticsManager": {
+                "methods": [
+                    "__init__",
+                    "track_engagement",
+                    "get_content_metrics",
+                    "get_platform_metrics",
+                    "calculate_engagement_rate"
+                ],
+                "docstring": "Analytics management system for social media content.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestAnalyticsManager": {
+                "methods": [
+                    "analytics_manager",
+                    "test_engagement_tracking",
+                    "test_content_metrics",
+                    "test_platform_metrics",
+                    "test_engagement_rate"
+                ],
+                "docstring": "Test suite for analytics management system.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\social\\strategies\\test_auth_handling.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config",
+            "mock_memory_update",
+            "strategy",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_login_verification_failed",
+            "test_login_input_not_found",
+            "test_login_button_click_failed",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_logout_success",
+            "test_logout_failure"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 13
+    },
+    "tests\\social\\strategies\\test_content_management.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "create_content",
+            "validate_content",
+            "schedule_content",
+            "publish_content",
+            "_get_content_by_id",
+            "content_manager",
+            "test_content_creation",
+            "test_content_validation",
+            "test_content_scheduling",
+            "test_content_publishing"
+        ],
+        "classes": {
+            "ContentManager": {
+                "methods": [
+                    "__init__",
+                    "create_content",
+                    "validate_content",
+                    "schedule_content",
+                    "publish_content",
+                    "_get_content_by_id"
+                ],
+                "docstring": "Content management system for social media platforms.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestContentManager": {
+                "methods": [
+                    "content_manager",
+                    "test_content_creation",
+                    "test_content_validation",
+                    "test_content_scheduling",
+                    "test_content_publishing"
+                ],
+                "docstring": "Test suite for content management system.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 22
+    },
+    "tests\\social\\strategies\\test_media_handling.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config",
+            "mock_memory_update",
+            "strategy",
+            "test_validate_media_single_image",
+            "test_validate_media_empty",
+            "test_validate_media_unsupported_format",
+            "test_validate_media_too_many_files",
+            "test_validate_media_file_too_large",
+            "test_validate_media_valid_video",
+            "test_upload_media_success",
+            "test_upload_media_button_not_found",
+            "test_upload_media_click_failed"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\social\\strategies\\test_platform_interface.py": {
+        "language": ".py",
+        "functions": [
+            "initialize",
+            "login",
+            "post",
+            "create_post",
+            "is_logged_in",
+            "get_memory_updates",
+            "mock_platform",
+            "test_platform_interface_contract",
+            "test_platform_initialization",
+            "test_platform_memory_tracking",
+            "test_platform_error_handling",
+            "__init__",
+            "initialize",
+            "login",
+            "post",
+            "create_post",
+            "is_logged_in",
+            "get_memory_updates"
+        ],
+        "classes": {
+            "SocialPlatform": {
+                "methods": [
+                    "initialize",
+                    "login",
+                    "post",
+                    "create_post",
+                    "is_logged_in",
+                    "get_memory_updates"
+                ],
+                "docstring": "Abstract base class defining the interface for social media platforms.",
+                "base_classes": [
+                    "ABC"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestPlatformInterface": {
+                "methods": [
+                    "mock_platform",
+                    "test_platform_interface_contract",
+                    "test_platform_initialization",
+                    "test_platform_memory_tracking",
+                    "test_platform_error_handling"
+                ],
+                "docstring": "Test suite for platform interface implementation.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockPlatform": {
+                "methods": [
+                    "__init__",
+                    "initialize",
+                    "login",
+                    "post",
+                    "create_post",
+                    "is_logged_in",
+                    "get_memory_updates"
+                ],
+                "docstring": null,
+                "base_classes": [
+                    "SocialPlatform"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 36
+    },
+    "tests\\social\\strategies\\test_reddit_media.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_utils",
+            "mock_logger",
+            "media_handler",
+            "temp_image_file",
+            "temp_video_file",
+            "test_validate_media_empty_list",
+            "test_validate_media_too_many_images",
+            "test_validate_media_too_many_videos",
+            "test_validate_media_unsupported_format",
+            "test_validate_media_file_not_found",
+            "test_validate_media_success",
+            "test_upload_media_missing_button",
+            "test_upload_media_button_click_failure",
+            "test_upload_media_missing_file_input",
+            "test_upload_media_upload_timeout",
+            "test_upload_media_success",
+            "test_upload_media_multiple_files",
+            "test_handle_upload_error"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 19
+    },
+    "tests\\social\\strategies\\test_rate_limiting.py": {
+        "language": ".py",
+        "functions": [
+            "mock_config",
+            "mock_memory_update",
+            "strategy",
+            "test_rate_limiting",
+            "test_rate_limit_exceeded",
+            "test_retry_mechanism",
+            "test_max_retries_exceeded",
+            "test_error_recovery",
+            "test_calculate_retry_delay",
+            "test_retry_history_tracking"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 10
+    },
+    "tests\\social\\strategies\\test_reddit_rate_limiter.py": {
+        "language": ".py",
+        "functions": [
+            "rate_limiter",
+            "test_initialization",
+            "test_custom_limits",
+            "test_rate_limit_reset",
+            "test_rate_limit_exhaustion",
+            "test_get_rate_limit",
+            "test_rate_limit_window"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 7
+    },
+    "tests\\social\\strategies\\test_reddit_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "patch_sqlite_and_rate_limiter",
+            "patch_social_media_utils",
+            "mock_sqlite",
+            "mock_driver",
+            "specific_strategy_mock_config",
+            "mock_memory_update",
+            "mock_utils",
+            "mock_log_manager",
+            "test_init",
+            "test_calculate_retry_delay",
+            "test_validate_media_single_image",
+            "test_validate_media_empty",
+            "test_validate_media_unsupported_format",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_login_verification_failed",
+            "test_login_input_not_found",
+            "test_login_button_click_failed",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_post_success_with_redis",
+            "test_post_not_logged_in",
+            "test_post_failure",
+            "test_post_button_not_found",
+            "test_post_media_validation_failed",
+            "test_post_media_upload_failed",
+            "test_upload_media_success",
+            "test_upload_media_button_not_found",
+            "test_upload_media_click_failed",
+            "test_validate_media_too_many_files",
+            "test_validate_media_file_too_large",
+            "test_validate_media_file_not_found",
+            "test_validate_media_valid_image",
+            "test_validate_media_invalid_format",
+            "test_validate_media_too_many_images",
+            "test_validate_media_video_unsupported",
+            "test_validate_media_valid_video_when_specified",
+            "test_platform_initialization_missing_keys",
+            "test_platform_initialization_valid_keys",
+            "test_reddit_strategy_error_handling",
+            "test_devlog_embed_validation",
+            "test_reddit_strategy_retry_behavior",
+            "test_reddit_strategy_rate_limiting",
+            "test_reddit_strategy_media_validation_edge_cases",
+            "test_reddit_strategy_error_recovery",
+            "test_reddit_strategy_integration",
+            "test_logout_success",
+            "test_logout_failure",
+            "test_create_post_success",
+            "test_create_post_failure",
+            "test_create_post_with_media",
+            "test_validate_media_success",
+            "test_validate_media_failure",
+            "test_rate_limiting",
+            "test_rate_limit_exceeded",
+            "test_retry_mechanism",
+            "test_max_retries_exceeded",
+            "test_error_recovery",
+            "strategy",
+            "test_logout_success",
+            "test_logout_failure",
+            "test_create_post_success",
+            "test_create_post_failure",
+            "test_create_post_with_media",
+            "test_rate_limiting",
+            "test_rate_limit_exceeded",
+            "test_retry_mechanism",
+            "test_max_retries_exceeded",
+            "test_error_recovery"
+        ],
+        "classes": {
+            "TestRedditStrategy": {
+                "methods": [
+                    "strategy",
+                    "test_logout_success",
+                    "test_logout_failure",
+                    "test_create_post_success",
+                    "test_create_post_failure",
+                    "test_create_post_with_media",
+                    "test_rate_limiting",
+                    "test_rate_limit_exceeded",
+                    "test_retry_mechanism",
+                    "test_max_retries_exceeded",
+                    "test_error_recovery"
+                ],
+                "docstring": "Test suite for Reddit strategy functionality.",
+                "base_classes": [
+                    "BaseStrategyTest"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 81
+    },
+    "tests\\social\\strategies\\test_strategy_base.py": {
+        "language": ".py",
+        "functions": [
+            "patch_sqlite_and_rate_limiter",
+            "patch_social_media_utils",
+            "mock_sqlite",
+            "mock_driver",
+            "specific_strategy_mock_config",
+            "mock_memory_update",
+            "mock_utils",
+            "mock_log_manager",
+            "test_init",
+            "test_calculate_retry_delay",
+            "test_validate_media_single_image",
+            "test_validate_media_empty",
+            "test_validate_media_unsupported_format",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_login_failure",
+            "test_login_verification_failed",
+            "test_login_input_not_found",
+            "test_login_button_click_failed",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_post_success_with_redis",
+            "test_post_not_logged_in",
+            "test_post_failure",
+            "test_post_button_not_found",
+            "test_post_media_validation_failed",
+            "test_post_media_upload_failed",
+            "test_upload_media_success",
+            "test_upload_media_button_not_found",
+            "test_upload_media_click_failed",
+            "test_validate_media_too_many_files",
+            "test_validate_media_file_too_large",
+            "test_validate_media_file_not_found",
+            "test_validate_media_valid_image",
+            "test_validate_media_invalid_format",
+            "test_validate_media_too_many_images",
+            "test_validate_media_video_unsupported",
+            "test_validate_media_valid_video_when_specified",
+            "test_reddit_strategy_error_handling",
+            "test_devlog_embed_validation",
+            "test_reddit_strategy_retry_behavior",
+            "test_reddit_strategy_rate_limiting",
+            "test_reddit_strategy_media_validation_edge_cases",
+            "test_reddit_strategy_error_recovery",
+            "test_reddit_strategy_integration",
+            "strategy",
+            "test_platform_initialization_missing_keys",
+            "test_platform_initialization_valid_keys",
+            "test_devlog_embed_validation"
+        ],
+        "classes": {
+            "TestStrategyBase": {
+                "methods": [
+                    "strategy",
+                    "test_platform_initialization_missing_keys",
+                    "test_platform_initialization_valid_keys",
+                    "test_devlog_embed_validation"
+                ],
+                "docstring": "Test suite for base strategy functionality.",
+                "base_classes": [
+                    "BaseStrategyTest"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 53
+    },
+    "tests\\social\\strategies\\test_twitter_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "mock_utils",
+            "strategy",
+            "test_init",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_post_success",
+            "test_post_not_logged_in",
+            "test_memory_error_tracking",
+            "test_rate_limiting_flow",
+            "test_post_with_media",
+            "test_media_validation",
+            "test_is_logged_in"
+        ],
+        "classes": {
+            "TestTwitterStrategy": {
+                "methods": [
+                    "test_init",
+                    "test_login_success",
+                    "test_login_missing_credentials",
+                    "test_post_success",
+                    "test_post_not_logged_in",
+                    "test_memory_error_tracking",
+                    "test_rate_limiting_flow",
+                    "test_post_with_media",
+                    "test_media_validation",
+                    "test_is_logged_in"
+                ],
+                "docstring": "Test suite for TwitterStrategy.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 25
+    },
+    "tests\\social\\strategies\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\strategies\\base\\test_strategy_base.py": {
+        "language": ".py",
+        "functions": [
+            "patch_sqlite_and_rate_limiter",
+            "patch_social_media_utils",
+            "mock_sqlite",
+            "mock_driver",
+            "mock_memory_update",
+            "mock_utils",
+            "mock_log_manager",
+            "test_init",
+            "test_calculate_retry_delay",
+            "test_validate_media_empty",
+            "test_validate_media_unsupported_format",
+            "test_login_success",
+            "test_login_failure",
+            "test_is_logged_in_true",
+            "test_is_logged_in_false",
+            "test_post_not_logged_in",
+            "test_post_failure",
+            "test_post_media_validation_failed",
+            "test_post_media_upload_failed",
+            "test_upload_media_success",
+            "test_upload_media_button_not_found",
+            "test_upload_media_click_failed",
+            "test_validate_media_too_many_files",
+            "test_validate_media_file_too_large",
+            "test_validate_media_file_not_found",
+            "test_validate_media_valid_image",
+            "test_validate_media_invalid_format",
+            "test_validate_media_too_many_images",
+            "test_validate_media_video_unsupported",
+            "test_validate_media_valid_video_when_specified",
+            "test_platform_initialization_missing_keys",
+            "test_platform_initialization_valid_keys",
+            "test_strategy_error_handling",
+            "test_strategy_retry_behavior",
+            "test_strategy_rate_limiting",
+            "test_strategy_media_validation_edge_cases",
+            "test_strategy_error_recovery",
+            "test_strategy_integration"
+        ],
+        "classes": {
+            "BaseStrategyTest": {
+                "methods": [
+                    "patch_sqlite_and_rate_limiter",
+                    "patch_social_media_utils",
+                    "mock_sqlite",
+                    "mock_driver",
+                    "mock_memory_update",
+                    "mock_utils",
+                    "mock_log_manager",
+                    "test_init",
+                    "test_calculate_retry_delay",
+                    "test_validate_media_empty",
+                    "test_validate_media_unsupported_format",
+                    "test_login_success",
+                    "test_login_failure",
+                    "test_is_logged_in_true",
+                    "test_is_logged_in_false",
+                    "test_post_not_logged_in",
+                    "test_post_failure",
+                    "test_post_media_validation_failed",
+                    "test_post_media_upload_failed",
+                    "test_upload_media_success",
+                    "test_upload_media_button_not_found",
+                    "test_upload_media_click_failed",
+                    "test_validate_media_too_many_files",
+                    "test_validate_media_file_too_large",
+                    "test_validate_media_file_not_found",
+                    "test_validate_media_valid_image",
+                    "test_validate_media_invalid_format",
+                    "test_validate_media_too_many_images",
+                    "test_validate_media_video_unsupported",
+                    "test_validate_media_valid_video_when_specified",
+                    "test_platform_initialization_missing_keys",
+                    "test_platform_initialization_valid_keys",
+                    "test_strategy_error_handling",
+                    "test_strategy_retry_behavior",
+                    "test_strategy_rate_limiting",
+                    "test_strategy_media_validation_edge_cases",
+                    "test_strategy_error_recovery",
+                    "test_strategy_integration"
+                ],
+                "docstring": "Base class for platform strategy tests.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 76
+    },
+    "tests\\social\\strategies\\base\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\strategies\\reddit\\test_post_handler.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "mock_utils",
+            "post_handler",
+            "test_initialization",
+            "test_create_post_success",
+            "test_create_post_timeout",
+            "test_create_post_click_intercepted",
+            "test_create_post_with_media"
+        ],
+        "classes": {
+            "TestPostHandler": {
+                "methods": [
+                    "test_initialization",
+                    "test_create_post_success",
+                    "test_create_post_timeout",
+                    "test_create_post_click_intercepted",
+                    "test_create_post_with_media"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 15
+    },
+    "tests\\social\\strategies\\reddit\\test_reddit_platform_rate_limiter.py": {
+        "language": ".py",
+        "functions": [
+            "rate_limiter",
+            "test_initialization",
+            "test_get_rate_limit",
+            "test_set_rate_limit",
+            "test_check_rate_limit_default",
+            "test_check_rate_limit_exceeded",
+            "test_check_rate_limit_window_reset",
+            "test_rate_limit_decorator",
+            "test_check_rate_limit_exceeded",
+            "__init__",
+            "test_method"
+        ],
+        "classes": {
+            "TestRateLimiter": {
+                "methods": [
+                    "test_initialization",
+                    "test_get_rate_limit",
+                    "test_set_rate_limit",
+                    "test_check_rate_limit_default",
+                    "test_check_rate_limit_exceeded",
+                    "test_check_rate_limit_window_reset",
+                    "test_rate_limit_decorator",
+                    "test_check_rate_limit_exceeded"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestClass": {
+                "methods": [
+                    "__init__",
+                    "test_method"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 21
+    },
+    "tests\\social\\strategies\\reddit\\test_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "strategy",
+            "test_initialization",
+            "test_login",
+            "test_post_success",
+            "test_post_not_logged_in",
+            "test_comment_success",
+            "test_comment_not_logged_in",
+            "test_post_with_media",
+            "test_initialization",
+            "test_is_logged_in",
+            "test_post_success",
+            "test_post_not_logged_in",
+            "test_comment_success",
+            "test_comment_not_logged_in"
+        ],
+        "classes": {
+            "TestRedditStrategy": {
+                "methods": [
+                    "test_initialization",
+                    "test_is_logged_in",
+                    "test_post_success",
+                    "test_post_not_logged_in",
+                    "test_comment_success",
+                    "test_comment_not_logged_in"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 23
+    },
+    "tests\\social\\strategies\\reddit\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\strategies\\reddit\\rate_limiting\\test_rate_limiter.py": {
+        "language": ".py",
+        "functions": [
+            "limiter",
+            "log_manager",
+            "test_default_limits",
+            "test_set_rate_limit",
+            "test_check_rate_limit",
+            "test_reset_rate_limit",
+            "test_get_remaining_calls",
+            "test_rate_limit_decorator",
+            "test_window_expiration",
+            "test_unknown_action",
+            "test_func"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\social\\strategies\\reddit\\rate_limiting\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\social\\utils\\test_devlog_manager.py": {
+        "language": ".py",
+        "functions": [
+            "temp_log_dir",
+            "devlog_manager",
+            "test_initialization",
+            "test_log_event",
+            "test_get_log",
+            "test_clear_log",
+            "test_multiple_agents",
+            "test_error_handling",
+            "test_send_embed",
+            "test_shutdown",
+            "test_invalid_agent_id",
+            "test_invalid_event",
+            "test_large_data"
+        ],
+        "classes": {
+            "TestDevlogManager": {
+                "methods": [
+                    "temp_log_dir",
+                    "devlog_manager",
+                    "test_initialization",
+                    "test_log_event",
+                    "test_get_log",
+                    "test_clear_log",
+                    "test_multiple_agents",
+                    "test_error_handling",
+                    "test_send_embed",
+                    "test_shutdown",
+                    "test_invalid_agent_id",
+                    "test_invalid_event",
+                    "test_large_data"
+                ],
+                "docstring": "Test suite for DevlogManager class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 26
+    },
+    "tests\\social\\utils\\test_log_batcher.py": {
+        "language": ".py",
+        "functions": [
+            "temp_log_dir",
+            "log_config",
+            "batcher",
+            "test_entry",
+            "test_entries",
+            "test_batcher_initialization",
+            "test_add_entry",
+            "test_add_entry_after_timeout",
+            "test_get_entries",
+            "test_add_entries_until_full",
+            "test_concurrent_access",
+            "add_entries"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\social\\utils\\test_log_manager_utils.py": {
+        "language": ".py",
+        "functions": [
+            "setup_tmp_log_dir"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\social\\utils\\test_log_config.py": {
+        "language": ".py",
+        "functions": [
+            "test_config_initialization",
+            "test_config_defaults",
+            "test_config_custom_values",
+            "test_config_invalid_level",
+            "test_config_platforms",
+            "test_log_dir_creation",
+            "test_platform_paths",
+            "temp_log_dir",
+            "default_config",
+            "test_default_initialization",
+            "test_custom_initialization",
+            "test_invalid_log_dir",
+            "test_invalid_batch_size",
+            "test_invalid_timeout",
+            "test_invalid_retries",
+            "test_invalid_retry_delay",
+            "test_invalid_max_size",
+            "test_invalid_max_files",
+            "test_config_serialization"
+        ],
+        "classes": {
+            "TestLogConfig": {
+                "methods": [
+                    "temp_log_dir",
+                    "default_config",
+                    "test_default_initialization",
+                    "test_custom_initialization",
+                    "test_invalid_log_dir",
+                    "test_invalid_batch_size",
+                    "test_invalid_timeout",
+                    "test_invalid_retries",
+                    "test_invalid_retry_delay",
+                    "test_invalid_max_size",
+                    "test_invalid_max_files",
+                    "test_config_serialization"
+                ],
+                "docstring": "Test suite for LogConfig class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 31
+    },
+    "tests\\social\\utils\\test_log_rotator.py": {
+        "language": ".py",
+        "functions": [
+            "test_log_dir",
+            "log_config",
+            "log_rotator",
+            "test_log_rotator_initialization",
+            "test_rotate_large_file",
+            "test_compress_old_file",
+            "test_cleanup_old_files",
+            "test_do_not_rotate_small_file",
+            "test_do_not_compress_new_file"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 9
+    },
+    "tests\\social\\utils\\test_media_validator.py": {
+        "language": ".py",
+        "functions": [
+            "validator",
+            "temp_file",
+            "test_validate_files_empty",
+            "test_validate_files_single",
+            "test_validate_files_not_found",
+            "test_validate_files_unsupported_format",
+            "test_validate_files_too_large",
+            "test_validate_files_too_many",
+            "test_validate_media_video",
+            "test_validate_media_video_wrong_format",
+            "test_validate_single_file"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\social\\utils\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\swarm_tools\\test_devlog_watcher.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config",
+            "temp_log_dir",
+            "mock_discord_devlog",
+            "devlog_handler",
+            "test_extract_tags",
+            "test_parse_entry",
+            "test_parse_entry_duplicate",
+            "test_on_modified",
+            "test_load_config",
+            "test_start",
+            "test_stop"
+        ],
+        "classes": {
+            "TestDevLogHandler": {
+                "methods": [
+                    "test_extract_tags",
+                    "test_parse_entry",
+                    "test_parse_entry_duplicate",
+                    "test_on_modified"
+                ],
+                "docstring": "Test the DevLogHandler class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestDevLogWatcher": {
+                "methods": [
+                    "test_load_config",
+                    "test_start",
+                    "test_stop"
+                ],
+                "docstring": "Test the DevLogWatcher class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\swarm_tools\\test_weekly_digest.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config",
+            "temp_log_dir",
+            "mock_discord_devlog",
+            "test_parse_content",
+            "test_load_agent_logs",
+            "test_generate_agent_stats",
+            "test_format_digest"
+        ],
+        "classes": {
+            "TestDevlogEntry": {
+                "methods": [
+                    "test_parse_content"
+                ],
+                "docstring": "Test the DevlogEntry class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestWeeklyDigest": {
+                "methods": [
+                    "test_load_agent_logs",
+                    "test_generate_agent_stats",
+                    "test_format_digest"
+                ],
+                "docstring": "Test the WeeklyDigest class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\swarm_tools\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\test_messaging\\test_history.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\test_messaging\\test_queue.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\test_messaging\\test_router.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\test_messaging\\test_unified_system.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\test_messaging\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\utils\\mock_discord.py": {
+        "language": ".py",
+        "functions": [
+            "create_mock_embed",
+            "create_mock_context",
+            "create_mock_guild",
+            "create_mock_member",
+            "create_mock_channel",
+            "create_mock_message",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "add_field",
+            "__init__",
+            "__init__",
+            "command",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "get_member",
+            "get_channel",
+            "decorator"
+        ],
+        "classes": {
+            "Guild": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Guild.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Member": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Member.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TextChannel": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Text Channel.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Message": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Message.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Context": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Context.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Embed": {
+                "methods": [
+                    "add_field"
+                ],
+                "docstring": "Mock Discord Embed.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "CommandError": {
+                "methods": [],
+                "docstring": "Base class for command errors.",
+                "base_classes": [
+                    "Exception"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "CommandNotFound": {
+                "methods": [],
+                "docstring": "Command not found error.",
+                "base_classes": [
+                    "CommandError"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MissingRequiredArgument": {
+                "methods": [],
+                "docstring": "Missing required argument error.",
+                "base_classes": [
+                    "CommandError"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "BadArgument": {
+                "methods": [],
+                "docstring": "Bad argument error.",
+                "base_classes": [
+                    "CommandError"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Command": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord command.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Bot": {
+                "methods": [
+                    "__init__",
+                    "command"
+                ],
+                "docstring": "Mock Discord bot.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "commands": {
+                "methods": [],
+                "docstring": "Mock discord.ext.commands module.",
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "ext": {
+                "methods": [],
+                "docstring": "Mock discord.ext module.",
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            },
+            "MockMessage": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord message object.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockUser": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord user object.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockChannel": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord channel object.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockGuild": {
+                "methods": [
+                    "__init__",
+                    "get_member",
+                    "get_channel"
+                ],
+                "docstring": "Mock Discord guild object.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 37
+    },
+    "tests\\utils\\test_mocks.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\utils\\test_file_ops.py": {
+        "language": ".py",
+        "functions": [
+            "ensure_test_dirs",
+            "safe_remove",
+            "safe_rmdir",
+            "ensure_dir",
+            "get_test_file_path",
+            "create_test_file",
+            "cleanup_test_environment"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 7
+    },
+    "tests\\utils\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\utils\\test_utils.py": {
+        "language": ".py",
+        "functions": [
+            "ensure_test_dirs",
+            "create_test_guild",
+            "create_test_member",
+            "create_test_channel",
+            "create_test_message",
+            "create_test_embed",
+            "create_test_webhook",
+            "create_test_file",
+            "create_test_config",
+            "cleanup_test_files",
+            "safe_remove",
+            "cleanup_test_environment"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 12
+    },
+    "tests\\utils\\mock_discord\\base.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "cog_unload",
+            "__init__",
+            "__init__",
+            "__init__",
+            "default",
+            "blue",
+            "red",
+            "green",
+            "__int__"
+        ],
+        "classes": {
+            "Cog": {
+                "methods": [
+                    "__init__",
+                    "cog_unload"
+                ],
+                "docstring": "Mock Discord Cog class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Guild": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Guild class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Context": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Context class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "CommandError": {
+                "methods": [],
+                "docstring": "Mock Discord CommandError class.",
+                "base_classes": [
+                    "Exception"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Command": {
+                "methods": [],
+                "docstring": "Mock Discord command.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Color": {
+                "methods": [
+                    "__init__",
+                    "default",
+                    "blue",
+                    "red",
+                    "green",
+                    "__int__"
+                ],
+                "docstring": "Mock Discord Color class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\utils\\mock_discord\\commands.py": {
+        "language": ".py",
+        "functions": [
+            "command",
+            "cog_unload",
+            "decorator"
+        ],
+        "classes": {
+            "Context": {
+                "methods": [],
+                "docstring": "Mock command context.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Command": {
+                "methods": [],
+                "docstring": "Mock command.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Group": {
+                "methods": [
+                    "command"
+                ],
+                "docstring": "Mock command group.",
+                "base_classes": [
+                    "Command"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Cog": {
+                "methods": [
+                    "cog_unload"
+                ],
+                "docstring": "Mock cog.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\utils\\mock_discord\\client.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "__init__",
+            "is_ready",
+            "is_closed",
+            "get_cog",
+            "get_command",
+            "add_cog",
+            "remove_cog",
+            "add_command",
+            "remove_command",
+            "event",
+            "listen",
+            "get_command",
+            "get_cog",
+            "get_guild",
+            "stop",
+            "__init__",
+            "wrapper",
+            "wrapper"
+        ],
+        "classes": {
+            "MockCommand": {
+                "methods": [],
+                "docstring": "Mock Discord command.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "ClientUser": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord client user.",
+                "base_classes": [
+                    "MockMember"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Client": {
+                "methods": [
+                    "__init__",
+                    "is_ready",
+                    "is_closed",
+                    "get_cog",
+                    "get_command",
+                    "add_cog",
+                    "remove_cog",
+                    "add_command",
+                    "remove_command",
+                    "event",
+                    "listen"
+                ],
+                "docstring": "Mock Discord client.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockBot": {
+                "methods": [
+                    "get_command",
+                    "get_cog",
+                    "get_guild"
+                ],
+                "docstring": "Mock Discord bot.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockCog": {
+                "methods": [],
+                "docstring": "Mock Discord cog.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "VoiceClient": {
+                "methods": [
+                    "stop"
+                ],
+                "docstring": "Mock Discord VoiceClient class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockContext": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Minimal mock for Discord command context.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 36
+    },
+    "tests\\utils\\mock_discord\\discord.py": {
+        "language": ".py",
+        "functions": [
+            "__init__"
+        ],
+        "classes": {
+            "Status": {
+                "methods": [],
+                "docstring": "Mock Status enum.",
+                "base_classes": [
+                    "str",
+                    "Enum"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "ChannelType": {
+                "methods": [],
+                "docstring": "Mock ChannelType enum.",
+                "base_classes": [
+                    "int",
+                    "Enum"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "ActivityType": {
+                "methods": [],
+                "docstring": "Mock ActivityType enum.",
+                "base_classes": [
+                    "int",
+                    "Enum"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Activity": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Activity class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\utils\\mock_discord\\helpers.py": {
+        "language": ".py",
+        "functions": [
+            "create_mock_guild",
+            "create_mock_context",
+            "create_mock_bot",
+            "create_mock_embed",
+            "create_mock_webhook",
+            "create_mock_file",
+            "run_async_test",
+            "async_test",
+            "mock_command_decorator",
+            "wrapper",
+            "decorator"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\utils\\mock_discord\\models.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "get_role",
+            "get_member",
+            "get_channel",
+            "__init__",
+            "add_member",
+            "remove_member",
+            "__init__",
+            "add_role",
+            "remove_role",
+            "__init__",
+            "__init__",
+            "__init__",
+            "add_field",
+            "set_footer",
+            "set_image",
+            "set_thumbnail",
+            "__init__",
+            "__init__"
+        ],
+        "classes": {
+            "MockGuild": {
+                "methods": [
+                    "__init__",
+                    "get_role",
+                    "get_member",
+                    "get_channel"
+                ],
+                "docstring": "Mock Discord Guild for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockRole": {
+                "methods": [
+                    "__init__",
+                    "add_member",
+                    "remove_member"
+                ],
+                "docstring": "Mock Discord Role for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMember": {
+                "methods": [
+                    "__init__",
+                    "add_role",
+                    "remove_role"
+                ],
+                "docstring": "Mock Discord Member for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockChannel": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Channel for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMessage": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Message for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockEmbed": {
+                "methods": [
+                    "__init__",
+                    "add_field",
+                    "set_footer",
+                    "set_image",
+                    "set_thumbnail"
+                ],
+                "docstring": "Mock Discord Embed for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockFile": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord File for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockWebhook": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Webhook for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 38
+    },
+    "tests\\utils\\mock_discord\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\utils\\mock_discord\\webhook.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {
+            "MockWebhook": {
+                "methods": [],
+                "docstring": "Mock Discord webhook.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 0
+    },
+    "tests\\voice\\test_tts.py": {
+        "language": ".py",
+        "functions": [
+            "output_dir",
+            "tts_manager"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\voice\\test_voicebot.py": {
+        "language": ".py",
+        "functions": [
+            "voice_queue_dir",
+            "mock_voice_client",
+            "voice_bot"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\voice\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
+    },
+    "tools\\test_dashboard.py": {
+        "language": ".py",
+        "functions": [
+            "load_test_artifacts",
+            "load_codex_logs",
+            "render_patch_viewer",
+            "render_test_dashboard",
+            "__init__",
+            "get_patch_for_test",
+            "get_codex_judgment"
+        ],
+        "classes": {
+            "CodexPatchTracker": {
+                "methods": [
+                    "__init__",
+                    "get_patch_for_test",
+                    "get_codex_judgment"
+                ],
+                "docstring": "Tracks Codex patch validation and approval status.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 10
+    },
+    "tools\\test_log_analyzer.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_environment",
+            "run_analyzer_tests",
+            "validate_results",
+            "cleanup",
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tools\\test_regions.py": {
+        "language": ".py",
+        "functions": [
+            "get_all_screens",
+            "load_regions",
+            "capture_new_region",
+            "highlight_region",
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tools\\test_selenium_imports.py": {
+        "language": ".py",
+        "functions": [
+            "test_imports"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    }
+}

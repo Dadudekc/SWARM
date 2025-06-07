@@ -231,37 +231,36 @@ def atomic_write(filepath: str, content: str, mode: str = 'w') -> None:
         os.unlink(temp.name)
         raise
 
-def safe_read(file_path: Union[str, Path]) -> Optional[str]:
+def safe_read(path: str | Path, mode: str = "r", encoding: str = "utf-8") -> str:
     """Safely read a file's contents.
     
     Args:
-        file_path: Path to file
+        path: Path to file
+        mode: File open mode
+        encoding: File encoding
         
     Returns:
-        File contents or None if error
+        File contents or empty string if file doesn't exist
     """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return f.read()
-    except Exception:
-        return None
+    path = Path(path)
+    if not path.exists():
+        return ""
+    with open(path, mode=mode, encoding=encoding) as f:
+        return f.read()
 
-def safe_write(file_path: Union[str, Path], content: str) -> bool:
+def safe_write(path: str | Path, content: str, mode: str = "w", encoding: str = "utf-8") -> None:
     """Safely write content to a file.
     
     Args:
-        file_path: Path to file
+        path: Path to write to
         content: Content to write
-        
-    Returns:
-        True if successful
+        mode: File open mode
+        encoding: File encoding
     """
-    try:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            f.write(content)
-        return True
-    except Exception:
-        return False
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    with open(path, mode=mode, encoding=encoding) as f:
+        f.write(content)
 
 def load_json(file_path: str) -> dict:
     """Load JSON data from a file.
@@ -408,4 +407,23 @@ def load_yaml(path: str | Path) -> Dict[str, Any]:
         The loaded data
     """
     with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f) 
+        return yaml.safe_load(f)
+
+__all__ = [
+    "ErrorTracker",
+    "async_retry",
+    "track_operation",
+    "ensure_dir",
+    "atomic_write",
+    "safe_read",
+    "safe_write",
+    "load_json",
+    "save_json",
+    "read_json",
+    "backup_file",
+    "transform_coordinates",
+    "write_json",
+    "read_yaml",
+    "write_yaml",
+    "load_yaml"
+] 

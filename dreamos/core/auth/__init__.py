@@ -3,12 +3,16 @@
 
 from . import base
 from . import interface
+from . import manager
 from . import retry
+from . import session
 from . import token
 
 __all__ = [
     'base',
     'interface',
+    'manager',
     'retry',
+    'session',
     'token',
 ]

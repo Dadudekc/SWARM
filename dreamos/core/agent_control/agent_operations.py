@@ -15,7 +15,7 @@ from ..messaging.message_processor import MessageProcessor
 from ..messaging.common import MessageMode
 from ..messaging.cell_phone import CellPhone
 from .ui_automation import UIAutomation
-from ..config import ConfigManager
+from dreamos.core.config import ConfigManager
 
 logger = logging.getLogger('agent_control.agent_operations')
 

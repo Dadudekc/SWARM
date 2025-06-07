@@ -30,6 +30,33 @@ PROMPT_PATH = ROOT / "runtime" / "test_prompts" / "TEST_AND_DEBUG_AUTONOMY.yaml"
 TEST_ANALYSIS_PATH = ROOT / "runtime" / "test_error_analysis.json"
 HIGH_SCORE_PATH = ROOT / "runtime" / "high_score_tracker.json"
 
+def run():
+    """Run the test loop."""
+    logger.info("Starting overnight test runner...")
+    
+    # Initialize test runner
+    runner = TestRunner()
+    
+    while True:
+        try:
+            # Send prompts to all agents
+            for agent_id in AGENT_IDS:
+                runner.send_prompt_to_agent(agent_id)
+            
+            # Save state
+            runner._save_test_analysis()
+            runner._save_high_scores()
+            
+            # Wait for next cycle
+            time.sleep(180)  # 3 minutes
+            
+        except KeyboardInterrupt:
+            logger.info("Received keyboard interrupt, shutting down...")
+            break
+        except Exception as e:
+            logger.error(f"Error in test loop: {e}")
+            time.sleep(60)  # Wait a minute before retrying
+
 class TestRunner:
     """Coordinates test running and agent debugging."""
     
@@ -106,35 +133,6 @@ class TestRunner:
                 
         except Exception as e:
             logger.error(f"Error sending prompt to {agent_id}: {e}")
-    
-    def run(self):
-        """Run the test loop."""
-        logger.info("Starting overnight test runner...")
-        
-        while True:
-            try:
-                # Send prompts to all agents
-                for agent_id in AGENT_IDS:
-                    self.send_prompt_to_agent(agent_id)
-                
-                # Save state
-                self._save_test_analysis()
-                self._save_high_scores()
-                
-                # Wait for next cycle
-                time.sleep(180)  # 3 minutes
-                
-            except KeyboardInterrupt:
-                logger.info("Received keyboard interrupt, shutting down...")
-                break
-            except Exception as e:
-                logger.error(f"Error in test loop: {e}")
-                time.sleep(60)  # Wait a minute before retrying
-
-def main():
-    """Main entry point."""
-    runner = TestRunner()
-    runner.run()
 
 if __name__ == "__main__":
-    main() 
+    run() 
