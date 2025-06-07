@@ -8,7 +8,34 @@ from . import discord
 from . import helpers
 from . import models
 from . import webhook
+from . import ui
+from . import voice
 from .models import MockGuild, MockRole, MockChannel, MockMember, MockMessage, MockEmbed, MockWebhook, MockFile
+from .ui import View, Button, Select
+from .voice import (
+    VoiceClient,
+    Gateway,
+    Opus,
+    OpusLoader,
+    VoiceState,
+    VoiceProtocol,
+    VoiceRegion,
+    VoiceRecv,
+    VoiceSend,
+    VoiceUtils,
+    VoiceWebSocket,
+    VoiceWebSocketClient,
+    VoiceWebSocketServer,
+    VoiceWebSocketUtils,
+    VoiceWebSocketVoice,
+    VoiceWebSocketVoiceClient,
+    VoiceWebSocketVoiceServer,
+    VoiceWebSocketVoiceUtils,
+    VoiceWebSocketVoiceWebSocket,
+    VoiceWebSocketVoiceWebSocketClient,
+    VoiceWebSocketVoiceWebSocketServer,
+    VoiceWebSocketVoiceWebSocketUtils,
+)
 
 __all__ = [
     'base',
@@ -18,6 +45,8 @@ __all__ = [
     'helpers',
     'models',
     'webhook',
+    'ui',
+    'voice',
     'MockGuild',
     'MockRole',
     'MockChannel',
@@ -26,4 +55,29 @@ __all__ = [
     'MockEmbed',
     'MockWebhook',
     'MockFile',
+    'View',
+    'Button',
+    'Select',
+    'VoiceClient',
+    'Gateway',
+    'Opus',
+    'OpusLoader',
+    'VoiceState',
+    'VoiceProtocol',
+    'VoiceRegion',
+    'VoiceRecv',
+    'VoiceSend',
+    'VoiceUtils',
+    'VoiceWebSocket',
+    'VoiceWebSocketClient',
+    'VoiceWebSocketServer',
+    'VoiceWebSocketUtils',
+    'VoiceWebSocketVoice',
+    'VoiceWebSocketVoiceClient',
+    'VoiceWebSocketVoiceServer',
+    'VoiceWebSocketVoiceUtils',
+    'VoiceWebSocketVoiceWebSocket',
+    'VoiceWebSocketVoiceWebSocketClient',
+    'VoiceWebSocketVoiceWebSocketServer',
+    'VoiceWebSocketVoiceWebSocketUtils',
 ]
