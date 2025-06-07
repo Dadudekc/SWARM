@@ -16,9 +16,10 @@ def main():
     # Read the script content
     with open(script_path) as f:
         script_content = f.read()
-    
-    # Execute the script
-    exec(script_content, {"__name__": "__main__"})
+
+    # Execute the script with proper globals
+    globals_dict = {"__name__": "__main__", "__file__": str(script_path)}
+    exec(script_content, globals_dict)
 
 if __name__ == "__main__":
     main()

@@ -10,12 +10,20 @@ import time
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Tuple
-import win32gui
-import win32con
-import win32clipboard
+try:
+    import win32gui
+    import win32con
+    import win32clipboard
+except ImportError:  # pragma: no cover - Windows only dependencies
+    win32gui = None
+    win32con = None
+    win32clipboard = None
 import keyboard
 import re
-import uiautomation as auto
+try:
+    import uiautomation as auto
+except ImportError:  # pragma: no cover - Windows only dependency
+    auto = None
 import pyautogui
 import numpy as np
 from PIL import Image, ImageChops
@@ -24,7 +32,7 @@ import os
 import sys
 import asyncio
 
-from .utils.core_utils import (
+from dreamos.core.utils.core_utils import (
     write_json,
     read_yaml,
     ensure_directory_exists,
@@ -33,7 +41,7 @@ from .utils.core_utils import (
     safe_write,
     load_json,
     save_json,
-    ensure_dir
+    ensure_dir,
 )
 from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 
@@ -267,6 +275,9 @@ class ResponseCollector:
     def _find_cursor_windows(self) -> bool:
         """Find all Cursor windows using UI Automation."""
         try:
+            if auto is None:
+                logger.warning("UIAutomation not available on this platform")
+                return False
             # Find all windows with "Cursor" in the title
             windows = auto.GetRootControl().GetChildren()
             for window in windows:
@@ -283,10 +294,13 @@ class ResponseCollector:
         except Exception as e:
             logger.error(f"Error finding Cursor windows: {e}")
             return False
-    
+
     def _get_cursor_text(self) -> Optional[str]:
         """Get text from active Cursor window using UI Automation."""
         try:
+            if auto is None:
+                logger.warning("UIAutomation not available on this platform")
+                return None
             # Get active window
             active_window = auto.GetForegroundControl()
             if not active_window:
@@ -335,7 +349,11 @@ class ResponseCollector:
         """
         if timeout < 0:
             raise ValueError("Timeout must be non-negative")
-            
+
+        if auto is None:
+            logger.warning("UIAutomation not available on this platform; skipping collection")
+            return False
+
         # Verify save directory is valid and writable
         if not os.path.exists(self.save_dir):
             raise OSError(f"Save directory does not exist: {self.save_dir}")

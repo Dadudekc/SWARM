@@ -19,7 +19,10 @@ from typing import Any, Dict, List, Optional, Tuple, Union
 
 import pyautogui
 import undetected_chromedriver as uc
-import win32gui
+try:
+    import win32gui
+except ImportError:  # pragma: no cover - Windows only dependency
+    win32gui = None
 from selenium.common.exceptions import (
     ElementNotInteractableException,
     NoSuchElementException,
@@ -334,10 +337,11 @@ class ChatGPTBridge:
                     logger.error(f"Page load error: {str(e)}")
                     raise
                 
-                self.window_handle = win32gui.FindWindow(None, self.config['window_title'])
-                if self.window_handle:
-                    win32gui.SetForegroundWindow(self.window_handle)
-                    logger.info("Focused Cursor window")
+                if win32gui:
+                    self.window_handle = win32gui.FindWindow(None, self.config['window_title'])
+                    if self.window_handle:
+                        win32gui.SetForegroundWindow(self.window_handle)
+                        logger.info("Focused Cursor window")
                     
                 self.health.session_active = True
                 self._save_health()

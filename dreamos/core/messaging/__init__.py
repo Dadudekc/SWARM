@@ -22,10 +22,6 @@ from . import queue
 from . import request_queue
 from . import response_collector
 from . import router
-from . import test_captain_phone
-from . import test_cell_phone
-from . import test_chatgpt_bridge
-from . import test_message_system
 from . import types
 from . import ui
 from . import unified_message_system
@@ -52,10 +48,6 @@ __all__ = [
     'request_queue',
     'response_collector',
     'router',
-    'test_captain_phone',
-    'test_cell_phone',
-    'test_chatgpt_bridge',
-    'test_message_system',
     'types',
     'ui',
     'unified_message_system',
