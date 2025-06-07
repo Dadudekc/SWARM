@@ -1,3 +1,8 @@
-from .test_strategy_base import BaseStrategyTest
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-__all__ = ['BaseStrategyTest']
+from . import test_strategy_base
+
+__all__ = [
+    'test_strategy_base',
+]

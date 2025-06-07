@@ -28,7 +28,7 @@ except ImportError:
     logger = logging.getLogger('agent_control.ui_automation')
     logger.warning("screeninfo not available - using fallback coordinate transformation")
 
-from ..cursor_controller import CursorController
+from .cursor_controller import CursorController
 from .response_capture import ResponseCapture
 from .screenshot_logger import ScreenshotLogger
 from .timing import (

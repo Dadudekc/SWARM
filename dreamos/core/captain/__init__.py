@@ -1,16 +1,10 @@
-"""
-Captain Module
--------------
-Provides centralized oversight and coordination of agent activities.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .captain import Captain, Task, TaskPriority
-from .task_scheduler import TaskScheduler, ScheduledTask
+from . import captain
+from . import task_scheduler
 
 __all__ = [
-    'Captain',
-    'Task',
-    'TaskPriority',
-    'TaskScheduler',
-    'ScheduledTask'
-] 
+    'captain',
+    'task_scheduler',
+]

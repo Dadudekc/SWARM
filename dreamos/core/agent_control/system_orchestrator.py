@@ -24,7 +24,7 @@ from .periodic_restart import AgentManager
 from .task_manager import TaskManager, TaskStatus, TaskPriority
 from .devlog_manager import DevLogManager
 from ..messaging.unified_message_system import UnifiedMessageSystem
-from social.utils.log_manager import LogManager, LogLevel
+from dreamos.core.log_manager import LogManager, LogLevel
 
 logger = logging.getLogger('dreamos.orchestrator')
 

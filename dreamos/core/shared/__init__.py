@@ -1,11 +1,12 @@
-"""
-Shared Package
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-Provides shared utilities and managers for the Dream.OS system.
-"""
-
-from dreamos.core.config.config_manager import ConfigManager
+from . import coordinate_manager
+from . import coordinate_utils
+from . import persistent_queue
 
 __all__ = [
-    'ConfigManager',
+    'coordinate_manager',
+    'coordinate_utils',
+    'persistent_queue',
 ]

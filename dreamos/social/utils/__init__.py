@@ -1,40 +1,36 @@
-"""
-Social Utils Package
--------------------
-Utility modules for social media integration.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .log_types import RotationConfig
-from .log_level import LogLevel
-from .log_config import LogConfig
-from .log_rotator import LogRotator
-from .json_settings import JSONConfig
-from .log_manager import LogManager
-from dreamos.core.monitoring.metrics import LogMetrics
-from .log_writer import LogWriter, LogEntry
-from .media_validator import MediaValidator
-# ``social_common`` depends on selenium which may not be installed in all
-# environments. Import it lazily to avoid import errors during unit tests that
-# only require logging utilities.
-try:
-    from .social_common import SocialMediaUtils
-except Exception:  # pragma: no cover - optional dependency
-    SocialMediaUtils = None
-from .rate_limiter import RateLimiter
-from .log_batcher import LogBatcher
+from . import base_log_manager
+from . import cleanup
+from . import json_settings
+from . import log_batcher
+from . import log_config
+from . import log_entry
+from . import log_level
+from . import log_manager
+from . import log_pipeline
+from . import log_rotator
+from . import log_types
+from . import log_writer
+from . import media_validator
+from . import rate_limiter
+from . import social_common
 
 __all__ = [
-    'RotationConfig',
-    'LogLevel',
-    'LogConfig',
-    'LogRotator',
-    'JSONConfig',
-    'LogManager',
-    'LogMetrics',
-    'LogWriter',
-    'LogEntry',
-    'MediaValidator',
-    'SocialMediaUtils',
-    'RateLimiter',
-    'LogBatcher'
+    'base_log_manager',
+    'cleanup',
+    'json_settings',
+    'log_batcher',
+    'log_config',
+    'log_entry',
+    'log_level',
+    'log_manager',
+    'log_pipeline',
+    'log_rotator',
+    'log_types',
+    'log_writer',
+    'media_validator',
+    'rate_limiter',
+    'social_common',
 ]

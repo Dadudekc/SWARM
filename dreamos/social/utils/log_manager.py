@@ -1,7 +1,7 @@
 """
-Simplified Log Manager
---------------------
-Provides centralized logging with basic rotation and metrics.
+Log Manager
+----------
+Manages logging for social media operations.
 """
 
 import logging
@@ -19,7 +19,7 @@ from .log_rotator import LogRotator
 from .log_types import RotationConfig
 
 class LogLevel(Enum):
-    """Log levels."""
+    """Log levels for social media operations."""
     DEBUG = logging.DEBUG
     INFO = logging.INFO
     WARNING = logging.WARNING
@@ -36,29 +36,26 @@ class LogEntry:
     tags: List[str] = None
     metadata: Dict[str, Any] = None
 
-@dataclass
 class LogConfig:
-    """Log configuration."""
-    level: LogLevel = LogLevel.INFO
-    log_dir: str = "logs"
-    log_format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    date_format: str = "%Y-%m-%d %H:%M:%S"
-    max_bytes: int = 10 * 1024 * 1024  # 10MB
-    backup_count: int = 5
-    max_age_days: int = 30
-    platforms: Dict[str, str] = None
+    """Configuration for logging."""
     
-    def __post_init__(self):
-        if self.platforms is None:
-            self.platforms = {
-                "system": "system.log",
-                "discord": "discord.log",
-                "voice": "voice.log",
-                "agent": "agent.log"
-            }
+    def __init__(self, 
+                 level: LogLevel = LogLevel.INFO,
+                 format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                 file: Optional[str] = None):
+        """Initialize log configuration.
+        
+        Args:
+            level: Log level
+            format: Log format string
+            file: Optional log file path
+        """
+        self.level = level
+        self.format = format
+        self.file = file
 
 class LogManager:
-    """Simplified log manager implementation."""
+    """Manages logging for social media operations."""
     
     _instance = None
     _lock = threading.Lock()
@@ -72,10 +69,29 @@ class LogManager:
         return cls._instance
     
     def __init__(self, config: Optional[LogConfig] = None):
+        """Initialize log manager.
+        
+        Args:
+            config: Optional log configuration
+        """
         if self._initialized:
             return
             
-        self._config = config or LogConfig()
+        self.config = config or LogConfig()
+        self.logger = logging.getLogger("social")
+        self.logger.setLevel(self.config.level.value)
+        
+        # Add console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(logging.Formatter(self.config.format))
+        self.logger.addHandler(console_handler)
+        
+        # Add file handler if specified
+        if self.config.file:
+            file_handler = logging.FileHandler(self.config.file)
+            file_handler.setFormatter(logging.Formatter(self.config.format))
+            self.logger.addHandler(file_handler)
+        
         self._metrics = {
             'total_entries': 0,
             'entries_by_level': {},
@@ -83,13 +99,13 @@ class LogManager:
             'errors': 0
         }
         rotation_config = RotationConfig(
-            max_size_mb=max(1, self._config.max_bytes // (1024 * 1024)),
-            max_files=self._config.backup_count,
-            max_age_days=self._config.max_age_days,
+            max_size_mb=max(1, self.config.max_bytes // (1024 * 1024)),
+            max_files=self.config.backup_count,
+            max_age_days=self.config.max_age_days,
             # Let LogRotator manage the "backups" directory itself. Passing the
             # base log directory avoids creating nested "backups/backups" paths.
-            backup_dir=str(self._config.log_dir),
-            max_bytes=self._config.max_bytes,
+            backup_dir=str(self.config.log_dir),
+            max_bytes=self.config.max_bytes,
         )
         self._rotator = LogRotator(rotation_config)
         self._setup_logging()
@@ -97,46 +113,43 @@ class LogManager:
 
     def set_level(self, level: LogLevel) -> None:
         """Dynamically update the log level for all handlers."""
-        self._config.level = level
-        root_logger = logging.getLogger()
-        root_logger.setLevel(level.value)
-        for handler in root_logger.handlers:
+        self.config.level = level
+        self.logger.setLevel(level.value)
+        for handler in self.logger.handlers:
             handler.setLevel(level.value)
     
     def _setup_logging(self):
         """Set up logging configuration."""
-        root_logger = logging.getLogger()
-        root_logger.setLevel(self._config.level.value)
+        self.logger.setLevel(self.config.level.value)
 
         self._handlers: Dict[str, RotatingFileHandler] = {}
         
         # Remove existing handlers
-        for handler in root_logger.handlers[:]:
-            root_logger.removeHandler(handler)
+        for handler in self.logger.handlers[:]:
+            self.logger.removeHandler(handler)
         
         # Create formatter
         formatter = logging.Formatter(
-            self._config.log_format,
-            self._config.date_format
+            self.config.format,
         )
         
         # Add console handler
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        root_logger.addHandler(console_handler)
+        self.logger.addHandler(console_handler)
         
         # Add file handlers for each platform
-        log_dir = Path(self._config.log_dir)
+        log_dir = Path(self.config.log_dir)
         log_dir.mkdir(exist_ok=True)
         
-        for platform, log_file in self._config.platforms.items():
+        for platform, log_file in self.config.platforms.items():
             file_handler = RotatingFileHandler(
                 log_dir / log_file,
-                maxBytes=self._config.max_bytes,
-                backupCount=self._config.backup_count
+                maxBytes=self.config.max_bytes,
+                backupCount=self.config.backup_count
             )
             file_handler.setFormatter(formatter)
-            root_logger.addHandler(file_handler)
+            self.logger.addHandler(file_handler)
             self._handlers[platform] = file_handler
     
     def write_log(self, message: str, level: str = "INFO", platform: str = "system", **kwargs) -> None:
@@ -147,11 +160,8 @@ class LogManager:
             self._metrics['entries_by_level'][level] = self._metrics['entries_by_level'].get(level, 0) + 1
             self._metrics['entries_by_platform'][platform] = self._metrics['entries_by_platform'].get(platform, 0) + 1
             
-            # Get logger for platform
-            logger = logging.getLogger(platform)
-            
             # Log message
-            log_method = getattr(logger, level.lower(), logger.info)
+            log_method = getattr(self.logger, level.lower(), self.logger.info)
             log_method(message, extra=kwargs)
             
         except Exception as e:
@@ -172,14 +182,14 @@ class LogManager:
     ) -> List[Dict[str, Any]]:
         """Read log entries with optional filtering."""
         try:
-            log_dir = Path(self._config.log_dir)
+            log_dir = Path(self.config.log_dir)
             entries = []
             
             # Get log file for platform
-            if platform and platform not in self._config.platforms:
+            if platform and platform not in self.config.platforms:
                 raise ValueError(f"Invalid platform: {platform}")
                 
-            log_file = log_dir / self._config.platforms[platform]
+            log_file = log_dir / self.config.platforms[platform]
             
             # Read and parse log file
             with open(log_file, 'r') as f:
@@ -211,13 +221,13 @@ class LogManager:
     def cleanup(self) -> None:
         """Clean up old log files."""
         try:
-            log_dir = Path(self._config.log_dir)
-            max_age_days = self._config.max_age_days
+            log_dir = Path(self.config.log_dir)
+            max_age_days = self.config.max_age_days
             cutoff = None
             if max_age_days > 0:
                 cutoff = datetime.now() - timedelta(days=max_age_days)
 
-            for pattern in self._config.platforms.values():
+            for pattern in self.config.platforms.values():
                 stem = Path(pattern).stem
                 suffix = Path(pattern).suffix
                 backups = sorted(
@@ -228,9 +238,9 @@ class LogManager:
                 )
 
                 # Determine which files to keep
-                keep = set(backups[: max(0, self._config.backup_count - 1)])
+                keep = set(backups[: max(0, self.config.backup_count - 1)])
 
-                for file_path in backups[max(0, self._config.backup_count - 1):]:
+                for file_path in backups[max(0, self.config.backup_count - 1):]:
                     try:
                         file_path.unlink()
                     except Exception:
@@ -248,7 +258,7 @@ class LogManager:
 
     def rotate(self, platform: str) -> Optional[str]:
         """Rotate the log file for a given platform."""
-        if platform not in self._config.platforms:
+        if platform not in self.config.platforms:
             raise ValueError(f"Invalid platform: {platform}")
 
         handler = self._handlers.get(platform)
@@ -258,7 +268,7 @@ class LogManager:
         # Ensure handler is flushed and closed before rotation
         handler.flush()
         handler.close()
-        logging.getLogger().removeHandler(handler)
+        self.logger.removeHandler(handler)
 
         log_file = Path(handler.baseFilename)
 
@@ -267,15 +277,14 @@ class LogManager:
         # Recreate handler after rotation
         new_handler = RotatingFileHandler(
             log_file,
-            maxBytes=self._config.max_bytes,
-            backupCount=self._config.backup_count,
+            maxBytes=self.config.max_bytes,
+            backupCount=self.config.backup_count,
         )
         formatter = logging.Formatter(
-            self._config.log_format,
-            self._config.date_format,
+            self.config.format,
         )
         new_handler.setFormatter(formatter)
-        logging.getLogger().addHandler(new_handler)
+        self.logger.addHandler(new_handler)
         self._handlers[platform] = new_handler
 
         return rotated_path

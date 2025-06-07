@@ -1,1 +1,8 @@
-"""Utilities for Dream.OS self-discovery features including self-reflection and journaling."""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
+
+from . import journal
+
+__all__ = [
+    'journal',
+]

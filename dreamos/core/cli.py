@@ -16,7 +16,8 @@ import pyautogui
 import os
 import logging
 
-from dreamos.core.utils.file_utils import (
+from .utils.core_utils import (
+    atomic_write,
     safe_read,
     safe_write,
     load_json,
@@ -27,7 +28,7 @@ from dreamos.core.utils.file_utils import (
     read_yaml,
     write_yaml
 )
-from social.utils.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 from .config import ConfigManager
 from dreamos.core.messaging.message_processor import MessageProcessor
 

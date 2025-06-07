@@ -1,49 +1,20 @@
-"""
-Mock Discord Module
------------------
-Mock classes and utilities for Discord.py testing.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .discord import discord
-from .models import (
-    MockGuild,
-    MockMember,
-    MockRole,
-    MockChannel,
-    MockMessage,
-    MockEmbed,
-    MockContext,
-    create_mock_embed
-)
-from .webhook import MockWebhook, MockFile
-from .client import Client, MockBot, MockCog, VoiceClient, MockCommand
-from types import SimpleNamespace
-
-# Expose a mock 'commands' namespace
-commands = SimpleNamespace(
-    Command=MockCommand,
-    CommandError=Exception,
-    Context=MockContext,
-    Cog=MockCog,
-    Bot=MockBot
-)
+from . import base
+from . import client
+from . import commands
+from . import discord
+from . import helpers
+from . import models
+from . import webhook
 
 __all__ = [
-    'discord',
+    'base',
+    'client',
     'commands',
-    'Client',
-    'MockBot',
-    'MockCog',
-    'VoiceClient',
-    'MockGuild',
-    'MockMember',
-    'MockRole',
-    'MockChannel',
-    'MockMessage',
-    'MockEmbed',
-    'MockContext',
-    'MockWebhook',
-    'MockFile',
-    'MockCommand',
-    'create_mock_embed'
-] 
+    'discord',
+    'helpers',
+    'models',
+    'webhook',
+]

@@ -1,9 +1,10 @@
-"""
-Configuration Management
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-Provides configuration management functionality for the Dream.OS system.
-"""
+from . import bridge_config
+from . import config_manager
 
-from .config_manager import ConfigManager
-
-__all__ = ['ConfigManager']
+__all__ = [
+    'bridge_config',
+    'config_manager',
+]

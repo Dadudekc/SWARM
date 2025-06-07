@@ -1,17 +1,18 @@
-"""
-Error Management
----------------
-Handles error tracking, reporting, and recovery.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .error_tracker import ErrorTracker, ErrorSeverity
-from .error_handler import ErrorHandler, RetryStrategy
-from .error_reporter import ErrorReporter
+from . import base
+from . import error_handler
+from . import error_reporter
+from . import error_tracker
+from . import tracker
+from . import types
 
 __all__ = [
-    "ErrorTracker",
-    "ErrorSeverity",
-    "ErrorHandler",
-    "RetryStrategy",
-    "ErrorReporter"
-] 
+    'base',
+    'error_handler',
+    'error_reporter',
+    'error_tracker',
+    'tracker',
+    'types',
+]

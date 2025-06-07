@@ -1,10 +1,23 @@
 """
-Command metrics tracking and reporting.
+Metrics Collection
+---------------
+Collects and processes system metrics.
 """
 
+import json
+import logging
+import time
 from datetime import datetime, timedelta
 from typing import Dict, List, Optional
 from pathlib import Path
+
+from .utils.core_utils import (
+    atomic_write,
+    safe_read,
+    safe_write,
+    load_json,
+    save_json
+)
 
 from dreamos.core.utils.file_utils import (
     ensure_dir,

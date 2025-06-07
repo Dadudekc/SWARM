@@ -1,21 +1,14 @@
-"""
-Dream.OS Security Namespace
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-This module provides a unified interface for authentication, session management,
-and identity handling in the Dream.OS system.
-
-The security namespace consolidates previously scattered auth/session logic
-into a single, well-organized module with clear responsibilities.
-"""
-
-from .auth_manager import AuthManager
-from .session_manager import SessionManager
-from .identity_utils import IdentityUtils
-from .security_config import SecurityConfig
+from . import auth_manager
+from . import identity_utils
+from . import security_config
+from . import session_manager
 
 __all__ = [
-    'AuthManager',
-    'SessionManager',
-    'IdentityUtils',
-    'SecurityConfig'
-] 
+    'auth_manager',
+    'identity_utils',
+    'security_config',
+    'session_manager',
+]

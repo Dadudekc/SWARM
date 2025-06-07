@@ -1,25 +1,18 @@
-"""
-Authentication system package.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .interface import AbstractAuthInterface, AuthError
-from .manager import AuthManager
-from .retry import RetryMechanism, RetryError, retry
-from .session import SessionManager, Session
-from .token import TokenHandler, TokenInfo
-from dreamos.core.utils.retry_utils import retry
+from . import base
+from . import interface
+from . import manager
+from . import retry
+from . import session
+from . import token
 
 __all__ = [
-    'AbstractAuthInterface',
-    'AuthError',
-    'AuthManager',
-    'RetryMechanism',
-    'RetryError',
+    'base',
+    'interface',
+    'manager',
     'retry',
-    'SessionManager',
-    'Session',
-    'TokenHandler',
-    'TokenInfo'
+    'session',
+    'token',
 ]
-
-__version__ = '1.0.0' 

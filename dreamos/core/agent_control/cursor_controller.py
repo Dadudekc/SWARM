@@ -6,7 +6,7 @@ import time
 from typing import Tuple, Optional
 import pyautogui
 
-from ..coordinate_manager import CoordinateManager
+from dreamos.core.shared.coordinate_manager import CoordinateManager
 from .timing import Timing
 
 class CursorController:

@@ -1,5 +1,10 @@
-"""Log batcher for efficient batch logging operations."""
+"""
+Log Batcher
+---------
+Batches and processes logs.
+"""
 
+import json
 import logging
 import asyncio
 import time
@@ -7,7 +12,7 @@ from typing import Dict, List, Optional, Any
 from datetime import datetime
 from pathlib import Path
 
-from ...core.utils.file_utils import atomic_write
+from ...core.utils.core_utils import atomic_write
 from .log_manager import LogManager
 
 logger = logging.getLogger(__name__)

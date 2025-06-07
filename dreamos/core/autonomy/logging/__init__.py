@@ -1,9 +1,8 @@
-"""
-Logging Module
-------------
-Logging functionality for the autonomy system.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .log_manager import LogManager
+from . import log_manager
 
-__all__ = ['LogManager'] 
+__all__ = [
+    'log_manager',
+]

@@ -13,7 +13,7 @@ from ..automation.browser_control import BrowserControl
 from ..config.config_manager import ConfigManager
 from ..messaging.request_queue import RequestQueue
 from ..monitoring.bridge_health import BridgeHealthMonitor
-from ..utils.retry_utils import with_retry
+from ..utils.core_utils import with_retry
 
 logger = logging.getLogger('chatgpt_bridge')
 
