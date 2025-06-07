@@ -10,6 +10,30 @@ import tempfile
 from pathlib import Path
 from typing import Any, Dict, Optional, Union
 
+# Test root directory
+TEST_ROOT = Path(__file__).parent.parent
+# Test data directory
+TEST_DATA_DIR = TEST_ROOT / "data"
+# Test output directory
+TEST_OUTPUT_DIR = TEST_ROOT / "output"
+# Voice queue directory
+VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
+# Test config directory
+TEST_CONFIG_DIR = TEST_ROOT / "config"
+# Test runtime directory
+TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
+# Test temp directory
+TEST_TEMP_DIR = TEST_ROOT / "temp"
+
+def ensure_test_dirs(*paths: Path) -> None:
+    """Ensure test directories exist.
+    
+    Args:
+        *paths: Paths to create
+    """
+    for path in paths:
+        path.mkdir(parents=True, exist_ok=True)
+
 from tests.utils.mock_discord import (
     MockGuild,
     MockMember,
@@ -20,9 +44,6 @@ from tests.utils.mock_discord import (
     MockWebhook,
     MockFile
 )
-
-from dreamos.core.agents.base import BaseAgent
-from dreamos.core.agents.bus import AgentBus
 
 def create_test_guild(
     guild_id: int = 1,
@@ -198,13 +219,14 @@ def create_test_file(
     """
     with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
         f.write(content)
-        f.flush()
-        return MockFile(
-            filename=filename,
-            fp=f,
-            description=description,
-            spoiler=spoiler
-        )
+        temp_path = f.name
+    
+    return MockFile(
+        filename=filename,
+        content=content,
+        description=description,
+        spoiler=spoiler
+    )
 
 def create_test_config(
     config_path: Union[str, Path],
@@ -216,6 +238,9 @@ def create_test_config(
         config_path: Path to config file
         config_data: Configuration data
     """
+    config_path = Path(config_path)
+    config_path.parent.mkdir(parents=True, exist_ok=True)
+    
     with open(config_path, 'w') as f:
         json.dump(config_data, f, indent=2)
 
@@ -226,76 +251,59 @@ def cleanup_test_files(*paths: Union[str, Path]) -> None:
         *paths: Paths to clean up
     """
     for path in paths:
-        if os.path.exists(path):
-            if os.path.isfile(path):
-                os.unlink(path)
-            elif os.path.isdir(path):
-                for root, dirs, files in os.walk(path, topdown=False):
-                    for name in files:
-                        os.unlink(os.path.join(root, name))
-                    for name in dirs:
-                        os.rmdir(os.path.join(root, name))
-                os.rmdir(path)
-
-def create_test_agent(
-    agent_id: str = "test_agent",
-    name: str = "Test Agent",
-    config: Optional[Dict[str, Any]] = None
-) -> BaseAgent:
-    """Create a test agent.
-    
-    Args:
-        agent_id: Agent ID
-        name: Agent name
-        config: Agent configuration
-        
-    Returns:
-        Test agent instance
-    """
-    class TestAgent(BaseAgent):
-        def __init__(self, agent_id: str, name: str, config: Optional[Dict[str, Any]] = None):
-            super().__init__(agent_id, name, config)
-            
-        async def start(self):
-            pass
-            
-        async def stop(self):
-            pass
-            
-        async def process(self, message: Any) -> Any:
-            return message
-            
-    return TestAgent(agent_id, name, config)
-
-def create_test_agent_bus(
-    bus_id: str = "test_bus",
-    config: Optional[Dict[str, Any]] = None
-) -> AgentBus:
-    """Create a test agent bus.
-    
-    Args:
-        bus_id: Bus ID
-        config: Bus configuration
-        
-    Returns:
-        Test agent bus instance
-    """
-    return AgentBus(bus_id, config)
+        path = Path(path)
+        if path.exists():
+            if path.is_file():
+                path.unlink()
+            elif path.is_dir():
+                for child in path.glob('*'):
+                    if child.is_file():
+                        child.unlink()
+                path.rmdir()
 
 def safe_remove(path: Union[str, Path]) -> None:
-    """Safely remove a file or directory, ignoring errors."""
-    try:
-        p = Path(path)
-        if p.is_file() or p.is_symlink():
-            p.unlink()
-        elif p.is_dir():
-            for sub in p.iterdir():
-                safe_remove(sub)
-            p.rmdir()
-    except Exception:
-        pass
+    """Safely remove a file or directory.
+    
+    Args:
+        path: Path to remove
+    """
+    path = Path(path)
+    if path.exists():
+        if path.is_file():
+            path.unlink()
+        elif path.is_dir():
+            for child in path.glob('*'):
+                if child.is_file():
+                    child.unlink()
+            path.rmdir()
 
 def cleanup_test_environment(*paths: Union[str, Path]) -> None:
-    """Remove files and directories created during tests."""
+    """Clean up test environment.
+    
+    Args:
+        *paths: Paths to clean up
+    """
     for path in paths:
-        safe_remove(path) 
+        safe_remove(path)
+
+__all__ = [
+    'ensure_test_dirs',
+    'create_test_guild',
+    'create_test_member',
+    'create_test_channel',
+    'create_test_message',
+    'create_test_embed',
+    'create_test_webhook',
+    'create_test_file',
+    'create_test_config',
+    'cleanup_test_files',
+    'safe_remove',
+    'cleanup_test_environment',
+    'TEST_ROOT',
+    'TEST_DATA_DIR',
+    'TEST_OUTPUT_DIR',
+    'VOICE_QUEUE_DIR',
+    'TEST_CONFIG_DIR',
+    'TEST_RUNTIME_DIR',
+    'TEST_TEMP_DIR'
+]
