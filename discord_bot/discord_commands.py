@@ -24,8 +24,8 @@ from dreamos.core.messaging.cell_phone import CellPhone
 from dreamos.core.messaging.enums import MessageMode
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
-from dreamos.core.log_manager import LogManager
-from social.utils.log_manager import LogConfig, LogLevel
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.autonomy.error import ErrorTracker, ErrorHandler, ErrorSeverity
 
 logger = logging.getLogger('discord_bot')
 
@@ -386,6 +386,10 @@ class AgentCommands(commands.Cog):
         self.log_manager = LogManager()
         self.MessageMode = MessageMode
         
+        # Initialize error handling
+        self.error_tracker = ErrorTracker()
+        self.error_handler = ErrorHandler(self.error_tracker)
+        
         # Load configuration
         self._load_config()
         
@@ -402,11 +406,23 @@ class AgentCommands(commands.Cog):
     
     def _load_config(self):
         """Load configuration from file."""
-        config_path = Path("config/discord_bot.yaml")
-        if config_path.exists():
-            with open(config_path) as f:
-                self.config = yaml.safe_load(f)
-        else:
+        try:
+            config_path = Path("config/discord_bot.yaml")
+            if config_path.exists():
+                with open(config_path) as f:
+                    self.config = yaml.safe_load(f)
+            else:
+                self.config = {}
+                
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.HIGH,
+                agent_id="discord_bot",
+                context={"operation": "load_config"}
+            )
+            logger.error(f"Error loading config: {e}")
             self.config = {}
     
     async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
@@ -418,67 +434,182 @@ class AgentCommands(commands.Cog):
                 content=content,
                 timestamp=datetime.now()
             )
-            return await self.message_processor.process_message(message)
+            
+            # Send with retry
+            return await self.error_handler.with_retry(
+                operation="send_command",
+                agent_id=agent_id,
+                func=self.message_processor.process_message,
+                message=message
+            )
+            
         except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.HIGH,
+                agent_id=agent_id,
+                context={
+                    "operation": "send_command",
+                    "mode": mode,
+                    "content": content
+                }
+            )
             logger.error(f"Error sending command: {e}")
             return False
     
     async def show_help(self, ctx):
         """Show help menu."""
-        view = HelpMenu()
-        await ctx.send(embed=view.pages[0], view=view)
+        try:
+            view = HelpMenu()
+            await ctx.send(embed=view.pages[0], view=view)
+            
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id="discord_bot",
+                context={"operation": "show_help"}
+            )
+            await ctx.send("Error showing help menu. Please try again later.")
     
     async def list_agents(self, ctx):
         """List available agents."""
-        embed = discord.Embed(
-            title="Available Agents",
-            description="List of active agents in the system",
-            color=discord.Color.blue()
-        )
-        
-        # Get agent list from bot
-        agents = self.bot.agent_resume.coords.keys()
-        
-        for agent in agents:
-            embed.add_field(
-                name=agent,
-                value="Active",
-                inline=True
+        try:
+            embed = discord.Embed(
+                title="Available Agents",
+                description="List of active agents in the system",
+                color=discord.Color.blue()
             )
-        
-        await ctx.send(embed=embed)
+            
+            # Get agent list from bot
+            agents = self.bot.agent_resume.coords.keys()
+            
+            for agent in agents:
+                embed.add_field(
+                    name=agent,
+                    value="Active",
+                    inline=True
+                )
+            
+            await ctx.send(embed=embed)
+            
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id="discord_bot",
+                context={"operation": "list_agents"}
+            )
+            await ctx.send("Error listing agents. Please try again later.")
     
     async def send_prompt(self, ctx, agent_id: str, prompt_text: str):
         """Send a prompt to an agent."""
-        success = await self.send_command(MessageMode.PROMPT, agent_id, prompt_text)
-        if success:
-            await ctx.send(f"Prompt sent to {agent_id}")
-        else:
-            await ctx.send(f"Failed to send prompt to {agent_id}")
+        try:
+            success = await self.send_command(MessageMode.PROMPT, agent_id, prompt_text)
+            if success:
+                await ctx.send(f"Prompt sent to {agent_id}")
+            else:
+                await ctx.send(f"Failed to send prompt to {agent_id}")
+                
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.HIGH,
+                agent_id=agent_id,
+                context={
+                    "operation": "send_prompt",
+                    "prompt_text": prompt_text
+                }
+            )
+            await ctx.send(f"Error sending prompt to {agent_id}. Please try again later.")
     
     async def update_log(self, ctx, agent_id: str, message: str):
         """Update agent log."""
-        success = await self.log_manager.log(agent_id, message, LogLevel.INFO)
-        if success:
-            await ctx.send(f"Log updated for {agent_id}")
-        else:
-            await ctx.send(f"Failed to update log for {agent_id}")
+        try:
+            success = await self.error_handler.with_retry(
+                operation="update_log",
+                agent_id=agent_id,
+                func=self.log_manager.log,
+                message=message,
+                level=LogLevel.INFO
+            )
+            
+            if success:
+                await ctx.send(f"Log updated for {agent_id}")
+            else:
+                await ctx.send(f"Failed to update log for {agent_id}")
+                
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id=agent_id,
+                context={
+                    "operation": "update_log",
+                    "message": message
+                }
+            )
+            await ctx.send(f"Error updating log for {agent_id}. Please try again later.")
     
     async def view_log(self, ctx, agent_id: str):
         """View agent log."""
-        log_content = await self.log_manager.get_log(agent_id)
-        if log_content:
-            await ctx.send(f"Log for {agent_id}:\n```\n{log_content}\n```")
-        else:
-            await ctx.send(f"No log found for {agent_id}")
+        try:
+            log_entries = await self.error_handler.with_retry(
+                operation="view_log",
+                agent_id=agent_id,
+                func=self.log_manager.read_logs,
+                platform=agent_id
+            )
+            
+            if log_entries:
+                # Format log entries
+                log_content = "\n".join([
+                    f"[{entry['timestamp']}] {entry['level']}: {entry['message']}"
+                    for entry in log_entries
+                ])
+                await ctx.send(f"Log for {agent_id}:\n```\n{log_content}\n```")
+            else:
+                await ctx.send(f"No log found for {agent_id}")
+                
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id=agent_id,
+                context={"operation": "view_log"}
+            )
+            await ctx.send(f"Error viewing log for {agent_id}. Please try again later.")
     
     async def clear_log(self, ctx, agent_id: str):
         """Clear agent log."""
-        success = await self.log_manager.clear_log(agent_id)
-        if success:
-            await ctx.send(f"Log cleared for {agent_id}")
-        else:
-            await ctx.send(f"Failed to clear log for {agent_id}")
+        try:
+            rotated_path = await self.error_handler.with_retry(
+                operation="clear_log",
+                agent_id=agent_id,
+                func=self.log_manager.rotate,
+                platform=agent_id
+            )
+            
+            if rotated_path:
+                await ctx.send(f"Log cleared for {agent_id}")
+            else:
+                await ctx.send(f"Failed to clear log for {agent_id}")
+                
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id=agent_id,
+                context={"operation": "clear_log"}
+            )
+            await ctx.send(f"Error clearing log for {agent_id}. Please try again later.")
 
 async def setup(bot):
     """Set up the commands cog."""
