@@ -9,8 +9,8 @@ into a single source of truth. It replaces scattered implementations in:
 """
 
 from enum import Enum, auto
-from dataclasses import dataclass
-from typing import Dict, Any, Optional
+from dataclasses import dataclass, field
+from typing import Dict, Any, Optional, List, Union
 from datetime import datetime, timedelta
 import json
 import os
@@ -38,49 +38,143 @@ class LogLevel(Enum):
         except KeyError:
             raise ValueError(f"Invalid log level: {level}")
 
+# Default configuration values
+DEFAULT_MAX_SIZE_MB = 10
+DEFAULT_BATCH_SIZE = 1000
+DEFAULT_BATCH_TIMEOUT = 5  # seconds
+DEFAULT_MAX_FILES = 5
+DEFAULT_ROTATION_CHECK_INTERVAL = 60  # seconds
+DEFAULT_CLEANUP_INTERVAL = 3600  # seconds (1 hour)
+DEFAULT_COMPRESS_AFTER_DAYS = 7
+DEFAULT_LOG_DIR = "logs"
+DEFAULT_LOG_FORMAT = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+DEFAULT_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
+DEFAULT_MAX_AGE_DAYS = 30
+DEFAULT_MAX_RETRIES = 3
+DEFAULT_RETRY_DELAY = 0.5
+
 @dataclass
 class LogConfig:
-    """Configuration for logging system."""
+    """Configuration for logging system.
+    
+    This is the unified configuration class that consolidates all logging settings
+    across Dream.OS. It supports both simple and advanced logging configurations.
+    
+    Basic usage:
+        config = LogConfig(level=LogLevel.INFO)
+        
+    Advanced usage:
+        config = LogConfig(
+            level=LogLevel.DEBUG,
+            log_dir="logs",
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            max_file_size=10 * 1024 * 1024,
+            backup_count=5,
+            max_age_days=7,
+            platforms={
+                "system": "system.log",
+                "agent": "agent.log"
+            }
+        )
+    """
+    # Core logging settings
     level: LogLevel = LogLevel.INFO
-    format: str = "[{timestamp}] [{level}] {message}"
-    retention_days: int = 7
-    max_file_size: int = 10 * 1024 * 1024  # 10MB
-    max_bytes: int = 10 * 1024 * 1024  # 10MB - alias for max_file_size
-    backup_count: int = 5
+    format: str = DEFAULT_LOG_FORMAT
+    date_format: str = DEFAULT_DATE_FORMAT
+    
+    # File settings
+    log_dir: str = DEFAULT_LOG_DIR
+    file_path: Optional[str] = None
+    max_file_size: int = DEFAULT_MAX_SIZE_MB * 1024 * 1024  # 10MB in bytes
+    max_bytes: int = DEFAULT_MAX_SIZE_MB * 1024 * 1024  # Alias for max_file_size
+    backup_count: int = DEFAULT_MAX_FILES
+    max_age_days: int = DEFAULT_MAX_AGE_DAYS
+    retention_days: int = DEFAULT_MAX_AGE_DAYS  # Alias for max_age_days
+    
+    # Platform-specific settings
+    platforms: Dict[str, str] = field(default_factory=dict)
+    
+    # Batching settings
+    batch_size: int = DEFAULT_BATCH_SIZE
+    batch_timeout: float = DEFAULT_BATCH_TIMEOUT
+    
+    # Maintenance settings
+    rotation_check_interval: float = DEFAULT_ROTATION_CHECK_INTERVAL
+    cleanup_interval: float = DEFAULT_CLEANUP_INTERVAL
+    compress_after_days: int = DEFAULT_COMPRESS_AFTER_DAYS
+    
+    # Optional features
     metrics_enabled: bool = True
     discord_webhook: Optional[str] = None
-    log_dir: Optional[str] = None
-    platforms: Optional[Dict[str, str]] = None
-    batch_size: int = 10
-    batch_timeout: float = 1.0
-    max_retries: int = 3
-    retry_delay: float = 0.5
-    backup_dir: Optional[str] = None
-    max_age_days: int = 30
-
+    discord_enabled: bool = False
+    discord_levels: List[str] = field(default_factory=list)
+    
+    # Error handling
+    max_retries: int = DEFAULT_MAX_RETRIES
+    retry_delay: float = DEFAULT_RETRY_DELAY
+    
+    # Output control
+    log_to_console: bool = True
+    log_to_file: bool = True
+    
     def __post_init__(self):
-        """Ensure max_bytes and max_file_size are synchronized."""
+        """Validate and normalize configuration after initialization."""
+        # Ensure max_bytes and max_file_size are synchronized
         self.max_bytes = self.max_file_size
+        
+        # Create log directory if it doesn't exist
+        if self.log_dir:
+            os.makedirs(self.log_dir, exist_ok=True)
+            
+        # Set default file path if not specified
+        if self.log_to_file and not self.file_path:
+            self.file_path = os.path.join(self.log_dir, "system.log")
+            
+        # Validate numeric values
+        if self.batch_size <= 0:
+            raise ValueError("batch_size must be positive")
+        if self.batch_timeout <= 0:
+            raise ValueError("batch_timeout must be positive")
+        if self.max_retries < 0:
+            raise ValueError("max_retries cannot be negative")
+        if self.retry_delay < 0:
+            raise ValueError("retry_delay cannot be negative")
+        if self.max_age_days <= 0:
+            raise ValueError("max_age_days must be positive")
+        if self.compress_after_days <= 0:
+            raise ValueError("compress_after_days must be positive")
+        if self.rotation_check_interval <= 0:
+            raise ValueError("rotation_check_interval must be positive")
+        if self.cleanup_interval <= 0:
+            raise ValueError("cleanup_interval must be positive")
 
     def to_dict(self) -> Dict[str, Any]:
         """Convert config to dictionary."""
         return {
             "level": self.level.name,
             "format": self.format,
-            "retention_days": self.retention_days,
+            "date_format": self.date_format,
+            "log_dir": self.log_dir,
+            "file_path": self.file_path,
             "max_file_size": self.max_file_size,
             "max_bytes": self.max_bytes,
             "backup_count": self.backup_count,
-            "metrics_enabled": self.metrics_enabled,
-            "discord_webhook": self.discord_webhook,
-            "log_dir": self.log_dir,
+            "max_age_days": self.max_age_days,
+            "retention_days": self.retention_days,
             "platforms": self.platforms,
             "batch_size": self.batch_size,
             "batch_timeout": self.batch_timeout,
+            "rotation_check_interval": self.rotation_check_interval,
+            "cleanup_interval": self.cleanup_interval,
+            "compress_after_days": self.compress_after_days,
+            "metrics_enabled": self.metrics_enabled,
+            "discord_webhook": self.discord_webhook,
+            "discord_enabled": self.discord_enabled,
+            "discord_levels": self.discord_levels,
             "max_retries": self.max_retries,
             "retry_delay": self.retry_delay,
-            "backup_dir": self.backup_dir,
-            "max_age_days": self.max_age_days
+            "log_to_console": self.log_to_console,
+            "log_to_file": self.log_to_file
         }
 
     @classmethod
@@ -104,17 +198,54 @@ class LogConfig:
         with open(path, 'r') as f:
             return cls.from_dict(json.load(f))
 
-# Default configuration
+    def __str__(self) -> str:
+        """String representation."""
+        return (
+            f"LogConfig(level={self.level}, "
+            f"log_dir='{self.log_dir}', "
+            f"format='{self.format}', "
+            f"max_file_size={self.max_file_size}, "
+            f"backup_count={self.backup_count}, "
+            f"platforms={self.platforms})"
+        )
+
+    def __repr__(self) -> str:
+        """Detailed string representation."""
+        return (
+            f"LogConfig(level={self.level}, "
+            f"log_dir='{self.log_dir}', "
+            f"format='{self.format}', "
+            f"date_format='{self.date_format}', "
+            f"file_path='{self.file_path}', "
+            f"max_file_size={self.max_file_size}, "
+            f"backup_count={self.backup_count}, "
+            f"max_age_days={self.max_age_days}, "
+            f"platforms={self.platforms}, "
+            f"batch_size={self.batch_size}, "
+            f"batch_timeout={self.batch_timeout}, "
+            f"rotation_check_interval={self.rotation_check_interval}, "
+            f"cleanup_interval={self.cleanup_interval}, "
+            f"compress_after_days={self.compress_after_days}, "
+            f"metrics_enabled={self.metrics_enabled}, "
+            f"discord_webhook={self.discord_webhook}, "
+            f"discord_enabled={self.discord_enabled}, "
+            f"discord_levels={self.discord_levels}, "
+            f"max_retries={self.max_retries}, "
+            f"retry_delay={self.retry_delay}, "
+            f"log_to_console={self.log_to_console}, "
+            f"log_to_file={self.log_to_file})"
+        )
+
+# Default configuration instance
 DEFAULT_CONFIG = LogConfig()
 
 # Constants
-LOG_DIR = "logs"
 METRICS_DIR = "metrics"
 DISCORD_WEBHOOK_ENV = "DREAMOS_DISCORD_WEBHOOK"
 
 def get_log_path() -> str:
     """Get path to log directory."""
-    return os.path.join(os.getcwd(), LOG_DIR)
+    return os.path.join(os.getcwd(), DEFAULT_CONFIG.log_dir)
 
 def get_metrics_path() -> str:
     """Get path to metrics directory."""

@@ -96,11 +96,7 @@ class TestRunner:
             # Send to agent
             success = self.cell_phones[agent_id].send_message(
                 to_agent=agent_id,
-                content=json.dumps(prompt),
-                metadata={
-                    "type": "test_and_debug",
-                    "timestamp": datetime.utcnow().isoformat()
-                }
+                content=json.dumps(prompt)
             )
             
             if success:

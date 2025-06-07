@@ -1,23 +1,8 @@
-"""
-Messaging utilities package.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .core_utils import (
-    format_message,
-    parse_message,
-    validate_message,
-    get_message_type,
-    get_message_content,
-    get_message_timestamp,
-    format_timestamp
-)
+from . import core_utils
 
 __all__ = [
-    'format_message',
-    'parse_message',
-    'validate_message',
-    'get_message_type',
-    'get_message_content',
-    'get_message_timestamp',
-    'format_timestamp'
-] 
+    'core_utils',
+]
