@@ -41,6 +41,7 @@ MOCK_PROMPT = "Test prompt content"
 MOCK_DEVLOG = "Test devlog content"
 
 # Initialize logging
+ensure_dir(Path("logs/tests/config"))
 logging.basicConfig(
     level=logging.DEBUG,
     format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
