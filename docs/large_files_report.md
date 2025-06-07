@@ -17,4 +17,4 @@
   491 dreamos/social/utils/log_writer.py
   490 dreamos/core/messaging/response_collector.py
   468 tests/test_config.py
-  460 discord_bot/commands.py
+  415 discord_bot/commands.py

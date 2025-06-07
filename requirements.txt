@@ -3,6 +3,10 @@ screeninfo>=0.6.7
 pyautogui>=0.9.54
 Pillow>=9.0.0
 keyboard>=0.13.5
+portalocker>=3.0
+pytesseract>=0.3.10
+opencv-python-headless>=4.11
+numpy>=1.21
 
 # Optional dependencies
 # Uncomment if needed:

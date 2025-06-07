@@ -9,6 +9,7 @@ from . import notifier
 from . import tts
 from . import voice_cli
 from . import voicebot
+from . import devlog_commands
 
 __all__ = [
     'agent_interface',
@@ -19,4 +20,5 @@ __all__ = [
     'tts',
     'voice_cli',
     'voicebot',
+    'devlog_commands',
 ]
