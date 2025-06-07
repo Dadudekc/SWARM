@@ -3,10 +3,12 @@ import json
 import os
 from pathlib import Path
 from social.community.base import CommunityBase
-import win32security
-import win32file
-import win32con
-import win32api
+
+# Windows-specific modules; skip tests if unavailable
+win32security = pytest.importorskip("win32security")
+win32file = pytest.importorskip("win32file")
+win32con = pytest.importorskip("win32con")
+win32api = pytest.importorskip("win32api")
 
 @pytest.fixture
 def temp_config_dir(tmp_path):

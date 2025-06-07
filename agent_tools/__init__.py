@@ -16,7 +16,6 @@ else:
 from . import agent_resumer
 from . import captain_prompt
 from . import cursor_chatgpt_bridge
-from . import setup
 
 __all__ = [
     *_activate_debug,
@@ -24,5 +23,4 @@ __all__ = [
     'agent_resumer',
     'captain_prompt',
     'cursor_chatgpt_bridge',
-    'setup',
 ]

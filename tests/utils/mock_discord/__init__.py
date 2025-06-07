@@ -12,6 +12,8 @@ from . import ui
 from . import voice
 from .models import MockGuild, MockRole, MockChannel, MockMember, MockMessage, MockEmbed, MockWebhook, MockFile
 from .ui import View, Button, Select
+from .client import Client, ClientUser
+from .commands import Command
 from .voice import (
     VoiceClient,
     Gateway,
@@ -55,6 +57,9 @@ __all__ = [
     'MockEmbed',
     'MockWebhook',
     'MockFile',
+    'Client',
+    'ClientUser',
+    'Command',
     'View',
     'Button',
     'Select',
