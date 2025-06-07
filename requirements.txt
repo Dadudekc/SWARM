@@ -51,3 +51,4 @@ streamlit>=1.29.0
 schedule>=1.2.0
 PyQt5>=5.15.0
 aiofiles>=0.8.0
+Flask>=2.0.0

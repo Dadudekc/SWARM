@@ -19,6 +19,7 @@ from . import overlap_heatmap
 from . import performance_monitor
 from . import prepare_release
 from . import print_metrics_summary
+from . import start_metrics_server
 from . import recalibrate_coords
 from . import reorganize_social
 from . import run_menu
@@ -49,6 +50,7 @@ __all__ = [
     'performance_monitor',
     'prepare_release',
     'print_metrics_summary',
+    'start_metrics_server',
     'recalibrate_coords',
     'reorganize_social',
     'run_menu',

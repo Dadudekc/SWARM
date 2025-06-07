@@ -56,9 +56,10 @@ The project is progressing through several planned phases. We are currently in *
    - Expanding content loops.
    - Enhancing Discord and ChatGPT bridges.
    - Expanding tests and documentation.
-3. **Phase 3 – Scalability & Hardening (planned)**
-   - Containerization and distributed agent coordination.
-   - Improved security, metrics and dashboards.
+3. **Phase 3 – Scalability & Hardening (in progress)**
+   - Docker-based container deployment.
+   - Metrics server with Grafana dashboard.
+   - Hardened log file permissions.
 4. **Phase 4 – Production Release (planned)**
    - Stable release with plugin ecosystem.
    - Formal support channels and deployment guides.
@@ -661,7 +662,7 @@ dreamos/
 
 ### 1. Planned Features
 - **ENH-001**: Enhanced agent monitoring
-  - Real-time metrics
+  - Real-time metrics ([docs/metrics_dashboard.md](docs/metrics_dashboard.md))
   - Predictive analytics
   - Health scoring
 - **ENH-002**: Advanced task scheduling
@@ -991,6 +992,7 @@ python test_cell_phone.py
 - Role-based permissions
 - API credentials encrypted
 - Risk management controls
+- See [docs/security_best_practices.md](docs/security_best_practices.md) for container hardening guidelines.
 
 ## Contributing
 
