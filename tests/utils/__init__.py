@@ -1,3 +1,62 @@
+"""
+Test Utilities
+-------------
+Core test utilities and helpers for Dream.OS.
+"""
+
+from .test_file_ops import (
+    ensure_test_dirs,
+    safe_remove,
+    safe_rmdir,
+    ensure_dir,
+    get_test_file_path,
+    create_test_file,
+    cleanup_test_environment,
+    # Test directory constants
+    TEST_ROOT,
+    TEST_DATA_DIR,
+    TEST_OUTPUT_DIR,
+    TEST_CONFIG_DIR,
+    TEST_RUNTIME_DIR,
+    TEST_TEMP_DIR,
+    VOICE_QUEUE_DIR
+)
+
+from .test_mocks import (
+    MOCK_AGENT_CONFIG,
+    MOCK_PROMPT,
+    MOCK_RESPONSE,
+    MOCK_DEVLOG,
+    MockMember
+)
+
+__all__ = [
+    # File operations
+    "ensure_test_dirs",
+    "safe_remove",
+    "safe_rmdir",
+    "ensure_dir",
+    "get_test_file_path",
+    "create_test_file",
+    "cleanup_test_environment",
+    
+    # Test directories
+    "TEST_ROOT",
+    "TEST_DATA_DIR",
+    "TEST_OUTPUT_DIR",
+    "TEST_CONFIG_DIR",
+    "TEST_RUNTIME_DIR",
+    "TEST_TEMP_DIR",
+    "VOICE_QUEUE_DIR",
+    
+    # Mocks
+    "MOCK_AGENT_CONFIG",
+    "MOCK_PROMPT",
+    "MOCK_RESPONSE",
+    "MOCK_DEVLOG",
+    "MockMember"
+]
+
 import pytest
 from pathlib import Path
 from typing import Dict, Any
@@ -39,10 +98,6 @@ class MockMessage:
     def __init__(self, content="", attachments=None):
         self.content = content
         self.attachments = attachments or []
-
-class MockMember:
-    """Minimal mock for discord.Member."""
-    pass
 
 class MockChannel:
     """Minimal mock for discord.TextChannel."""

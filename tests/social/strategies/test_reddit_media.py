@@ -6,7 +6,7 @@ from unittest.mock import Mock, patch, MagicMock
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import NoSuchElementException, TimeoutException
 from social.strategies.reddit.validators.media_validator import MediaValidator
-from dreamos.social.utils.log_config import LogLevel
+from dreamos.core.log_manager import LogLevel
 
 @pytest.fixture
 def mock_driver():

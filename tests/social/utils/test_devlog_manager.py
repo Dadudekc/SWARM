@@ -11,7 +11,7 @@ from pathlib import Path
 from datetime import datetime
 
 from dreamos.core.agent_control.devlog_manager import DevLogManager
-from social.utils.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 from dreamos.core.utils.file_utils import (
     safe_read,
     safe_write,

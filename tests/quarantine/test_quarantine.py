@@ -18,7 +18,7 @@ from social.strategies.reddit.handlers.login_handler import (
     LoginError
 )
 from dreamos.social.utils.log_manager import LogManager
-from dreamos.social.utils.log_config import LogConfig
+from dreamos.core.log_manager import LogConfig
 from dreamos.social.utils.log_level import LogLevel
 from datetime import datetime, timedelta
 import json

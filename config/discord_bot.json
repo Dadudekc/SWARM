@@ -1,0 +1,19 @@
+{
+    "token": "YOUR_DISCORD_BOT_TOKEN",
+    "owner_id": 0,
+    "log_level": "INFO",
+    "channels": {
+        "devlog": "YOUR_DEVLOG_CHANNEL_ID",
+        "announcements": "YOUR_ANNOUNCEMENTS_CHANNEL_ID",
+        "errors": "YOUR_ERRORS_CHANNEL_ID"
+    },
+    "webhooks": {
+        "devlog": "YOUR_DEVLOG_WEBHOOK_URL",
+        "announcements": "YOUR_ANNOUNCEMENTS_WEBHOOK_URL",
+        "errors": "YOUR_ERRORS_WEBHOOK_URL"
+    },
+    "commands": {
+        "prefix": "!",
+        "devlog_levels": ["debug", "info", "warning", "error"]
+    }
+} 

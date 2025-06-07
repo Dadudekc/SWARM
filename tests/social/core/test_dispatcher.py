@@ -14,7 +14,7 @@ from datetime import datetime
 from pathlib import Path
 
 from social.core.dispatcher import SocialPlatformDispatcher
-from social.utils.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 from social.utils.rate_limiter import RateLimiter
 from social.utils.media_validator import MediaValidator
 from social.strategies.reddit.handlers.login_handler import LoginHandler

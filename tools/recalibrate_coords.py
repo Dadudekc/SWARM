@@ -10,7 +10,7 @@ import time
 import os
 from pathlib import Path
 import pyautogui
-import pygetwindow as gw
+import keyboard
 from typing import Dict, Tuple, Optional
 
 from dreamos.core.coordinate_utils import load_coordinates, validate_coordinates
@@ -24,7 +24,6 @@ logger = logging.getLogger(__name__)
 
 CONFIG_PATH = "config/cursor_agent_coords.json"
 AGENT_LIST = [
-    "Agent-1", "Agent-2", "Agent-3", "Agent-4",
     "Agent-5", "Agent-6", "Agent-7", "Agent-8"
 ]
 
@@ -35,13 +34,13 @@ def get_window_info() -> Tuple[str, str]:
         Tuple of (window_title, monitor_info)
     """
     try:
-        win = gw.getActiveWindow()
+        win = pyautogui.getActiveWindow()
         if win:
             title = win.title
             # Get monitor info
             x, y = win.left, win.top
             monitor = "Unknown"
-            for m in gw.getAllMonitors():
+            for m in pyautogui.getAllMonitors():
                 if m.left <= x < m.left + m.width and m.top <= y < m.top + m.height:
                     monitor = f"Monitor {m.name} ({m.width}x{m.height})"
                     break
@@ -51,32 +50,28 @@ def get_window_info() -> Tuple[str, str]:
     return "Unknown", "Unknown"
 
 def capture_point(agent_id: str, label: str) -> Dict:
-    """Capture a coordinate point with window focus validation.
+    """Capture a coordinate point.
     
     Args:
         agent_id: ID of the agent
         label: Label for the point being captured
         
     Returns:
-        Dictionary with coordinate and window information
+        Dictionary with coordinate information
     """
-    pyautogui.alert(f"Click the {label} for {agent_id}, then press ENTER.")
-    time.sleep(0.2)  # Small pause to let window focus settle
+    print(f"\nMove mouse to {agent_id}'s {label}")
+    print("Press 'c' to capture or 'q' to quit")
     
-    pos = pyautogui.position()
-    win_title, monitor = get_window_info()
-    
-    logger.info(f"{agent_id} {label}:")
-    logger.info(f"  Position: ({pos.x}, {pos.y})")
-    logger.info(f"  Window: {win_title}")
-    logger.info(f"  Monitor: {monitor}")
-    
-    return {
-        "x": pos.x,
-        "y": pos.y,
-        "window": win_title,
-        "monitor": monitor
-    }
+    while True:
+        if keyboard.is_pressed('c'):
+            pos = pyautogui.position()
+            logger.info(f"{agent_id} {label}:")
+            logger.info(f"  Position: ({pos.x}, {pos.y})")
+            time.sleep(0.3)  # Debounce
+            return {"x": pos.x, "y": pos.y}
+        elif keyboard.is_pressed('q'):
+            raise KeyboardInterrupt()
+        time.sleep(0.1)
 
 def validate_unique_coordinates(coords: Dict) -> bool:
     """Validate that coordinates are unique across agents.
@@ -90,26 +85,44 @@ def validate_unique_coordinates(coords: Dict) -> bool:
     # Check for duplicate coordinates
     seen = set()
     for agent_id, agent_coords in coords.items():
+        if agent_id == "global_ui":
+            continue
+            
         # Check input box coordinates
-        input_box = (agent_coords["input_box"]["x"], agent_coords["input_box"]["y"])
-        if input_box in seen:
-            logger.error(f"Duplicate input box coordinates for {agent_id}!")
-            return False
-        seen.add(input_box)
+        if "input_box" in agent_coords:
+            input_box = (agent_coords["input_box"]["x"], agent_coords["input_box"]["y"])
+            if input_box in seen:
+                logger.error(f"Duplicate input box coordinates for {agent_id}!")
+                return False
+            seen.add(input_box)
         
         # Check copy button coordinates
-        copy_button = (agent_coords["copy_button"]["x"], agent_coords["copy_button"]["y"])
-        if copy_button in seen:
-            logger.error(f"Duplicate copy button coordinates for {agent_id}!")
-            return False
-        seen.add(copy_button)
+        if "copy_button" in agent_coords:
+            copy_button = (agent_coords["copy_button"]["x"], agent_coords["copy_button"]["y"])
+            if copy_button in seen:
+                logger.error(f"Duplicate copy button coordinates for {agent_id}!")
+                return False
+            seen.add(copy_button)
         
         # Check initial spot coordinates
-        initial_spot = (agent_coords["initial_spot"]["x"], agent_coords["initial_spot"]["y"])
-        if initial_spot in seen:
-            logger.error(f"Duplicate initial spot coordinates for {agent_id}!")
-            return False
-        seen.add(initial_spot)
+        if "initial_spot" in agent_coords:
+            initial_spot = (agent_coords["initial_spot"]["x"], agent_coords["initial_spot"]["y"])
+            if initial_spot in seen:
+                logger.error(f"Duplicate initial spot coordinates for {agent_id}!")
+                return False
+            seen.add(initial_spot)
+            
+        # Check response region coordinates
+        if "response_region" in agent_coords:
+            top_left = (agent_coords["response_region"]["top_left"]["x"], 
+                       agent_coords["response_region"]["top_left"]["y"])
+            bottom_right = (agent_coords["response_region"]["bottom_right"]["x"], 
+                          agent_coords["response_region"]["bottom_right"]["y"])
+            if top_left in seen or bottom_right in seen:
+                logger.error(f"Duplicate response region coordinates for {agent_id}!")
+                return False
+            seen.add(top_left)
+            seen.add(bottom_right)
     
     return True
 
@@ -129,58 +142,41 @@ def main():
             logger.info(f"\n--- Calibrating {agent_id} ---")
             coords[agent_id] = {}
             
-            # Capture initial spot
-            coords[agent_id]["initial_spot"] = capture_point(agent_id, "initial spot")
-            
-            # Capture input box
-            coords[agent_id]["input_box"] = capture_point(agent_id, "input box")
-            
-            # Capture copy button
-            coords[agent_id]["copy_button"] = capture_point(agent_id, "copy button")
-            
-            # Optionally capture response region
-            if pyautogui.confirm(
-                f"Do you want to calibrate a response region for {agent_id}?",
-                buttons=["Yes", "No"]
-            ) == "Yes":
-                logger.info(f"Capturing response region for {agent_id}")
-                top_left = capture_point(agent_id, "response region top-left")
-                bottom_right = capture_point(agent_id, "response region bottom-right")
-                coords[agent_id]["response_region"] = {
-                    "top_left": {"x": top_left["x"], "y": top_left["y"]},
-                    "bottom_right": {"x": bottom_right["x"], "y": bottom_right["y"]}
-                }
+            try:
+                # Capture initial spot
+                coords[agent_id]["initial_spot"] = capture_point(agent_id, "initial spot")
+                
+                # Capture input box
+                coords[agent_id]["input_box"] = capture_point(agent_id, "input box")
+                
+                # Capture copy button
+                coords[agent_id]["copy_button"] = capture_point(agent_id, "copy button")
+                
+                # Optionally capture response region
+                print(f"\nDo you want to calibrate a response region for {agent_id}?")
+                print("Press 'y' for yes, any other key for no")
+                if keyboard.read_event(suppress=True).name == 'y':
+                    logger.info(f"Capturing response region for {agent_id}")
+                    print("Move to top-left corner and press 'c'")
+                    top_left = capture_point(agent_id, "response region top-left")
+                    print("Move to bottom-right corner and press 'c'")
+                    bottom_right = capture_point(agent_id, "response region bottom-right")
+                    coords[agent_id]["response_region"] = {
+                        "top_left": top_left,
+                        "bottom_right": bottom_right
+                    }
+            except KeyboardInterrupt:
+                print(f"\nSkipping remaining points for {agent_id}")
+                continue
         
         # Validate coordinates
-        is_valid, errors = validate_coordinates(coords)
-        if not is_valid:
-            logger.error("Coordinate validation failed:")
-            for error in errors:
-                logger.error(f"  - {error}")
-            if not pyautogui.confirm(
-                "Do you want to save the coordinates anyway?",
-                buttons=["Yes", "No"]
-            ) == "Yes":
-                logger.info("Calibration cancelled")
-                return
-                
-        # Validate uniqueness
         if not validate_unique_coordinates(coords):
             logger.error("Coordinate uniqueness validation failed!")
-            if not pyautogui.confirm(
-                "Do you want to save the coordinates anyway?",
-                buttons=["Yes", "No"]
-            ) == "Yes":
+            print("\nDo you want to save the coordinates anyway?")
+            print("Press 'y' for yes, any other key for no")
+            if keyboard.read_event(suppress=True).name != 'y':
                 logger.info("Calibration cancelled")
                 return
-        
-        # Strip window/monitor info for final save
-        for agent_id in coords:
-            for label in ["initial_spot", "input_box", "copy_button"]:
-                coords[agent_id][label] = {
-                    "x": coords[agent_id][label]["x"],
-                    "y": coords[agent_id][label]["y"]
-                }
         
         # Save coordinates
         config_path = Path(CONFIG_PATH)

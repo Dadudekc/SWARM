@@ -12,6 +12,7 @@ import shutil
 from pathlib import Path
 from typing import Generator, Dict, Any
 import importlib
+from types import SimpleNamespace
 
 # Add the project root to Python path
 project_root = Path(__file__).parent.parent
@@ -244,4 +245,4 @@ def pytest_collection_modifyitems(items):
 mock_discord = importlib.import_module('tests.utils.mock_discord')
 sys.modules['discord'] = mock_discord.discord
 sys.modules['discord.ext.commands'] = mock_discord.commands
-sys.modules['discord.ui'] = mock_discord.discord.ui 
+sys.modules['discord.ui'] = SimpleNamespace()  # Empty namespace for UI components 

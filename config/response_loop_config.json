@@ -1,16 +1,25 @@
 {
-    "bridge_outbox": "bridge_outbox",
-    "watch_interval": 1,
-    "process_timeout": 300,
-    "max_retries": 3,
-    "retry_delay": 60,
-    "cleanup_interval": 3600,
-    "max_file_age": 86400,
-    "log_level": "INFO",
-    "log_format": {
-        "platform": "response_loop",
-        "status": "string",
-        "message": "string",
-        "tags": ["string"]
+    "paths": {
+        "bridge_outbox": "data/bridge_outbox",
+        "bridge_archive": "data/bridge_archive",
+        "core_outbox": "data/core_outbox",
+        "core_archive": "data/core_archive"
+    },
+    "discord": {
+        "token": "YOUR_DISCORD_TOKEN",
+        "channel_id": "YOUR_CHANNEL_ID"
+    },
+    "error_tracking": {
+        "max_errors": 1000,
+        "error_window": 3600,
+        "circuit_breaker": {
+            "failure_threshold": 5,
+            "reset_timeout": 60,
+            "half_open_timeout": 30
+        }
+    },
+    "logging": {
+        "level": "INFO",
+        "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
     }
 } 

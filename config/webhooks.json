@@ -1,0 +1,6 @@
+{
+    "system_alerts": "YOUR_SYSTEM_ALERTS_WEBHOOK_URL",
+    "error_reports": "YOUR_ERROR_REPORTS_WEBHOOK_URL",
+    "success_notifications": "YOUR_SUCCESS_NOTIFICATIONS_WEBHOOK_URL",
+    "debug_logs": "YOUR_DEBUG_LOGS_WEBHOOK_URL"
+} 

@@ -9,7 +9,7 @@ from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 
 from social.strategies.reddit.strategy import RedditStrategy
-from social.utils.log_manager import LogManager
+from dreamos.core.log_manager import LogManager
 from dreamos.core.logging.log_config import LogConfig, LogLevel
 from dreamos.core.utils.file_utils import (
     safe_read,

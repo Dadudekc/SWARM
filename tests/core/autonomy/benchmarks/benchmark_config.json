@@ -1,0 +1,33 @@
+{
+    "paths": {
+        "bridge_outbox": "benchmark/bridge_outbox",
+        "runtime": "benchmark/runtime",
+        "archive": "benchmark/archive",
+        "failed": "benchmark/failed",
+        "templates": "benchmark/templates"
+    },
+    "processing": {
+        "max_concurrent": 16,
+        "max_retries": 3,
+        "retry_delay": 2,
+        "batch_size": 100
+    },
+    "benchmark": {
+        "iterations": 100,
+        "warmup_iterations": 10,
+        "timeout_seconds": 300,
+        "memory_limit_mb": 1024,
+        "performance_thresholds": {
+            "min_ops_per_sec": 10,
+            "max_ms_per_op": 100,
+            "max_memory_per_op_mb": 1,
+            "max_concurrent_ops": 16
+        }
+    },
+    "monitoring": {
+        "heartbeat_interval": 60,
+        "error_threshold": 5,
+        "log_level": "INFO",
+        "metrics_interval": 10
+    }
+} 

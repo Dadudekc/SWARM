@@ -31,7 +31,7 @@ from social.strategies.reddit.handlers import LoginHandler, LogoutHandler, PostH
 from social.strategies.reddit.validators import MediaValidator
 from social.strategies.reddit.rate_limiting import RateLimiter
 from social.config.social_config import PlatformConfig, Platform
-from dreamos.core.logging.log_config import LogConfig, LogLevel
+from dreamos.core.log_manager import LogConfig, LogLevel
 from social.utils.rate_limiter import RateLimiter
 from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.driver.proxy_manager import ProxyManager
@@ -42,6 +42,7 @@ from dreamos.core.utils.file_utils import (
     save_json,
     ensure_dir
 )
+from tests.social.strategies.base.test_strategy_base import BaseStrategyTest
 
 # --- GLOBAL PATCHES FOR ALL TESTS ---
 @pytest.fixture(autouse=True)
@@ -150,46 +151,174 @@ def mock_log_manager():
         retry_delay=0.5
     ))
 
-@pytest.fixture
-def strategy(specific_strategy_mock_config, mock_memory_update):
-    """Create a test strategy instance."""
-    with patch('social.utils.social_common.SocialMediaUtils') as mock_utils:
-        # Create platform config from the mock config
-        platform_config = PlatformConfig(
-            platform=Platform.REDDIT,
-            api_key=specific_strategy_mock_config["reddit"]["username"],
-            api_secret=specific_strategy_mock_config["reddit"]["password"],
-            rate_limit=specific_strategy_mock_config["reddit"]["rate_limit_posts"],
-            enabled=True
-        )
+class TestRedditStrategy(BaseStrategyTest):
+    """Test suite for Reddit strategy functionality."""
+    
+    @pytest.fixture
+    def strategy(self, specific_strategy_mock_config, mock_memory_update):
+        """Create a test strategy instance."""
+        with patch('social.utils.social_common.SocialMediaUtils') as mock_utils:
+            # Create platform config from the mock config
+            platform_config = PlatformConfig(
+                platform=Platform.REDDIT,
+                api_key=specific_strategy_mock_config["reddit"]["username"],
+                api_secret=specific_strategy_mock_config["reddit"]["password"],
+                rate_limit=specific_strategy_mock_config["reddit"]["rate_limit_posts"],
+                enabled=True
+            )
+            
+            strategy = RedditStrategy(
+                driver=MagicMock(),
+                config=specific_strategy_mock_config,
+                memory_update=mock_memory_update,
+                agent_id="test_agent"
+            )
+            
+            # Create proper mock objects for instance methods
+            strategy.utils = MagicMock()
+            strategy.logger = mock_log_manager()
+            strategy.memory_updates = mock_memory_update.copy()
+            
+            # Mock instance methods properly
+            strategy.is_logged_in = MagicMock(return_value=True)
+            strategy._validate_media = MagicMock(return_value=(True, None))
+            strategy._upload_media = MagicMock(return_value=True)
+            strategy._verify_post = MagicMock(return_value=True)
+            
+            # Ensure media_handler uses the same mock utils
+            from social.strategies.reddit_media import RedditMediaHandler
+            strategy.media_handler = RedditMediaHandler(strategy.driver, mock_utils, strategy.logger)
+            
+            # Initialize post_handler with proper mocks
+            from social.strategies.reddit.post_handler import PostHandler
+            strategy.post_handler = PostHandler(strategy.driver, platform_config)
+            
+            yield strategy
+
+    def test_logout_success(self, strategy):
+        """Test successful logout."""
+        strategy.login_handler = MagicMock()
+        strategy.login_handler.logout.return_value = True
         
-        strategy = RedditStrategy(
-            driver=MagicMock(),
-            config=specific_strategy_mock_config,
-            memory_update=mock_memory_update,
-            agent_id="test_agent"
-        )
+        success = strategy.logout()
+        assert success
+        assert strategy.memory_updates["last_action"] == "logout"
+        assert strategy.memory_updates["last_error"] is None
+
+    def test_logout_failure(self, strategy):
+        """Test logout failure."""
+        strategy.login_handler = MagicMock()
+        strategy.login_handler.logout.return_value = False
         
-        # Create proper mock objects for instance methods
-        strategy.utils = MagicMock()
-        strategy.logger = mock_log_manager()
-        strategy.memory_updates = mock_memory_update.copy()
-        
-        # Mock instance methods properly
+        success = strategy.logout()
+        assert not success
+        assert strategy.memory_updates["last_action"] == "logout"
+        assert strategy.memory_updates["last_error"] is not None
+
+    def test_create_post_success(self, strategy):
+        """Test successful post creation."""
         strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.return_value = True
+        
+        success = strategy.post("Test post")
+        assert success
+        assert strategy.memory_updates["last_error"] is None
+        assert strategy.memory_updates["stats"]["posts"] == 1
+
+    def test_create_post_failure(self, strategy):
+        """Test post creation failure."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.return_value = False
+        
+        success = strategy.post("Test post")
+        assert not success
+        assert strategy.memory_updates["last_error"] is not None
+        assert strategy.memory_updates["stats"]["posts"] == 0
+
+    def test_create_post_with_media(self, strategy):
+        """Test post creation with media."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.return_value = True
         strategy._validate_media = MagicMock(return_value=(True, None))
         strategy._upload_media = MagicMock(return_value=True)
-        strategy._verify_post = MagicMock(return_value=True)
         
-        # Ensure media_handler uses the same mock utils
-        from social.strategies.reddit_media import RedditMediaHandler
-        strategy.media_handler = RedditMediaHandler(strategy.driver, mock_utils, strategy.logger)
+        success = strategy.post("Test post", media=["test.jpg"])
+        assert success
+        assert strategy.memory_updates["last_error"] is None
+        assert strategy.memory_updates["stats"]["posts"] == 1
+        assert strategy.memory_updates["stats"]["media_uploads"] == 1
+
+    def test_rate_limiting(self, strategy):
+        """Test rate limiting."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.return_value = True
         
-        # Initialize post_handler with proper mocks
-        from social.strategies.reddit.post_handler import PostHandler
-        strategy.post_handler = PostHandler(strategy.driver, platform_config)
+        # First post should succeed
+        success = strategy.post("Test post 1")
+        assert success
         
-        yield strategy
+        # Second post should be rate limited
+        strategy.rate_limiter.check_rate_limit.return_value = False
+        success = strategy.post("Test post 2")
+        assert not success
+        assert strategy.memory_updates["last_error"] is not None
+        assert "rate limit" in str(strategy.memory_updates["last_error"]).lower()
+
+    def test_rate_limit_exceeded(self, strategy):
+        """Test rate limit exceeded."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.return_value = True
+        strategy.rate_limiter.check_rate_limit.return_value = False
+        
+        success = strategy.post("Test post")
+        assert not success
+        assert strategy.memory_updates["last_error"] is not None
+        assert "rate limit" in str(strategy.memory_updates["last_error"]).lower()
+
+    def test_retry_mechanism(self, strategy):
+        """Test retry mechanism."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.side_effect = [
+            TimeoutException(),
+            True
+        ]
+        
+        success = strategy.post("Test post")
+        assert success
+        assert strategy.memory_updates["last_error"] is None
+        assert len(strategy.memory_updates["retry_history"]) == 1
+
+    def test_max_retries_exceeded(self, strategy):
+        """Test max retries exceeded."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.side_effect = TimeoutException()
+        
+        success = strategy.post("Test post")
+        assert not success
+        assert strategy.memory_updates["last_error"] is not None
+        assert len(strategy.memory_updates["retry_history"]) == strategy.MAX_RETRIES
+
+    def test_error_recovery(self, strategy):
+        """Test error recovery."""
+        strategy.is_logged_in = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.side_effect = [
+            TimeoutException(),
+            NoSuchElementException(),
+            True
+        ]
+        
+        success = strategy.post("Test post")
+        assert success
+        assert strategy.memory_updates["last_error"] is None
+        assert len(strategy.memory_updates["retry_history"]) == 2
 
 def test_init(specific_strategy_mock_config, mock_memory_update):
     """Test strategy initialization."""

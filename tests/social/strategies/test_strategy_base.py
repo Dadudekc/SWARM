@@ -1,3 +1,9 @@
+"""
+Base Strategy Test Suite
+-----------------------
+Tests for the base strategy functionality.
+"""
+
 import os
 import pytest
 from unittest.mock import Mock, patch, MagicMock
@@ -11,11 +17,12 @@ from social.strategies.reddit.strategy import RedditStrategy
 from social.strategies.reddit.handlers import LoginHandler, LogoutHandler, PostHandler, CommentHandler
 from social.strategies.reddit.validators import MediaValidator
 from social.strategies.reddit.rate_limiting import RateLimiter
-from social.config.social_config import PlatformConfig
-from dreamos.core.logging.log_config import LogConfig, LogLevel
+from social.config.social_config import PlatformConfig, Platform, social_config
+from dreamos.core.log_manager import LogConfig, LogLevel
 from dreamos.social.utils import rate_limiter
 from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.driver.proxy_manager import ProxyManager
+from tests.social.strategies.base.test_strategy_base import BaseStrategyTest
 
 # --- GLOBAL PATCHES FOR ALL TESTS ---
 @pytest.fixture(autouse=True)
@@ -53,23 +60,27 @@ def mock_driver():
 @pytest.fixture
 def specific_strategy_mock_config():
     """Fixture for Reddit strategy configuration. Ensures required keys for all tests."""
+    from dreamos.core.log_manager import LogConfig, LogLevel
     config = {
         "browser": {
             "headless": False,
             "window_title": "Reddit - Chromium",
-            "window_coords": {"x": 0, "y": 0, "width": 1920, "height": 1080},
-            "cookies_path": "tests/assets/cookies/reddit.pkl",
-            "profile_path": "tests/assets/profiles/reddit"
+            "window_coords": {"x": 0, "y": 0, "width": 1920, "height": 1080}
         },
         "reddit": {
             "username": "test_user",
             "password": "test_pass",
+            "cookies_path": "tests/assets/cookies/reddit.pkl",
+            "profile_path": "tests/assets/profiles/reddit",
             "timeout": 10,
             "retry_attempts": 3,
             "rate_limit": {
                 "posts_per_hour": 10,
                 "comments_per_hour": 20
-            }
+            },
+            "client_id": "dummy_id",
+            "client_secret": "dummy_secret",
+            "user_agent": "test_agent"
         },
         "log_config": LogConfig(
             log_dir="tests/runtime/logs",
@@ -86,13 +97,6 @@ def specific_strategy_mock_config():
             retry_delay=0.1
         )
     }
-    # Guarantee required keys for all downstream code/tests
-    if "cookies_path" not in config["browser"]:
-        config["browser"]["cookies_path"] = "tests/assets/cookies/reddit.pkl"
-    if "profile_path" not in config["browser"]:
-        config["browser"]["profile_path"] = "tests/assets/profiles/reddit"
-    if "reddit" not in config:
-        config["reddit"] = {}
     return config
 
 @pytest.fixture
@@ -128,34 +132,72 @@ def mock_log_manager():
     """Create a mock log manager."""
     return MagicMock()
 
-@pytest.fixture
-def strategy(specific_strategy_mock_config, mock_memory_update):
-    """Create a test strategy instance."""
-    with patch('social.utils.social_common.SocialMediaUtils') as mock_utils:
-        strategy = RedditStrategy(specific_strategy_mock_config, mock_memory_update, "test_agent")
-        
-        # Create proper mock objects for instance methods
-        strategy.utils = MagicMock()
-        strategy.logger = MagicMock()
-        strategy.memory_updates = mock_memory_update.copy()
-        
-        # Mock instance methods properly
+class TestStrategyBase(BaseStrategyTest):
+    """Test suite for base strategy functionality."""
+    
+    @pytest.fixture
+    def strategy(self, specific_strategy_mock_config, mock_memory_update):
+        """Create a test strategy instance."""
+        with patch('social.utils.social_common.SocialMediaUtils') as mock_utils:
+            strategy = RedditStrategy(specific_strategy_mock_config, mock_memory_update, "test_agent")
+            
+            # Create proper mock objects for instance methods
+            strategy.utils = MagicMock()
+            strategy.logger = MagicMock()
+            strategy.memory_updates = mock_memory_update.copy()
+            
+            # Mock instance methods properly
+            strategy.is_logged_in = MagicMock(return_value=True)
+            strategy._validate_media = MagicMock(return_value=(True, None))
+            strategy._upload_media = MagicMock(return_value=True)
+            strategy._verify_post = MagicMock(return_value=True)
+            
+            # Ensure media_handler uses the same mock utils
+            from social.strategies.reddit_media import RedditMediaHandler
+            strategy.media_handler = RedditMediaHandler(strategy.driver, mock_utils, strategy.logger)
+            
+            # Initialize post_handler with proper mocks
+            from social.strategies.reddit.post_handler import PostHandler
+            strategy.post_handler = PostHandler(strategy.driver, specific_strategy_mock_config)
+            strategy.post_handler.create_post = MagicMock(return_value=True)
+            strategy.post_handler.verify_post = MagicMock(return_value=True)
+            
+            return strategy
+
+    def test_platform_initialization_missing_keys(self, strategy):
+        """Test platform initialization with missing keys."""
+        config = {}
+        with pytest.raises(ValueError):
+            strategy._initialize_platform(config)
+
+    def test_platform_initialization_valid_keys(self, strategy):
+        """Test platform initialization with valid keys."""
+        config = {
+            "username": "test",
+            "password": "test",
+            "rate_limit": 10
+        }
+        platform = strategy._initialize_platform(config)
+        assert platform is not None
+        assert platform.api_key == config["username"]
+        assert platform.api_secret == config["password"]
+        assert platform.rate_limit == config["rate_limit"]
+
+    def test_devlog_embed_validation(self, strategy):
+        """Test devlog embed validation."""
         strategy.is_logged_in = MagicMock(return_value=True)
-        strategy._validate_media = MagicMock(return_value=(True, None))
-        strategy._upload_media = MagicMock(return_value=True)
-        strategy._verify_post = MagicMock(return_value=True)
+        strategy.post_handler = MagicMock()
+        strategy.post_handler.create_post.return_value = True
         
-        # Ensure media_handler uses the same mock utils
-        from social.strategies.reddit_media import RedditMediaHandler
-        strategy.media_handler = RedditMediaHandler(strategy.driver, mock_utils, strategy.logger)
+        # Test with valid devlog embed
+        success = strategy.post("Test post", devlog_embed={"id": "123", "type": "test"})
+        assert success
+        assert strategy.memory_updates["last_error"] is None
         
-        # Initialize post_handler with proper mocks
-        from social.strategies.reddit.post_handler import PostHandler
-        strategy.post_handler = PostHandler(strategy.driver, specific_strategy_mock_config)
-        strategy.post_handler.create_post = MagicMock(return_value=True)
-        strategy.post_handler.verify_post = MagicMock(return_value=True)
-        
-        return strategy
+        # Test with invalid devlog embed
+        success = strategy.post("Test post", devlog_embed={"invalid": "embed"})
+        assert not success
+        assert strategy.memory_updates["last_error"] is not None
 
 def test_init(specific_strategy_mock_config, mock_memory_update):
     """Test strategy initialization."""
@@ -522,21 +564,6 @@ def test_validate_media_valid_video_when_specified(specific_strategy_mock_config
         is_valid, error = strategy._validate_media(['test.mp4'], is_video=True)
         assert is_valid
         assert error is None
-
-def test_platform_initialization_missing_keys(specific_strategy_mock_config, mock_memory_update):
-    """Test platform initialization with missing keys."""
-    # Remove required keys
-    del specific_strategy_mock_config['browser']['window_title']
-    
-    with pytest.raises(ValueError) as exc_info:
-        RedditStrategy(specific_strategy_mock_config, mock_memory_update)
-    assert "Missing required browser configuration keys" in str(exc_info.value)
-
-def test_platform_initialization_valid_keys(specific_strategy_mock_config, mock_memory_update):
-    """Test platform initialization with valid keys."""
-    strategy = RedditStrategy(specific_strategy_mock_config, mock_memory_update)
-    assert strategy.config == specific_strategy_mock_config
-    assert strategy.memory_updates == mock_memory_update
 
 def test_reddit_strategy_error_handling(specific_strategy_mock_config, mock_memory_update):
     """Test Reddit strategy error handling."""

@@ -5,7 +5,7 @@ Test suite for Dreamscribe memory system.
 import pytest
 import time
 from pathlib import Path
-from dreamos.core.dreamscribe import Dreamscribe, MemoryFragment, NarrativeThread
+from dreamos.core.ai.dreamscribe import Dreamscribe, MemoryFragment, NarrativeThread
 
 @pytest.fixture
 def dreamscribe():

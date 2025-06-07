@@ -13,6 +13,7 @@ from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 
 from .common import MessageMode
+from ..shared.persistent_queue import PersistentQueue as SharedPersistentQueue
 
 logger = logging.getLogger('dreamos.messaging')
 
@@ -248,11 +249,11 @@ class MessageSystem:
         """Initialize message system.
         
         Args:
-            queue: Message queue implementation. Defaults to PersistentQueue.
+            queue: Message queue implementation. Defaults to SharedPersistentQueue.
             history: Message history implementation. Defaults to JsonMessageHistory.
             router: Message router implementation. Defaults to AgentMessageRouter.
         """
-        self.queue = queue or PersistentQueue()
+        self.queue = queue or SharedPersistentQueue()
         self.history = history or JsonMessageHistory()
         self.router = router or AgentMessageRouter(self)
     

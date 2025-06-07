@@ -24,7 +24,7 @@ from typing import Dict, Any
 
 from dreamos.core.messaging.message import Message
 from dreamos.core.messaging.enums import MessageMode
-from dreamos.core.message_loop import MessageLoop
+from dreamos.core.messaging.message_loop import MessageLoop
 from dreamos.core.agent_control.ui_automation import UIAutomation
 from dreamos.core.messaging.pipeline import MessagePipeline
 from dreamos.core.agent_control.agent_control import AgentControl

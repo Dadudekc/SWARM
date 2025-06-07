@@ -1,13 +1,15 @@
 """
-Test suite for MemoryQuerier.
+Test Memory Querier
+-----------------
+Tests for the memory querier module.
 """
 
 import pytest
 import time
 import json
 from pathlib import Path
-from dreamos.core.memory_querier import MemoryQuerier
-from dreamos.core.dreamscribe import Dreamscribe
+from dreamos.core.ai.dreamscribe import Dreamscribe
+from dreamos.core.ai.memory_querier import MemoryQuerier
 
 @pytest.fixture
 def setup_teardown():

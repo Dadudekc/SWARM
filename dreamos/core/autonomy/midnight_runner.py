@@ -5,85 +5,35 @@ Manages overnight operations and swarm maintenance.
 """
 
 import asyncio
-import json
 import logging
-import os
-import time
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Any, Optional
-from .autonomy_loop_runner import AutonomyLoopRunner
-from ..logging.log_manager import LogManager
+from typing import Dict, Any, Optional, List
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
+from .base.runner_core import RunnerCore
+from .autonomy_loop_runner import AutonomyLoopRunner
+from .handlers.bridge_outbox_handler import BridgeOutboxHandler
+from .codex_patch_tracker import CodexPatchTracker
+
 logger = logging.getLogger(__name__)
 
-class MidnightRunner:
+class MidnightRunner(RunnerCore[str]):
     """Manages overnight operations and swarm maintenance."""
     
-    def __init__(self, config_path: str = "config/midnight_config.json"):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the midnight runner.
         
         Args:
-            config_path: Path to configuration file
+            config: Optional configuration dictionary
         """
-        self.config = self._load_config(config_path)
+        super().__init__(config, platform="midnight_runner")
+        
+        # Initialize components
+        self.bridge_handler = BridgeOutboxHandler()
+        self.patch_tracker = CodexPatchTracker()
+        
+        # Maintenance-specific configuration
+        self.maintenance_tasks = self.config.get("maintenance_tasks", [])
+        
         self.autonomy_loop = AutonomyLoopRunner()
-        self.logger = LogManager()
-        
-        # Runtime state
-        self.is_running = False
-        self.worker_task = None
-        
-        # Initialize logging
-        self.logger.info(
-            platform="midnight_runner",
-            status="initialized",
-            message="Midnight runner initialized",
-            tags=["init", "midnight"]
-        )
-    
-    def _load_config(self, config_path: str) -> Dict:
-        """Load configuration from file."""
-        try:
-            with open(config_path, 'r') as f:
-                return json.load(f)
-        except Exception as e:
-            logger.error(f"Error loading config: {e}")
-            return {}
-    
-    async def start(self):
-        """Start the midnight runner."""
-        if self.is_running:
-            return
-            
-        self.is_running = True
-        self.worker_task = asyncio.create_task(self._worker_loop())
-        
-        self.logger.info(
-            platform="midnight_runner",
-            status="started",
-            message="Midnight runner started",
-            tags=["start", "midnight"]
-        )
-    
-    async def stop(self):
-        """Stop the midnight runner."""
-        self.is_running = False
-        if self.worker_task:
-            self.worker_task.cancel()
-            try:
-                await self.worker_task
-            except asyncio.CancelledError:
-                pass
-        
-        self.logger.info(
-            platform="midnight_runner",
-            status="stopped",
-            message="Midnight runner stopped",
-            tags=["stop", "midnight"]
-        )
     
     async def _worker_loop(self):
         """Main worker loop for overnight operations."""
@@ -100,7 +50,7 @@ class MidnightRunner:
                 
             except Exception as e:
                 self.logger.error(
-                    platform="midnight_runner",
+                    platform=self.platform,
                     status="error",
                     message=f"Error in worker loop: {str(e)}",
                     tags=["error", "worker_loop"]
@@ -114,11 +64,12 @@ class MidnightRunner:
             await self.autonomy_loop.start()
             
             # Run full test suite
-            failed_tests = await self.autonomy_loop.run_pytest_and_parse_failures()
+            test_results = await self.run_tests()
+            failed_tests = self.parse_test_failures(test_results["stdout"])
             
             if failed_tests:
                 self.logger.warning(
-                    platform="midnight_runner",
+                    platform=self.platform,
                     status="warning",
                     message=f"Found {len(failed_tests)} failed tests",
                     tags=["test", "failure"]
@@ -131,7 +82,7 @@ class MidnightRunner:
             await self.autonomy_loop.stop()
             
             self.logger.info(
-                platform="midnight_runner",
+                platform=self.platform,
                 status="success",
                 message="Completed midnight operations",
                 tags=["midnight", "success"]
@@ -139,7 +90,7 @@ class MidnightRunner:
             
         except Exception as e:
             self.logger.error(
-                platform="midnight_runner",
+                platform=self.platform,
                 status="error",
                 message=f"Error in midnight operations: {str(e)}",
                 tags=["midnight", "error"]
@@ -160,7 +111,7 @@ class MidnightRunner:
             await self.autonomy_loop.start()
             
             self.logger.info(
-                platform="midnight_runner",
+                platform=self.platform,
                 status="success",
                 message="Restarted agent loop",
                 tags=["restart", "success"]
@@ -168,9 +119,49 @@ class MidnightRunner:
             
         except Exception as e:
             self.logger.error(
-                platform="midnight_runner",
+                platform=self.platform,
                 status="error",
                 message=f"Error restarting agent loop: {str(e)}",
                 tags=["restart", "error"]
             )
             raise 
+
+    async def _run_iteration(self):
+        """Run a single iteration of maintenance tasks."""
+        # Get maintenance tasks
+        tasks = await self._get_maintenance_tasks()
+        
+        for task in tasks:
+            if task not in self.in_progress_items:
+                await self.item_queue.put(task)
+                self.in_progress_items.add(task)
+    
+    async def _handle_result(self, result: Any):
+        """Handle a maintenance task result.
+        
+        Args:
+            result: Task result to handle
+        """
+        if isinstance(result, dict):
+            task_name = result.get("task_name")
+            success = result.get("success", False)
+            
+            if task_name in self.in_progress_items:
+                self.in_progress_items.remove(task_name)
+                
+                if success:
+                    self.passed_items.add(task_name)
+                    if task_name in self.failed_items:
+                        self.failed_items.remove(task_name)
+                else:
+                    self.failed_items.add(task_name)
+                    if task_name in self.passed_items:
+                        self.passed_items.remove(task_name)
+    
+    async def _get_maintenance_tasks(self) -> List[str]:
+        """Get list of maintenance tasks to run.
+        
+        Returns:
+            List of maintenance task names
+        """
+        return self.maintenance_tasks 

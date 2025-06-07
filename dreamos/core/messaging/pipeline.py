@@ -17,7 +17,7 @@ from pathlib import Path
 from .message import Message
 from .enums import MessageMode, MessageStatus
 from ..agent_control.ui_automation import UIAutomation
-from ..persistent_queue import PersistentQueue
+from ..shared.persistent_queue import PersistentQueue
 
 logger = logging.getLogger(__name__)
 

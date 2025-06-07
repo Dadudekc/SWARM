@@ -20,7 +20,7 @@ from ..logging.log_manager import LogManager
 from .autonomy_loop_runner import AutonomyLoopRunner
 from .midnight_runner import MidnightRunner
 from .test_watcher import TestWatcher
-from .bridge_outbox_handler import BridgeOutboxHandler
+from .handlers.bridge_outbox_handler import BridgeOutboxHandler
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)

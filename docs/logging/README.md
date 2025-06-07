@@ -2,261 +2,199 @@
 
 ## Overview
 
-The Dream.OS logging system provides comprehensive logging capabilities across all components, from Discord commands to GUI monitoring. It enables real-time monitoring, debugging, and analysis of system operations.
-
-## Quick Start
-
-```python
-from dreamos.core.logging.log_config import LogConfig, LogLevel
-from social.utils.log_manager import LogManager
-
-# Initialize with default config
-log = LogManager("agent1").get_logger()
-log.info("System initialized")
-
-# Or with custom config
-config = LogConfig(
-    log_dir="logs/custom",
-    batch_size=10,
-    batch_timeout=0.5
-)
-log = LogManager("agent1", config=config).get_logger()
-log.info("Custom logging initialized")
-```
-
-## Viewing Logs
-
-### Discord Commands
-```bash
-# View logs for a specific agent
-!logs agent1 error
-
-# View all logs with warning level
-!logs all warning
-
-# View recent logs with limit
-!logs agent1 info 20
-
-# Get log summary
-!logsummary agent1
-```
-
-### GUI Dashboard
-1. Launch the dashboard:
-```bash
-python -m gui
-```
-
-2. Use the LogMonitor tab to:
-   - Filter logs by platform/level
-   - View detailed log information
-   - Clear logs
-   - Auto-refresh
-
-### Command Line
-```bash
-# Analyze logs for an agent
-python tools/analyze_logs.py --agent agent1 --level error --summary
-
-# Export as markdown
-python tools/analyze_logs.py --agent agent1 --summary --export md
-
-# Export as JSON
-python tools/analyze_logs.py --agent agent1 --summary --export json
-```
-
-## Failure Recovery
-
-### Common Issues
-
-1. **Log File Not Found**
-   - Check `logs/agent_loop_error.log`
-   - Verify agent ID is correct
-   - Ensure log directory exists
-
-2. **Log Rotation Issues**
-   - Clear old logs: `python tools/analyze_logs.py --agent agent1 --clear`
-   - Rotate logs: `python tools/analyze_logs.py --agent agent1 --rotate`
-
-3. **System Validation**
-   - Run test suite: `python -m pytest tests/core/test_log_manager.py`
-   - Check log permissions
-   - Verify disk space
-
-### Recovery Steps
-
-1. **Immediate Actions**
-   ```bash
-   # Check error logs
-   !logs agent1 error
-   
-   # Validate system
-   python -m pytest tests/core/test_log_manager.py
-   
-   # Clear and rotate if needed
-   python tools/analyze_logs.py --agent agent1 --clear --rotate
-   ```
-
-2. **System Check**
-   - Verify log directory permissions
-   - Check disk space
-   - Validate log file integrity
-
-3. **Revalidation**
-   - Run test suite
-   - Check log rotation
-   - Verify log writing
-
-## Components
-
-### 1. Discord Commander
-
-```bash
-# View logs for a specific agent
-!logs agent1 error
-
-# View all logs with warning level
-!logs all warning
-
-# View recent logs with limit
-!logs agent1 info 20
-```
-
-### 2. Devlog System
-
-The devlog system bridges execution logs with storytelling, writing key events to `devlog.md`:
-
-```python
-# Log an event
-log_manager.log_event(agent_id, "task_completed", {
-    "task_id": "task_123",
-    "duration": "5m",
-    "status": "success"
-})
-```
-
-### 3. Social Memory
-
-Logs feed into the `memory_update` structure for real-time state reflection:
-
-```python
-memory_update["last_action"] = {
-    "action": "post",
-    "success": True,
-    "timestamp": "2024-03-19T12:00:00Z"
-}
-```
-
-### 4. GUI Dashboard
-
-The LogMonitor component provides:
-- Real-time log tailing
-- Log level filtering
-- Platform/agent selection
-- Detail pane
-- Auto-refresh
+The Dream.OS logging system provides a unified, configurable logging infrastructure for all components. It supports multiple log levels, file rotation, and integration with monitoring systems.
 
 ## Usage
 
-### Discord Commands
+```python
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 
-```bash
-# View logs
-!logs <agent_id> <level> [limit]
+# Initialize logger
+config = LogConfig(
+    level=LogLevel.INFO,
+    log_dir="logs",
+    max_size_mb=10,
+    backup_count=5
+)
+logger = LogManager(config)
 
-# Examples
-!logs agent1 error
-!logs all warning 50
-!logs social info
+# Log messages
+logger.info("System initialized")
+logger.error("Failed to connect", exc_info=True)
 ```
 
-### GUI Dashboard
-
-1. Launch the dashboard:
-```bash
-python -m gui
-```
-
-2. Use the LogMonitor tab to:
-   - Filter logs by platform/level
-   - View detailed log information
-   - Clear logs
-   - Auto-refresh
-
-### Programmatic Usage
+### Basic Usage
 
 ```python
-from dreamos.core.logging.log_config import LogConfig, LogLevel
-from social.utils.log_manager import LogManager
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 
-# Initialize LogManager
+# Initialize logging
+log_manager = LogManager()
 log_config = LogConfig(
-    log_dir="logs/custom",
-    batch_size=10,
-    batch_timeout=0.5,
-    max_retries=2,
-    retry_delay=0.1
+    level=LogLevel.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
 )
-log_manager = LogManager(config=log_config)
+log_manager.configure(log_config)
 
-# Log events
-log_manager.info(
-    platform="custom",
-    status="event",
-    message="Custom event message",
-    metadata={"key": "value"}
-)
+# Log messages
+log_manager.info("This is an info message")
+log_manager.warning("This is a warning message")
+log_manager.error("This is an error message")
+```
 
-# Read logs
-logs = log_manager.read_logs(
-    platform="custom",
-    level="INFO",
-    limit=100
+### Advanced Usage
+
+```python
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.monitoring.metrics import LogMetrics
+
+# Initialize logging with metrics
+log_manager = LogManager()
+log_config = LogConfig(
+    level=LogLevel.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    metrics_enabled=True
 )
+log_manager.configure(log_config)
+
+# Get metrics
+metrics = LogMetrics()
+log_manager.set_metrics(metrics)
+
+# Log with metrics
+log_manager.info("This is an info message", metrics=True)
 ```
 
 ## Configuration
 
 ### Log Levels
 
-- DEBUG: Detailed debugging information
-- INFO: General operational information
-- WARNING: Warning messages
-- ERROR: Error messages
+- `DEBUG`: Detailed information for debugging
+- `INFO`: General information about program execution
+- `WARNING`: Warning messages for potentially problematic situations
+- `ERROR`: Error messages for serious problems
+- `CRITICAL`: Critical messages for fatal errors
 
-### Platforms
+### Log Format
 
-- agent_loop: Agent execution logs
-- social: Social media operations
-- devlog: Development logs
-- discord: Discord bot operations
-- gui: GUI dashboard operations
+The default log format is:
+```
+%(asctime)s - %(name)s - %(levelname)s - %(message)s
+```
 
-## Future Enhancements
+You can customize the format by setting the `format` parameter in `LogConfig`.
 
-1. Task Integration
-   - Add task ID tracking
-   - Cross-reference agent logs with active tasks
+### Metrics
 
-2. Export Capabilities
-   - Download .log files
-   - Export filtered views as .md or .json
+Metrics are collected for:
+- Number of log messages by level
+- Average message length
+- Logging frequency
+- Error rate
 
-3. Smart Summarization
-   - Auto-summarize recent logs
-   - Generate health reports
-   - Track error frequencies
+## Best Practices
+
+1. Use appropriate log levels
+2. Include context in log messages
+3. Enable metrics for monitoring
+4. Configure logging at application startup
+5. Use structured logging for complex data
+
+## Migration
+
+If you're migrating from the old logging system, update your imports:
+
+```python
+# Old
+from social.utils.log_manager import LogManager, LogConfig, LogLevel
+
+# New
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
+```
+
+## Architecture
+
+The logging system is designed to be:
+- Modular: Components can be used independently
+- Extensible: New features can be added easily
+- Performant: Minimal overhead
+- Thread-safe: Safe for concurrent use
 
 ## Contributing
 
-1. Follow the logging standards
-2. Add appropriate metadata
-3. Use correct log levels
-4. Include error details when relevant
+When adding new logging features:
+1. Follow the existing patterns
+2. Add appropriate tests
+3. Update documentation
+4. Consider performance impact
 
-## Support
+## Viewing Logs
 
-For issues or questions, please:
+### GUI Monitor
+
+```python
+from dreamos.core.log_manager import LogManager
+from gui.components.log_monitor import LogMonitor
+
+# Initialize logging
+log_manager = LogManager()
+
+# Create monitor
+monitor = LogMonitor(log_manager)
+monitor.show()
+```
+
+### Command Line
+
+```bash
+# View all logs
+tail -f logs/dreamos.log
+
+# View error logs
+grep ERROR logs/dreamos.log
+
+# View agent logs
+tail -f logs/agents/*.log
+```
+
+### Metrics Dashboard
+
+```python
+from dreamos.core.log_manager import LogManager
+from dreamos.core.monitoring.metrics import LogMetrics
+
+# Initialize logging with metrics
+log_manager = LogManager()
+metrics = LogMetrics()
+log_manager.set_metrics(metrics)
+
+# View metrics
+print(metrics.get_summary())
+```
+
+## Troubleshooting
+
+### Common Issues
+
+1. **Missing Log Files**
+   - Check log directory permissions
+   - Verify log configuration
+   - Ensure log rotation is working
+
+2. **High Log Volume**
+   - Adjust log levels
+   - Enable log rotation
+   - Use structured logging
+
+3. **Performance Issues**
+   - Disable metrics if not needed
+   - Use async logging
+   - Configure batch size
+
+### Getting Help
+
+For issues with the logging system:
 1. Check the documentation
-2. Review existing logs
-3. Open an issue with relevant details 
+2. Search existing issues
+3. Create a new issue
+4. Contact the maintainers 

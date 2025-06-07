@@ -1,115 +1,301 @@
 """
-Test utilities and helper functions.
+Test Utilities
+------------
+Common utilities for testing.
 """
 
 import os
-import shutil
+import json
+import tempfile
 from pathlib import Path
-from typing import Any, List, Optional, Union
+from typing import Any, Dict, Optional, Union
 
-# Test directory constants
-TEST_ROOT = Path("tests")
-TEST_DATA_DIR = TEST_ROOT / "data"
-TEST_OUTPUT_DIR = TEST_ROOT / "output"
-TEST_CONFIG_DIR = TEST_ROOT / "config"
-TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
-TEST_TEMP_DIR = TEST_ROOT / "temp"
-VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
+from tests.utils.mock_discord import (
+    MockGuild,
+    MockMember,
+    MockRole,
+    MockChannel,
+    MockMessage,
+    MockEmbed,
+    MockWebhook,
+    MockFile
+)
 
-# Mock configuration for testing
-MOCK_AGENT_CONFIG = {
-    "agent_id": "test-agent",
-    "message_queue_path": "tests/data/messages/queue.json",
-    "log_level": "DEBUG",
-    "inbox_path": "tests/data/agent_comms/test-agent/inbox.json",
-    "devlog_path": "tests/data/agent_comms/test-agent/devlog.md",
-    "settings": {
-        "retry_attempts": 3,
-        "timeout": 5,
-        "max_message_size": 1024,
-        "cleanup_interval": 3600
-    }
-}
+from dreamos.core.agents.base import BaseAgent
+from dreamos.core.agents.bus import AgentBus
 
-# Mock test data
-MOCK_PROMPT = "This is a test prompt for unit testing."
-MOCK_RESPONSE = "This is a test response for unit testing."
+def create_test_guild(
+    guild_id: int = 1,
+    name: str = "Test Guild",
+    channels: Optional[list[MockChannel]] = None,
+    members: Optional[list[MockMember]] = None,
+    roles: Optional[list[MockRole]] = None
+) -> MockGuild:
+    """Create a test guild.
+    
+    Args:
+        guild_id: Guild ID
+        name: Guild name
+        channels: List of channels
+        members: List of members
+        roles: List of roles
+        
+    Returns:
+        Mock guild
+    """
+    return MockGuild(
+        id=guild_id,
+        name=name,
+        channels=channels or [],
+        members=members or [],
+        roles=roles or []
+    )
 
-MOCK_DEVLOG = "This is a test devlog entry for unit testing."
+def create_test_member(
+    member_id: int = 1,
+    name: str = "Test Member",
+    display_name: Optional[str] = None,
+    bot: bool = False
+) -> MockMember:
+    """Create a test member.
+    
+    Args:
+        member_id: Member ID
+        name: Member name
+        display_name: Display name
+        bot: Whether member is a bot
+        
+    Returns:
+        Mock member
+    """
+    return MockMember(
+        id=member_id,
+        name=name,
+        display_name=display_name,
+        bot=bot
+    )
 
-def ensure_test_dirs() -> None:
-    """Ensure all test directories exist."""
-    for directory in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_CONFIG_DIR, 
-                     TEST_RUNTIME_DIR, TEST_TEMP_DIR, VOICE_QUEUE_DIR]:
-        directory.mkdir(parents=True, exist_ok=True)
+def create_test_channel(
+    channel_id: int = 1,
+    name: str = "test-channel",
+    guild: Optional[MockGuild] = None,
+    type: str = "text"
+) -> MockChannel:
+    """Create a test channel.
+    
+    Args:
+        channel_id: Channel ID
+        name: Channel name
+        guild: Parent guild
+        type: Channel type
+        
+    Returns:
+        Mock channel
+    """
+    return MockChannel(
+        id=channel_id,
+        name=name,
+        guild=guild,
+        type=type
+    )
+
+def create_test_message(
+    message_id: int = 1,
+    content: str = "Test message",
+    channel: Optional[MockChannel] = None,
+    author: Optional[MockMember] = None
+) -> MockMessage:
+    """Create a test message.
+    
+    Args:
+        message_id: Message ID
+        content: Message content
+        channel: Channel the message was sent in
+        author: Message author
+        
+    Returns:
+        Mock message
+    """
+    if not channel:
+        channel = create_test_channel()
+    if not author:
+        author = create_test_member()
+    
+    return MockMessage(
+        id=message_id,
+        content=content,
+        channel=channel,
+        author=author
+    )
+
+def create_test_embed(
+    title: Optional[str] = "Test Embed",
+    description: Optional[str] = "Test description",
+    color: Optional[int] = 0x00ff00
+) -> MockEmbed:
+    """Create a test embed.
+    
+    Args:
+        title: Embed title
+        description: Embed description
+        color: Embed color
+        
+    Returns:
+        Mock embed
+    """
+    return MockEmbed(
+        title=title,
+        description=description,
+        color=color
+    )
+
+def create_test_webhook(
+    webhook_id: int = 1,
+    token: str = "test_token",
+    url: str = "https://discord.com/api/webhooks/test",
+    channel_id: int = 1,
+    guild_id: Optional[int] = None,
+    name: Optional[str] = None
+) -> MockWebhook:
+    """Create a test webhook.
+    
+    Args:
+        webhook_id: Webhook ID
+        token: Webhook token
+        url: Webhook URL
+        channel_id: Channel ID
+        guild_id: Guild ID
+        name: Webhook name
+        
+    Returns:
+        Mock webhook
+    """
+    return MockWebhook(
+        id=webhook_id,
+        token=token,
+        url=url,
+        channel_id=channel_id,
+        guild_id=guild_id,
+        name=name
+    )
+
+def create_test_file(
+    filename: str = "test.txt",
+    content: str = "Test content",
+    description: Optional[str] = None,
+    spoiler: bool = False
+) -> MockFile:
+    """Create a test file.
+    
+    Args:
+        filename: File name
+        content: File content
+        description: File description
+        spoiler: Whether file is a spoiler
+        
+    Returns:
+        Mock file
+    """
+    with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
+        f.write(content)
+        f.flush()
+        return MockFile(
+            filename=filename,
+            fp=f,
+            description=description,
+            spoiler=spoiler
+        )
+
+def create_test_config(
+    config_path: Union[str, Path],
+    config_data: Dict[str, Any]
+) -> None:
+    """Create a test configuration file.
+    
+    Args:
+        config_path: Path to config file
+        config_data: Configuration data
+    """
+    with open(config_path, 'w') as f:
+        json.dump(config_data, f, indent=2)
+
+def cleanup_test_files(*paths: Union[str, Path]) -> None:
+    """Clean up test files.
+    
+    Args:
+        *paths: Paths to clean up
+    """
+    for path in paths:
+        if os.path.exists(path):
+            if os.path.isfile(path):
+                os.unlink(path)
+            elif os.path.isdir(path):
+                for root, dirs, files in os.walk(path, topdown=False):
+                    for name in files:
+                        os.unlink(os.path.join(root, name))
+                    for name in dirs:
+                        os.rmdir(os.path.join(root, name))
+                os.rmdir(path)
+
+def create_test_agent(
+    agent_id: str = "test_agent",
+    name: str = "Test Agent",
+    config: Optional[Dict[str, Any]] = None
+) -> BaseAgent:
+    """Create a test agent.
+    
+    Args:
+        agent_id: Agent ID
+        name: Agent name
+        config: Agent configuration
+        
+    Returns:
+        Test agent instance
+    """
+    class TestAgent(BaseAgent):
+        def __init__(self, agent_id: str, name: str, config: Optional[Dict[str, Any]] = None):
+            super().__init__(agent_id, name, config)
+            
+        async def start(self):
+            pass
+            
+        async def stop(self):
+            pass
+            
+        async def process(self, message: Any) -> Any:
+            return message
+            
+    return TestAgent(agent_id, name, config)
+
+def create_test_agent_bus(
+    bus_id: str = "test_bus",
+    config: Optional[Dict[str, Any]] = None
+) -> AgentBus:
+    """Create a test agent bus.
+    
+    Args:
+        bus_id: Bus ID
+        config: Bus configuration
+        
+    Returns:
+        Test agent bus instance
+    """
+    return AgentBus(bus_id, config)
 
 def safe_remove(path: Union[str, Path]) -> None:
-    """Safely remove a file or directory."""
-    path = Path(path)
-    if path.exists():
-        if path.is_file():
-            path.unlink()
-        else:
-            shutil.rmtree(path)
+    """Safely remove a file or directory, ignoring errors."""
+    try:
+        p = Path(path)
+        if p.is_file() or p.is_symlink():
+            p.unlink()
+        elif p.is_dir():
+            for sub in p.iterdir():
+                safe_remove(sub)
+            p.rmdir()
+    except Exception:
+        pass
 
-def safe_rmdir(path: Union[str, Path], recursive: bool = False) -> None:
-    """Safely remove a directory."""
-    path = Path(path)
-    if path.exists():
-        if recursive:
-            shutil.rmtree(path)
-        else:
-            path.rmdir()
-
-def ensure_dir(path: Union[str, Path]) -> None:
-    """Ensure a directory exists."""
-    Path(path).mkdir(parents=True, exist_ok=True)
-
-def get_test_file_path(filename: str, directory: Optional[Path] = None) -> Path:
-    """Get path to a test file."""
-    if directory is None:
-        directory = TEST_DATA_DIR
-    return directory / filename
-
-def create_test_file(filename: str, content: str = "", directory: Optional[Path] = None) -> Path:
-    """Create a test file with content."""
-    path = get_test_file_path(filename, directory)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, "w") as f:
-        f.write(content)
-    return path
-
-def cleanup_test_files() -> None:
-    """Clean up all test files and directories."""
-    for directory in [TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR]:
-        if directory.exists():
-            shutil.rmtree(directory)
-            directory.mkdir(parents=True, exist_ok=True)
-
-def cleanup_test_environment():
-    """Remove test directories."""
-    test_dirs = [
-        "tests/data",
-        "tests/output",
-        "tests/config",
-        "tests/runtime",
-        "tests/temp",
-        "tests/voice/queue"
-    ]
-    for dir_path in test_dirs:
-        if os.path.exists(dir_path):
-            shutil.rmtree(dir_path)
-
-class MockMember:
-    def __init__(
-        self,
-        id: int = 123456789,
-        name: str = "test-user",
-        roles: List[Any] = None,
-        bot: bool = False
-    ):
-        self.id = id
-        self.name = name
-        self.roles = roles or []
-        self.bot = bot
-        self.mention = f"<@{id}>" 
+def cleanup_test_environment(*paths: Union[str, Path]) -> None:
+    """Remove files and directories created during tests."""
+    for path in paths:
+        safe_remove(path) 

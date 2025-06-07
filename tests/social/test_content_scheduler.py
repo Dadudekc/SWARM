@@ -14,7 +14,7 @@ from dreamos.core.messaging.enums import MessageMode
 from dreamos.core.messaging.message_processor import MessageProcessor
 from social.community.content_scheduler import ContentScheduler
 from dreamos.core.logging.log_config import LogConfig, LogLevel
-from social.utils.log_manager import LogManager
+from dreamos.core.log_manager import LogManager
 from dreamos.core.utils.file_utils import (
     safe_read,
     safe_write,

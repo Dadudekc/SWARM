@@ -30,23 +30,43 @@ from ..agent_loop import AgentLoop, start_agent_loops
 from ...tests.utils.init_feedback_loop import run_pytest
 from .test_devlog_bridge import TestDevLogBridge
 from .devlog_manager import DevLogManager
+from .base.runner_core import RunnerCore
+from .bridge_outbox_handler import BridgeOutboxHandler
+from .codex_patch_tracker import CodexPatchTracker
+from .error import ErrorTracker, ErrorHandler, ErrorSeverity
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class AutonomyLoopRunner:
+class AutonomyLoopRunner(RunnerCore[str]):
     """Manages the autonomous test-fix loop."""
     
-    def __init__(self, config_path: str = "config/autonomy_config.json"):
+    def __init__(self, config: Optional[Dict[str, Any]] = None):
         """Initialize the autonomy loop runner.
         
         Args:
-            config_path: Path to configuration file
+            config: Optional configuration dictionary
         """
-        self.config = self._load_config(config_path)
+        super().__init__(config, platform="autonomy_loop")
+        
+        # Initialize components
+        self.bridge_handler = BridgeOutboxHandler()
+        self.patch_tracker = CodexPatchTracker()
+        
+        # Initialize error handling
+        self.error_tracker = ErrorTracker()
+        self.error_handler = ErrorHandler(self.error_tracker)
+        
+        # Test-specific configuration
+        self.test_dir = self.config.get("test_dir", "tests")
+        self.test_pattern = self.config.get("test_pattern", "test_*.py")
+        
+        # Load agent ownership
         self.agent_ownership = self._load_agent_ownership()
         self.codex_agent = "codex"  # Special agent for quality control
+        
+        # Set up bridge outbox
         self.bridge_outbox = Path("bridge_outbox")
         self.bridge_outbox.mkdir(exist_ok=True)
         
@@ -78,22 +98,43 @@ class AutonomyLoopRunner:
         self.is_running = False
         self.worker_task = None
         self.last_test_time = 0
-        self.failed_tests = set()
-        self.passed_tests = set()
-        self.in_progress_tests = set()
-        self.test_queue = asyncio.Queue()
+        self.failed_items = set()
+        self.passed_items = set()
+        self.in_progress_items = set()
+        self.item_queue = asyncio.Queue()
         self.result_queue = asyncio.Queue()
         
         # Thread pool for parallel operations
         self.thread_pool = ThreadPoolExecutor(max_workers=self.max_workers)
         
+        # Autonomy loop specific settings
+        self.loop_interval = self.config.get("loop_interval", 60)  # 1 minute
+        self.max_iterations = self.config.get("max_iterations", 10)
+        self.iteration_timeout = self.config.get("iteration_timeout", 300)  # 5 minutes
+        
+        # State tracking
+        self.current_iteration = 0
+        self.last_iteration = None
+        
         # Initialize logging
         self.logger.info(
-            platform="autonomy_loop",
+            platform=self.platform,
             status="initialized",
             message="Autonomy loop runner initialized",
             tags=["init", "autonomy"]
         )
+    
+    def _load_agent_ownership(self) -> Dict[str, str]:
+        """Load agent ownership mapping.
+        
+        Returns:
+            Dictionary mapping file paths to agent IDs
+        """
+        try:
+            with open("config/agent_ownership.json", 'r') as f:
+                return json.load(f)
+        except Exception:
+            return {}
     
     async def start(self):
         """Start the autonomy loop."""
@@ -109,7 +150,7 @@ class AutonomyLoopRunner:
         self.worker_task = asyncio.create_task(self._worker_loop())
         
         self.logger.info(
-            platform="autonomy_loop",
+            platform=self.platform,
             status="started",
             message="Autonomy loop started",
             tags=["start", "autonomy"]
@@ -117,6 +158,9 @@ class AutonomyLoopRunner:
     
     async def stop(self):
         """Stop the autonomy loop."""
+        if not self.is_running:
+            return
+            
         self.is_running = False
         
         # Cancel both tasks
@@ -135,60 +179,384 @@ class AutonomyLoopRunner:
                 pass
         
         self.logger.info(
-            platform="autonomy_loop",
+            platform=self.platform,
             status="stopped",
             message="Autonomy loop stopped",
             tags=["stop", "autonomy"]
         )
     
     async def _worker_loop(self):
-        """Main worker loop that processes test failures."""
+        """Main worker loop for autonomy."""
         while self.is_running:
             try:
-                # Run tests and get failures
-                failed_tests = await self.run_pytest_and_parse_failures()
-                
-                for test in failed_tests:
-                    file_path = test["file"]
-                    agent_id = self.determine_responsible_agent(file_path)
+                # Check if we should run iteration
+                if self._should_run_iteration():
+                    # Run tests with retry
+                    result = await self.error_handler.with_retry(
+                        operation="run_tests",
+                        agent_id=self.platform,
+                        func=self.run_tests
+                    )
                     
-                    prompt = self.generate_fix_prompt(test)
-                    await self.inject_prompt_to_agent(agent_id, prompt)
+                    if result["exit_code"] != 0:
+                        # Parse failures
+                        failures = self.parse_test_failures(result["stdout"])
+                        
+                        # Process each failure
+                        for test_name, error in failures.items():
+                            if test_name not in self.in_progress_items:
+                                await self._handle_test_failure(test_name, error)
                     
-                    if not await self.wait_for_reply(agent_id):
-                        self.logger.warning(
-                            platform="autonomy_loop",
-                            status="warning",
-                            message=f"Timeout waiting for agent {agent_id}",
-                            tags=["timeout", "warning"]
-                        )
-                        continue
-                        
-                    response = self.retrieve_response(agent_id)
-                    if not response:
-                        continue
-                        
-                    if not await self.is_valid_code(response):
-                        await self.escalate_to_codex(agent_id, file_path, test, response)
-                        continue
-                        
-                    if not self.apply_code_patch(file_path, response):
-                        continue
-                        
-                    if not await self.test_passes(file_path):
-                        await self.escalate_to_codex(agent_id, file_path, test, response)
-                        continue
-                        
-                    self.commit_code(file_path, f"✅ Agent-{agent_id} fix for {test['name']}")
+                    # Update state
+                    self.last_iteration = asyncio.get_event_loop().time()
+                    self.current_iteration += 1
                 
-                # Sleep until next interval
-                await asyncio.sleep(self.test_interval)
+                # Wait for next check
+                await asyncio.sleep(self.loop_interval)
                 
+            except asyncio.CancelledError:
+                break
             except Exception as e:
-                self.logger.error(
-                    platform="autonomy_loop",
-                    status="error",
-                    message=f"Error in worker loop: {str(e)}",
-                    tags=["error", "worker_loop"]
+                self.error_tracker.record_error(
+                    error_type=type(e).__name__,
+                    message=str(e),
+                    severity=ErrorSeverity.HIGH,
+                    agent_id=self.platform,
+                    context={"operation": "worker_loop"}
                 )
-                await asyncio.sleep(60)  # Sleep on error 
+                await asyncio.sleep(5)  # Back off on error
+    
+    def _should_run_iteration(self) -> bool:
+        """Check if we should run an iteration.
+        
+        Returns:
+            True if should run, False otherwise
+        """
+        # Check iteration limit
+        if self.current_iteration >= self.max_iterations:
+            return False
+            
+        # First run
+        if self.last_iteration is None:
+            return True
+            
+        # Check interval
+        current_time = asyncio.get_event_loop().time()
+        if current_time - self.last_iteration >= self.loop_interval:
+            return True
+            
+        return False
+    
+    async def _handle_test_failure(self, test_name: str, error: str):
+        """Handle a test failure.
+        
+        Args:
+            test_name: Name of failed test
+            error: Error message
+        """
+        try:
+            # Get test file
+            test_file = await self._get_test_file(test_name)
+            
+            # Determine responsible agent
+            agent = self._determine_responsible_agent(test_file)
+            
+            # Create fix request with retry
+            await self.error_handler.with_retry(
+                operation="create_fix_request",
+                agent_id=agent,
+                func=self.bridge_handler.create_fix_request,
+                agent=agent,
+                test_name=test_name,
+                error=error,
+                file_path=str(test_file) if test_file else None
+            )
+            
+            # Track in progress
+            self.in_progress_items.add(test_name)
+            
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id=self.platform,
+                context={
+                    "operation": "handle_test_failure",
+                    "test_name": test_name,
+                    "error": error
+                }
+            )
+            logger.error(f"Error handling test failure: {str(e)}")
+    
+    async def _get_test_file(self, test_name: str) -> Optional[str]:
+        """Get file path for test.
+        
+        Args:
+            test_name: Name of test
+            
+        Returns:
+            Path to test file
+        """
+        try:
+            # Run pytest with --collect-only to get test info
+            result = await asyncio.create_subprocess_exec(
+                "pytest",
+                "--collect-only",
+                "-q",
+                test_name,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
+            
+            stdout, _ = await result.communicate()
+            
+            # Parse output to get file path
+            for line in stdout.decode().splitlines():
+                if test_name in line:
+                    parts = line.split("::")
+                    if len(parts) >= 2:
+                        return parts[0]
+            
+            return None
+            
+        except Exception as e:
+            logger.error(f"Error getting test file: {str(e)}")
+            return None
+    
+    def _determine_responsible_agent(self, file_path: Optional[str]) -> str:
+        """Determine which agent is responsible for a file.
+        
+        Args:
+            file_path: Path to file
+            
+        Returns:
+            Agent identifier
+        """
+        if not file_path:
+            return "codex"  # Default to codex agent
+            
+        # Load agent ownership
+        try:
+            with open("agent_ownership.json") as f:
+                ownership = json.load(f)
+                
+            # Check file path
+            for agent, paths in ownership.items():
+                if any(file_path.startswith(p) for p in paths):
+                    return agent
+                    
+        except Exception as e:
+            logger.error(f"Error loading agent ownership: {str(e)}")
+        
+        return "codex"  # Default to codex agent
+    
+    def generate_fix_prompt(self, test_name: str, error: str) -> str:
+        """Generate a prompt for fixing a test.
+        
+        Args:
+            test_name: Name of the test
+            error: Error message
+            
+        Returns:
+            Generated prompt
+        """
+        return f"""Please fix the following test failure:
+
+Test: {test_name}
+Error: {error}
+
+Please provide a complete fix that:
+1. Addresses the root cause
+2. Maintains existing functionality
+3. Follows project style guidelines
+4. Includes necessary imports
+5. Handles edge cases
+
+Respond with the complete fixed code."""
+    
+    async def escalate_to_codex(self, agent_id: str, file_path: str, test_name: str, error: str, response: str):
+        """Escalate a failed fix to Codex.
+        
+        Args:
+            agent_id: Original agent ID
+            file_path: Path to the file
+            test_name: Name of the test
+            error: Error message
+            response: Failed fix response
+        """
+        prompt = f"""Agent {agent_id} attempted to fix test {test_name} but failed:
+
+Original Error: {error}
+Failed Fix: {response}
+
+Please provide a complete fix that:
+1. Addresses the root cause
+2. Maintains existing functionality
+3. Follows project style guidelines
+4. Includes necessary imports
+5. Handles edge cases
+
+Respond with the complete fixed code."""
+        
+        await self.inject_prompt_to_agent(self.codex_agent, prompt)
+    
+    def apply_code_patch(self, file_path: str, response: str) -> bool:
+        """Apply a code patch.
+        
+        Args:
+            file_path: Path to the file
+            response: Code to apply
+            
+        Returns:
+            True if patch applied successfully, False otherwise
+        """
+        try:
+            with open(file_path, 'w') as f:
+                f.write(response)
+            return True
+            
+        except Exception as e:
+            self.logger.error(
+                platform=self.platform,
+                status="error",
+                message=f"Error applying patch: {str(e)}",
+                tags=["patch", "error"]
+            )
+            return False
+    
+    async def test_passes(self, test_name: str) -> bool:
+        """Check if a test passes.
+        
+        Args:
+            test_name: Name of the test
+            
+        Returns:
+            True if test passes, False otherwise
+        """
+        try:
+            result = await self.error_handler.with_retry(
+                operation="test_passes",
+                agent_id=self.platform,
+                func=self._run_test,
+                test_name=test_name
+            )
+            return result
+            
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id=self.platform,
+                context={"operation": "test_passes", "test_name": test_name}
+            )
+            return False
+    
+    async def _run_test(self, test_name: str) -> bool:
+        """Run a single test.
+        
+        Args:
+            test_name: Name of the test
+            
+        Returns:
+            True if test passes, False otherwise
+        """
+        result = await asyncio.create_subprocess_exec(
+            "pytest",
+            test_name,
+            "-v",
+            stdout=asyncio.subprocess.PIPE,
+            stderr=asyncio.subprocess.PIPE
+        )
+        
+        stdout, stderr = await result.communicate()
+        return result.returncode == 0
+    
+    def commit_code(self, file_path: str, message: str):
+        """Commit code changes.
+        
+        Args:
+            file_path: Path to the file
+            message: Commit message
+        """
+        try:
+            subprocess.run(["git", "add", file_path], check=True)
+            subprocess.run(["git", "commit", "-m", message], check=True)
+            
+            self.logger.info(
+                platform=self.platform,
+                status="success",
+                message=f"Committed changes to {file_path}",
+                tags=["commit", "success"]
+            )
+            
+        except Exception as e:
+            self.error_tracker.record_error(
+                error_type=type(e).__name__,
+                message=str(e),
+                severity=ErrorSeverity.MEDIUM,
+                agent_id=self.platform,
+                context={
+                    "operation": "commit_code",
+                    "file_path": file_path,
+                    "message": message
+                }
+            )
+            self.logger.error(
+                platform=self.platform,
+                status="error",
+                message=f"Error committing changes: {str(e)}",
+                tags=["commit", "error"]
+            )
+    
+    async def _run_iteration(self):
+        """Run a single iteration of the test-fix loop."""
+        # Check if we should run iteration
+        if self._should_run_iteration():
+            # Run tests
+            result = await self.run_tests()
+            
+            if result["exit_code"] != 0:
+                # Parse failures
+                failures = self.parse_test_failures(result["stdout"])
+                
+                # Process each failure
+                for test_name, error in failures.items():
+                    if test_name not in self.in_progress_items:
+                        await self._handle_test_failure(test_name, error)
+            
+            # Update state
+            self.last_iteration = asyncio.get_event_loop().time()
+            self.current_iteration += 1
+    
+    async def _handle_result(self, result: Any):
+        """Handle a test result.
+        
+        Args:
+            result: Test result to handle
+        """
+        if isinstance(result, dict):
+            test_name = result.get("test_name")
+            success = result.get("success", False)
+            
+            if test_name in self.in_progress_items:
+                self.in_progress_items.remove(test_name)
+                
+                if success:
+                    self.passed_items.add(test_name)
+                    if test_name in self.failed_items:
+                        self.failed_items.remove(test_name)
+                else:
+                    self.failed_items.add(test_name)
+                    if test_name in self.passed_items:
+                        self.passed_items.remove(test_name)
+    
+    async def _get_test_files(self) -> List[str]:
+        """Get list of test files to run.
+        
+        Returns:
+            List of test file paths
+        """
+        # Implementation specific to test framework
+        return [] 

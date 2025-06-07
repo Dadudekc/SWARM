@@ -1,0 +1,157 @@
+# Runner/Loop Consolidation Map
+# Generated: 2024-03-19
+# Agent: Agent-7
+
+consolidation_targets:
+  - name: BaseResponseLoop
+    origin_modules:
+      - dreamos/core/autonomy/core_response_loop_daemon.py
+      - dreamos/core/autonomy/bridge_response_loop_daemon.py
+      - dreamos/core/autonomy/base/response_loop_daemon.py
+    duplicate_patterns:
+      - startup sequence
+      - file polling loop
+      - response file validation
+      - error recovery
+      - state transitions
+    target_type: base_class
+    estimated_savings: "~300 lines"
+    complexity: low
+    notes: |
+      Extract shared loop handling and file polling logic into BaseResponseLoop.
+      Bridge-specific methods (like `apply_patch`) can remain in subclasses.
+      All daemons share common startup, polling, and error recovery patterns.
+
+  - name: RunnerLifecycleMixin
+    origin_modules:
+      - dreamos/core/autonomy/base/runner_core.py
+      - dreamos/core/autonomy/midnight_runner.py
+      - dreamos/core/autonomy/auto_trigger_runner.py
+      - dreamos/core/autonomy/autonomy_loop_runner.py
+    duplicate_patterns:
+      - init/setup
+      - run/stop lifecycle
+      - loop dispatching
+      - worker management
+      - result handling
+    target_type: mixin_class
+    estimated_savings: "~400 lines"
+    complexity: medium
+    notes: |
+      All runners share loop orchestration. Move to shared lifecycle mixin.
+      Includes worker pool management, task distribution, and result processing.
+      Maintains async compatibility through Protocol-based interfaces.
+
+  - name: LoopControlUtils
+    origin_modules:
+      - dreamos/core/autonomy_loop.py
+      - dreamos/core/message_loop.py
+      - dreamos/core/content_loop.py
+      - dreamos/core/agent_loop.py
+    duplicate_patterns:
+      - loop retry logic
+      - backoff and sleep intervals
+      - state validation
+      - error recovery
+    target_type: utility_module
+    estimated_savings: "~250 lines"
+    complexity: low
+    notes: |
+      Create `loop_control_utils.py` to hold retry, backoff, and loop pacing logic.
+      Includes shared validation and error recovery patterns.
+      All loops use similar retry and backoff strategies.
+
+  - name: BridgeCore
+    origin_modules:
+      - bridge/chatgpt_bridge_loop.py
+      - bridge/bridge_response_loop_daemon.py
+    duplicate_patterns:
+      - message routing
+      - response handling
+      - error recovery
+      - state management
+    target_type: base_class
+    estimated_savings: "~150 lines"
+    complexity: medium
+    notes: |
+      Unify bridge-specific functionality into a common base class.
+      Handles message routing, response processing, and error recovery.
+      Maintains platform-specific implementations in subclasses.
+
+  - name: StateManager
+    origin_modules:
+      - dreamos/core/autonomy/base/state_manager.py
+      - dreamos/core/autonomy/base/runner_core.py
+      - dreamos/core/autonomy_loop.py
+    duplicate_patterns:
+      - state transitions
+      - validation logic
+      - error handling
+      - recovery protocols
+    target_type: utility_class
+    estimated_savings: "~200 lines"
+    complexity: low
+    notes: |
+      Consolidate state management logic into a reusable utility class.
+      Handles transitions, validation, and recovery protocols.
+      Used by both runners and loops for consistent state handling.
+
+  - name: ErrorHandler
+    origin_modules:
+      - dreamos/core/autonomy/base/response_loop_daemon.py
+      - dreamos/core/autonomy/base/runner_core.py
+      - dreamos/core/autonomy_loop.py
+    duplicate_patterns:
+      - error recovery
+      - retry logic
+      - logging
+      - state restoration
+    target_type: utility_class
+    estimated_savings: "~180 lines"
+    complexity: low
+    notes: |
+      Create unified error handling and recovery utility.
+      Standardizes error recovery, retry logic, and logging.
+      Provides consistent error handling across all components.
+
+implementation_priority:
+  - name: BaseResponseLoop
+    priority: 1
+    reason: "High savings, low complexity, critical path"
+    
+  - name: RunnerLifecycleMixin
+    priority: 2
+    reason: "Highest savings, medium complexity"
+    
+  - name: LoopControlUtils
+    priority: 3
+    reason: "High savings, low complexity, widely used"
+    
+  - name: StateManager
+    priority: 4
+    reason: "Medium savings, low complexity, foundational"
+    
+  - name: ErrorHandler
+    priority: 5
+    reason: "Medium savings, low complexity, improves stability"
+    
+  - name: BridgeCore
+    priority: 6
+    reason: "Lower savings, medium complexity, specialized"
+
+blockers:
+  - name: async_sync_compatibility
+    description: "Some loops use sync while others use async"
+    impact: "Medium"
+    resolution: "Create async adapter layer in LoopControlUtils"
+    
+  - name: state_persistence
+    description: "Different state persistence mechanisms"
+    impact: "Low"
+    resolution: "Standardize on JSON-based persistence in StateManager"
+
+next_steps:
+  - "Await approval of consolidation map"
+  - "Prepare detailed implementation plan for BaseResponseLoop"
+  - "Create test suite for consolidated components"
+  - "Schedule phased migration" 

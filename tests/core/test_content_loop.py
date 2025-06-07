@@ -5,7 +5,7 @@ Test suite for Content Loop integration with Dreamscribe.
 import pytest
 import time
 from pathlib import Path
-from dreamos.core.content_loop import ContentLoop
+from dreamos.core.autonomy.content_loop import ContentLoop
 
 @pytest.fixture
 def content_loop():

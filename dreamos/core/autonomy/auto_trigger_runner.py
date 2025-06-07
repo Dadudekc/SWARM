@@ -1,18 +1,20 @@
-"""AutoTriggerRunner - Manages automatic test failure handling and fix loops."""
+"""
+Auto Trigger Runner
+-----------------
+Manages automatic test failure handling and fix loops.
+"""
 
 import asyncio
-import json
 import logging
-from datetime import datetime
-from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional, List
 
-from ..logging.log_manager import LogManager
-from .autonomy_loop_runner import AutonomyLoopRunner
+from .base.runner_core import RunnerCore
 from .bridge_outbox_handler import BridgeOutboxHandler
 from .codex_patch_tracker import CodexPatchTracker
 
-class AutoTriggerRunner:
+logger = logging.getLogger(__name__)
+
+class AutoTriggerRunner(RunnerCore[str]):
     """Manages automatic test failure handling and fix loops."""
     
     def __init__(self, config: Optional[Dict[str, Any]] = None):
@@ -21,262 +23,171 @@ class AutoTriggerRunner:
         Args:
             config: Optional configuration dictionary
         """
-        self.config = config or {}
-        self.logger = LogManager()
+        super().__init__(config, platform="auto_trigger")
         
         # Initialize components
-        self.autonomy_loop = AutonomyLoopRunner()
         self.bridge_handler = BridgeOutboxHandler()
         self.patch_tracker = CodexPatchTracker()
         
-        # Default configuration
-        self.check_interval = self.config.get("check_interval", 5)  # 5 seconds
+        # Auto trigger specific settings
+        self.trigger_interval = self.config.get("trigger_interval", 300)  # 5 minutes
         self.max_retries = self.config.get("max_retries", 3)
-        self.test_analysis_file = Path(self.config.get("test_analysis_file", "test_error_analysis.json"))
+        self.retry_delay = self.config.get("retry_delay", 60)  # 1 minute
         
-        # Runtime state
-        self.is_running = False
-        self.worker_task = None
-        self.processing_tests = set()
+        # State tracking
+        self.current_retries = 0
+        self.last_trigger = None
+    
+    async def _run_iteration(self):
+        """Run a single iteration of the test-fix loop."""
+        # Check if we should trigger
+        if self._should_trigger():
+            # Run tests
+            result = await self.run_tests()
+            
+            if result["exit_code"] != 0:
+                # Parse failures
+                failures = self.parse_test_failures(result["stdout"])
+                
+                # Process each failure
+                for test_name, error in failures.items():
+                    if test_name not in self.in_progress_items:
+                        await self._handle_test_failure(test_name, error)
+            
+            # Update state
+            self.last_trigger = asyncio.get_event_loop().time()
+            self.current_retries = 0
+    
+    async def _handle_result(self, result: Any):
+        """Handle a test result.
         
-        # Initialize logging
-        self.logger.info(
-            platform="auto_trigger",
-            status="initialized",
-            message="Auto trigger runner initialized",
-            tags=["init", "trigger"]
-        )
-    
-    async def start(self):
-        """Start the auto trigger runner."""
-        if self.is_running:
-            return
+        Args:
+            result: Test result to handle
+        """
+        if isinstance(result, dict):
+            test_name = result.get("test_name")
+            success = result.get("success", False)
             
-        self.is_running = True
-        self.worker_task = asyncio.create_task(self._worker_loop())
+            if test_name in self.in_progress_items:
+                self.in_progress_items.remove(test_name)
+                
+                if success:
+                    self.passed_items.add(test_name)
+                    if test_name in self.failed_items:
+                        self.failed_items.remove(test_name)
+                else:
+                    self.failed_items.add(test_name)
+                    if test_name in self.passed_items:
+                        self.passed_items.remove(test_name)
+    
+    def _should_trigger(self) -> bool:
+        """Check if we should trigger a test run.
         
-        self.logger.info(
-            platform="auto_trigger",
-            status="started",
-            message="Auto trigger runner started",
-            tags=["start", "trigger"]
-        )
-    
-    async def stop(self):
-        """Stop the auto trigger runner."""
-        if not self.is_running:
-            return
+        Returns:
+            True if should trigger, False otherwise
+        """
+        # First run
+        if self.last_trigger is None:
+            return True
             
-        self.is_running = False
-        if self.worker_task:
-            self.worker_task.cancel()
-            try:
-                await self.worker_task
-            except asyncio.CancelledError:
-                pass
+        # Check retry limit
+        if self.current_retries >= self.max_retries:
+            return False
             
-        self.logger.info(
-            platform="auto_trigger",
-            status="stopped",
-            message="Auto trigger runner stopped",
-            tags=["stop", "trigger"]
-        )
-    
-    async def _worker_loop(self):
-        """Main worker loop for auto trigger runner."""
-        while self.is_running:
-            try:
-                # Check for test failures
-                test_results = await self.autonomy_loop._run_tests()
-                
-                if test_results['exit_code'] != 0:
-                    # Parse test output to identify failures
-                    failed_tests = self.autonomy_loop._parse_test_failures(test_results['stdout'])
-                    
-                    # Process each failure
-                    for test_name, error in failed_tests.items():
-                        if test_name not in self.processing_tests:
-                            await self._handle_test_failure(test_name, error)
-                
-                # Small sleep to prevent CPU spinning
-                await asyncio.sleep(self.check_interval)
-                
-            except asyncio.CancelledError:
-                break
-            except Exception as e:
-                self.logger.error(
-                    platform="auto_trigger",
-                    status="error",
-                    message=f"Error in worker loop: {str(e)}",
-                    tags=["worker", "error"]
-                )
-                await asyncio.sleep(5)  # Back off on error
+        # Check interval
+        current_time = asyncio.get_event_loop().time()
+        if current_time - self.last_trigger >= self.trigger_interval:
+            self.current_retries += 1
+            return True
+            
+        return False
     
     async def _handle_test_failure(self, test_name: str, error: str):
         """Handle a test failure.
         
         Args:
-            test_name: Name of the failed test
-            error: Error message from test
-        """
-        try:
-            # Mark test as being processed
-            self.processing_tests.add(test_name)
-            
-            # Update test analysis
-            await self._update_test_analysis(test_name, error)
-            
-            # Generate repair prompt
-            prompt = await self._generate_repair_prompt(test_name, error)
-            
-            # Inject prompt to agent
-            agent_id = await self._assign_agent(test_name)
-            await self.autonomy_loop.inject_prompt_to_agent(agent_id, prompt)
-            
-            # Wait for response
-            if await self.autonomy_loop.wait_for_reply(agent_id):
-                response = self.autonomy_loop.retrieve_response(agent_id)
-                
-                if response:
-                    # Validate with Codex
-                    if await self.autonomy_loop.is_valid_code(response):
-                        # Apply patch
-                        await self.bridge_handler._process_response({
-                            "id": f"{test_name}-{datetime.utcnow().isoformat()}",
-                            "response": response,
-                            "test_name": test_name
-                        })
-                        
-                        # Re-run test
-                        await self._verify_fix(test_name)
-            
-        except Exception as e:
-            self.logger.error(
-                platform="auto_trigger",
-                status="error",
-                message=f"Error handling test failure {test_name}: {str(e)}",
-                tags=["failure", "error"]
-            )
-        finally:
-            self.processing_tests.remove(test_name)
-    
-    async def _update_test_analysis(self, test_name: str, error: str):
-        """Update test analysis data.
-        
-        Args:
-            test_name: Name of the test
+            test_name: Name of failed test
             error: Error message
         """
         try:
-            if not self.test_analysis_file.exists():
-                data = {
-                    "claimed_tests": {},
-                    "test_status": {
-                        "total_tests": 0,
-                        "passed": 0,
-                        "failed": 0,
-                        "skipped": 0,
-                        "in_progress": 0
-                    }
-                }
-            else:
-                with open(self.test_analysis_file, 'r') as f:
-                    data = json.load(f)
+            # Get test file
+            test_file = await self._get_test_file(test_name)
             
-            # Update test status
-            data["test_status"]["failed"] += 1
-            data["test_status"]["in_progress"] += 1
+            # Determine responsible agent
+            agent = self._determine_responsible_agent(test_file)
             
-            # Add test to claimed tests
-            data["claimed_tests"][test_name] = {
-                "status": "in_progress",
-                "error": error,
-                "claimed_at": datetime.utcnow().isoformat(),
-                "fix_attempts": []
-            }
-            
-            # Save updated data
-            with open(self.test_analysis_file, 'w') as f:
-                json.dump(data, f, indent=2)
-                
-        except Exception as e:
-            self.logger.error(
-                platform="auto_trigger",
-                status="error",
-                message=f"Error updating test analysis: {str(e)}",
-                tags=["analysis", "error"]
+            # Create fix request
+            await self.bridge_handler.create_fix_request(
+                agent=agent,
+                test_name=test_name,
+                error=error,
+                file_path=str(test_file) if test_file else None
             )
+            
+            # Track in progress
+            self.in_progress_items.add(test_name)
+            
+        except Exception as e:
+            logger.error(f"Error handling test failure: {str(e)}")
     
-    async def _generate_repair_prompt(self, test_name: str, error: str) -> str:
-        """Generate repair prompt for agent.
+    async def _get_test_file(self, test_name: str) -> Optional[str]:
+        """Get file path for test.
         
         Args:
-            test_name: Name of the test
-            error: Error message
+            test_name: Name of test
             
         Returns:
-            Generated prompt
-        """
-        return f"""Please fix the failing test {test_name}.
-Error: {error}
-
-Requirements:
-1. Fix must be minimal and focused
-2. Must maintain existing functionality
-3. Must follow project coding standards
-4. Must include test case
-
-Please provide the complete fix as a code block."""
-
-    async def _assign_agent(self, test_name: str) -> str:
-        """Assign an agent to fix the test.
-        
-        Args:
-            test_name: Name of the test
-            
-        Returns:
-            Assigned agent ID
-        """
-        # For now, use a simple round-robin assignment
-        # TODO: Implement smarter agent selection based on expertise
-        return "Agent-1"
-    
-    async def _verify_fix(self, test_name: str):
-        """Verify that a fix resolved the test failure.
-        
-        Args:
-            test_name: Name of the test
+            Path to test file
         """
         try:
-            # Run the specific test
-            result = await self.autonomy_loop._run_test_chunk([test_name])
+            # Run pytest with --collect-only to get test info
+            result = await asyncio.create_subprocess_exec(
+                "pytest",
+                "--collect-only",
+                "-q",
+                test_name,
+                stdout=asyncio.subprocess.PIPE,
+                stderr=asyncio.subprocess.PIPE
+            )
             
-            # Update test analysis
-            with open(self.test_analysis_file, 'r') as f:
-                data = json.load(f)
+            stdout, _ = await result.communicate()
             
-            if result['exit_code'] == 0:
-                # Test passed
-                data["test_status"]["passed"] += 1
-                data["test_status"]["failed"] -= 1
-                data["claimed_tests"][test_name]["status"] = "completed"
-            else:
-                # Test still failing
-                data["claimed_tests"][test_name]["fix_attempts"].append({
-                    "timestamp": datetime.utcnow().isoformat(),
-                    "error": result['stdout']
-                })
+            # Parse output to get file path
+            for line in stdout.decode().splitlines():
+                if test_name in line:
+                    parts = line.split("::")
+                    if len(parts) >= 2:
+                        return parts[0]
             
-            data["test_status"]["in_progress"] -= 1
+            return None
             
-            # Save updated data
-            with open(self.test_analysis_file, 'w') as f:
-                json.dump(data, f, indent=2)
-                
         except Exception as e:
-            self.logger.error(
-                platform="auto_trigger",
-                status="error",
-                message=f"Error verifying fix for {test_name}: {str(e)}",
-                tags=["verify", "error"]
-            ) 
+            logger.error(f"Error getting test file: {str(e)}")
+            return None
+    
+    def _determine_responsible_agent(self, file_path: Optional[str]) -> str:
+        """Determine which agent is responsible for a file.
+        
+        Args:
+            file_path: Path to file
+            
+        Returns:
+            Agent identifier
+        """
+        if not file_path:
+            return "codex"  # Default to codex agent
+            
+        # Load agent ownership
+        try:
+            with open("agent_ownership.json") as f:
+                ownership = json.load(f)
+                
+            # Check file path
+            for agent, paths in ownership.items():
+                if any(file_path.startswith(p) for p in paths):
+                    return agent
+                    
+        except Exception as e:
+            logger.error(f"Error loading agent ownership: {str(e)}")
+        
+        return "codex"  # Default to codex agent 

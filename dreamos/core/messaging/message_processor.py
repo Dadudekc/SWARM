@@ -1,12 +1,18 @@
-"""Message processing module for handling agent communications."""
+"""
+Message Processor
+--------------
+Processes and routes messages between agents.
+"""
 
+import json
 import logging
+import time
 import asyncio
 from typing import Dict, List, Optional, Any, Callable
 from datetime import datetime
 from pathlib import Path
 
-from ..utils.file_utils import atomic_write
+from ..utils.core_utils import atomic_write
 from dreamos.social.utils.log_manager import LogManager
 
 logger = logging.getLogger(__name__)

@@ -26,7 +26,7 @@ from dreamos.core.utils.file_utils import (
     FileOpsPermissionError,
     FileOpsIOError
 )
-from social.utils.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 
 # Initialize logging
 log_manager = LogManager(LogConfig(

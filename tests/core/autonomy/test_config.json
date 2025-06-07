@@ -1,0 +1,24 @@
+{
+    "paths": {
+        "bridge_outbox": "test/bridge_outbox",
+        "runtime": "test/runtime",
+        "archive": "test/archive",
+        "failed": "test/failed",
+        "templates": "test/templates"
+    },
+    "processing": {
+        "max_concurrent": 10,
+        "max_retries": 3,
+        "retry_delay": 2
+    },
+    "monitoring": {
+        "heartbeat_interval": 60,
+        "error_threshold": 5,
+        "log_level": "INFO"
+    },
+    "discord": {
+        "enabled": false,
+        "token": "test_token",
+        "channel_id": "test_channel"
+    }
+} 

@@ -1,7 +1,7 @@
 import pytest
-from dreamos.core.persistent_queue import PersistentQueue
+from dreamos.core.shared.persistent_queue import PersistentQueue
 from dreamos.core.messaging.message import Message
-from dreamos.core.messaging.enums import MessageMode
+from dreamos.core.messaging.enums import MessageMode, MessagePriority
 import os
 import json
 from datetime import datetime
@@ -88,7 +88,7 @@ def test_message_priority(queue):
         from_agent="test_sender",
         to_agent="test_recipient",
         timestamp=datetime.now(),
-        priority=1
+        priority=MessagePriority.HIGH
     )
     normal_priority = Message(
         content="Normal priority",
@@ -96,7 +96,7 @@ def test_message_priority(queue):
         from_agent="test_sender",
         to_agent="test_recipient",
         timestamp=datetime.now(),
-        priority=5
+        priority=MessagePriority.NORMAL
     )
     
     queue.put(normal_priority)

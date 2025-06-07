@@ -6,7 +6,7 @@ import pytest
 import time
 import json
 from pathlib import Path
-from dreamos.core.agent_loop import AgentLoop
+from dreamos.core.autonomy.agent_loop import AgentLoop
 from dreamos.core.agent_control.controller import AgentController
 from dreamos.core.dreamscribe import Dreamscribe
 from dreamos.social.utils.log_manager import LogManager, LogConfig, LogLevel
