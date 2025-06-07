@@ -73,6 +73,8 @@ episodes/
 messages/
 templates/
 runtime/
+!runtime/test_prompts/
+!runtime/test_prompts/TEST_AND_DEBUG_AUTONOMY.yaml
 test_logs/
 test_config/
 test_data/
