@@ -15,8 +15,8 @@ from pathlib import Path
 
 from social.core.dispatcher import SocialPlatformDispatcher
 from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
-from social.utils.rate_limiter import RateLimiter
-from social.utils.media_validator import MediaValidator
+from dreamos.social.utils.rate_limiter import RateLimiter
+from dreamos.social.utils.media_validator import MediaValidator
 from social.strategies.reddit.handlers.login_handler import LoginHandler
 from social.strategies.reddit.config import RedditConfig
 from dreamos.core.utils.file_utils import (

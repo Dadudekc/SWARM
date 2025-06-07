@@ -245,7 +245,17 @@ STATUS: ✅ Complete and Confirmed
 - Reduced module size from 1279 lines to ~300 lines per module
 - Separated concerns into logical groups
 - Improved code organization and maintainability
-- Better test coverage and readability 
+- Better test coverage and readability
+
+## SECTION: config_cleanup
+AGENT: Codex
+ACTION: REMOVE DUPLICATE FILES
+DETAILS:
+  - Removed redundant `config.json` and `system_config.yaml` at repo root
+  - Deleted unused placeholder mailbox `data/mailbox/test_agent/queue.json`
+  - Removed archived `archive/dupe_logging` modules
+  - Consolidated `social/utils` with `dreamos.social.utils` and updated imports
+STATUS: ✅ Complete
 
 ## Test Interface Reorganization (2024-03-21)
 

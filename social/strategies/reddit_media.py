@@ -9,8 +9,8 @@ from typing import List, Tuple, Optional
 from selenium.webdriver.common.by import By
 from selenium.common.exceptions import TimeoutException, NoSuchElementException
 
-from social.utils.media_validator import MediaValidator
-from social.utils.social_common import SocialMediaUtils
+from dreamos.social.utils.media_validator import MediaValidator
+from dreamos.social.utils.social_common import SocialMediaUtils
 
 class RedditMediaHandler:
     """Handler for Reddit media operations."""

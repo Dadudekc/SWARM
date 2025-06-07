@@ -21,7 +21,7 @@ import praw
 import logging
 
 from social.strategies.platform_strategy_base import PlatformStrategy
-from social.utils.media_validator import MediaValidator
+from dreamos.social.utils.media_validator import MediaValidator
 from social.strategies.reddit.post_handler import PostHandler
 from social.strategies.reddit.media import RedditMediaHandler
 from social.strategies.reddit.rate_limiting.rate_limiter import rate_limit, RateLimiter

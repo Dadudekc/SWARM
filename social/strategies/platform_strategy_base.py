@@ -16,7 +16,7 @@ from selenium.webdriver.remote.webdriver import WebDriver
 from selenium.webdriver.remote.webelement import WebElement
 from selenium.common.exceptions import TimeoutException, WebDriverException
 
-from social.utils.social_common import SocialMediaUtils
+from dreamos.social.utils.social_common import SocialMediaUtils
 from dreamos.core.log_manager import LogManager
 from social.constants.platform_constants import (
     DEFAULT_COOLDOWN,
