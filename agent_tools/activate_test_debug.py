@@ -12,7 +12,7 @@ import logging
 import pyautogui
 from pathlib import Path
 from datetime import datetime
-from agent_resumer import AgentResumer
+from agent_tools.agent_resumer import AgentResumer
 
 logger = logging.getLogger(__name__)
 

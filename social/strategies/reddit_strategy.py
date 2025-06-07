@@ -27,8 +27,7 @@ from social.strategies.reddit.media import RedditMediaHandler
 from social.strategies.reddit.rate_limiting.rate_limiter import rate_limit, RateLimiter
 from social.strategies.reddit.login_handler import LoginHandler
 from dreamos.core.config.config_manager import ConfigManager
-from dreamos.core.logging.log_config import LogConfig, LogLevel
-from social.utils.log_manager import LogConfig as SocialLogConfig
+from dreamos.core.log_manager import LogConfig, LogLevel
 from dreamos.core.monitoring.metrics import LogMetrics
 
 class RedditStrategy(PlatformStrategy):

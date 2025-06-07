@@ -1,13 +1,10 @@
-"""
-Discord bot cogs initialization.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from discord.ext import commands
-import logging
-
-logger = logging.getLogger(__name__)
+from . import basic
+from . import help_menu
 
 __all__ = [
-    "HelpMenu",
-    "BasicCommands"
+    'basic',
+    'help_menu',
 ]

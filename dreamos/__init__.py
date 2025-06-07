@@ -1,1 +1,8 @@
-"""Top-level package for the Dream.OS platform providing orchestrator and system utilities."""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
+
+from . import bridge
+
+__all__ = [
+    'bridge',
+]

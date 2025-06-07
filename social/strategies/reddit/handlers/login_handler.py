@@ -21,7 +21,7 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from social.utils.log_manager import LogManager
+from dreamos.core.log_manager import LogManager
 from social.utils.social_common import SocialMediaUtils
 from dreamos.core.logging.log_config import LogLevel
 from ..config import RedditConfig

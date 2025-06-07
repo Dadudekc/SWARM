@@ -31,6 +31,9 @@ class AtomicFileManager:
         self._temp_path = self.file_path.with_suffix('.json.tmp')
         self.max_retries = max_retries
         
+        # Ensure directory exists
+        os.makedirs(self.file_path.parent, exist_ok=True)
+        
     async def atomic_write(self, data: Dict[str, Any]) -> bool:
         """Write data to file atomically with backup support.
         
@@ -49,10 +52,10 @@ class AtomicFileManager:
                     
                     # Backup current file if it exists
                     if self.file_path.exists():
-                        await aiofiles.os.replace(self.file_path, self._backup_path)
+                        os.replace(self.file_path, self._backup_path)
                     
                     # Atomic move of temp file to target
-                    await aiofiles.os.replace(self._temp_path, self.file_path)
+                    os.replace(self._temp_path, self.file_path)
                     
                     logger.debug(f"Successfully wrote to {self.file_path}")
                     return True
@@ -101,7 +104,7 @@ class AtomicFileManager:
                 data = json.loads(content)
                 
             # Restore backup to main file
-            await aiofiles.os.replace(self._backup_path, self.file_path)
+            os.replace(self._backup_path, self.file_path)
             logger.info(f"Recovered data from backup {self._backup_path}")
             return data
             
@@ -120,7 +123,7 @@ class AtomicFileManager:
         # Attempt to restore from backup if available
         if self._backup_path.exists():
             try:
-                await aiofiles.os.replace(self._backup_path, self.file_path)
+                os.replace(self._backup_path, self.file_path)
                 logger.info("Restored from backup after write failure")
             except Exception as e:
                 logger.error(f"Failed to restore from backup: {str(e)}")
@@ -144,6 +147,6 @@ class AtomicFileManager:
         """Clean up temporary files."""
         try:
             if self._temp_path.exists():
-                await aiofiles.os.remove(self._temp_path)
+                os.remove(self._temp_path)
         except Exception as e:
             logger.error(f"Failed to cleanup temp file: {str(e)}") 

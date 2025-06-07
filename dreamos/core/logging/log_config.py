@@ -14,6 +14,9 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 import json
 import os
+import logging
+import logging.handlers
+from pathlib import Path
 
 class LogLevel(Enum):
     """Standardized log levels for Dream.OS logging system."""
@@ -119,4 +122,57 @@ def get_metrics_path() -> str:
 
 def get_retention_date() -> datetime:
     """Get cutoff date for log retention."""
-    return datetime.now() - timedelta(days=DEFAULT_CONFIG.retention_days) 
+    return datetime.now() - timedelta(days=DEFAULT_CONFIG.retention_days)
+
+def setup_logging(config: Optional[LogConfig] = None) -> None:
+    """Set up logging configuration.
+    
+    Args:
+        config: Optional logging configuration. If not provided, uses default config.
+    """
+    if config is None:
+        config = DEFAULT_CONFIG
+        
+    # Create log directory if it doesn't exist
+    log_dir = Path(config.log_dir or get_log_path())
+    log_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Set up root logger
+    root_logger = logging.getLogger()
+    root_logger.setLevel(config.level.name)
+    
+    # Remove existing handlers
+    for handler in root_logger.handlers[:]:
+        root_logger.removeHandler(handler)
+    
+    # Add file handler
+    log_file = log_dir / "dreamos.log"
+    file_handler = logging.handlers.RotatingFileHandler(
+        log_file,
+        maxBytes=config.max_file_size,
+        backupCount=config.backup_count
+    )
+    file_handler.setFormatter(logging.Formatter(config.format))
+    root_logger.addHandler(file_handler)
+    
+    # Add console handler
+    console_handler = logging.StreamHandler()
+    console_handler.setFormatter(logging.Formatter(config.format))
+    root_logger.addHandler(console_handler)
+    
+    # Set up metrics logging if enabled
+    if config.metrics_enabled:
+        metrics_dir = Path(get_metrics_path())
+        metrics_dir.mkdir(parents=True, exist_ok=True)
+        
+        metrics_logger = logging.getLogger("metrics")
+        metrics_logger.setLevel(logging.INFO)
+        
+        metrics_file = metrics_dir / "metrics.log"
+        metrics_handler = logging.handlers.RotatingFileHandler(
+            metrics_file,
+            maxBytes=config.max_file_size,
+            backupCount=config.backup_count
+        )
+        metrics_handler.setFormatter(logging.Formatter(config.format))
+        metrics_logger.addHandler(metrics_handler) 

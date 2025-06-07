@@ -2,8 +2,12 @@
 Main Discord bot implementation.
 """
 
-import discord
-from discord.ext import commands
+from tests.utils.mock_discord import (
+    commands,
+    Intents,
+    Activity,
+    ActivityType
+)
 import asyncio
 import logging
 import os
@@ -12,7 +16,7 @@ from datetime import datetime
 import json
 from pathlib import Path
 from dreamos.core.agent_control.system_orchestrator import SystemOrchestrator
-from social.utils.log_manager import LogManager, LogLevel
+from dreamos.core.log_manager import LogManager, LogLevel
 from dreamos.utils.discord_client import Client, Command
 
 # Configure logging
@@ -27,7 +31,7 @@ class DreamOSBot(commands.Bot):
     
     def __init__(self, *args: Any, **kwargs: Any):
         """Initialize the bot."""
-        intents = discord.Intents.default()
+        intents = Intents.default()
         intents.message_content = True
         intents.members = True
         
@@ -94,8 +98,8 @@ class DreamOSBot(commands.Bot):
         
         # Set bot status
         await self.change_presence(
-            activity=discord.Activity(
-                type=discord.ActivityType.watching,
+            activity=Activity(
+                type=ActivityType.watching,
                 name="Dream.OS"
             )
         )

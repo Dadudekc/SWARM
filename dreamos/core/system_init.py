@@ -1,18 +1,28 @@
 """
 System Initialization Module
 
-Handles core system initialization and communication channel setup.
+Handles system-wide initialization and configuration.
 """
 
+import os
+import sys
 import logging
 import time
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Any, Optional
+import json
 
-from .message_processor import MessageProcessor
-from .coordinate_manager import CoordinateManager
+# Add project root to Python path
+project_root = Path(__file__).resolve().parent.parent
+sys.path.append(str(project_root))
+
+from .config import ConfigManager
+from .logging.log_config import setup_logging
+from .shared.coordinate_manager import CoordinateManager
 from .messaging.cell_phone import CellPhone
-from .agent_logger import AgentLogger
+from .logging.agent_logger import AgentLogger
+from .agent_control.ui_automation import UIAutomation
+from .agent_control.agent_operations import AgentOperations
 
 logger = logging.getLogger('system_init')
 
@@ -26,7 +36,6 @@ class SystemInitializer:
             agent_id: The ID of the agent to initialize for (default: "system")
         """
         self.agent_id = agent_id
-        self.message_processor = None
         self.coordinate_manager = None
         self.cell_phone = None
         self.agent_logger = None
@@ -48,9 +57,6 @@ class SystemInitializer:
                 
             # Initialize cell phone (message queue)
             self.cell_phone = CellPhone()
-            
-            # Initialize message processor
-            self.message_processor = MessageProcessor()
             
             # Initialize agent logger with agent ID
             self.agent_logger = AgentLogger(self.agent_id)
@@ -78,16 +84,15 @@ class SystemInitializer:
                 return False
                 
             # Send test message to each agent
-            results = self.message_processor.send_to_all_agents(
-                "Communication channel test. Please respond if you receive this message.",
-                mode="TEST"
-            )
+            for agent_id in agents:
+                self.cell_phone.send_message(
+                    to_agent=agent_id,
+                    content="Communication channel test. Please respond if you receive this message.",
+                    mode="TEST"
+                )
             
-            # Check results
-            successful = sum(1 for success in results.values() if success)
-            logger.info(f"Established communication with {successful}/{len(agents)} agents")
-            
-            return successful > 0
+            logger.info(f"Established communication with {len(agents)} agents")
+            return True
             
         except Exception as e:
             logger.error(f"Error establishing communication channels: {e}")
@@ -102,16 +107,15 @@ class SystemInitializer:
             agents = self.coordinate_manager.list_agents()
             
             # Send monitoring start message
-            self.message_processor.send_to_all_agents(
-                "Beginning domain monitoring. Please report any significant events.",
-                mode="MONITOR"
-            )
+            for agent_id in agents:
+                self.cell_phone.send_message(
+                    to_agent=agent_id,
+                    content="Beginning domain monitoring. Please report any significant events.",
+                    mode="MONITOR"
+                )
             
             # Start continuous monitoring loop
             while True:
-                # Process any queued messages
-                self.message_processor.process_queue()
-                
                 # Check agent status
                 for agent_id in agents:
                     status = self.cell_phone.get_agent_status(agent_id)
@@ -135,7 +139,6 @@ class SystemInitializer:
                 "timestamp": time.time(),
                 "agents": self.coordinate_manager.list_agents(),
                 "queue_size": self.cell_phone.queue.size() if self.cell_phone else 0,
-                "message_processor": bool(self.message_processor),
                 "coordinate_manager": bool(self.coordinate_manager),
                 "cell_phone": bool(self.cell_phone),
                 "agent_logger": bool(self.agent_logger)

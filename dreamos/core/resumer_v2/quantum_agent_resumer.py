@@ -20,13 +20,15 @@ logger = logging.getLogger(__name__)
 class QuantumAgentResumer:
     """Quantum-aware agent resumption system."""
     
-    def __init__(self, base_dir: str = "config/agent_comms"):
-        """Initialize the quantum agent resumer.
+    def __init__(self, base_dir: str = "agent_tools/mailbox"):
+        """Initialize quantum agent resumer.
         
         Args:
             base_dir: Base directory for agent communications
         """
         self.base_dir = Path(base_dir)
+        if not self.base_dir.exists():
+            raise ValueError(f"Base directory {base_dir} does not exist")
         self.state_manager = AgentStateManager(self.base_dir)
         
         # Health check and monitoring
@@ -69,8 +71,12 @@ class QuantumAgentResumer:
         self.health_check_task = asyncio.create_task(self._health_check_loop())
         
         # Initialize state if needed
-        if not await self.state_manager.validate_state():
+        state = await self.state_manager.get_state()
+        if state is None:
             await self._initialize_state()
+            state = await self.state_manager.get_state()
+            if state is None:
+                raise RuntimeError("Failed to initialize state")
             
     async def stop(self):
         """Stop the quantum resumer system."""

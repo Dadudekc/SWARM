@@ -23,4 +23,20 @@ async def test_discord_import():
 async def test_cell_phone_import():
     """Test cell phone messaging imports."""
     from dreamos.core.messaging.cell_phone import send_message
-    assert send_message is not None 
+    assert send_message is not None
+
+@pytest.mark.asyncio
+async def test_agent_imports():
+    """Test agent-related imports."""
+    from dreamos.core.agent_control.agent_controller import AgentController
+    from dreamos.core.agent_control.periodic_restart import AgentManager, AgentResumeManager
+    from dreamos.core.agent_control.ui_automation import UIAutomation
+    from dreamos.core.agent_control.task_manager import TaskManager
+    from dreamos.core.agent_control.devlog_manager import DevLogManager
+    
+    assert AgentController is not None
+    assert AgentManager is not None
+    assert AgentResumeManager is not None
+    assert UIAutomation is not None
+    assert TaskManager is not None
+    assert DevLogManager is not None 

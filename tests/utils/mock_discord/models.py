@@ -1,205 +1,196 @@
-"""
-Discord Model Mocks
------------------
-Mock models for Discord.py testing.
-"""
+"""Mock Discord models for testing."""
 
-from typing import Optional, List, Dict, Any
-from dataclasses import dataclass, field
-from datetime import datetime
+from typing import Optional, List, Dict, Any, Union
+from dataclasses import dataclass
 
-@dataclass
-class MockContext:
-    """Mock Discord command context."""
-    message: 'MockMessage'
-    channel: 'MockChannel'
-    author: 'MockMember'
-    guild: Optional['MockGuild'] = None
-    bot: Optional[Any] = None
-    prefix: str = "!"
-    command: Optional[Any] = None
-    invoked_with: Optional[str] = None
-    invoked_subcommand: Optional[Any] = None
-    subcommand_passed: Optional[str] = None
-    command_failed: bool = False
-    
-    async def send(self, content: Optional[str] = None, **kwargs) -> 'MockMessage':
-        """Send a message to the channel."""
-        return await self.channel.send(content, **kwargs)
-    
-    async def reply(self, content: Optional[str] = None, **kwargs) -> 'MockMessage':
-        """Reply to the message."""
-        return await self.channel.send(content, **kwargs)
-    
-    async def trigger_typing(self) -> None:
-        """Trigger typing indicator."""
-        pass
-
-@dataclass
 class MockGuild:
-    """Mock Discord guild."""
-    id: int
-    name: str
-    channels: List['MockChannel'] = field(default_factory=list)
-    members: List['MockMember'] = field(default_factory=list)
-    roles: List['MockRole'] = field(default_factory=list)
+    """Mock Discord Guild for testing."""
     
-    def get_channel(self, channel_id: int) -> Optional['MockChannel']:
-        """Get a channel by ID."""
-        for channel in self.channels:
-            if channel.id == channel_id:
-                return channel
-        return None
-    
+    def __init__(self, id: int, name: str):
+        self.id = id
+        self.name = name
+        self.roles = []
+        self.members = []
+        self.channels = []
+        
+    def get_role(self, role_id: int) -> Optional['MockRole']:
+        """Get a role by ID."""
+        return next((role for role in self.roles if role.id == role_id), None)
+        
     def get_member(self, member_id: int) -> Optional['MockMember']:
         """Get a member by ID."""
-        for member in self.members:
-            if member.id == member_id:
-                return member
-        return None
+        return next((member for member in self.members if member.id == member_id), None)
+        
+    def get_channel(self, channel_id: int) -> Optional['MockChannel']:
+        """Get a channel by ID."""
+        return next((channel for channel in self.channels if channel.id == channel_id), None)
 
-@dataclass
-class MockMember:
-    """Mock Discord member."""
-    id: int
-    name: str
-    display_name: Optional[str] = None
-    bot: bool = False
-    
-    @property
-    def mention(self) -> str:
-        """Get the member's mention string."""
-        return f"<@{self.id}>"
-
-@dataclass
 class MockRole:
-    """Mock Discord role."""
-    id: int
-    name: str
-    guild: Optional[MockGuild] = None
-    color: int = 0
+    """Mock Discord Role for testing."""
+    
+    def __init__(self, id: int, name: str, guild: MockGuild):
+        self.id = id
+        self.name = name
+        self.guild = guild
+        self.members = []
+        
+    def add_member(self, member: 'MockMember'):
+        """Add a member to this role."""
+        if member not in self.members:
+            self.members.append(member)
+            member.roles.append(self)
+            
+    def remove_member(self, member: 'MockMember'):
+        """Remove a member from this role."""
+        if member in self.members:
+            self.members.remove(member)
+            member.roles = [r for r in member.roles if r.id != self.id]
 
-@dataclass
+class MockMember:
+    """Mock Discord Member for testing."""
+    
+    def __init__(self, id: int, name: str, guild: MockGuild, bot: bool = False):
+        self.id = id
+        self.name = name
+        self.guild = guild
+        self.bot = bot
+        self.roles = []
+        
+    def add_role(self, role: MockRole):
+        """Add a role to the member."""
+        if role not in self.roles:
+            self.roles.append(role)
+            role.members.append(self)
+        
+    def remove_role(self, role: MockRole):
+        """Remove a role from the member."""
+        if role in self.roles:
+            self.roles.remove(role)
+            role.members = [m for m in role.members if m.id != self.id]
+
 class MockChannel:
-    """Mock Discord channel."""
-    id: int
-    name: str
-    guild: Optional[MockGuild] = None
-    type: str = "text"
-    position: int = 0
+    """Mock Discord Channel for testing."""
     
-    async def send(self, content: Optional[str] = None, **kwargs) -> 'MockMessage':
-        """Send a message to the channel."""
-        return MockMessage(
-            id=1,
-            content=content or "",
+    def __init__(self, id: int, name: str, guild: MockGuild, type: str = "text"):
+        self.id = id
+        self.name = name
+        self.guild = guild
+        self.type = type
+        self.messages = []
+        
+    async def send(self, content=None, **kwargs):
+        """Mock sending a message to the channel."""
+        message = MockMessage(
+            id=len(self.messages) + 1,
+            content=content,
             channel=self,
-            author=MockMember(id=1, name="Bot")
+            author=self.guild.get_member(1)  # Default to first member
         )
+        self.messages.append(message)
+        return message
 
-@dataclass
 class MockMessage:
-    """Mock Discord message."""
-    id: int
-    content: str
-    channel: MockChannel
-    author: MockMember
-    created_at: datetime = field(default_factory=datetime.now)
-    edited_at: Optional[datetime] = None
-    attachments: List[Dict[str, Any]] = field(default_factory=list)
-    embeds: List[Dict[str, Any]] = field(default_factory=list)
+    """Mock Discord Message for testing."""
     
-    async def edit(self, **kwargs) -> None:
-        """Edit the message."""
-        if "content" in kwargs:
-            self.content = kwargs["content"]
-        self.edited_at = datetime.now()
+    def __init__(self, id: int, content: str, channel: MockChannel, author: MockMember):
+        self.id = id
+        self.content = content
+        self.channel = channel
+        self.author = author
+        self.embeds = []
+        
+    async def add_reaction(self, emoji):
+        """Mock adding a reaction to the message."""
+        pass
+        
+    async def remove_reaction(self, emoji, member):
+        """Mock removing a reaction from the message."""
+        pass
 
-@dataclass
 class MockEmbed:
-    """Mock Discord embed."""
-    title: Optional[str] = None
-    description: Optional[str] = None
-    color: Optional[int] = None
-    url: Optional[str] = None
-    fields: List[Dict[str, Any]] = field(default_factory=list)
-    footer: Optional[Dict[str, str]] = None
-    image: Optional[Dict[str, str]] = None
-    thumbnail: Optional[Dict[str, str]] = None
-    author: Optional[Dict[str, str]] = None
-    timestamp: Optional[datetime] = None
+    """Mock Discord Embed for testing."""
     
-    def add_field(self, name: str, value: str, inline: bool = False) -> None:
+    def __init__(self, **kwargs):
+        self.title = kwargs.get('title')
+        self.description = kwargs.get('description')
+        self.color = kwargs.get('color')
+        self.fields = []
+        self.footer = None
+        self.image = None
+        self.thumbnail = None
+        
+    def add_field(self, name: str, value: str, inline: bool = False):
         """Add a field to the embed."""
         self.fields.append({
-            "name": name,
-            "value": value,
-            "inline": inline
+            'name': name,
+            'value': value,
+            'inline': inline
         })
-    
-    def set_footer(self, text: str, icon_url: Optional[str] = None) -> None:
-        """Set the embed footer."""
-        self.footer = {"text": text, "icon_url": icon_url}
-    
-    def set_image(self, url: str) -> None:
-        """Set the embed image."""
-        self.image = {"url": url}
-    
-    def set_thumbnail(self, url: str) -> None:
-        """Set the embed thumbnail."""
-        self.thumbnail = {"url": url}
-    
-    def set_author(self, name: str, icon_url: Optional[str] = None) -> None:
-        """Set the embed author."""
-        self.author = {"name": name, "icon_url": icon_url}
-
-def create_mock_embed(
-    title: Optional[str] = None,
-    description: Optional[str] = None,
-    color: Optional[int] = None,
-    url: Optional[str] = None,
-    fields: Optional[List[Dict[str, Any]]] = None,
-    footer: Optional[Dict[str, str]] = None,
-    image: Optional[Dict[str, str]] = None,
-    thumbnail: Optional[Dict[str, str]] = None,
-    author: Optional[Dict[str, str]] = None,
-    timestamp: Optional[datetime] = None
-) -> MockEmbed:
-    """Create a mock Discord embed.
-    
-    Args:
-        title: Embed title
-        description: Embed description
-        color: Embed color
-        url: Embed URL
-        fields: List of field dictionaries
-        footer: Footer dictionary
-        image: Image dictionary
-        thumbnail: Thumbnail dictionary
-        author: Author dictionary
-        timestamp: Embed timestamp
         
-    Returns:
-        MockEmbed instance
-    """
-    embed = MockEmbed(
-        title=title,
-        description=description,
-        color=color,
-        url=url,
-        footer=footer,
-        image=image,
-        thumbnail=thumbnail,
-        author=author,
-        timestamp=timestamp
-    )
+    def set_footer(self, text: str, icon_url: Optional[str] = None):
+        """Set the footer of the embed."""
+        self.footer = {
+            'text': text,
+            'icon_url': icon_url
+        }
+        
+    def set_image(self, url: str):
+        """Set the image of the embed."""
+        self.image = {'url': url}
+        
+    def set_thumbnail(self, url: str):
+        """Set the thumbnail of the embed."""
+        self.thumbnail = {'url': url}
+
+class MockFile:
+    """Mock Discord File for testing."""
     
-    if fields:
-        for field in fields:
-            embed.add_field(
-                name=field.get("name", ""),
-                value=field.get("value", ""),
-                inline=field.get("inline", False)
-            )
+    def __init__(self, filename: str, content: Union[str, bytes], description: Optional[str] = None,
+                 spoiler: bool = False):
+        self.filename = filename
+        self.content = content
+        self.description = description
+        self.spoiler = spoiler
+
+class MockWebhook:
+    """Mock Discord Webhook for testing."""
     
-    return embed 
+    def __init__(self, id: int, token: str, channel: MockChannel):
+        self.id = id
+        self.token = token
+        self.channel = channel
+        self.messages = []
+        
+    async def send(self, content=None, **kwargs):
+        """Mock sending a message via webhook."""
+        message = MockMessage(
+            id=len(self.messages) + 1,
+            content=content,
+            channel=self.channel,
+            author=self.channel.guild.get_member(1)  # Default to first member
+        )
+        self.messages.append(message)
+        return message
+        
+    async def edit_message(self, message_id: int, **kwargs):
+        """Mock editing a webhook message."""
+        message = next((m for m in self.messages if m.id == message_id), None)
+        if message:
+            for key, value in kwargs.items():
+                setattr(message, key, value)
+        return message
+        
+    async def delete_message(self, message_id: int):
+        """Mock deleting a webhook message."""
+        self.messages = [m for m in self.messages if m.id != message_id]
+
+__all__ = [
+    'MockGuild',
+    'MockRole',
+    'MockMember',
+    'MockChannel',
+    'MockMessage',
+    'MockEmbed',
+    'MockWebhook',
+    'MockFile'
+]

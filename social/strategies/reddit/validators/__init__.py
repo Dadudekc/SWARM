@@ -1,9 +1,8 @@
-"""
-Reddit Strategy Validators
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-This module contains validators for various Reddit operations.
-"""
+from . import media_validator
 
-from .media_validator import MediaValidator
-
-__all__ = ['MediaValidator'] 
+__all__ = [
+    'media_validator',
+]

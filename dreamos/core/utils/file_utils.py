@@ -8,10 +8,13 @@ import json
 import logging
 import os
 import shutil
+import aiofiles
+import asyncio
 import yaml
 from contextlib import contextmanager
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Any, Dict, Optional, Union, List
+from datetime import datetime
 
 logger = logging.getLogger(__name__)
 
@@ -365,4 +368,185 @@ def save_yaml(file_path: Union[str, Path], data: Any) -> bool:
         return True
     except Exception as e:
         logger.error(f"Error saving YAML to {file_path}: {e}")
-        return False 
+        return False
+
+async def async_atomic_write(file_path: Union[str, Path], content: str, mode: str = 'w') -> bool:
+    """Write content to file atomically using async I/O.
+    
+    Args:
+        file_path: Path to write to
+        content: Content to write
+        mode: File open mode
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        path = Path(file_path)
+        temp_path = path.with_suffix('.tmp')
+        
+        async with aiofiles.open(temp_path, mode) as f:
+            await f.write(content)
+        
+        os.replace(temp_path, path)
+        return True
+    except Exception as e:
+        logger.error(f"Error in async atomic write to {file_path}: {e}")
+        if temp_path.exists():
+            temp_path.unlink()
+        return False
+
+async def async_delete_file(file_path: Union[str, Path], logger: Optional[logging.Logger] = None) -> bool:
+    """Delete a file using async I/O.
+    
+    Args:
+        file_path: Path to delete
+        logger: Optional logger instance
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        path = Path(file_path)
+        if path.exists():
+            path.unlink()
+            
+            if logger:
+                logger.info(
+                    platform="file_ops",
+                    status="deleted",
+                    message=f"Deleted file {path.name}",
+                    tags=["delete", "success"]
+                )
+            return True
+        return False
+    except Exception as e:
+        if logger:
+            logger.error(
+                platform="file_ops",
+                status="error",
+                message=f"Error deleting file {file_path}: {e}",
+                tags=["delete", "error"]
+            )
+        return False
+
+async def cleanup_old_files(
+    directory: Union[str, Path],
+    max_age_hours: int = 24,
+    pattern: str = "*.*",
+    logger: Optional[logging.Logger] = None
+) -> List[Path]:
+    """Clean up old files in a directory.
+    
+    Args:
+        directory: Directory to clean
+        max_age_hours: Maximum age of files in hours
+        pattern: File pattern to match
+        logger: Optional logger instance
+        
+    Returns:
+        List of deleted file paths
+    """
+    try:
+        dir_path = Path(directory)
+        now = datetime.now()
+        deleted_files = []
+        
+        for filepath in dir_path.glob(pattern):
+            # Get file age
+            age = now - datetime.fromtimestamp(filepath.stat().st_mtime)
+            age_hours = age.total_seconds() / 3600
+            
+            # Delete if too old
+            if age_hours > max_age_hours:
+                if await async_delete_file(filepath, logger):
+                    deleted_files.append(filepath)
+        
+        if logger:
+            logger.info(
+                platform="file_ops",
+                status="cleanup",
+                message=f"Cleaned up {len(deleted_files)} old files",
+                tags=["cleanup", "success"]
+            )
+        
+        return deleted_files
+        
+    except Exception as e:
+        if logger:
+            logger.error(
+                platform="file_ops",
+                status="error",
+                message=f"Error cleaning up old files: {e}",
+                tags=["cleanup", "error"]
+            )
+        return []
+
+async def async_save_json(
+    file_path: Union[str, Path],
+    data: Any,
+    logger: Optional[logging.Logger] = None
+) -> bool:
+    """Save data to JSON file using async I/O.
+    
+    Args:
+        file_path: Path to save JSON file
+        data: Data to save
+        logger: Optional logger instance
+        
+    Returns:
+        True if successful, False otherwise
+    """
+    try:
+        content = json.dumps(data, indent=2)
+        success = await async_atomic_write(file_path, content)
+        
+        if success and logger:
+            logger.info(
+                platform="file_ops",
+                status="saved",
+                message=f"Saved JSON to {Path(file_path).name}",
+                tags=["json", "success"]
+            )
+        
+        return success
+        
+    except Exception as e:
+        if logger:
+            logger.error(
+                platform="file_ops",
+                status="error",
+                message=f"Error saving JSON to {file_path}: {e}",
+                tags=["json", "error"]
+            )
+        return False
+
+async def async_load_json(
+    file_path: Union[str, Path],
+    default: Any = None,
+    logger: Optional[logging.Logger] = None
+) -> Any:
+    """Load JSON data from file using async I/O.
+    
+    Args:
+        file_path: Path to JSON file
+        default: Default value if load fails
+        logger: Optional logger instance
+        
+    Returns:
+        Loaded JSON data or default value
+    """
+    try:
+        async with aiofiles.open(file_path, 'r') as f:
+            content = await f.read()
+            return json.loads(content)
+            
+    except Exception as e:
+        if logger:
+            logger.error(
+                platform="file_ops",
+                status="error",
+                message=f"Error loading JSON from {file_path}: {e}",
+                tags=["json", "error"]
+            )
+        return default 

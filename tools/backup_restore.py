@@ -33,16 +33,25 @@ def write_metadata(tar: tarfile.TarFile) -> None:
     tar.addfile(info, io.BytesIO(data))
 
 
-def backup(runtime: Path, output: Path) -> None:
-    """Create backup archive of runtime data."""
-    with tarfile.open(output, "w:gz") as tar:
-        add_path(tar, runtime / "agent_comms" / "agent_mailboxes", runtime)
-        add_path(tar, runtime / "devlogs", runtime)
-        add_path(tar, runtime / "agent_memory", runtime)
-        add_path(tar, runtime / "tasks.json", runtime)
-        add_path(tar, runtime / "queue" / "messages.json", runtime)
-        write_metadata(tar)
-    print(f"Backup created at {output}")
+def backup_runtime():
+    """Backup runtime directory."""
+    runtime = Path("runtime")
+    if not runtime.exists():
+        return
+        
+    backup_dir = Path("backups")
+    backup_dir.mkdir(exist_ok=True)
+    
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    backup_file = backup_dir / f"runtime_backup_{timestamp}.tar.gz"
+    
+    with tarfile.open(backup_file, "w:gz") as tar:
+        # Backup agent mailboxes
+        add_path(tar, Path("agent_tools/mailbox"), runtime)
+        
+        # Backup other runtime files
+        for item in runtime.glob("*"):
+            add_path(tar, item, runtime)
 
 
 def safe_extract(tar: tarfile.TarFile, path: Path) -> None:
@@ -81,7 +90,7 @@ def parse_args() -> argparse.Namespace:
 def main() -> None:
     args = parse_args()
     if args.command == "backup":
-        backup(args.runtime, args.output)
+        backup_runtime()
     elif args.command == "restore":
         restore(args.runtime, args.archive)
 

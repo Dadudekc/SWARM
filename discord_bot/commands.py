@@ -4,8 +4,14 @@ Discord Bot Commands
 Implements commands for controlling agents via Discord.
 """
 
-import discord
-from discord.ext import commands
+from tests.utils.mock_discord import (
+    commands,
+    ui,
+    Embed,
+    Color,
+    ButtonStyle,
+    Interaction
+)
 import logging
 from typing import Optional, Dict, List
 import asyncio
@@ -29,7 +35,7 @@ from social.utils.devlog_manager import DevlogManager
 
 logger = logging.getLogger('discord_bot')
 
-class HelpMenu(discord.ui.View):
+class HelpMenu(ui.View):
     """Help menu view for displaying command documentation."""
     
     def __init__(self):
@@ -41,25 +47,25 @@ class HelpMenu(discord.ui.View):
     
     def setup_pages(self):
         self.pages = [
-            discord.Embed(
+            Embed(
                 title="Agent Commands",
                 description="Commands for managing agents",
-                color=discord.Color.blue()
+                color=Color.blue()
             ),
-            discord.Embed(
+            Embed(
                 title="DevLog Commands",
                 description="Commands for managing agent devlogs",
-                color=discord.Color.green()
+                color=Color.green()
             ),
-            discord.Embed(
+            Embed(
                 title="System Commands",
                 description="Commands for system operations",
-                color=discord.Color.red()
+                color=Color.red()
             ),
-            discord.Embed(
+            Embed(
                 title="Channel Commands",
                 description="Commands for managing channels",
-                color=discord.Color.gold()
+                color=Color.gold()
             )
         ]
         
@@ -139,53 +145,53 @@ class HelpMenu(discord.ui.View):
 
     def add_category_buttons(self):
         categories = [
-            ("Agent Commands", 0, discord.ButtonStyle.primary),
-            ("DevLog Commands", 1, discord.ButtonStyle.success),
-            ("System Commands", 2, discord.ButtonStyle.danger),
-            ("Channel Commands", 3, discord.ButtonStyle.secondary)
+            ("Agent Commands", 0, ButtonStyle.primary),
+            ("DevLog Commands", 1, ButtonStyle.success),
+            ("System Commands", 2, ButtonStyle.danger),
+            ("Channel Commands", 3, ButtonStyle.secondary)
         ]
         
         # Split buttons into two rows
         for i, (label, page_idx, style) in enumerate(categories):
-            button = discord.ui.Button(
+            button = ui.Button(
                 label=label,
                 style=style,
                 row=i // 2  # First 2 buttons in row 0, last 2 in row 1
             )
             # Create a proper callback method that captures page_idx
-            async def category_button_callback(interaction: discord.Interaction, p_idx=page_idx):
+            async def category_button_callback(interaction: Interaction, p_idx=page_idx):
                 await self.show_page(p_idx, interaction)
             button.callback = category_button_callback
             self.add_item(button)
 
     def add_navigation_buttons(self):
         # Add navigation buttons in a separate row
-        prev_button = discord.ui.Button(
+        prev_button = ui.Button(
             label="Previous",
-            style=discord.ButtonStyle.secondary,
+            style=ButtonStyle.secondary,
             row=2
         )
         prev_button.callback = self.previous_page
         self.add_item(prev_button)
 
-        next_button = discord.ui.Button(
+        next_button = ui.Button(
             label="Next",
-            style=discord.ButtonStyle.secondary,
+            style=ButtonStyle.secondary,
             row=2
         )
         next_button.callback = self.next_page
         self.add_item(next_button)
 
         # Add search button in the same row
-        search_button = discord.ui.Button(
+        search_button = ui.Button(
             label="Search",
-            style=discord.ButtonStyle.success,
+            style=ButtonStyle.success,
             row=2
         )
         search_button.callback = self.search_commands
         self.add_item(search_button)
 
-    async def show_page(self, page: int, interaction: discord.Interaction):
+    async def show_page(self, page: int, interaction: Interaction):
         """Show specific page."""
         self.current_page = page
         if interaction: # Make sure interaction is not None
@@ -198,26 +204,26 @@ class HelpMenu(discord.ui.View):
             # await self.update_page(self.last_interaction_or_ctx_placeholder)
             pass # Or decide not to update if no interaction
         
-    async def previous_page(self, interaction: discord.Interaction):
+    async def previous_page(self, interaction: Interaction):
         """Navigate to previous page."""
         self.current_page = (self.current_page - 1) % len(self.pages)
         await self.update_page(interaction)
         
-    async def next_page(self, interaction: discord.Interaction):
+    async def next_page(self, interaction: Interaction):
         """Navigate to next page."""
         self.current_page = (self.current_page + 1) % len(self.pages)
         await self.update_page(interaction)
         
-    async def search_commands(self, interaction: discord.Interaction):
+    async def search_commands(self, interaction: Interaction):
         """Open command search modal."""
         modal = CommandSearchModal(self)
         await interaction.response.send_modal(modal)
         
-    async def update_page(self, interaction: discord.Interaction):
+    async def update_page(self, interaction: Interaction):
         """Update the help menu page with enhanced visual design."""
         page = self.pages[self.current_page]
         
-        embed = discord.Embed(
+        embed = Embed(
             title=page.title,
             description=page.description,
             color=page.color
@@ -256,7 +262,7 @@ class HelpMenu(discord.ui.View):
         
         await interaction.response.edit_message(embed=embed, view=self)
 
-    async def search(self, query: str, interaction: discord.Interaction):
+    async def search(self, query: str, interaction: Interaction):
         """Search for commands matching the query."""
         query = query.lower()
         results = []
@@ -267,10 +273,10 @@ class HelpMenu(discord.ui.View):
                     results.append(field)
         
         if results:
-            embed = discord.Embed(
+            embed = Embed(
                 title="🔍 Command Search Results",
                 description=f"Found {len(results)} matching commands",
-                color=discord.Color.blue()
+                color=Color.blue()
             )
             
             for field in results:
@@ -287,7 +293,7 @@ class HelpMenu(discord.ui.View):
                 ephemeral=True
             )
     
-    async def select_category(self, category: str, interaction: discord.Interaction):
+    async def select_category(self, category: str, interaction: Interaction):
         """Show commands for a specific category."""
         category = category.lower()
         category_pages = {

@@ -2,8 +2,11 @@
 Help menu cog for Discord bot.
 """
 
-import discord
-from discord.ext import commands
+from tests.utils.mock_discord import (
+    commands,
+    Embed,
+    Color
+)
 from typing import Optional
 import logging
 
@@ -37,10 +40,10 @@ class HelpMenu(commands.Cog):
                     await ctx.send(f"Command '{command}' not found.")
                     return
                 
-                embed = discord.Embed(
+                embed = Embed(
                     title=f"Help: {cmd.name}",
                     description=cmd.help or "No description available.",
-                    color=discord.Color.blue()
+                    color=Color.blue()
                 )
                 
                 if cmd.aliases:
@@ -58,10 +61,10 @@ class HelpMenu(commands.Cog):
                     )
             else:
                 # Show general help menu
-                embed = discord.Embed(
+                embed = Embed(
                     title="Dream.OS Bot Help",
                     description="Available commands:",
-                    color=discord.Color.blue()
+                    color=Color.blue()
                 )
                 
                 for cog_name, cog in self.bot.cogs.items():
@@ -100,9 +103,9 @@ class HelpMenu(commands.Cog):
         try:
             status = await self.bot.orchestrator.get_status()
             
-            embed = discord.Embed(
+            embed = Embed(
                 title="Dream.OS System Status",
-                color=discord.Color.green()
+                color=Color.green()
             )
             
             # Add system status
@@ -131,10 +134,10 @@ class HelpMenu(commands.Cog):
     async def about(self, ctx: commands.Context):
         """Show information about the bot."""
         try:
-            embed = discord.Embed(
+            embed = Embed(
                 title="Dream.OS Bot",
                 description="A Discord bot for interacting with the Dream.OS system.",
-                color=discord.Color.blue()
+                color=Color.blue()
             )
             
             embed.add_field(

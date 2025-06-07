@@ -19,7 +19,6 @@ A robust, API-free social media automation system that uses undetected Chrome to
 social/
 ├── dispatcher.py                  # Main automation loop
 ├── driver_manager.py              # Chrome driver session management
-├── log_writer.py                  # JSON logging system
 ├── social_config.py               # Platform credentials and settings
 ├── cookies/                       # Session cookies (.pkl)
 ├── logs/                          # JSON operation logs
@@ -118,7 +117,8 @@ class PlatformStrategy:
 
 ## Logging
 
-All operations are logged in JSON format:
+All operations are logged using the core logging system:
+- Centralized logging through `dreamos.core.logging`
 - Platform-specific log files in `logs/`
 - Daily log rotation
 - Detailed metadata and error tracking

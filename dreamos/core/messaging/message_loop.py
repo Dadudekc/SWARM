@@ -9,7 +9,7 @@ import logging
 from typing import Dict, Any, Optional, Callable, Awaitable
 from datetime import datetime
 
-from .messaging.common import Message
+from .common import Message
 from .enums import MessageMode
 
 logger = logging.getLogger(__name__)

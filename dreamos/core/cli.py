@@ -26,19 +26,20 @@ from .utils.core_utils import (
     read_json,
     write_json,
     read_yaml,
-    write_yaml
+    write_yaml,
+    ensure_directory_exists,
+    load_yaml
 )
 from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 from .config import ConfigManager
 from dreamos.core.messaging.message_processor import MessageProcessor
+from dreamos.core.messaging.common import Message, MessageMode
+from dreamos.core.messaging.enums import MessagePriority
 
 # Add the project root to Python path when running as standalone script
 if __name__ == "__main__":
     project_root = Path(__file__).parent.parent.parent
     sys.path.insert(0, str(project_root))
-    from dreamos.core.messaging.common import Message, MessageMode
-else:
-    from .messaging.common import Message, MessageMode
 
 # Version information
 __version__ = "1.0.0"

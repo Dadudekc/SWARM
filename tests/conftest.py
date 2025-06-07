@@ -71,8 +71,8 @@ def clean_test_dirs(tmp_path, monkeypatch):
     test_root.mkdir()
 
     # Monkeypatch any hardcoded base directories
-    monkeypatch.setattr("dreamos.core.logging.log_config.LOG_DIR", str(test_root / "logs"))
-    monkeypatch.setattr("dreamos.core.logging.log_config.METRICS_DIR", str(test_root / "metrics"))
+    monkeypatch.setattr("dreamos.core.logging.log_config.get_log_path", lambda: str(test_root / "logs"))
+    monkeypatch.setattr("dreamos.core.logging.log_config.get_metrics_path", lambda: str(test_root / "metrics"))
 
     yield test_root
 

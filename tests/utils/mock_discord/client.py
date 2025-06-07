@@ -22,10 +22,25 @@ class MockCommand:
     cog: Any = None
     callback: Any = None
 
+class ClientUser(MockMember):
+    """Mock Discord client user."""
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.bot = True
+        self.system = False
+        self.public_flags = 0
+        self._state = SimpleNamespace()
+
+    async def edit(self, **kwargs):
+        """Edit the user."""
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+        return self
+
 class Client:
     """Mock Discord client."""
     def __init__(self, *args, **kwargs):
-        self.user = None
+        self.user = ClientUser(id=1, name="TestBot", bot=True)
         self.guilds = []
         self._closed = False
         self._ready = False
@@ -86,6 +101,22 @@ class Client:
         """Remove a command."""
         return self._commands.pop(name, None)
 
+    def event(self, name=None):
+        """Event decorator."""
+        def wrapper(func):
+            event_name = name or func.__name__
+            self._handlers[event_name] = func
+            return func
+        return wrapper
+
+    def listen(self, name=None):
+        """Listener decorator."""
+        def wrapper(func):
+            event_name = name or func.__name__
+            self._listeners[event_name] = func
+            return func
+        return wrapper
+
 @dataclass
 class MockBot:
     """Mock Discord bot."""
@@ -93,7 +124,7 @@ class MockBot:
     commands: Dict[str, MockCommand] = field(default_factory=dict)
     cogs: Dict[str, Any] = field(default_factory=dict)
     guilds: List[MockGuild] = field(default_factory=list)
-    user: MockMember = field(default_factory=lambda: MockMember(id=1, name="TestBot", bot=True))
+    user: ClientUser = field(default_factory=lambda: ClientUser(id=1, name="TestBot", bot=True))
     is_ready: bool = True
     is_closed: bool = False
     
@@ -149,10 +180,24 @@ class MockContext:
         self.channel = channel
         self.guild = guild
         self.message = message
+        self.command = None
+        self.prefix = "!"
+        self.invoked_with = None
+        self.invoked_subcommand = None
+        self.subcommand_passed = None
+        self.command_failed = False
+
     async def send(self, content=None, **kwargs):
-        return content 
+        """Send a message."""
+        return content
+
+    async def reply(self, content=None, **kwargs):
+        """Reply to the message."""
+        return content
 
 __all__ = [
+    'Client',
+    'ClientUser',
     'MockBot',
     'MockCommand',
     'MockCog',

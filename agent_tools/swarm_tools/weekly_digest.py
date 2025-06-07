@@ -1,5 +1,6 @@
 """Weekly digest generator for swarm activity."""
 
+import asyncio
 import json
 import re
 from datetime import datetime, timedelta
@@ -11,6 +12,7 @@ import click
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
+import sys
 
 from agent_tools.swarm_tools.discord_devlog import DiscordDevlog
 
@@ -67,40 +69,61 @@ class WeeklyDigest:
         mailbox_dir = Path(__file__).resolve().parent.parent / "mailbox"
         
         # Load webhook config for agent info
-        config_path = Path(__file__).resolve().parent / "webhook_config.json"
-        with open(config_path) as f:
-            agent_configs = json.load(f)
+        config_path = Path(__file__).resolve().parent / "agent_webhooks.json"
+        if config_path.exists():
+            with open(config_path) as f:
+                agent_configs = json.load(f)
+        else:
+            # Fallback: use agent directories in mailbox
+            agent_configs = {p.name.capitalize(): {} for p in mailbox_dir.iterdir() if p.is_dir()}
         
         # Process each agent's logs
         for agent_id, config in agent_configs.items():
             agent_dir = mailbox_dir / agent_id.lower() / "logs"
             if not agent_dir.exists():
                 continue
-                
-            devlog_path = agent_dir / "devlog.md"
-            if not devlog_path.exists():
+            
+            # Look for both devlog.md and date-based devlog files
+            devlog_files = list(agent_dir.glob("devlog*.md"))
+            if not devlog_files:
                 continue
+            
+            for devlog_path in devlog_files:
+                # Try to extract date from filename
+                date_match = re.search(r'(\d{4}-\d{2}-\d{2})', devlog_path.name)
+                if date_match:
+                    try:
+                        file_date = datetime.strptime(date_match.group(1), "%Y-%m-%d")
+                        if not (start_date <= file_date <= end_date):
+                            continue
+                    except ValueError:
+                        continue
                 
-            with open(devlog_path) as f:
-                content = f.read()
+                with open(devlog_path) as f:
+                    content = f.read()
                 
-            # Split into individual entries
-            entry_texts = content.split("---")
-            for entry_text in entry_texts:
-                if not entry_text.strip():
-                    continue
+                # Split into individual entries
+                entry_texts = content.split("---")
+                for entry_text in entry_texts:
+                    if not entry_text.strip():
+                        continue
                     
-                # Extract timestamp
-                timestamp_match = re.search(r'\*\*Completed:\*\* ([\d-]+ [\d:]+)', entry_text)
-                if not timestamp_match:
-                    continue
+                    # Extract timestamp
+                    timestamp_match = re.search(r'\*\*Completed:\*\* ([\d-]+ [\d:]+)', entry_text)
+                    if not timestamp_match:
+                        # If no timestamp in content, use file date
+                        if date_match:
+                            timestamp = file_date
+                        else:
+                            continue
+                    else:
+                        try:
+                            timestamp = datetime.strptime(timestamp_match.group(1), "%Y-%m-%d %H:%M:%S")
+                        except ValueError:
+                            continue
                     
-                try:
-                    timestamp = datetime.strptime(timestamp_match.group(1), "%Y-%m-%d %H:%M:%S")
                     if start_date <= timestamp <= end_date:
                         entries.append(DevlogEntry(entry_text, timestamp, agent_id))
-                except ValueError:
-                    continue
         
         return sorted(entries, key=lambda e: e.timestamp)
     

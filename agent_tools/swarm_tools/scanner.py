@@ -136,31 +136,109 @@ class Scanner:
         valid_files = []
         file_extensions = {'.py', '.rs', '.js', '.ts'}
         
-        # Default ignore patterns
+        # Default ignore patterns for Dream.OS
         default_ignore = [
+            # Python specific
             '*.pyc',
             '__pycache__/*',
             '*.egg-info/*',
+            '*.egg/*',
+            '*.pyd',
+            '*.so',
+            '*.dll',
+            '*.dylib',
+            
+            # Virtual environments
             '.venv/*',
             'venv/*',
             'env/*',
             '.env/*',
+            'virtualenv/*',
+            
+            # Node.js
             'node_modules/*',
+            'package-lock.json',
+            'yarn.lock',
+            
+            # Version control
             '.git/*',
+            '.svn/*',
+            '.hg/*',
+            
+            # Build artifacts
             'build/*',
             'dist/*',
+            '*.pyc',
+            '*.pyo',
+            '*.pyd',
             '*.so',
             '*.dll',
-            '*.dylib'
+            '*.dylib',
+            
+            # IDE and editor files
+            '.idea/*',
+            '.vscode/*',
+            '*.swp',
+            '*.swo',
+            '*~',
+            
+            # Documentation
+            'docs/_build/*',
+            'docs/api/*',
+            
+            # Test coverage
+            '.coverage',
+            'htmlcov/*',
+            'coverage.xml',
+            
+            # Logs and databases
+            '*.log',
+            '*.sqlite',
+            '*.db',
+            
+            # Temporary files
+            '*.tmp',
+            '*.temp',
+            '*.bak',
+            
+            # Dream.OS specific
+            'runtime/*',
+            'logs/*',
+            'temp/*',
+            'cache/*',
+            'data/*',
+            'uploads/*',
+            'downloads/*',
+            'backups/*',
+            '*.bak',
+            '*.old',
+            '*.orig',
+            '*.rej',
+            '*.swp',
+            '*.swo',
+            '*~'
         ]
         
         # Combine default and user ignore patterns
         all_ignore_patterns = default_ignore + (ignore_patterns or [])
         
+        # Focus on core project directories
+        core_dirs = [
+            'dreamos/core',
+            'dreamos/agents',
+            'dreamos/utils',
+            'agent_tools',
+            'tests'
+        ]
+        
         try:
             for root, dirs, files in os.walk(self.project_root):
                 root_path = Path(root).resolve()
                 rel_root = root_path.relative_to(self.project_root)
+                
+                # Skip if not in core directories
+                if not any(str(rel_root).startswith(core_dir) for core_dir in core_dirs):
+                    continue
                 
                 # Skip ignored directories
                 if any(fnmatch.fnmatch(str(rel_root), pattern) for pattern in all_ignore_patterns):
@@ -177,6 +255,7 @@ class Scanner:
                     if file_path.suffix.lower() in file_extensions:
                         valid_files.append(file_path)
                         
+            logger.info(f"Found {len(valid_files)} valid files in core project directories")
             return valid_files
             
         except Exception as e:

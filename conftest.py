@@ -12,4 +12,8 @@ sys.path.insert(0, str(project_root))
 
 # Add tests directory to Python path
 tests_dir = project_root / "tests"
-sys.path.insert(0, str(tests_dir)) 
+sys.path.insert(0, str(tests_dir))
+
+# Add any other necessary paths
+sys.path.insert(0, str(project_root / "dreamos"))
+sys.path.insert(0, str(project_root / "agent_tools")) 

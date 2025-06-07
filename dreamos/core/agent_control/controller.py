@@ -17,7 +17,7 @@ from .ui_automation import UIAutomation
 from ..messaging.message_processor import MessageProcessor
 from ..messaging.cell_phone import CellPhone
 from ..messaging.common import Message, MessageMode
-from ..coordinate_manager import CoordinateManager
+from ..shared.coordinate_manager import CoordinateManager
 
 logger = logging.getLogger('agent_control.controller')
 

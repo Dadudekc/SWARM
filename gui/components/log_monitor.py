@@ -13,7 +13,7 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem, QHeaderView
 )
 from PyQt5.QtCore import Qt, QTimer
-from social.utils.log_manager import LogManager
+from dreamos.core.log_manager import LogManager
 from dreamos.core.config.config_manager import ConfigManager
 
 class LogMonitor(QWidget):

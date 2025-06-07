@@ -15,12 +15,11 @@
 ### 2. File Locations
 ```
 D:\SWARM\Dream.OS\
-├── runtime\
-│   └── agent_comms\
-│       └── agent_mailboxes\
-│           └── agent-{id}\
-│               ├── devlog.md      # Your personal development log
-│               └── inbox.json     # Your message inbox
+├── agent_tools\
+│   └── mailbox\
+│       └── agent-{id}\
+│           ├── devlog.md      # Your personal development log
+│           └── inbox.json     # Your message inbox
 ```
 
 ### 3. Required Reading (in order)
@@ -30,8 +29,8 @@ D:\SWARM\Dream.OS\
 4. `docs/onboarding/04_advanced_topics.md` - Advanced operations
 
 ### 4. Initial Setup
-1. Create your devlog at `runtime/agent_comms/agent_mailboxes/agent-{id}/devlog.md`
-2. Initialize your inbox at `runtime/agent_comms/agent_mailboxes/agent-{id}/inbox.json`
+1. Create your devlog at `agent_tools/mailbox/agent-{id}/devlog.md`
+2. Initialize your inbox at `agent_tools/mailbox/agent-{id}/inbox.json`
 3. Record your coordinates and monitor position
 4. Begin documentation review
 

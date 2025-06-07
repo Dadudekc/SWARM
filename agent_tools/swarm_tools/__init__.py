@@ -1,22 +1,18 @@
-"""
-Project Scanner Module
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-A comprehensive tool for analyzing Python projects, with a focus on agent-based architectures.
-Provides dependency analysis, code quality metrics, and agent categorization.
-"""
-
-from .scanner import Scanner
-from .models.analysis import ProjectAnalysis, FileAnalysis, ClassInfo
-from .analyzers.dependency_analyzer import DependencyAnalyzer
-from .analyzers.quality_analyzer import QualityAnalyzer
+from . import __main__
+from . import devlog_watcher
+from . import discord_devlog
+from . import scanner
+from . import setup
+from . import weekly_digest
 
 __all__ = [
-    'Scanner',
-    'ProjectAnalysis',
-    'FileAnalysis',
-    'ClassInfo',
-    'DependencyAnalyzer',
-    'QualityAnalyzer'
+    '__main__',
+    'devlog_watcher',
+    'discord_devlog',
+    'scanner',
+    'setup',
+    'weekly_digest',
 ]
-
-"""Project Scanner - A modular and extensible project analysis tool.""" 

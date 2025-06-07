@@ -14,17 +14,27 @@ Optimized for reliable file operations.
 import asyncio
 import json
 import logging
-import os
 from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional
-import aiofiles
 
-from ..logging.log_manager import LogManager
-from .error import ErrorTracker, ErrorHandler, ErrorSeverity
+from ..utils.file_utils import (
+    async_atomic_write,
+    async_delete_file,
+    cleanup_old_files,
+    async_save_json
+)
+from ..utils.core_utils import (
+    ErrorTracker,
+    async_retry,
+    track_operation
+)
+from ..utils.logging_utils import (
+    PlatformEventLogger,
+    StatusTracker
+)
 
 # Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 class BridgeWriter:
@@ -38,27 +48,30 @@ class BridgeWriter:
         """
         self.config = config or {}
         
-        # Initialize components
-        self.logger = LogManager()
-        
-        # Initialize error handling
-        self.error_tracker = ErrorTracker()
-        self.error_handler = ErrorHandler(self.error_tracker)
-        
         # Bridge configuration
         self.bridge_dir = Path(self.config.get("bridge_dir", "bridge_outbox"))
         self.bridge_dir.mkdir(exist_ok=True)
         self.max_retries = self.config.get("max_retries", 3)
         self.write_timeout = self.config.get("write_timeout", 30)  # 30 seconds
         
+        # Initialize components
+        self.error_tracker = ErrorTracker()
+        self.event_logger = PlatformEventLogger(
+            log_dir=self.bridge_dir / "logs",
+            platform="bridge_writer"
+        )
+        self.status_tracker = StatusTracker("bridge_writer")
+        
         # Initialize logging
-        self.logger.info(
-            platform="bridge_writer",
-            status="initialized",
+        self.event_logger.log_event(
+            event_type="init",
+            status="success",
             message="Bridge writer initialized",
             tags=["init", "bridge"]
         )
     
+    @async_retry(max_retries=3, delay=1.0, backoff=2.0)
+    @track_operation("write_response")
     async def write_response(self, agent_id: str, response: Dict[str, Any]) -> bool:
         """Write a response to the bridge.
         
@@ -75,66 +88,43 @@ class BridgeWriter:
             filename = f"{agent_id}_{timestamp}.json"
             filepath = self.bridge_dir / filename
             
-            # Write with retry
-            await self.error_handler.with_retry(
-                operation="write_response",
-                agent_id=agent_id,
-                func=self._write_file,
-                filepath=filepath,
-                data=response
-            )
+            # Write response
+            success = await async_save_json(filepath, response, logger)
             
-            self.logger.info(
-                platform="bridge_writer",
-                status="success",
-                message=f"Wrote response for agent {agent_id}",
-                tags=["write", "success"]
-            )
-            return True
+            if success:
+                self.event_logger.log_event(
+                    event_type="write_response",
+                    status="success",
+                    message=f"Wrote response for agent {agent_id}",
+                    tags=["write", "success"],
+                    data={"agent_id": agent_id, "filepath": str(filepath)}
+                )
+                self.status_tracker.update_status("write_response", True)
+                return True
+            else:
+                raise Exception("Failed to write response file")
             
         except Exception as e:
-            self.error_tracker.record_error(
-                error_type=type(e).__name__,
-                message=str(e),
-                severity=ErrorSeverity.HIGH,
-                agent_id=agent_id,
+            self.error_tracker.add_error(
+                error=e,
+                operation="write_response",
                 context={
-                    "operation": "write_response",
+                    "agent_id": agent_id,
                     "response": response
                 }
             )
-            self.logger.error(
-                platform="bridge_writer",
+            self.event_logger.log_event(
+                event_type="write_response",
                 status="error",
                 message=f"Error writing response: {str(e)}",
-                tags=["write", "error"]
+                tags=["write", "error"],
+                data={"agent_id": agent_id, "error": str(e)}
             )
+            self.status_tracker.update_status("write_response", False, e)
             return False
     
-    async def _write_file(self, filepath: Path, data: Dict[str, Any]):
-        """Write data to a file atomically.
-        
-        Args:
-            filepath: Path to write to
-            data: Data to write
-        """
-        # Create temp file
-        temp_path = filepath.with_suffix(".tmp")
-        
-        try:
-            # Write to temp file
-            async with aiofiles.open(temp_path, "w") as f:
-                await f.write(json.dumps(data, indent=2))
-            
-            # Atomic rename
-            temp_path.rename(filepath)
-            
-        except Exception as e:
-            # Clean up temp file
-            if temp_path.exists():
-                temp_path.unlink()
-            raise
-    
+    @async_retry(max_retries=3, delay=1.0, backoff=2.0)
+    @track_operation("cleanup_old_responses")
     async def cleanup_old_responses(self, max_age_hours: int = 24):
         """Clean up old response files.
         
@@ -142,53 +132,44 @@ class BridgeWriter:
             max_age_hours: Maximum age of files in hours
         """
         try:
-            # Get current time
-            now = datetime.now()
+            deleted_files = await cleanup_old_files(
+                directory=self.bridge_dir,
+                max_age_hours=max_age_hours,
+                pattern="*.json",
+                logger=logger
+            )
             
-            # Find old files
-            for filepath in self.bridge_dir.glob("*.json"):
-                # Get file age
-                age = now - datetime.fromtimestamp(filepath.stat().st_mtime)
-                age_hours = age.total_seconds() / 3600
-                
-                # Delete if too old
-                if age_hours > max_age_hours:
-                    await self.error_handler.with_retry(
-                        operation="cleanup_file",
-                        agent_id="bridge_writer",
-                        func=self._delete_file,
-                        filepath=filepath
-                    )
+            self.event_logger.log_event(
+                event_type="cleanup",
+                status="success",
+                message=f"Cleaned up {len(deleted_files)} old files",
+                tags=["cleanup", "success"],
+                data={"deleted_files": [str(f) for f in deleted_files]}
+            )
+            self.status_tracker.update_status("cleanup_old_responses", True)
             
         except Exception as e:
-            self.error_tracker.record_error(
-                error_type=type(e).__name__,
-                message=str(e),
-                severity=ErrorSeverity.MEDIUM,
-                agent_id="bridge_writer",
-                context={"operation": "cleanup_old_responses"}
+            self.error_tracker.add_error(
+                error=e,
+                operation="cleanup_old_responses"
             )
-            self.logger.error(
-                platform="bridge_writer",
+            self.event_logger.log_event(
+                event_type="cleanup",
                 status="error",
                 message=f"Error cleaning up old responses: {str(e)}",
                 tags=["cleanup", "error"]
             )
+            self.status_tracker.update_status("cleanup_old_responses", False, e)
+            raise
     
-    async def _delete_file(self, filepath: Path):
-        """Delete a file.
+    def get_status(self) -> Dict[str, Any]:
+        """Get current bridge writer status.
         
-        Args:
-            filepath: Path to delete
+        Returns:
+            Status dictionary
         """
-        try:
-            filepath.unlink()
-        except Exception as e:
-            self.error_tracker.record_error(
-                error_type=type(e).__name__,
-                message=str(e),
-                severity=ErrorSeverity.LOW,
-                agent_id="bridge_writer",
-                context={"operation": "delete_file", "filepath": str(filepath)}
-            )
-            raise 
+        return {
+            "status": self.status_tracker.get_status(),
+            "errors": self.error_tracker.get_errors(),
+            "events": self.event_logger.get_events(limit=10)
+        } 

@@ -18,7 +18,7 @@ from selenium.common.exceptions import (
 
 from .platform_strategy_base import PlatformStrategy
 from ..utils.media_validator import MediaValidator
-from ..utils.log_config import LogConfig
+from dreamos.core.log_manager import LogConfig
 from ..strategies.twitter.post_handler import PostHandler
 from ..strategies.twitter.media_handler import TwitterMediaHandler
 from ..strategies.twitter.rate_limiting.rate_limiter import rate_limit, RateLimiter

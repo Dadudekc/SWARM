@@ -455,18 +455,37 @@ class ReportGenerator:
         """
         Merge new analysis results into old project_analysis.json, then write it out.
         Old data is kept; new files are added or updated.
+        Separates test files into their own JSON file.
         """
         report_path = self.project_root / "project_analysis.json"
+        test_report_path = self.project_root / "test_analysis.json"
         existing = self.load_existing_report(report_path)
+        existing_tests = self.load_existing_report(test_report_path)
+
+        # Split analysis into test and non-test files
+        test_files = {}
+        non_test_files = {}
+        
+        for file_path, analysis in self.analysis.items():
+            if "test" in file_path.lower() or "tests" in file_path.lower():
+                test_files[file_path] = analysis
+            else:
+                non_test_files[file_path] = analysis
 
         # Merge logic: new data overrides old entries with the same filename,
         # but preserves any old entries for files not in the current scan.
-        merged = {**existing, **self.analysis}
+        merged = {**existing, **non_test_files}
+        merged_tests = {**existing_tests, **test_files}
 
+        # Save main analysis
         with report_path.open("w", encoding="utf-8") as f:
             json.dump(merged, f, indent=4)
-
         logger.info(f"✅ Project analysis updated and saved to {report_path}")
+
+        # Save test analysis
+        with test_report_path.open("w", encoding="utf-8") as f:
+            json.dump(merged_tests, f, indent=4)
+        logger.info(f"✅ Test analysis saved to {test_report_path}")
 
     def generate_init_files(self, overwrite: bool = True):
         """Auto-generate __init__.py for all Python packages based on self.analysis."""

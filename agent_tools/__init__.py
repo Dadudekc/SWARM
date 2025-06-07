@@ -1,13 +1,23 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
-"""Helper utilities for agent management."""
+"""Agent tools package."""
 
-"""Utilities for scanning agent projects and related helpers."""
+# Comment out setup import to prevent pytest issues
+# from . import setup
 
-from . import project_scanner
+from . import activate_test_debug
+from . import mailbox
 from . import utils
+from . import cursor_chatgpt_bridge
+# from . import setup
+
+from .mailbox import MessageHandler
+from .utils import setup_logging
 
 __all__ = [
-    'project_scanner',
+    'activate_test_debug',
+    'mailbox',
     'utils',
+    'cursor_chatgpt_bridge',
+    # 'setup',
+    'MessageHandler',
+    'setup_logging',
 ]

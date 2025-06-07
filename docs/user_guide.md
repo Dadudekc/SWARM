@@ -4,11 +4,11 @@ This guide provides a quick introduction for new users.
 
 ## Starting the System
 1. Clone the repository and install dependencies as described in [project_setup_guide.md](project_setup_guide.md).
-2. Prepare the runtime directories:
+2. Prepare the mailbox directories:
    ```bash
-   mkdir -p runtime/agent_comms/governance
-   mkdir -p runtime/agent_comms/onboarding
-   mkdir -p runtime/bridge_inbox
+   mkdir -p agent_tools/mailbox/agent0
+   mkdir -p agent_tools/mailbox/agent1
+   mkdir -p agent_tools/mailbox/agent2
    ```
 3. Copy the environment example from `discord_bot/.env.example` and edit it with your credentials.
 4. Run the orchestrator and Discord bot:

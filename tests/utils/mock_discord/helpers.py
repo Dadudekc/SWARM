@@ -4,7 +4,7 @@ Discord Helper Functions
 Helper functions for Discord.py testing.
 """
 
-from typing import Optional, List, Dict, Any, Callable, Coroutine, TypeVar, BinaryIO
+from typing import Optional, List, Dict, Any, Callable, Coroutine, TypeVar, BinaryIO, Union
 from functools import wraps
 from datetime import datetime
 import tempfile
@@ -161,7 +161,7 @@ def create_mock_webhook(
 
 def create_mock_file(
     filename: str = "test.txt",
-    content: str = "Test content",
+    content: Union[str, bytes] = "Test content",
     description: Optional[str] = None,
     spoiler: bool = False
 ) -> MockFile:
@@ -169,22 +169,19 @@ def create_mock_file(
     
     Args:
         filename: File name
-        content: File content
+        content: File content (string or bytes)
         description: Optional file description
         spoiler: Whether file is a spoiler
         
     Returns:
         Mock file instance
     """
-    with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
-        f.write(content)
-        f.flush()
-        return MockFile(
-            filename=filename,
-            fp=f,
-            description=description,
-            spoiler=spoiler
-        )
+    return MockFile(
+        filename=filename,
+        content=content,
+        description=description,
+        spoiler=spoiler
+    )
 
 def run_async_test(coro: Coroutine[Any, Any, T]) -> T:
     """Run an async test.

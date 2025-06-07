@@ -84,10 +84,8 @@ pip install -r requirements-test.txt  # For development
 
 ```bash
 # Create required directories
-mkdir -p runtime/agent_comms/governance
-mkdir -p runtime/agent_comms/onboarding
-mkdir -p dreamos/data
-touch dreamos/data/message_history.json
+mkdir -p agent_tools/mailbox/agent0
+touch agent_tools/mailbox/agent0/inbox.json
 
 # Copy and configure environment files
 cp discord_bot/.env.example discord_bot/.env
@@ -177,22 +175,20 @@ The Dream.OS messaging system is built on a robust mailbox-based architecture th
 ### Directory Structure
 
 ```
-data/
+agent_tools/
   └── mailbox/
       ├── agent0/
-      │   ├── inbox/
-      │   ├── outbox/
-      │   └── processed/
+      │   ├── inbox.json
+      │   └── devlog.md
       ├── agent1/
-      │   ├── inbox/
-      │   ├── outbox/
-      │   └── processed/
+      │   ├── inbox.json
+      │   └── devlog.md
       └── ...
 ```
 
 ### Features
 
-- **Secure Routing**: Messages are routed through dedicated inbox/outbox directories
+- **Secure Routing**: Messages are routed through dedicated inbox files
 - **Message Processing**: Built-in support for message status tracking and cleanup
 - **Agent Groups**: Support for agent grouping and message filtering
 - **Sequence Numbers**: Automatic sequence number management for message ordering
@@ -205,7 +201,7 @@ from agent_tools.mailbox.message_handler import MessageHandler
 from dreamos.core.messaging.cell_phone import CellPhone
 
 # Initialize the message handler
-message_handler = MessageHandler(base_dir="data/mailbox")
+message_handler = MessageHandler(base_dir="agent_tools/mailbox")
 
 # Create a cell phone for an agent
 cell_phone = CellPhone(config={

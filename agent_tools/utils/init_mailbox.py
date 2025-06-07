@@ -1,172 +1,127 @@
-#!/usr/bin/env python3
-"""Initialize and manage agent mailboxes."""
+"""
+Mailbox Initialization
+--------------------
+Initialize agent mailboxes.
+"""
 
 import os
-import json
-import argparse
-import shutil
-from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional
-import logging
 
-logger = logging.getLogger("agent_mailbox")
+from dreamos.core.utils.core_utils import (
+    safe_read,
+    safe_write,
+    load_json,
+    save_json
+)
 
 class AgentMailbox:
-    """A class to manage agent mailboxes, including initialization and reset operations."""
+    """Agent mailbox for message handling."""
     
-    def __init__(self, agent_id: str, base_dir: str = "runtime/agent_comms/agent_mailboxes"):
-        """
-        Initialize the AgentMailbox instance.
+    def __init__(self, agent_id: str, base_dir: Optional[str] = None):
+        """Initialize agent mailbox.
+        
         Args:
-            agent_id (str): The ID of the agent (e.g., 'Agent-4')
-            base_dir (str): Base directory for mailboxes
-        Raises:
-            ValueError: If agent_id is invalid
-            OSError: If base_dir is invalid or cannot be created
+            agent_id: Agent identifier
+            base_dir: Optional base directory
         """
-        # Validate agent_id
-        if not agent_id or not isinstance(agent_id, str):
-            raise ValueError("Invalid agent_id: must be a non-empty string")
-        if any(c in agent_id for c in ['/', '\\', '*', '?', '"', '<', '>', '|', ':']):
-            raise ValueError("Invalid agent_id: contains invalid characters")
         self.agent_id = agent_id
-
-        # Validate each component of base_dir for invalid characters
-        invalid_dir_chars = set('<>"|?*')
-        p = Path(base_dir)
+        self.base_dir = Path(base_dir or "data/mailboxes")
+        self.mailbox_dir = self.base_dir / agent_id
         
-        # Check for invalid characters in any path component
-        for part in p.parts:
-            if any(c in part for c in invalid_dir_chars):
-                raise OSError(f"Invalid characters in directory path component: {part}")
-        
-        # Check if parent directory exists
-        parent = p.parent
-        if not parent.exists():
-            raise OSError(f"Parent directory does not exist: {parent}")
-        
-        # Check if parent directory is writable
-        if not os.access(parent, os.W_OK):
-            raise OSError(f"Parent directory is not writable: {parent}")
-        
-        # If absolute path, check if root/anchor exists
-        if p.is_absolute():
-            anchor = p.anchor or p.drive
-            if anchor and not Path(anchor).exists():
-                raise OSError(f"Root/anchor does not exist: {anchor}")
-        
-        try:
-            self.base_dir = p.resolve()
-            self.base_dir.mkdir(parents=True, exist_ok=True)
-        except Exception as e:
-            raise OSError(f"Directory does not exist or cannot be created: {base_dir}") from e
-        
-        self.agent_dir = self.base_dir / agent_id.lower()
+        # Create directories
+        self.mailbox_dir.mkdir(parents=True, exist_ok=True)
+        (self.mailbox_dir / "inbox").mkdir(exist_ok=True)
+        (self.mailbox_dir / "outbox").mkdir(exist_ok=True)
+        (self.mailbox_dir / "archive").mkdir(exist_ok=True)
     
-    def _get_initial_state(self, current_time: datetime) -> Dict:
-        """
-        Get the initial state for an agent's mailbox files.
-        Args:
-            current_time (datetime): Current timestamp
+    def get_inbox(self) -> Dict[str, str]:
+        """Get inbox messages.
+        
         Returns:
-            dict: Dictionary containing initial states for all files
+            Dictionary of message IDs to content
         """
-        return {
-            "inbox": {
-                "type": "INIT",
-                "content": "Welcome to your operational loop. Begin by syncing protocols.",
-                "from": "bootstrap",
-                "timestamp": current_time.isoformat()
-            },
-            "status": {
-                "agent_id": self.agent_id,
-                "last_active": None,
-                "current_task": None,
-                "status": "idle",
-                "cycle_count": 0,
-                "error_count": 0,
-                "last_inbox_check": None
-            },
-            "devlog": f"""# {self.agent_id} Devlog\n\n**Initialized:** {current_time.strftime('%Y-%m-%d %H:%M:%S')}\n\n---\n\n## 🛠️ Boot Log\n\n- Agent mailbox initialized\n- Status tracking enabled\n- Inbox primed with welcome message\n- Ready for prompt injection\n"""
-        }
+        inbox_dir = self.mailbox_dir / "inbox"
+        messages = {}
+        
+        for file_path in inbox_dir.glob("*.json"):
+            message = load_json(str(file_path))
+            if message:
+                messages[file_path.stem] = message
+        
+        return messages
     
-    def _write_mailbox_files(self, initial_state: Dict) -> None:
+    def get_outbox(self) -> Dict[str, str]:
+        """Get outbox messages.
+        
+        Returns:
+            Dictionary of message IDs to content
         """
-        Write all mailbox files with the given initial state.
+        outbox_dir = self.mailbox_dir / "outbox"
+        messages = {}
+        
+        for file_path in outbox_dir.glob("*.json"):
+            message = load_json(str(file_path))
+            if message:
+                messages[file_path.stem] = message
+        
+        return messages
+    
+    def send_message(self, message_id: str, content: Dict[str, str]) -> bool:
+        """Send a message.
+        
         Args:
-            initial_state (dict): Dictionary containing initial states for all files
-        """
-        # Write inbox.json
-        with open(self.agent_dir / "inbox.json", "w", encoding='utf-8') as f:
-            json.dump(initial_state["inbox"], f, indent=2)
-        # Write status.json
-        with open(self.agent_dir / "status.json", "w", encoding='utf-8') as f:
-            json.dump(initial_state["status"], f, indent=2)
-        # Write devlog.md
-        with open(self.agent_dir / "devlog.md", "w", encoding='utf-8') as f:
-            f.write(initial_state["devlog"])
-    
-    def reset(self) -> None:
-        """
-        Reset the agent mailbox to its initial state.
-        Creates a backup of existing mailbox if it exists.
-        """
-        if self.agent_dir.exists():
-            # Create backup
-            try:
-                backup_dir = self.agent_dir.parent / f"{self.agent_id.lower()}_backup_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
-                shutil.copytree(self.agent_dir, backup_dir)
-            except Exception as e:
-                logger.warning(f"Failed to create backup: {e}")
-                
-            # Remove existing directory and all contents
-            try:
-                shutil.rmtree(self.agent_dir)
-            except Exception as e:
-                logger.error(f"Failed to remove existing mailbox: {e}")
-                raise
-                
-        # Initialize new mailbox
-        self.initialize()
-    
-    def initialize(self) -> None:
-        """
-        Initialize a new agent mailbox with required files and structure.
-        Does nothing if mailbox already exists.
-        Raises OSError if directory cannot be created.
-        """
-        # Check if mailbox already exists
-        if self.agent_dir.exists():
-            print(f"⚠️  Mailbox for {self.agent_id} already exists. Use --reset to reset it.")
-            return
+            message_id: Message identifier
+            content: Message content
             
-        # Try to create directory, raise OSError if fails
+        Returns:
+            True if successful
+        """
         try:
-            self.agent_dir.mkdir(parents=True, exist_ok=True)
-        except Exception as e:
-            raise OSError(f"Directory does not exist or cannot be created: {self.agent_dir}") from e
+            outbox_dir = self.mailbox_dir / "outbox"
+            message_file = outbox_dir / f"{message_id}.json"
+            return save_json(str(message_file), content)
+        except Exception:
+            return False
+    
+    def receive_message(self, message_id: str, content: Dict[str, str]) -> bool:
+        """Receive a message.
+        
+        Args:
+            message_id: Message identifier
+            content: Message content
             
-        # Get and write initial state
-        current_time = datetime.now()
-        initial_state = self._get_initial_state(current_time)
-        self._write_mailbox_files(initial_state)
-        print(f"✅ Successfully initialized mailbox for {self.agent_id}")
-        print(f"📁 Location: {self.agent_dir}")
-
-def main():
-    parser = argparse.ArgumentParser(description="Initialize or reset agent mailbox with required files")
-    parser.add_argument("--agent", required=True, help="Agent ID (e.g., Agent-4)")
-    parser.add_argument("--base-dir", default="runtime/agent_comms/agent_mailboxes",
-                      help="Base directory for mailboxes")
-    parser.add_argument("--reset", action="store_true",
-                      help="Reset existing mailbox to initial state")
-    args = parser.parse_args()
-    mailbox = AgentMailbox(args.agent, args.base_dir)
-    if args.reset:
-        mailbox.reset()
-    else:
-        mailbox.initialize()
-
-if __name__ == "__main__":
-    main() 
+        Returns:
+            True if successful
+        """
+        try:
+            inbox_dir = self.mailbox_dir / "inbox"
+            message_file = inbox_dir / f"{message_id}.json"
+            return save_json(str(message_file), content)
+        except Exception:
+            return False
+    
+    def archive_message(self, message_id: str, direction: str = "inbox") -> bool:
+        """Archive a message.
+        
+        Args:
+            message_id: Message identifier
+            direction: Message direction ("inbox" or "outbox")
+            
+        Returns:
+            True if successful
+        """
+        try:
+            source_dir = self.mailbox_dir / direction
+            archive_dir = self.mailbox_dir / "archive"
+            
+            message_file = source_dir / f"{message_id}.json"
+            if not message_file.exists():
+                return False
+            
+            # Move to archive
+            archive_file = archive_dir / f"{message_id}.json"
+            message_file.rename(archive_file)
+            return True
+        except Exception:
+            return False 

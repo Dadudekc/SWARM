@@ -122,11 +122,11 @@
             "subtasks": [
                 {
                     "id": "core-4.1",
-                    "name": "JSON Logging",
-                    "description": "Implement JSON-based logging system",
+                    "name": "Core Logging Integration",
+                    "description": "Integrate with dreamos.core.logging system",
                     "validation": {
                         "type": "file_check",
-                        "required_file": "social/log_writer.py",
+                        "required_file": "dreamos/core/logging/log_writer.py",
                         "required_functions": ["write_json_log"]
                     }
                 },

@@ -7,13 +7,19 @@ Handles voice channel connections and audio streaming for the swarm.
 import os
 import asyncio
 import logging
-import discord
-from discord.ext import commands
 from pathlib import Path
 import json
 from typing import Optional, Dict, Any
 from watchdog.observers import Observer
 from watchdog.events import FileSystemEventHandler
+
+from tests.utils.mock_discord import (
+    commands,
+    Client,
+    VoiceClient,
+    FFmpegPCMAudio,
+    Intents
+)
 
 from .tts import TTSManager
 
@@ -27,7 +33,7 @@ logger = logging.getLogger('voicebot')
 class VoiceQueueHandler(FileSystemEventHandler):
     """Handles file system events for the voice queue directory."""
     
-    def __init__(self, voice_client: Optional[discord.VoiceClient] = None):
+    def __init__(self, voice_client: Optional[VoiceClient] = None):
         self.voice_client = voice_client
         self.queue: asyncio.Queue = asyncio.Queue()
         self.is_playing = False
@@ -45,12 +51,12 @@ class VoiceBot(commands.Bot):
     """Voice-enabled Discord bot for swarm audio output."""
     
     def __init__(self):
-        intents = discord.Intents.default()
+        intents = Intents.default()
         intents.voice_states = True
         intents.message_content = True
         
         super().__init__(command_prefix='!', intents=intents)
-        self.voice_client: Optional[discord.VoiceClient] = None
+        self.voice_client: Optional[VoiceClient] = None
         self.voice_queue_handler: Optional[VoiceQueueHandler] = None
         self.voice_queue_dir = Path("runtime/voice_queue")
         self.voice_queue_dir.mkdir(parents=True, exist_ok=True)
@@ -97,7 +103,7 @@ class VoiceBot(commands.Bot):
                 self.voice_queue_handler.is_playing = True
                 try:
                     self.voice_client.play(
-                        discord.FFmpegPCMAudio(file_path),
+                        FFmpegPCMAudio(file_path),
                         after=lambda e: self._after_playback(e, file_path)
                     )
                 except Exception as e:
@@ -125,7 +131,7 @@ class VoiceBot(commands.Bot):
         """Join a voice channel by ID."""
         try:
             channel = self.get_channel(channel_id)
-            if not channel or not isinstance(channel, discord.VoiceChannel):
+            if not channel or not isinstance(channel, VoiceClient):
                 logger.error(f"Invalid voice channel ID: {channel_id}")
                 return False
                 

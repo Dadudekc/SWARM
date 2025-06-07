@@ -1,7 +1,20 @@
-"""Stealth browser package for automated web interactions."""
-from .stealth_browser import StealthBrowser
-from .config import DEFAULT_CONFIG
-from .cookie_manager import CookieManager
-from .login_handler import LoginHandler
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-__all__ = ['StealthBrowser', 'DEFAULT_CONFIG', 'CookieManager', 'LoginHandler'] 
+from . import __main__
+from . import config
+from . import cookie_manager
+from . import debug_helper
+from . import integration
+from . import login_handler
+from . import stealth_browser
+
+__all__ = [
+    '__main__',
+    'config',
+    'cookie_manager',
+    'debug_helper',
+    'integration',
+    'login_handler',
+    'stealth_browser',
+]

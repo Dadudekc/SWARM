@@ -1,36 +1,41 @@
 """
-UI Module
-
-Handles message display and interaction for the Dream.OS messaging system.
+UI Module for Message Processing
+-----------------------------
+Handles UI-related message processing functionality.
 """
 
+from typing import Optional, Dict, Any
+from dataclasses import dataclass, field
 import logging
 import time
-from typing import Optional, Dict, Any
 import pyautogui
+from pathlib import Path
 
 from .common import Message, MessageMode
-from .processor import MessageProcessor
+from .message_processor import MessageProcessor
 
-logger = logging.getLogger('messaging.ui')
+logger = logging.getLogger(__name__)
 
+@dataclass
 class MessageUI:
-    """Handles message display and interaction."""
+    """UI handler for message processing."""
     
-    def __init__(self, processor: Optional[MessageProcessor] = None):
-        """Initialize the message UI.
-        
-        Args:
-            processor: Optional message processor instance
-        """
-        self.processor = processor or MessageProcessor()
-        self._cursor_controller = None
-        self._coordinate_manager = None
-        
-        # UI parameters
-        self.message_delay = 0.1
-        self.verification_delay = 0.2
-        
+    processor: Optional[MessageProcessor] = None
+    runtime_dir: str = str(Path(__file__).parent.parent.parent / "runtime")
+    
+    def __post_init__(self):
+        """Initialize with default processor if none provided."""
+        if self.processor is None:
+            self.processor = MessageProcessor(runtime_dir=self.runtime_dir)
+            
+    def process_message(self, message: Dict[str, Any]) -> Dict[str, Any]:
+        """Process a message through the UI layer."""
+        try:
+            return self.processor.process(message)
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
+            return {"error": str(e)}
+
     def initialize(self, cursor_controller, coordinate_manager):
         """Initialize UI components.
         

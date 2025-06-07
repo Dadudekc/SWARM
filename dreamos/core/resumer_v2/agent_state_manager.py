@@ -66,8 +66,18 @@ class AgentStateManager:
             "BLOCKER-TEST-DEBUG": []
         }
         
-        asyncio.create_task(self.state_file.atomic_write(default_state))
-        asyncio.create_task(self.task_file.atomic_write(default_tasks))
+        # Create tasks but don't await them here
+        self._init_state_task = asyncio.create_task(self._initialize_state_files(default_state, default_tasks))
+        
+    async def _initialize_state_files(self, default_state: Dict[str, Any], default_tasks: Dict[str, List[Dict[str, Any]]]):
+        """Initialize state files with default content.
+        
+        Args:
+            default_state: Default state data
+            default_tasks: Default tasks data
+        """
+        await self.state_file.atomic_write(default_state)
+        await self.task_file.atomic_write(default_tasks)
         
     async def register_event_handler(self, event_type: str, handler: Callable[[Any], Awaitable[None]]):
         """Register an event handler.

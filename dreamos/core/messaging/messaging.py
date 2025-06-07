@@ -7,7 +7,7 @@ This module contains shared types used across the messaging system.
 from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
-from .messaging.enums import MessageMode
+from .enums import MessageMode
 
 @dataclass
 class Message:

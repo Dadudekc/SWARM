@@ -6,32 +6,21 @@ Consolidates all messaging-related enumerations in one place.
 from enum import Enum, auto
 
 class MessageMode(Enum):
-    """Message delivery modes."""
-    NORMAL = auto()      # Standard delivery
-    BROADCAST = auto()   # Send to all agents
-    DIRECT = auto()      # Direct delivery, no routing
-    QUEUED = auto()      # Queue for later delivery
-    PRIORITY = auto()    # High-priority delivery
-    BULK = auto()        # Batch delivery
-    SYSTEM = auto()      # System-level message
-    RESUME = auto()      # Resume operation
-    SYNC = auto()        # Synchronize state
-    VERIFY = auto()      # Verify operation
-    REPAIR = auto()      # Repair operation
-    BACKUP = auto()      # Backup operation
-    RESTORE = auto()     # Restore operation
-    CLEANUP = auto()     # Cleanup operation
-    CAPTAIN = auto()     # Captain operation
-    TASK = auto()        # Task operation
-    INTEGRATE = auto()   # Integration operation
+    """Modes for message delivery."""
+    NORMAL = auto()  # Default mode
+    TEXT = auto()
+    VOICE = auto()
+    IMAGE = auto()
+    VIDEO = auto()
+    FILE = auto()
+    EMBED = auto()
 
 class MessagePriority(Enum):
-    """Message priority levels."""
-    LOW = 0
-    NORMAL = 1
-    HIGH = 2
-    URGENT = 3
-    CRITICAL = 4
+    """Priority levels for messages."""
+    LOW = 1
+    NORMAL = 2
+    HIGH = 3
+    URGENT = 4
 
 class MessageType(Enum):
     """Types of messages in the system."""

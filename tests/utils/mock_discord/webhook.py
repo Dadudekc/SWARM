@@ -4,9 +4,10 @@ Discord Webhook Mocks
 Mock webhook classes for Discord.py testing.
 """
 
-from typing import Optional, BinaryIO
+from typing import Optional, BinaryIO, Union
 from dataclasses import dataclass
-from .models import MockMessage, MockChannel, MockMember
+from io import BytesIO
+from .models import MockMessage, MockChannel, MockMember, MockFile
 
 @dataclass
 class MockWebhook:
@@ -26,24 +27,6 @@ class MockWebhook:
             channel=MockChannel(id=self.channel_id, name="webhook-channel"),
             author=MockMember(id=self.id, name=self.name or "Webhook")
         )
-
-@dataclass
-class MockFile:
-    """Mock Discord file."""
-    filename: str
-    fp: BinaryIO
-    description: Optional[str] = None
-    spoiler: bool = False
-    
-    def __post_init__(self):
-        """Initialize file attributes."""
-        self.fp.seek(0)
-        self.content = self.fp.read()
-        self.fp.seek(0)
-    
-    def close(self):
-        """Close the file."""
-        self.fp.close()
 
 __all__ = [
     'MockWebhook',

@@ -10,9 +10,3 @@ __all__ = [
     'base',
     'content_scheduler',
 ]
-
-"""
-Social Community Package
-
-Contains social media integration modules.
-"""

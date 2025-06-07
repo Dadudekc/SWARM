@@ -10,8 +10,8 @@ import time
 import logging
 from datetime import datetime
 from typing import Dict, List, Optional
-from messages.message_handler import MessageHandler
-from messages.task_handler import TaskHandler
+from agent_tools.mailbox.message_handler import MessageHandler
+from agent_tools.mailbox.task_handler import TaskHandler
 
 logger = logging.getLogger(__name__)
 

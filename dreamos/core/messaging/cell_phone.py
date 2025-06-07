@@ -198,40 +198,35 @@ async def send_message(to_agent: str, content: str, mode: str = "NORMAL", from_a
         from_agent: ID of the sending agent
         
     Returns:
-        bool: True if message was sent successfully
+        bool: True if message sent successfully
     """
     try:
-        # Create message object
+        inbox_path = Path("agent_tools/mailbox") / to_agent / "inbox.json"
+        if not inbox_path.exists():
+            logger.error(f"Agent {to_agent} inbox not found at {inbox_path}")
+            return False
+            
+        with open(inbox_path, 'r') as f:
+            inbox = json.load(f)
+            
         message = {
-            "to": to_agent,
             "from": from_agent,
             "content": content,
             "mode": mode,
-            "timestamp": datetime.now().isoformat()
+            "timestamp": datetime.utcnow().isoformat()
         }
         
-        # Get inbox path for recipient
-        inbox_path = Path("runtime/agent_comms") / to_agent / "inbox.json"
-        inbox_path.parent.mkdir(parents=True, exist_ok=True)
-        
-        # Load existing messages
-        if inbox_path.exists():
-            with open(inbox_path) as f:
-                messages = json.load(f)
-        else:
-            messages = []
+        if "messages" not in inbox:
+            inbox["messages"] = []
             
-        # Add new message
-        messages.append(message)
+        inbox["messages"].append(message)
         
-        # Save updated messages
-        with open(inbox_path, "w") as f:
-            json.dump(messages, f, indent=2)
+        with open(inbox_path, 'w') as f:
+            json.dump(inbox, f, indent=2)
             
         return True
-        
     except Exception as e:
-        logger.error(f"Failed to send message: {e}")
+        logger.error(f"Error sending message: {e}")
         return False
 
 def validate_phone_number(phone_number: str) -> bool:
