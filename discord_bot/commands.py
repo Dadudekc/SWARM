@@ -24,7 +24,6 @@ from dreamos.core.messaging.enums import MessageMode
 from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
 from dreamos.core.log_manager import LogManager
-from social.utils.devlog_manager import DevlogManager
 from .log_utils import get_logs_embed
 
 from .help_menu import HelpMenu
@@ -37,7 +36,6 @@ class AgentCommands:
     def __init__(self, bot: commands.Bot):
         self.bot = bot
         self.log_manager = LogManager()
-        self.devlog_manager = DevlogManager()
         self.message_processor = MessageProcessor()
         self.cell_phone = CellPhone()
         self.agent_interface = AgentInterface()
@@ -50,9 +48,6 @@ class AgentCommands:
         self.bot.add_command(commands.Command(self.list_agents, name="list_agents"))
         self.bot.add_command(commands.Command(self.list_channels, name="list_channels"))
         self.bot.add_command(commands.Command(self.send_prompt, name="send_prompt"))
-        self.bot.add_command(commands.Command(self.update_devlog, name="update_devlog"))
-        self.bot.add_command(commands.Command(self.view_devlog, name="view_devlog"))
-        self.bot.add_command(commands.Command(self.clear_devlog, name="clear_devlog"))
         self.bot.add_command(commands.Command(self.resume_agent, name="resume_agent"))
         self.bot.add_command(commands.Command(self.verify_agent, name="verify_agent"))
         self.bot.add_command(commands.Command(self.send_message, name="send_message"))
@@ -163,58 +158,6 @@ class AgentCommands:
         except Exception as e:
             await ctx.send(f"Error sending prompt: {str(e)}")
     
-    async def update_devlog(self, ctx, agent_id: str, message: str):
-        """Update the development log."""
-        try:
-            if not agent_id:
-                await ctx.send("Agent ID is required.")
-                return
-                
-            if not message:
-                await ctx.send("Message is required.")
-                return
-                
-            success = await self.devlog_manager.add_entry(agent_id, message, source="manual")
-            if success:
-                await ctx.send("Devlog updated")
-            else:
-                await ctx.send("Failed to update devlog")
-        except Exception as e:
-            await ctx.send(f"Failed to update devlog: {str(e)}")
-    
-    async def view_devlog(self, ctx, agent_id: str):
-        """View an agent's devlog."""
-        try:
-            devlog_content = await self.devlog_manager.get_log(agent_id)
-            if not devlog_content:
-                await ctx.send(f"No devlog found for agent {agent_id}.")
-                return
-
-            # Create a file with the devlog content
-            filename = f"{agent_id}_devlog.md"
-            file = discord.File(
-                io.StringIO(devlog_content),
-                filename=filename
-            )
-            await ctx.send(f"Devlog for agent {agent_id}:", file=file)
-        except Exception as e:
-            logger.error(f"Error viewing devlog for agent {agent_id}: {str(e)}")
-            await ctx.send(f"Error viewing devlog for agent {agent_id}: {str(e)}")
-    
-    async def clear_devlog(self, ctx, agent_id: str):
-        """Clear an agent's development log."""
-        try:
-            if not agent_id:
-                await ctx.send("Agent ID is required.")
-                return
-                
-            success = await self.devlog_manager.clear_log(agent_id)
-            if success:
-                await ctx.send("Devlog cleared")
-            else:
-                await ctx.send("Failed to clear devlog")
-        except Exception as e:
-            await ctx.send(f"Failed to clear devlog: {str(e)}")
     
     async def resume_agent(self, ctx, agent_id: str):
         """Resume an agent's operation."""
