@@ -11,9 +11,14 @@ import threading
 import time
 import shutil
 from pathlib import Path
-import win32file
-import win32con
-import pywintypes
+try:
+    import win32file
+    import win32con
+    import pywintypes
+except Exception:  # pragma: no cover - win32 modules unavailable on non-Windows
+    win32file = None
+    win32con = None
+    pywintypes = None
 import stat
 
 logger = logging.getLogger(__name__)

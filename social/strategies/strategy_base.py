@@ -25,7 +25,7 @@ from selenium.common.exceptions import (
 from dreamos.core.log_manager import LogConfig, LogLevel
 from dreamos.core.log_manager import LogManager
 from dreamos.core.monitoring.metrics import LogMetrics
-from social.utils.social_common import SocialMediaUtils
+from dreamos.social.utils.social_common import SocialMediaUtils
 from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.config.social_config import PlatformConfig
 from social.driver.proxy_manager import ProxyManager

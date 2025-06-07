@@ -27,7 +27,7 @@ from social.strategies.reddit.validators.media_validator import MediaValidator
 from social.strategies.reddit.rate_limiting.rate_limiter import RateLimiter, rate_limit
 from dreamos.core.log_manager import LogManager
 from dreamos.core.logging.log_config import LogConfig, LogLevel
-from social.utils.social_common import SocialMediaUtils
+from dreamos.social.utils.social_common import SocialMediaUtils
 from .config import RedditConfig
 from dreamos.core.config.config_manager import ConfigManager
 from dreamos.core.monitoring.metrics import LogMetrics

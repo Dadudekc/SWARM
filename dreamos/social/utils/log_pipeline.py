@@ -18,9 +18,14 @@ import tempfile
 import atexit
 import shutil
 import contextlib
-import win32file
-import win32con
-import pywintypes
+try:
+    import win32file
+    import win32con
+    import pywintypes
+except Exception:  # pragma: no cover - unavailable on non-Windows
+    win32file = None
+    win32con = None
+    pywintypes = None
 
 from .log_entry import LogEntry
 from .log_rotator import LogRotator

@@ -23,8 +23,14 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
-import pyautogui
-import pygetwindow as gw
+import os
+
+if not os.environ.get("SWARM_SKIP_BRIDGE"):
+    import pyautogui
+    import pygetwindow as gw
+else:
+    pyautogui = None
+    gw = None
 
 from ..log_manager import LogManager
 from .cell_phone import CellPhone
@@ -555,9 +561,13 @@ class ChatGPTBridge:
     def _paste_to_cursor(self, text: str):
         """Paste text into Cursor window."""
         try:
+            if 'pyautogui' not in globals():
+                self.logger.error("pyautogui not available; cannot paste to Cursor")
+                return
+
             # Focus window first
             self._focus_cursor_window()
-            
+
             # Type text with small delay between characters
             pyautogui.write(text, interval=0.01)
             time.sleep(0.1)  # Small pause before enter

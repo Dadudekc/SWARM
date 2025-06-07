@@ -24,7 +24,7 @@ from selenium.common.exceptions import (
 import types
 from pathlib import Path
 
-from social.utils.social_common import SocialMediaUtils
+from dreamos.social.utils.social_common import SocialMediaUtils
 from social.strategies.platform_strategy_base import PlatformStrategy
 from social.strategies.reddit.strategy import RedditStrategy
 from social.strategies.reddit.handlers import LoginHandler, LogoutHandler, PostHandler, CommentHandler
@@ -32,7 +32,7 @@ from social.strategies.reddit.validators import MediaValidator
 from social.strategies.reddit.rate_limiting import RateLimiter
 from social.config.social_config import PlatformConfig, Platform
 from dreamos.core.log_manager import LogConfig, LogLevel
-from social.utils.rate_limiter import RateLimiter
+from dreamos.social.utils.rate_limiter import RateLimiter
 from dreamos.core.agent_control.devlog_manager import DevLogManager
 from social.driver.proxy_manager import ProxyManager
 from dreamos.core.utils.file_utils import (
@@ -50,14 +50,14 @@ def patch_sqlite_and_rate_limiter(monkeypatch):
     # Patch sqlite3.connect everywhere
     monkeypatch.setattr("sqlite3.connect", lambda *a, **kw: MagicMock())
     # Patch RateLimiter.check_rate_limit to always allow
-    from social.utils import rate_limiter
+    from dreamos.social.utils import rate_limiter
     monkeypatch.setattr(rate_limiter.RateLimiter, "check_rate_limit", lambda self, *a, **kw: True)
     yield
 
 # Patch SocialMediaUtils in RedditStrategy for all tests that construct it
 @pytest.fixture(autouse=True)
 def patch_social_media_utils(monkeypatch):
-    with patch('social.utils.social_common.SocialMediaUtils', new=MagicMock()):
+    with patch('dreamos.social.utils.social_common.SocialMediaUtils', new=MagicMock()):
         yield
 
 @pytest.fixture
@@ -157,7 +157,7 @@ class TestRedditStrategy(BaseStrategyTest):
     @pytest.fixture
     def strategy(self, specific_strategy_mock_config, mock_memory_update):
         """Create a test strategy instance."""
-        with patch('social.utils.social_common.SocialMediaUtils') as mock_utils:
+        with patch('dreamos.social.utils.social_common.SocialMediaUtils') as mock_utils:
             # Create platform config from the mock config
             platform_config = PlatformConfig(
                 platform=Platform.REDDIT,
