@@ -25,6 +25,7 @@ from dreamos.core.agent_interface import AgentInterface
 from dreamos.core.metrics import CommandMetrics
 from dreamos.core.log_manager import LogManager
 from social.utils.devlog_manager import DevlogManager
+from .log_utils import get_logs_embed
 
 from .help_menu import HelpMenu
 logger = logging.getLogger('discord_bot')
@@ -405,43 +406,19 @@ class AgentCommands:
     
     async def show_logs(self, ctx, agent_id: str = None, level: str = "info", limit: int = 10):
         """Show logs for an agent or all agents.
-        
+
         Args:
             agent_id: Optional agent ID to filter logs
             level: Log level (info, warning, error, debug)
             limit: Maximum number of logs to show
         """
         try:
-            # Get logs from LogManager
-            logs = self.log_manager.read_logs(
-                platform=agent_id or "all",
-                level=level.upper(),
-                limit=limit
-            )
-            
+            embed, logs = get_logs_embed(self.log_manager, agent_id, level, limit)
+
             if not logs:
                 await ctx.send(f"No {level} logs found for {agent_id or 'all agents'}")
                 return
-            
-            # Create embed for logs
-            embed = discord.Embed(
-                title=f"Logs for {agent_id or 'All Agents'}",
-                description=f"Showing {len(logs)} {level} logs",
-                color=discord.Color.blue()
-            )
-            
-            # Add log entries to embed
-            for log in logs:
-                timestamp = log.get('timestamp', 'Unknown')
-                message = log.get('message', 'No message')
-                status = log.get('status', 'Unknown')
-                
-                embed.add_field(
-                    name=f"{timestamp} - {status}",
-                    value=message,
-                    inline=False
-                )
-            
+
             await ctx.send(embed=embed)
             
             # Log the command usage
