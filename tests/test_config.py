@@ -19,10 +19,12 @@ from dreamos.core.config.config_manager import ConfigManager
 from dreamos.core.utils.file_utils import (
     safe_read,
     safe_write,
-    read_json,
-    write_json,
     ensure_dir,
     safe_rmdir
+)
+from dreamos.core.utils.json_utils import (
+    read_json,
+    write_json,
 )
 
 # Test constants - Use relative paths from TEST_ROOT

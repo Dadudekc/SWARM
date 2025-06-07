@@ -22,9 +22,11 @@ from social.strategies.reddit.config import RedditConfig
 from dreamos.core.utils.file_utils import (
     safe_read,
     safe_write,
+    ensure_dir
+)
+from dreamos.core.utils.json_utils import (
     read_json,
     write_json,
-    ensure_dir
 )
 
 @pytest.fixture(autouse=True)

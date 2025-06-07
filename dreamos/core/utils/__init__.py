@@ -21,10 +21,6 @@ from .file_utils import (
     ensure_dir,
     safe_write,
     safe_read,
-    load_json,
-    save_json,
-    read_yaml,
-    write_yaml,
     atomic_write,
     backup_file,
     restore_backup,
@@ -33,8 +29,20 @@ from .file_utils import (
     rotate_file,
     find_files,
     cleanup_old_files,
+)
+
+from .json_utils import (
+    load_json,
+    save_json,
+    read_json,
+    write_json,
+)
+
+from .yaml_utils import (
     load_yaml,
-    save_yaml
+    save_yaml,
+    read_yaml,
+    write_yaml,
 )
 
 __all__ = [
@@ -55,6 +63,8 @@ __all__ = [
     'safe_read',
     'load_json',
     'save_json',
+    'read_json',
+    'write_json',
     'read_yaml',
     'write_yaml',
     'atomic_write',
