@@ -848,6 +848,7 @@ Dream.OS/
 - [Advanced Topics](docs/onboarding/04_advanced_topics.md)
 - [Architecture Overview](docs/architecture_overview.md)
 - [Content Loop Framework](docs/onboarding/05_content_loop.md)
+- [Training Overview](docs/onboarding/06_training_overview.md)
 
 ### 2. Development
 - [Code Style Guide](docs/code_style_guide.md)
