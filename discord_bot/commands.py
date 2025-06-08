@@ -59,9 +59,21 @@ class AgentCommands:
         self.bot.add_command(commands.Command(self.assign_channel, name="assign_channel"))
         self.bot.add_command(commands.Command(self.show_logs, name="logs"))
 
-    def _load_config(self):
-        # Implement the logic to load configuration from the file
-        # This is a placeholder and should be replaced with actual implementation
+    def _load_config(self) -> Dict[str, Any]:
+        """Load configuration from ``config/discord_bot.json`` if present."""
+        config_path_json = Path("config/discord_bot.json")
+        config_path_yaml = Path("config/discord_bot.yaml")
+
+        try:
+            if config_path_json.exists():
+                with open(config_path_json, "r", encoding="utf-8") as f:
+                    return json.load(f)
+            if config_path_yaml.exists():
+                with open(config_path_yaml, "r", encoding="utf-8") as f:
+                    return yaml.safe_load(f) or {}
+        except Exception as e:
+            logger.error(f"Failed to load config: {e}")
+
         return {}
     
     async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
@@ -87,7 +99,7 @@ class AgentCommands:
             menu = HelpMenu()
             await ctx.send(embed=menu.pages[0], view=menu)
         except Exception as e:
-            await ctx.send(f"Error showing help menu: {str(e)}")
+            await ctx.send(f"Error showing help menu: {e}")
     
     async def list_agents(self, ctx):
         """List all available agents."""
@@ -112,7 +124,7 @@ class AgentCommands:
                 
             await ctx.send(embed=embed)
         except Exception as e:
-            await ctx.send(f"Error listing agents: {str(e)}")
+            await ctx.send(f"Error listing agents: {e}")
     
     async def list_channels(self, ctx):
         """List all available channels."""
@@ -137,7 +149,7 @@ class AgentCommands:
                 
             await ctx.send(embed=embed)
         except Exception as e:
-            await ctx.send(f"Error listing channels: {str(e)}")
+            await ctx.send(f"Error listing channels: {e}")
     
     async def send_prompt(self, ctx, agent_id: str, prompt_text: str):
         """Send a prompt to an agent."""
@@ -156,7 +168,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to send prompt")
         except Exception as e:
-            await ctx.send(f"Error sending prompt: {str(e)}")
+            await ctx.send(f"Error sending prompt to {agent_id}: {e}")
     
     
     async def resume_agent(self, ctx, agent_id: str):
@@ -172,7 +184,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to resume agent")
         except Exception as e:
-            await ctx.send(f"Error resuming agent: {str(e)}")
+            await ctx.send(f"Error resuming agent {agent_id}: {e}")
     
     async def verify_agent(self, ctx, agent_id: str):
         """Verify an agent's state."""
@@ -187,7 +199,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to verify agent")
         except Exception as e:
-            await ctx.send(f"Error verifying agent: {str(e)}")
+            await ctx.send(f"Error verifying agent {agent_id}: {e}")
     
     async def send_message(self, ctx, agent_id: str, message: str):
         """Send a message to an agent."""
@@ -206,7 +218,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to send message")
         except Exception as e:
-            await ctx.send(f"Error sending message: {str(e)}")
+            await ctx.send(f"Error sending message to {agent_id}: {e}")
     
     async def restore_agent(self, ctx, agent_id: str):
         """Restore an agent's state."""
@@ -221,7 +233,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to restore agent")
         except Exception as e:
-            await ctx.send(f"Error restoring agent: {str(e)}")
+            await ctx.send(f"Error restoring agent {agent_id}: {e}")
     
     async def sync_agent(self, ctx, agent_id: str):
         """Synchronize an agent's state."""
@@ -236,7 +248,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to sync agent")
         except Exception as e:
-            await ctx.send(f"Error synchronizing agent: {str(e)}")
+            await ctx.send(f"Error synchronizing agent {agent_id}: {e}")
     
     async def cleanup_agent(self, ctx, agent_id: str):
         """Clean up an agent's resources."""
@@ -251,7 +263,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to cleanup agent")
         except Exception as e:
-            await ctx.send(f"Error cleaning up agent: {str(e)}")
+            await ctx.send(f"Error cleaning up agent {agent_id}: {e}")
     
     async def multi_command(self, ctx, agent_id: str, command: str):
         """Execute a command on multiple agents."""
@@ -270,7 +282,7 @@ class AgentCommands:
             else:
                 await ctx.send("Failed to execute multi-command")
         except Exception as e:
-            await ctx.send(f"Error executing multi-command: {str(e)}")
+            await ctx.send(f"Error executing multi-command for {agent_id}: {e}")
     
     async def system_command(self, ctx, agent_id: str, command: str):
         """Send a system command to an agent."""
@@ -294,7 +306,7 @@ class AgentCommands:
                 await ctx.send(f"Error executing system command for agent {agent_id}.")
         except Exception as e:
             logger.error(f"Error in system command for agent {agent_id}: {str(e)}", exc_info=True)
-            await ctx.send(f"Error executing system command: {str(e)}")
+            await ctx.send(f"Error executing system command for {agent_id}: {e}")
     
     async def assign_channel(self, ctx, agent_id: str, channel_id: str):
         """Assign a channel to an agent."""
@@ -345,7 +357,7 @@ class AgentCommands:
             await ctx.send(f"✅ Channel {channel_id} assigned to {agent_id}")
         except Exception as e:
             logger.error(f"Error assigning channel: {e}")
-            await ctx.send(f"❌ Error assigning channel: {str(e)}")
+            await ctx.send(f"❌ Error assigning channel for {agent_id}: {e}")
     
     async def show_logs(self, ctx, agent_id: str = None, level: str = "info", limit: int = 10):
         """Show logs for an agent or all agents.
@@ -377,7 +389,7 @@ class AgentCommands:
             )
             
         except Exception as e:
-            error_msg = f"Error showing logs: {str(e)}"
+            error_msg = f"Error showing logs for {agent_id or 'all agents'}: {e}"
             await ctx.send(error_msg)
             
             # Log the error

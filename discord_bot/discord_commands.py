@@ -413,9 +413,13 @@ class AgentCommands(commands.Cog):
     def _load_config(self):
         """Load configuration from file."""
         try:
-            config_path = Path("config/discord_bot.yaml")
-            if config_path.exists():
-                with open(config_path) as f:
+            yaml_path = Path("config/discord_bot.yaml")
+            json_path = Path("config/discord_bot.json")
+            if json_path.exists():
+                with open(json_path, "r", encoding="utf-8") as f:
+                    self.config = json.load(f)
+            elif yaml_path.exists():
+                with open(yaml_path, "r", encoding="utf-8") as f:
                     self.config = yaml.safe_load(f)
             else:
                 self.config = {}
@@ -476,9 +480,9 @@ class AgentCommands(commands.Cog):
                 message=str(e),
                 severity=ErrorSeverity.MEDIUM,
                 agent_id="discord_bot",
-                context={"operation": "show_help"}
+                context={"operation": "show_help"},
             )
-            await ctx.send("Error showing help menu. Please try again later.")
+            await ctx.send(f"Error showing help menu: {e}")
     
     async def list_agents(self, ctx):
         """List available agents."""
@@ -507,9 +511,9 @@ class AgentCommands(commands.Cog):
                 message=str(e),
                 severity=ErrorSeverity.MEDIUM,
                 agent_id="discord_bot",
-                context={"operation": "list_agents"}
+                context={"operation": "list_agents"},
             )
-            await ctx.send("Error listing agents. Please try again later.")
+            await ctx.send(f"Error listing agents: {e}")
     
     async def send_prompt(self, ctx, agent_id: str, prompt_text: str):
         """Send a prompt to an agent."""
@@ -526,12 +530,9 @@ class AgentCommands(commands.Cog):
                 message=str(e),
                 severity=ErrorSeverity.HIGH,
                 agent_id=agent_id,
-                context={
-                    "operation": "send_prompt",
-                    "prompt_text": prompt_text
-                }
+                context={"operation": "send_prompt", "prompt_text": prompt_text},
             )
-            await ctx.send(f"Error sending prompt to {agent_id}. Please try again later.")
+            await ctx.send(f"Error sending prompt to {agent_id}: {e}")
     
     async def update_log(self, ctx, agent_id: str, message: str):
         """Update agent log."""
@@ -555,12 +556,9 @@ class AgentCommands(commands.Cog):
                 message=str(e),
                 severity=ErrorSeverity.MEDIUM,
                 agent_id=agent_id,
-                context={
-                    "operation": "update_log",
-                    "message": message
-                }
+                context={"operation": "update_log", "message": message},
             )
-            await ctx.send(f"Error updating log for {agent_id}. Please try again later.")
+            await ctx.send(f"Error updating log for {agent_id}: {e}")
     
     async def view_log(self, ctx, agent_id: str):
         """View agent log."""
@@ -588,9 +586,9 @@ class AgentCommands(commands.Cog):
                 message=str(e),
                 severity=ErrorSeverity.MEDIUM,
                 agent_id=agent_id,
-                context={"operation": "view_log"}
+                context={"operation": "view_log"},
             )
-            await ctx.send(f"Error viewing log for {agent_id}. Please try again later.")
+            await ctx.send(f"Error viewing log for {agent_id}: {e}")
     
     async def clear_log(self, ctx, agent_id: str):
         """Clear agent log."""
@@ -613,9 +611,9 @@ class AgentCommands(commands.Cog):
                 message=str(e),
                 severity=ErrorSeverity.MEDIUM,
                 agent_id=agent_id,
-                context={"operation": "clear_log"}
+                context={"operation": "clear_log"},
             )
-            await ctx.send(f"Error clearing log for {agent_id}. Please try again later.")
+            await ctx.send(f"Error clearing log for {agent_id}: {e}")
 
 async def setup(bot):
     """Set up the commands cog."""
