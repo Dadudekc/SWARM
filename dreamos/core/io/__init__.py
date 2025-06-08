@@ -1,13 +1,10 @@
-"""
-IO operations module.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .json_ops import read_json, write_json
-from .atomic import safe_read, safe_write
+from . import atomic
+from . import json_ops
 
 __all__ = [
-    'read_json',
-    'write_json',
-    'safe_read',
-    'safe_write'
-] 
+    'atomic',
+    'json_ops',
+]

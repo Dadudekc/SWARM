@@ -12,7 +12,7 @@ project_root = Path(__file__).parent
 sys.path.insert(0, str(project_root))
 
 # Import and run the test runner
-from scripts.overnight_test_runner import run
+from agent_tools.swarm_tools.tests.overnight_test_runner import run
 
 if __name__ == "__main__":
     run() 

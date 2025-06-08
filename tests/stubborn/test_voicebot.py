@@ -8,6 +8,7 @@ import asyncio
 from pathlib import Path
 from unittest.mock import Mock, patch, AsyncMock
 import discord
+from tests.utils.mock_discord import VoiceClient
 from discord_bot.voicebot import VoiceBot, VoiceQueueHandler
 
 @pytest.fixture
@@ -20,7 +21,7 @@ def voice_queue_dir(tmp_path):
 @pytest.fixture
 def mock_voice_client():
     """Create a mock voice client."""
-    client = AsyncMock(spec=discord.VoiceClient)
+    client = AsyncMock(spec=VoiceClient)
     client.is_connected.return_value = True
     return client
 
@@ -62,7 +63,7 @@ async def test_join_voice_channel(voice_bot):
     mock_channel.connect = AsyncMock()
     
     # Create mock voice client
-    mock_voice_client = AsyncMock(spec=discord.VoiceClient)
+    mock_voice_client = AsyncMock(spec=VoiceClient)
     mock_voice_client.is_connected.return_value = True
     mock_channel.connect.return_value = mock_voice_client
     

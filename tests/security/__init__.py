@@ -1,10 +1,8 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import retry
-from . import token
+from . import test_token
 
 __all__ = [
-    'retry',
-    'token',
+    'test_token',
 ]

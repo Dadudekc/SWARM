@@ -4,7 +4,7 @@ Run Overnight Tests
 Script to run the overnight test runner.
 """
 
-from scripts.overnight_test_runner import TestRunner
+from agent_tools.swarm_tools.tests.overnight_test_runner import TestRunner
 
 def main():
     """Main entry point."""

@@ -23,6 +23,8 @@ from .models import (
     ButtonStyle,
     Interaction,
 )
+from .voice import VoiceClient, Gateway, Opus, OpusLoader, VoiceState, VoiceProtocol, VoiceRegion, VoiceRecv, VoiceSend, VoiceUtils, VoiceWebSocket, VoiceWebSocketClient, VoiceWebSocketServer, VoiceWebSocketUtils, VoiceWebSocketVoice, VoiceWebSocketVoiceClient, VoiceWebSocketVoiceServer, VoiceWebSocketVoiceUtils, VoiceWebSocketVoiceWebSocket, VoiceWebSocketVoiceWebSocketClient, VoiceWebSocketVoiceWebSocketServer, VoiceWebSocketVoiceWebSocketUtils
+from .discord import Intents, Client, Command
 
 __all__ = [
     'commands',
@@ -44,4 +46,29 @@ __all__ = [
     'Color',
     'ButtonStyle',
     'Interaction',
+    'VoiceClient',
+    'Gateway',
+    'Opus',
+    'OpusLoader',
+    'VoiceState',
+    'VoiceProtocol',
+    'VoiceRegion',
+    'VoiceRecv',
+    'VoiceSend',
+    'VoiceUtils',
+    'VoiceWebSocket',
+    'VoiceWebSocketClient',
+    'VoiceWebSocketServer',
+    'VoiceWebSocketUtils',
+    'VoiceWebSocketVoice',
+    'VoiceWebSocketVoiceClient',
+    'VoiceWebSocketVoiceServer',
+    'VoiceWebSocketVoiceUtils',
+    'VoiceWebSocketVoiceWebSocket',
+    'VoiceWebSocketVoiceWebSocketClient',
+    'VoiceWebSocketVoiceWebSocketServer',
+    'VoiceWebSocketVoiceWebSocketUtils',
+    'Intents',
+    'Client',
+    'Command',
 ]

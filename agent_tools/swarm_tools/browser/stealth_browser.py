@@ -23,20 +23,41 @@ class StealthBrowser:
         self.login_handler = None
 
     def start(self):
-        """Launch stealth browser session."""
+        """Launch stealth browser session with enhanced stealth settings."""
         options = uc.ChromeOptions()
+        
+        # Basic stealth settings
         options.add_argument('--disable-dev-shm-usage')
         options.add_argument('--no-sandbox')
         options.add_argument('--disable-gpu')
         options.add_argument('--window-size={},{}'.format(*self.config['window_size']))
+        
+        # Enhanced stealth settings from general_tools
+        options.add_argument('--disable-blink-features=AutomationControlled')
+        options.add_experimental_option('excludeSwitches', ['enable-automation'])
+        options.add_experimental_option('useAutomationExtension', False)
+        options.add_argument('user-agent=Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36')
+        
         if self.config['headless']:
             options.add_argument('--headless')
+            
         self.driver = uc.Chrome(options=options)
         self.driver.set_page_load_timeout(self.config['page_load_wait'])
+        
+        # Execute stealth script to hide webdriver property
+        self.driver.execute_cdp_cmd('Page.addScriptToEvaluateOnNewDocument', {
+            'source': '''
+                Object.defineProperty(navigator, 'webdriver', {
+                    get: () => undefined
+                })
+            '''
+        })
         
         # Initialize handlers
         self.cookie_manager.set_driver(self.driver)
         self.login_handler = LoginHandler(self.driver, self.config)
+        
+        self.logger.info("Stealth browser initialized with enhanced settings")
 
     def stop(self):
         """Stop browser session."""

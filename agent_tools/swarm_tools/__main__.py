@@ -4,7 +4,7 @@ import logging
 from pathlib import Path
 from typing import List, Optional
 
-from agent_tools.scanner.scanner import Scanner
+from agent_tools.swarm_tools.scanner.scanner import Scanner
 
 def main():
     """Main entry point for the project scanner."""

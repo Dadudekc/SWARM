@@ -4376,98 +4376,126 @@
                     "__init__"
                 ],
                 "docstring": "Mock Discord Guild.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Member": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Member.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TextChannel": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Text Channel.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Message": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Message.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Interaction": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Interaction.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "InteractionResponse": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Interaction Response.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "InteractionFollowup": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Interaction Followup.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Context": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Context.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Embed": {
                 "methods": [
                     "add_field"
                 ],
                 "docstring": "Mock Discord Embed.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "CommandError": {
                 "methods": [],
                 "docstring": "Base class for command errors.",
                 "base_classes": [
                     "Exception"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "CommandNotFound": {
                 "methods": [],
                 "docstring": "Command not found error.",
                 "base_classes": [
                     "CommandError"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MissingRequiredArgument": {
                 "methods": [],
                 "docstring": "Missing required argument error.",
                 "base_classes": [
                     "CommandError"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "BadArgument": {
                 "methods": [],
                 "docstring": "Bad argument error.",
                 "base_classes": [
                     "CommandError"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Command": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord command.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Bot": {
                 "methods": [
@@ -4475,38 +4503,50 @@
                     "command"
                 ],
                 "docstring": "Mock Discord bot.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "commands": {
                 "methods": [],
                 "docstring": "Mock discord.ext.commands module.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "ext": {
                 "methods": [],
                 "docstring": "Mock discord.ext module.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "MockMessage": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord message object.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockUser": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord user object.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockChannel": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord channel object.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockGuild": {
                 "methods": [
@@ -4515,21 +4555,27 @@
                     "get_channel"
                 ],
                 "docstring": "Mock Discord guild object.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceClient": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice Client.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Gateway": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Gateway.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Opus": {
                 "methods": [
@@ -4537,7 +4583,9 @@
                     "load"
                 ],
                 "docstring": "Mock Discord Opus.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "OpusLoader": {
                 "methods": [
@@ -4545,133 +4593,171 @@
                     "load_opus"
                 ],
                 "docstring": "Mock Discord Opus Loader.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceState": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice State.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceProtocol": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice Protocol.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceRegion": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice Region.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceRecv": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice Receiver.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceSend": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice Sender.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceUtils": {
                 "methods": [
                     "get_voice_client"
                 ],
                 "docstring": "Mock Discord Voice Utils.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocket": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketClient": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Client.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketServer": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Server.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketUtils": {
                 "methods": [
                     "get_voice_websocket"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Utils.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoice": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceClient": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice Client.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceServer": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice Server.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceUtils": {
                 "methods": [
                     "get_voice_websocket_voice"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice Utils.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocket": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice WebSocket.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocketClient": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice WebSocket Client.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocketServer": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice WebSocket Server.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocketUtils": {
                 "methods": [
                     "get_voice_websocket_voice_websocket"
                 ],
                 "docstring": "Mock Discord Voice WebSocket Voice WebSocket Utils.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Intents": {
                 "methods": [
@@ -4680,7 +4766,9 @@
                     "all"
                 ],
                 "docstring": "Mock Discord Intents.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -4702,11 +4790,22 @@
             "ensure_dir",
             "get_test_file_path",
             "create_test_file",
-            "cleanup_test_environment"
+            "cleanup_test_environment",
+            "test_safe_mkdir_new",
+            "test_safe_mkdir_existing",
+            "test_safe_mkdir_file_exists",
+            "test_safe_mkdir_permission_error",
+            "test_safe_mkdir_concurrent",
+            "test_ensure_dir",
+            "test_ensure_dir_failure",
+            "test_clear_dir",
+            "test_archive_file",
+            "test_archive_file_nonexistent",
+            "mkdir_worker"
         ],
         "classes": {},
         "routes": [],
-        "complexity": 7
+        "complexity": 18
     },
     "tests\\utils\\__init__.py": {
         "language": ".py",
@@ -6225,5 +6324,109 @@
         },
         "routes": [],
         "complexity": 2
+    },
+    "tests\\security\\test_token.py": {
+        "language": ".py",
+        "functions": [
+            "token_handler",
+            "test_token_generation",
+            "test_token_tampering",
+            "test_token_expiry",
+            "test_token_refresh",
+            "test_constant_time_comparison"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\utils\\conftest.py": {
+        "language": ".py",
+        "functions": [
+            "tmp_file",
+            "tmp_dir",
+            "tmp_json",
+            "tmp_yaml"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\utils\\test_json_utils.py": {
+        "language": ".py",
+        "functions": [
+            "temp_json_file",
+            "test_load_json",
+            "test_load_json_default",
+            "test_save_json",
+            "test_read_json",
+            "test_write_json"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\utils\\test_safe_io.py": {
+        "language": ".py",
+        "functions": [
+            "test_atomic_write_new_file",
+            "test_atomic_write_existing_file",
+            "test_atomic_write_encoding",
+            "test_atomic_write_binary",
+            "test_atomic_write_failure_cleanup",
+            "test_safe_read_default",
+            "test_safe_read_encoding",
+            "test_safe_write_atomic"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\utils\\test_serialization.py": {
+        "language": ".py",
+        "functions": [
+            "test_json_roundtrip",
+            "test_json_corrupted",
+            "test_json_nonexistent",
+            "test_json_write_permission_error",
+            "test_yaml_roundtrip",
+            "test_yaml_corrupted",
+            "test_yaml_nonexistent",
+            "test_yaml_write_permission_error",
+            "test_yaml_complex_types",
+            "test_json_complex_types"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 10
+    },
+    "tests\\utils\\test_yaml_utils.py": {
+        "language": ".py",
+        "functions": [
+            "temp_yaml_file",
+            "test_load_yaml",
+            "test_load_yaml_default",
+            "test_save_yaml",
+            "test_read_yaml",
+            "test_write_yaml"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "exec_overnight_tests.py": {
+        "language": ".py",
+        "functions": [
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\security\\__init__.py": {
+        "language": ".py",
+        "functions": [],
+        "classes": {},
+        "routes": [],
+        "complexity": 0
     }
 }

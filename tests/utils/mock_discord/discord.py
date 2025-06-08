@@ -57,55 +57,14 @@ class Activity:
         self.state = kwargs.get('state')
 
 class Intents:
-    """Mock Intents class."""
+    """Mock Discord Intents class."""
     def __init__(self, **kwargs):
         self.guilds = kwargs.get('guilds', False)
         self.members = kwargs.get('members', False)
-        self.bans = kwargs.get('bans', False)
-        self.emojis = kwargs.get('emojis', False)
-        self.integrations = kwargs.get('integrations', False)
-        self.webhooks = kwargs.get('webhooks', False)
-        self.invites = kwargs.get('invites', False)
+        self.messages = kwargs.get('messages', False)
+        self.message_content = kwargs.get('message_content', False)
         self.voice_states = kwargs.get('voice_states', False)
         self.presences = kwargs.get('presences', False)
-        self.messages = kwargs.get('messages', False)
-        self.guild_messages = kwargs.get('guild_messages', False)
-        self.dm_messages = kwargs.get('dm_messages', False)
-        self.reactions = kwargs.get('reactions', False)
-        self.guild_reactions = kwargs.get('guild_reactions', False)
-        self.dm_reactions = kwargs.get('dm_reactions', False)
-        self.typing = kwargs.get('typing', False)
-        self.guild_typing = kwargs.get('guild_typing', False)
-        self.dm_typing = kwargs.get('dm_typing', False)
-
-    @classmethod
-    def default(cls):
-        """Create default intents."""
-        return cls(
-            guilds=True,
-            members=True,
-            bans=True,
-            emojis=True,
-            integrations=True,
-            webhooks=True,
-            invites=True,
-            voice_states=True,
-            presences=True,
-            messages=True,
-            guild_messages=True,
-            dm_messages=True,
-            reactions=True,
-            guild_reactions=True,
-            dm_reactions=True,
-            typing=True,
-            guild_typing=True,
-            dm_typing=True
-        )
-
-    @classmethod
-    def all(cls):
-        """Create all intents."""
-        return cls.default()
 
 class Color:
     """Mock Discord color class."""
@@ -186,6 +145,29 @@ Webhook = MockWebhook
 File = MockFile
 Client = Client
 ClientUser = ClientUser
+
+class Client:
+    """Mock Discord Client class."""
+    def __init__(self, **kwargs):
+        self.intents = kwargs.get('intents')
+        self.commands = []
+
+    async def start(self, *args, **kwargs):
+        pass
+
+    async def close(self):
+        pass
+
+    def add_command(self, command):
+        self.commands.append(command)
+
+class Command:
+    """Mock Discord Command class."""
+    def __init__(self, name=None, **kwargs):
+        self.name = name
+        self.help = kwargs.get('help')
+        self.brief = kwargs.get('brief')
+        self.description = kwargs.get('description')
 
 __all__ = [
     'discord',

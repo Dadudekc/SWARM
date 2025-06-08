@@ -1,8 +1,8 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import scanner
+from .scanner import Scanner
 
 __all__ = [
-    'scanner',
+    'Scanner',
 ]

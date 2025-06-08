@@ -6,7 +6,7 @@ Currently implements a basic frequency-based approach as a placeholder
 for more sophisticated NLP methods.
 """
 
-from typing import List, Dict, Any, Set
+from typing import List, Dict, Any, Set, Optional
 from collections import Counter
 
 class KeywordExtractor:

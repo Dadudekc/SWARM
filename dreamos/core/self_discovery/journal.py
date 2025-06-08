@@ -6,7 +6,7 @@ import logging
 import sqlite3
 from datetime import date, datetime
 from pathlib import Path
-from typing import List, Dict
+from typing import List, Dict, Optional
 
 DB_PATH = Path("data/life_os.db")
 RISK_KEYWORDS = [
@@ -100,3 +100,26 @@ def get_today_stats(db_path: Path = DB_PATH) -> Dict[str, bool]:
         except sqlite3.OperationalError:
             coded = False
     return {"journaled": journaled, "traded": traded, "coded": coded}
+
+
+class Journal:
+    """Journal class for managing self-discovery entries."""
+    def __init__(self, db_path: Path = DB_PATH):
+        self.db_path = db_path
+        init_db(db_path)
+
+    def add_entry(self, entry: str, emotion: str) -> None:
+        """Add or update today's journal entry."""
+        add_entry(entry, emotion, self.db_path)
+
+    def log_coding_session(self, notes: str) -> None:
+        """Record a coding session."""
+        log_coding_session(notes, self.db_path)
+
+    def get_today_stats(self) -> Dict[str, bool]:
+        """Return booleans indicating whether activities were completed today."""
+        return get_today_stats(self.db_path)
+
+    def calculate_relapse_risk(self, text: str, keywords: Optional[List[str]] = None) -> float:
+        """Calculate relapse risk score for text."""
+        return calculate_relapse_risk(text, keywords)
