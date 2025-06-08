@@ -1,74 +1,29 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import commands
-from . import discord
-from . import interaction
-from . import models
-from . import ui
-from . import voice
-from . import webhook
-
-from .models import (
-    MockGuild,
-    MockRole,
-    MockMember,
-    MockChannel,
-    MockMessage,
-    MockEmbed,
-    MockFile,
-    MockWebhook,
-    Activity,
-    Color,
-    ButtonStyle,
-    Interaction,
-)
-from .voice import VoiceClient, Gateway, Opus, OpusLoader, VoiceState, VoiceProtocol, VoiceRegion, VoiceRecv, VoiceSend, VoiceUtils, VoiceWebSocket, VoiceWebSocketClient, VoiceWebSocketServer, VoiceWebSocketUtils, VoiceWebSocketVoice, VoiceWebSocketVoiceClient, VoiceWebSocketVoiceServer, VoiceWebSocketVoiceUtils, VoiceWebSocketVoiceWebSocket, VoiceWebSocketVoiceWebSocketClient, VoiceWebSocketVoiceWebSocketServer, VoiceWebSocketVoiceWebSocketUtils
-from .discord import Intents, Client, Command
+from .base import *
+from .client import *
+from .commands import *
+from .discord import *
+from .helpers import *
+from .interaction import *
+from .models import MockFile
+from .ui import *
+from .voice import *
+from .webhook import *
 
 __all__ = [
-    'commands',
-    'discord',
-    'interaction',
-    'models',
-    'ui',
-    'voice',
-    'webhook',
-    'MockGuild',
-    'MockRole',
-    'MockMember',
-    'MockChannel',
-    'MockMessage',
-    'MockEmbed',
-    'MockFile',
-    'MockWebhook',
     'Activity',
-    'Color',
-    'ButtonStyle',
-    'Interaction',
-    'VoiceClient',
-    'Gateway',
-    'Opus',
-    'OpusLoader',
-    'VoiceState',
-    'VoiceProtocol',
-    'VoiceRegion',
-    'VoiceRecv',
-    'VoiceSend',
-    'VoiceUtils',
-    'VoiceWebSocket',
-    'VoiceWebSocketClient',
-    'VoiceWebSocketServer',
-    'VoiceWebSocketUtils',
-    'VoiceWebSocketVoice',
-    'VoiceWebSocketVoiceClient',
-    'VoiceWebSocketVoiceServer',
-    'VoiceWebSocketVoiceUtils',
-    'VoiceWebSocketVoiceWebSocket',
-    'VoiceWebSocketVoiceWebSocketClient',
-    'VoiceWebSocketVoiceWebSocketServer',
-    'VoiceWebSocketVoiceWebSocketUtils',
-    'Intents',
     'Client',
     'Command',
+    'Embed',
+    'Guild',
+    'Intents',
+    'Member',
+    'Message',
+    'MockFile',
+    'Role',
+    'User',
+    'VoiceClient',
+    'Webhook',
 ]

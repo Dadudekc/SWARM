@@ -558,7 +558,9 @@
                     "_load_config"
                 ],
                 "docstring": "Bridges test automation with devlog system.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -658,7 +660,9 @@
                 "docstring": "Test implementation of BaseRunner.",
                 "base_classes": [
                     "RunnerCore"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -4928,7 +4932,9 @@
             "Command": {
                 "methods": [],
                 "docstring": "Mock command.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Group": {
                 "methods": [
@@ -4937,14 +4943,18 @@
                 "docstring": "Mock command group.",
                 "base_classes": [
                     "Command"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Cog": {
                 "methods": [
                     "cog_unload"
                 ],
                 "docstring": "Mock cog.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Bot": {
                 "methods": [
@@ -4956,12 +4966,16 @@
                     "get_command"
                 ],
                 "docstring": "Mock Discord bot.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Context": {
                 "methods": [],
                 "docstring": "Mock command context.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5073,11 +5087,12 @@
         "functions": [
             "__init__",
             "__init__",
-            "default",
-            "all",
             "__init__",
             "from_rgb",
-            "from_str"
+            "from_str",
+            "__init__",
+            "add_command",
+            "__init__"
         ],
         "classes": {
             "Status": {
@@ -5086,7 +5101,9 @@
                 "base_classes": [
                     "str",
                     "Enum"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "ChannelType": {
                 "methods": [],
@@ -5094,30 +5111,36 @@
                 "base_classes": [
                     "int",
                     "Enum"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "ActivityType": {
                 "methods": [],
                 "docstring": "Mock activity types.",
                 "base_classes": [
                     "Enum"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Activity": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Activity class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Intents": {
                 "methods": [
-                    "__init__",
-                    "default",
-                    "all"
+                    "__init__"
                 ],
-                "docstring": "Mock Intents class.",
-                "base_classes": []
+                "docstring": "Mock Discord Intents class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Color": {
                 "methods": [
@@ -5126,11 +5149,32 @@
                     "from_str"
                 ],
                 "docstring": "Mock Discord color class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Client": {
+                "methods": [
+                    "__init__",
+                    "add_command"
+                ],
+                "docstring": "Mock Discord Client class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "Command": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord Command class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
-        "complexity": 14
+        "complexity": 16
     },
     "tests\\utils\\mock_discord\\helpers.py": {
         "language": ".py",
@@ -5212,7 +5256,9 @@
                     "__init__"
                 ],
                 "docstring": "Mock Discord Activity for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockGuild": {
                 "methods": [
@@ -5222,7 +5268,9 @@
                     "get_channel"
                 ],
                 "docstring": "Mock Discord Guild for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockRole": {
                 "methods": [
@@ -5231,7 +5279,9 @@
                     "remove_member"
                 ],
                 "docstring": "Mock Discord Role for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockMember": {
                 "methods": [
@@ -5240,21 +5290,27 @@
                     "remove_role"
                 ],
                 "docstring": "Mock Discord Member for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockChannel": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Channel for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockMessage": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Message for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockEmbed": {
                 "methods": [
@@ -5265,21 +5321,27 @@
                     "set_thumbnail"
                 ],
                 "docstring": "Mock Discord Embed for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockFile": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord File for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "MockWebhook": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Webhook for testing.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Embed": {
                 "methods": [
@@ -5290,19 +5352,25 @@
                     "set_thumbnail"
                 ],
                 "docstring": "Mock Discord Embed class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "ButtonStyle": {
                 "methods": [],
                 "docstring": "Mock Discord ButtonStyle class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Interaction": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord Interaction class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Color": {
                 "methods": [
@@ -5332,7 +5400,9 @@
                     "dark_blurple"
                 ],
                 "docstring": "Mock Discord Color class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5352,7 +5422,9 @@
             "MockWebhook": {
                 "methods": [],
                 "docstring": "Mock Discord webhook.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5469,7 +5541,9 @@
                 "docstring": "Protocol defining required AutonomyLoopRunner methods.",
                 "base_classes": [
                     "Protocol"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TestDevLogBridge": {
                 "methods": [
@@ -5477,7 +5551,9 @@
                     "_load_config"
                 ],
                 "docstring": "Bridges test automation with devlog system.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5501,87 +5577,121 @@
             "MockQtWidgets": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "MockQtCore": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "MockQtGui": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QMainWindow": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QWidget": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QVBoxLayout": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QPushButton": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QLabel": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QFrame": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QSizePolicy": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "Qt": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QSize": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QObject": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "pyqtSignal": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Kiddie Script",
+                "agent_type": "Utility"
             },
             "QFont": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QColor": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "QPalette": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5599,12 +5709,16 @@
             "TestBasicCommands": {
                 "methods": [],
                 "docstring": "Test the basic commands functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TestAgentCommands": {
                 "methods": [],
                 "docstring": "Test the agent command functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5637,7 +5751,9 @@
                     "test_max_retries_exceeded"
                 ],
                 "docstring": "Test suite for dispatcher retry functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TestDispatcherRateLimiting": {
                 "methods": [
@@ -5645,7 +5761,9 @@
                     "test_rate_limit_persistent"
                 ],
                 "docstring": "Test suite for dispatcher rate limiting functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TestDispatcherMediaValidation": {
                 "methods": [
@@ -5653,7 +5771,9 @@
                     "test_invalid_media_rejection"
                 ],
                 "docstring": "Test suite for dispatcher media validation functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5701,7 +5821,9 @@
             "InvalidData": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5819,7 +5941,9 @@
                     "test_metrics_reset"
                 ],
                 "docstring": "Test suite for log metrics functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TestLogManager": {
                 "methods": [
@@ -5827,7 +5951,9 @@
                     "test_log_cleanup"
                 ],
                 "docstring": "Test suite for log manager functionality.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -5967,7 +6093,9 @@
                 "docstring": "Test suite for Reddit strategy functionality.",
                 "base_classes": [
                     "BaseStrategyTest"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -6014,7 +6142,9 @@
                     "test_comment_not_logged_in"
                 ],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -6095,7 +6225,9 @@
                 "docstring": "Test suite for base strategy functionality.",
                 "base_classes": [
                     "BaseStrategyTest"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -6121,21 +6253,27 @@
                     "__init__"
                 ],
                 "docstring": "Mock Discord Interaction class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "InteractionResponse": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord InteractionResponse class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "InteractionFollowup": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord InteractionFollowup class.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -6159,7 +6297,9 @@
                 "docstring": "Mock button styles.",
                 "base_classes": [
                     "Enum"
-                ]
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "View": {
                 "methods": [
@@ -6167,14 +6307,18 @@
                     "add_item"
                 ],
                 "docstring": "Mock Discord view.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Button": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord button.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Select": {
                 "methods": [
@@ -6182,14 +6326,18 @@
                     "add_option"
                 ],
                 "docstring": "Mock Discord select menu.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "TextInput": {
                 "methods": [
                     "__init__"
                 ],
                 "docstring": "Mock Discord text input.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Modal": {
                 "methods": [
@@ -6197,7 +6345,9 @@
                     "add_item"
                 ],
                 "docstring": "Mock Discord modal.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -6214,112 +6364,156 @@
                     "stop"
                 ],
                 "docstring": "Simplified mock of ``discord.VoiceClient``.",
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
             },
             "Gateway": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "Opus": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "OpusLoader": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceState": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceProtocol": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceRegion": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceRecv": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceSend": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceUtils": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocket": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketClient": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketServer": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketUtils": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoice": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceClient": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceServer": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceUtils": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocket": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocketClient": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocketServer": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             },
             "VoiceWebSocketVoiceWebSocketUtils": {
                 "methods": [],
                 "docstring": null,
-                "base_classes": []
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
             }
         },
         "routes": [],
@@ -6428,5 +6622,811 @@
         "classes": {},
         "routes": [],
         "complexity": 0
+    },
+    "agent_tools\\swarm_tools\\analyzers\\test_log_analyzer.py": {
+        "language": ".py",
+        "functions": [
+            "setup_test_environment",
+            "run_analyzer_tests",
+            "validate_results",
+            "cleanup",
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "agent_tools\\swarm_tools\\tests\\overnight_test_runner.py": {
+        "language": ".py",
+        "functions": [
+            "run",
+            "__init__",
+            "_load_test_analysis",
+            "_load_high_scores",
+            "_save_test_analysis",
+            "_save_high_scores",
+            "send_prompt_to_agent"
+        ],
+        "classes": {
+            "TestRunner": {
+                "methods": [
+                    "__init__",
+                    "_load_test_analysis",
+                    "_load_high_scores",
+                    "_save_test_analysis",
+                    "_save_high_scores",
+                    "send_prompt_to_agent"
+                ],
+                "docstring": "Coordinates test running and agent debugging.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 13
+    },
+    "agent_tools\\swarm_tools\\tests\\test_selenium_imports.py": {
+        "language": ".py",
+        "functions": [
+            "test_imports"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\stubborn\\test_agent_processor.py": {
+        "language": ".py",
+        "functions": [
+            "message_system"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 1
+    },
+    "tests\\stubborn\\test_auth_manager.py": {
+        "language": ".py",
+        "functions": [
+            "auth_config",
+            "security_config",
+            "auth_manager",
+            "test_register_user",
+            "test_authenticate",
+            "test_login_attempts",
+            "test_token_validation",
+            "test_user_info",
+            "test_role_management",
+            "test_user_persistence",
+            "test_concurrent_access",
+            "register_and_login"
+        ],
+        "classes": {
+            "TestAuthManager": {
+                "methods": [
+                    "test_register_user",
+                    "test_authenticate",
+                    "test_login_attempts",
+                    "test_token_validation",
+                    "test_user_info",
+                    "test_role_management",
+                    "test_user_persistence",
+                    "test_concurrent_access"
+                ],
+                "docstring": "Test suite for AuthManager class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\stubborn\\test_batch_processing.py": {
+        "language": ".py",
+        "functions": [
+            "normalize_path",
+            "safe_file_handle",
+            "test_batch_processing",
+            "test_batch_processing_large",
+            "cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\stubborn\\test_auth.py": {
+        "language": ".py",
+        "functions": [
+            "test_auth_module_imports",
+            "test_auth_files_exist",
+            "test_auth_functionality"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 3
+    },
+    "tests\\stubborn\\test_config.py": {
+        "language": ".py",
+        "functions": [
+            "config",
+            "test_config_defaults",
+            "test_config_custom_values",
+            "test_invalid_log_dir"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\stubborn\\test_content_loop.py": {
+        "language": ".py",
+        "functions": [
+            "content_loop",
+            "test_content_event_logging",
+            "test_task_completion_logging",
+            "test_insight_logging",
+            "test_content_history_filtering",
+            "test_invalid_event_type"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\stubborn\\test_content_management.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "create_content",
+            "validate_content",
+            "schedule_content",
+            "publish_content",
+            "_get_content_by_id",
+            "content_manager",
+            "test_content_creation",
+            "test_content_validation",
+            "test_content_scheduling",
+            "test_content_publishing"
+        ],
+        "classes": {
+            "ContentManager": {
+                "methods": [
+                    "__init__",
+                    "create_content",
+                    "validate_content",
+                    "schedule_content",
+                    "publish_content",
+                    "_get_content_by_id"
+                ],
+                "docstring": "Content management system for social media platforms.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestContentManager": {
+                "methods": [
+                    "content_manager",
+                    "test_content_creation",
+                    "test_content_validation",
+                    "test_content_scheduling",
+                    "test_content_publishing"
+                ],
+                "docstring": "Test suite for content management system.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 22
+    },
+    "tests\\stubborn\\test_coordinates.py": {
+        "language": ".py",
+        "functions": [
+            "move_to_coords",
+            "main"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\stubborn\\test_crime_report_pipeline.py": {
+        "language": ".py",
+        "functions": [
+            "mock_data",
+            "test_generate_report_both_sources",
+            "test_generate_report_arcgis_only",
+            "test_generate_report_json_format",
+            "test_main_stdout",
+            "test_main_file_output",
+            "test_main_invalid_year",
+            "test_main_multiple_zips"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 8
+    },
+    "tests\\stubborn\\test_discord_commands__with_coords.py": {
+        "language": ".py",
+        "functions": [
+            "__init__",
+            "__init__"
+        ],
+        "classes": {
+            "TestAgentCommandsWithCoordinates": {
+                "methods": [],
+                "docstring": "Test the agent command functionality with coordinate dependencies.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockContext": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord context.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMessage": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord message.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 4
+    },
+    "tests\\stubborn\\test_dreamscribe.py": {
+        "language": ".py",
+        "functions": [
+            "dreamscribe",
+            "test_memory_ingestion",
+            "test_narrative_threading",
+            "test_insight_patterns",
+            "test_memory_connections"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 5
+    },
+    "tests\\stubborn\\test_help_menu.py": {
+        "language": ".py",
+        "functions": [
+            "mock_bot",
+            "mock_context"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\stubborn\\test_identity_utils.py": {
+        "language": ".py",
+        "functions": [
+            "identity_config",
+            "test_generate_agent_id",
+            "test_validate_password",
+            "test_password_hashing",
+            "test_generate_token",
+            "test_format_agent_name"
+        ],
+        "classes": {
+            "TestIdentityUtils": {
+                "methods": [
+                    "test_generate_agent_id",
+                    "test_validate_password",
+                    "test_password_hashing",
+                    "test_generate_token",
+                    "test_format_agent_name"
+                ],
+                "docstring": "Test suite for IdentityUtils class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\stubborn\\test_log_config.py": {
+        "language": ".py",
+        "functions": [
+            "test_log_level_ordering",
+            "test_log_level_from_string",
+            "test_log_config_defaults",
+            "test_log_config_serialization",
+            "test_path_helpers",
+            "test_retention_date"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\stubborn\\test_memory_querier.py": {
+        "language": ".py",
+        "functions": [
+            "setup_teardown",
+            "memory_querier",
+            "test_get_recent_memory",
+            "test_summarize_topic",
+            "test_find_similar_threads",
+            "test_get_agent_insights",
+            "test_get_task_history"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 7
+    },
+    "tests\\stubborn\\test_messaging.py": {
+        "language": ".py",
+        "functions": [
+            "mock_agent_control",
+            "mock_message_pipeline",
+            "gui_test_env",
+            "persistent_queue",
+            "test_full_message_loop",
+            "test_message_loop_error_handling",
+            "test_message_loop_invalid_agent",
+            "test_queue_clear_agent",
+            "test_queue_clear_history",
+            "test_response_collector",
+            "test_response_collector_mock",
+            "test_real_ui_automation",
+            "test_message_creation",
+            "test_message_serialization"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "tests\\stubborn\\test_post_handler.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "mock_utils",
+            "post_handler",
+            "test_initialization",
+            "test_create_post_success",
+            "test_create_post_timeout",
+            "test_create_post_click_intercepted",
+            "test_create_post_with_media"
+        ],
+        "classes": {
+            "TestPostHandler": {
+                "methods": [
+                    "test_initialization",
+                    "test_create_post_success",
+                    "test_create_post_timeout",
+                    "test_create_post_click_intercepted",
+                    "test_create_post_with_media"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 15
+    },
+    "tests\\stubborn\\test_platform_interface.py": {
+        "language": ".py",
+        "functions": [
+            "initialize",
+            "login",
+            "post",
+            "create_post",
+            "is_logged_in",
+            "get_memory_updates",
+            "mock_platform",
+            "test_platform_interface_contract",
+            "test_platform_initialization",
+            "test_platform_memory_tracking",
+            "test_platform_error_handling",
+            "__init__",
+            "initialize",
+            "login",
+            "post",
+            "create_post",
+            "is_logged_in",
+            "get_memory_updates"
+        ],
+        "classes": {
+            "SocialPlatform": {
+                "methods": [
+                    "initialize",
+                    "login",
+                    "post",
+                    "create_post",
+                    "is_logged_in",
+                    "get_memory_updates"
+                ],
+                "docstring": "Abstract base class defining the interface for social media platforms.",
+                "base_classes": [
+                    "ABC"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestPlatformInterface": {
+                "methods": [
+                    "mock_platform",
+                    "test_platform_interface_contract",
+                    "test_platform_initialization",
+                    "test_platform_memory_tracking",
+                    "test_platform_error_handling"
+                ],
+                "docstring": "Test suite for platform interface implementation.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockPlatform": {
+                "methods": [
+                    "__init__",
+                    "initialize",
+                    "login",
+                    "post",
+                    "create_post",
+                    "is_logged_in",
+                    "get_memory_updates"
+                ],
+                "docstring": null,
+                "base_classes": [
+                    "SocialPlatform"
+                ],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 36
+    },
+    "tests\\stubborn\\test_queue.py": {
+        "language": ".py",
+        "functions": [
+            "queue",
+            "test_queue_initialization",
+            "test_add_message",
+            "test_get_message",
+            "test_clear_queue",
+            "test_persistent_storage",
+            "test_message_priority",
+            "test_queue_size_limit",
+            "test_invalid_message",
+            "test_empty_queue",
+            "test_message_history",
+            "test_clear_history",
+            "test_queue_status",
+            "test_queue_shutdown"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 14
+    },
+    "tests\\stubborn\\test_rate_limiter.py": {
+        "language": ".py",
+        "functions": [
+            "limiter",
+            "log_manager",
+            "test_default_limits",
+            "test_set_rate_limit",
+            "test_check_rate_limit",
+            "test_reset_rate_limit",
+            "test_get_remaining_calls",
+            "test_rate_limit_decorator",
+            "test_window_expiration",
+            "test_unknown_action",
+            "test_func"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 11
+    },
+    "tests\\stubborn\\test_reddit_platform_rate_limiter.py": {
+        "language": ".py",
+        "functions": [
+            "rate_limiter",
+            "test_initialization",
+            "test_get_rate_limit",
+            "test_set_rate_limit",
+            "test_check_rate_limit_default",
+            "test_check_rate_limit_exceeded",
+            "test_check_rate_limit_window_reset",
+            "test_rate_limit_decorator",
+            "test_check_rate_limit_exceeded",
+            "__init__",
+            "test_method"
+        ],
+        "classes": {
+            "TestRateLimiter": {
+                "methods": [
+                    "test_initialization",
+                    "test_get_rate_limit",
+                    "test_set_rate_limit",
+                    "test_check_rate_limit_default",
+                    "test_check_rate_limit_exceeded",
+                    "test_check_rate_limit_window_reset",
+                    "test_rate_limit_decorator",
+                    "test_check_rate_limit_exceeded"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "TestClass": {
+                "methods": [
+                    "__init__",
+                    "test_method"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 21
+    },
+    "tests\\stubborn\\test_report_formatter.py": {
+        "language": ".py",
+        "functions": [
+            "sample_data",
+            "test_format_markdown_report",
+            "test_format_discord_report",
+            "test_format_instagram_report",
+            "test_format_report_invalid_format",
+            "test_format_report_missing_data"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\stubborn\\test_security_config.py": {
+        "language": ".py",
+        "functions": [
+            "temp_config_dir",
+            "security_config",
+            "test_default_config",
+            "test_config_persistence",
+            "test_config_validation",
+            "test_invalid_section",
+            "test_config_file_corruption",
+            "test_config_file_permissions",
+            "test_config_section_updates",
+            "test_config_reload"
+        ],
+        "classes": {
+            "TestSecurityConfig": {
+                "methods": [
+                    "test_default_config",
+                    "test_config_persistence",
+                    "test_config_validation",
+                    "test_invalid_section",
+                    "test_config_file_corruption",
+                    "test_config_file_permissions",
+                    "test_config_section_updates",
+                    "test_config_reload"
+                ],
+                "docstring": "Test suite for SecurityConfig class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 18
+    },
+    "tests\\stubborn\\test_session_manager.py": {
+        "language": ".py",
+        "functions": [
+            "session_config",
+            "security_config",
+            "session_manager",
+            "test_create_session",
+            "test_session_limit",
+            "test_session_timeout",
+            "test_session_metadata",
+            "test_invalidate_session",
+            "test_session_persistence",
+            "test_cleanup_expired_sessions",
+            "test_concurrent_access",
+            "create_sessions"
+        ],
+        "classes": {
+            "TestSessionManager": {
+                "methods": [
+                    "test_create_session",
+                    "test_session_limit",
+                    "test_session_timeout",
+                    "test_session_metadata",
+                    "test_invalidate_session",
+                    "test_session_persistence",
+                    "test_cleanup_expired_sessions",
+                    "test_concurrent_access"
+                ],
+                "docstring": "Test suite for SessionManager class.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 20
+    },
+    "tests\\stubborn\\test_twitter_strategy.py": {
+        "language": ".py",
+        "functions": [
+            "mock_driver",
+            "mock_config",
+            "mock_memory_update",
+            "mock_utils",
+            "strategy",
+            "test_init",
+            "test_login_success",
+            "test_login_missing_credentials",
+            "test_post_success",
+            "test_post_not_logged_in",
+            "test_memory_error_tracking",
+            "test_rate_limiting_flow",
+            "test_post_with_media",
+            "test_media_validation",
+            "test_is_logged_in"
+        ],
+        "classes": {
+            "TestTwitterStrategy": {
+                "methods": [
+                    "test_init",
+                    "test_login_success",
+                    "test_login_missing_credentials",
+                    "test_post_success",
+                    "test_post_not_logged_in",
+                    "test_memory_error_tracking",
+                    "test_rate_limiting_flow",
+                    "test_post_with_media",
+                    "test_media_validation",
+                    "test_is_logged_in"
+                ],
+                "docstring": "Test suite for TwitterStrategy.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 25
+    },
+    "tests\\stubborn\\test_tts.py": {
+        "language": ".py",
+        "functions": [
+            "output_dir",
+            "tts_manager"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 2
+    },
+    "tests\\stubborn\\test_write_log.py": {
+        "language": ".py",
+        "functions": [
+            "normalize_path",
+            "safe_file_handle",
+            "test_write_log",
+            "test_write_log_batch",
+            "test_write_log_encoding",
+            "cleanup"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
+    },
+    "tests\\stubborn\\test_utils.py": {
+        "language": ".py",
+        "functions": [
+            "create_mock_embed",
+            "create_mock_file",
+            "test_mock_guild",
+            "test_mock_channel",
+            "test_mock_member",
+            "test_mock_message",
+            "test_mock_context",
+            "test_mock_bot",
+            "test_create_mock_embed",
+            "test_mock_discord_file",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__",
+            "__init__"
+        ],
+        "classes": {
+            "MockGuild": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord guild for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockChannel": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord channel for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMember": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord member for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockMessage": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord message for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockContext": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord context for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockBot": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": "Mock Discord bot for testing.",
+                "base_classes": [],
+                "maturity": "Core Asset",
+                "agent_type": "Utility"
+            },
+            "MockFile": {
+                "methods": [
+                    "__init__"
+                ],
+                "docstring": null,
+                "base_classes": [],
+                "maturity": "Prototype",
+                "agent_type": "Utility"
+            }
+        },
+        "routes": [],
+        "complexity": 24
+    },
+    "tests\\stubborn\\test_zip_mapper.py": {
+        "language": ".py",
+        "functions": [
+            "test_get_zip_info_local_cache",
+            "test_get_zip_info_api_fallback",
+            "test_get_zip_info_api_error",
+            "test_format_location",
+            "test_get_zip_details",
+            "test_montgomery_zips_completeness"
+        ],
+        "classes": {},
+        "routes": [],
+        "complexity": 6
     }
 }

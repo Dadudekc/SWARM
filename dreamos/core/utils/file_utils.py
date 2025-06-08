@@ -49,6 +49,9 @@ def read_json(file_path: Union[str, Path], default: Any = None) -> Any:
         )
         return default
 
+# Alias for backward compatibility
+load_json = read_json
+
 def write_json(data: Any, file_path: Union[str, Path], **kwargs) -> None:
     """Write data to JSON file.
     
@@ -58,6 +61,9 @@ def write_json(data: Any, file_path: Union[str, Path], **kwargs) -> None:
         **kwargs: Additional arguments passed to _write_json
     """
     _write_json(data, file_path, **kwargs)
+
+# Alias for backward compatibility
+save_json = write_json
 
 __all__ = [
     "atomic_write",
@@ -74,4 +80,6 @@ __all__ = [
     "cleanup_old_files",
     "read_json",
     "write_json",
+    "load_json",
+    "save_json",
 ]

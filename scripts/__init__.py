@@ -2,9 +2,11 @@
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
 from . import isolate_stubborn_tests
-from . import list_large_files
+from . import migrate_auth_to_core
+from . import migrate_bridge_config
 
 __all__ = [
     'isolate_stubborn_tests',
-    'list_large_files',
+    'migrate_auth_to_core',
+    'migrate_bridge_config',
 ]
