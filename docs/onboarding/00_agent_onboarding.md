@@ -87,6 +87,8 @@ D:\SWARM\Dream.OS\
 2. Initialize your core systems
 3. Explore the system architecture
 4. Begin autonomous task processing
+5. Review the training resources in `agent_tools/mailbox/onboarding/training`
+   and the [Training Overview](06_training_overview.md)
 
 ## ⚠️ Duplication Prevention
 - This guide is the single source of truth

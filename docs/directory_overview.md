@@ -5,7 +5,8 @@ This document describes the purpose of the main folders in the repository to mak
 ## Core Components
 
 - `dreamos/` - Core system implementation including orchestrator, messaging, agent management, and self-discovery modules.
-- `tools/` - All utility scripts, automation tools, and helper functions for development and operations.
+- `tools/` - Utility scripts, automation helpers, and other development tools.
+- `agent_tools/` - Agent utilities including mailbox management and onboarding resources.
 - `discord_bot/` - Discord integration including the bot and command handlers.
 - `crime_report_generator/` - Stand‑alone module used for generating crime reports.
 
@@ -13,6 +14,7 @@ This document describes the purpose of the main folders in the repository to mak
 
 - `docs/` - Project documentation and guides.
 - `docs/examples/` - Code samples and examples demonstrating library usage.
+- `agent_tools/mailbox/onboarding/training/` - Comprehensive training materials and skill library.
 
 ## Configuration and Data
 
