@@ -1,7 +1,9 @@
 """
-Run Tests
---------
-Script to run the overnight test runner using Python's exec function.
+Execute Overnight Tests
+---------------------
+Wrapper script that executes the overnight test runner using Python's exec function.
+This approach allows for dynamic execution of the test runner script while maintaining
+proper globals and execution context.
 """
 
 import os
