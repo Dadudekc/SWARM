@@ -8,6 +8,14 @@ from typing import Dict, Any, Optional
 from datetime import datetime, timedelta
 import threading
 
+__all__ = [
+    'RateLimiter',
+    'check_rate_limit',
+    'set_rate_limit',
+    'reset_limits',
+    'get_remaining'
+]
+
 class RateLimiter:
     """Handles rate limiting for API operations."""
     
@@ -83,4 +91,10 @@ class RateLimiter:
         Returns:
             Number of remaining operations
         """
-        return self.rules.get(operation, {}).get('remaining', 0) 
+        return self.rules.get(operation, {}).get('remaining', 0)
+
+# Export functions for convenience
+check_rate_limit = RateLimiter().check_rate_limit
+set_rate_limit = RateLimiter().set_rate_limit
+reset_limits = RateLimiter().reset_limits
+get_remaining = RateLimiter().get_remaining 

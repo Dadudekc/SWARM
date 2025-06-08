@@ -11,6 +11,7 @@ from PyQt5.QtWidgets import (
 )
 from PyQt5.QtCore import Qt
 from .components.log_monitor import LogMonitor
+from .components.agent_monitor import AgentMonitor
 
 class MainWindow(QMainWindow):
     """Main application window."""
@@ -30,6 +31,10 @@ class MainWindow(QMainWindow):
         # Create tab widget
         self.tabs = QTabWidget()
         layout.addWidget(self.tabs)
+        
+        # Add agent monitor tab
+        self.agent_monitor = AgentMonitor()
+        self.tabs.addTab(self.agent_monitor, "Agents")
         
         # Add log monitor tab
         self.log_monitor = LogMonitor()
@@ -55,9 +60,13 @@ class MainWindow(QMainWindow):
         # View menu
         view_menu = self.menuBar().addMenu("View")
         
-        refresh_action = QAction("Refresh Logs", self)
-        refresh_action.triggered.connect(self.log_monitor.refresh_logs)
-        view_menu.addAction(refresh_action)
+        refresh_agents_action = QAction("Refresh Agents", self)
+        refresh_agents_action.triggered.connect(self.agent_monitor.refresh_agents)
+        view_menu.addAction(refresh_agents_action)
+        
+        refresh_logs_action = QAction("Refresh Logs", self)
+        refresh_logs_action.triggered.connect(self.log_monitor.refresh_logs)
+        view_menu.addAction(refresh_logs_action)
         
         # Help menu
         help_menu = self.menuBar().addMenu("Help")
@@ -79,5 +88,6 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         """Handle window close event."""
         # Cleanup
+        self.agent_monitor.close()
         self.log_monitor.close()
         super().closeEvent(event) 

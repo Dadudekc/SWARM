@@ -1,0 +1,11 @@
+{
+  "username": "test_user",
+  "password": "test_pass",
+  "log_dir": "logs",
+  "max_size": 1024,
+  "max_age": 7,
+  "batch_size": 100,
+  "batch_timeout": 5,
+  "rotation_check_interval": 60,
+  "compress_after": 3
+}

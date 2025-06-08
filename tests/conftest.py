@@ -20,15 +20,6 @@ from types import SimpleNamespace
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
-# Test directories
-TEST_ROOT = project_root / "tests"
-TEST_DATA_DIR = TEST_ROOT / "data"
-TEST_OUTPUT_DIR = TEST_ROOT / "output"
-TEST_CONFIG_DIR = TEST_ROOT / "config"
-TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
-TEST_TEMP_DIR = TEST_ROOT / "temp"
-VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
-
 def safe_delete(path: Path, retries: int = 3, delay: float = 0.2) -> None:
     """Safely delete a file with retries and GC flush.
     
@@ -68,23 +59,8 @@ MOCK_DEVLOG = "Test devlog entry"
 @pytest.fixture(autouse=True)
 def setup_test_environment():
     """Set up test environment."""
-    # Create test directories
-    TEST_DATA_DIR.mkdir(exist_ok=True)
-    TEST_CONFIG_DIR.mkdir(exist_ok=True)
-    TEST_RUNTIME_DIR.mkdir(exist_ok=True)
-    
+    # No legacy test directories needed
     yield
-    
-    # Cleanup with safe deletion
-    if TEST_DATA_DIR.exists():
-        for file in TEST_DATA_DIR.glob("*"):
-            safe_delete(file)
-    if TEST_CONFIG_DIR.exists():
-        for file in TEST_CONFIG_DIR.glob("*"):
-            safe_delete(file)
-    if TEST_RUNTIME_DIR.exists():
-        for file in TEST_RUNTIME_DIR.glob("*"):
-            safe_delete(file)
 
 @pytest.fixture
 def clean_test_dirs(tmp_path, monkeypatch):
@@ -117,11 +93,41 @@ def test_env() -> Dict[str, str]:
         "DREAMOS_TEST_CACHE_DIR": str(Path("test_cache").absolute())
     }
 
-@pytest.fixture(scope="session")
-def temp_dir() -> Generator[Path, None, None]:
-    """Temporary directory for tests."""
-    with tempfile.TemporaryDirectory() as tmp:
-        yield Path(tmp)
+@pytest.fixture
+def temp_dir():
+    """Create a temporary directory for test files."""
+    with tempfile.TemporaryDirectory() as tmp_dir:
+        yield Path(tmp_dir)
+
+@pytest.fixture
+def test_config_dir(temp_dir):
+    """Create a temporary directory with test configuration files."""
+    config_dir = temp_dir / "config"
+    config_dir.mkdir()
+    
+    # Create test response_loop_config.json
+    response_loop_config = {
+        "agent_id": "test_agent",
+        "status": "active",
+        "last_update": "2024-01-01T00:00:00Z",
+        "config_version": "1.0"
+    }
+    (config_dir / "response_loop_config.json").write_text(
+        str(response_loop_config)
+    )
+    
+    # Create test agent_config.json
+    agent_config = {
+        "agent_id": "test_agent",
+        "name": "Test Agent",
+        "type": "worker",
+        "capabilities": ["task_processing", "status_reporting"]
+    }
+    (config_dir / "agent_config.json").write_text(
+        str(agent_config)
+    )
+    
+    return config_dir
 
 @pytest.fixture(scope="function")
 def test_file(temp_dir: Path) -> Generator[Path, None, None]:

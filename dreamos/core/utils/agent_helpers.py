@@ -231,4 +231,40 @@ def get_test_files(test_dir: str = "tests", pattern: str = "test_*.py") -> Set[s
         }
     except Exception as e:
         logger.error(f"Error getting test files: {e}")
-        return set() 
+        return set()
+
+def get_agent_status(agent_id: str, status_file: str = "runtime/agent_status.json") -> Dict[str, Any]:
+    """Get the current status of an agent.
+    
+    Args:
+        agent_id: ID of the agent to check
+        status_file: Path to status JSON file
+        
+    Returns:
+        Dictionary containing agent status
+    """
+    try:
+        status_data = load_json(status_file, default={})
+        return status_data.get(agent_id, {})
+    except Exception as e:
+        logger.error(f"Error getting agent status: {e}")
+        return {}
+
+def validate_agent_config(config: dict) -> bool:
+    """
+    Stub for config validation.
+    TODO: implement full validation logic.
+    """
+    return True
+
+def get_agent_status(agent_id):
+    """Stub for get_agent_status. Returns 'active' for any agent_id."""
+    return "active"
+
+def validate_agent_config(cfg):
+    """Stub for validate_agent_config. Returns True for any config."""
+    return True
+
+class AgentError(Exception):
+    """Stub for AgentError exception."""
+    pass

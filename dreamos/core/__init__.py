@@ -12,6 +12,7 @@ from . import message
 from . import metrics
 from . import response_collector_new
 from . import system_init
+from .config.config_manager import ConfigManager
 
 __all__ = [
     'agent_interface',
@@ -26,3 +27,9 @@ __all__ = [
     'response_collector_new',
     'system_init',
 ]
+
+"""
+Dream.OS Core Package
+
+Core functionality for the Dream.OS system.
+"""

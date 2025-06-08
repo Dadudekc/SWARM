@@ -14,6 +14,10 @@ from pathlib import Path
 
 logger = logging.getLogger('region_finder')
 
+class RegionError(Exception):
+    """Stub exception for region finding errors."""
+    pass
+
 class RegionFinder:
     """Helps find screen coordinates for UI regions."""
     
@@ -153,6 +157,76 @@ def find_cursor_regions() -> None:
     print("1. Open Cursor")
     print("2. Make sure you're chatting with Agent 6")
     print("3. The coordinates will be saved in agent_regions.json")
+
+def find_region(
+    x: int,
+    y: int,
+    width: int,
+    height: int
+) -> Tuple[int, int, int, int]:
+    """Find a region on the screen.
+    
+    Args:
+        x: X coordinate
+        y: Y coordinate
+        width: Region width
+        height: Region height
+        
+    Returns:
+        Tuple of (x, y, width, height)
+    """
+    return (x, y, width, height)
+
+def get_region_center(
+    region: Tuple[int, int, int, int]
+) -> Tuple[int, int]:
+    """Get the center point of a region.
+    
+    Args:
+        region: Region tuple (x, y, width, height)
+        
+    Returns:
+        Tuple of (center_x, center_y)
+    """
+    x, y, width, height = region
+    return (x + width // 2, y + height // 2)
+
+def _load_regions() -> dict:
+    """
+    Stub for loading cursor regions.
+    TODO: implement full region loading logic.
+    """
+    return {}
+
+def _save_regions(regions):
+    """Save regions to storage."""
+    # TODO: Implement actual region saving logic
+    pass
+
+def start_finding():
+    """Start region finding process."""
+    # TODO: Implement actual region finding logic
+    pass
+
+def _set_start():
+    """Set start point for region."""
+    # TODO: Implement actual start point setting
+    pass
+
+def _set_end():
+    """Set end point for region."""
+    # TODO: Implement actual end point setting
+    pass
+
+def _quit():
+    """Quit region finding process."""
+    # TODO: Implement actual quit logic
+    pass
+
+def get_region():
+    """Get current region."""
+    # TODO: Implement actual region getting logic
+    return None
 
 if __name__ == "__main__":
     find_cursor_regions() 

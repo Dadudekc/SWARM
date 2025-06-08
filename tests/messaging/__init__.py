@@ -1,12 +1,7 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""
+Messaging Tests Package
 
-from . import test_cell_phone
-from . import test_chatgpt_bridge
-from . import test_unified_message_system
+This package contains tests for the messaging system components.
+"""
 
-__all__ = [
-    'test_cell_phone',
-    'test_chatgpt_bridge',
-    'test_unified_message_system',
-]
+# No need to import test modules here - pytest will discover them automatically 

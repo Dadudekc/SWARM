@@ -5,15 +5,50 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Dict, Type, TypeVar
 
 import aiofiles
 import yaml
+from pydantic import BaseModel
 
 from .safe_io import async_atomic_write, atomic_write
 from .exceptions import FileOpsError, FileOpsIOError, FileOpsPermissionError
 
 logger = logging.getLogger(__name__)
+
+T = TypeVar('T', bound=BaseModel)
+
+class SerializationError(FileOpsError):
+    """Raised when serialization fails."""
+    pass
+
+def serialize(obj: Any) -> str:
+    """Serialize an object to a string.
+    
+    Args:
+        obj: Object to serialize
+        
+    Returns:
+        Serialized string representation
+    """
+    try:
+        return json.dumps(obj)
+    except Exception:
+        return str(obj)
+
+def deserialize(s: str) -> Any:
+    """Deserialize a string back into an object.
+    
+    Args:
+        s: String to deserialize
+        
+    Returns:
+        Deserialized object
+    """
+    try:
+        return json.loads(s)
+    except Exception:
+        return s
 
 # Re-export stubs for backward compatibility
 from .json_utils import (
@@ -43,6 +78,9 @@ __all__ = [
     "save_yaml",
     "read_yaml",
     "write_yaml",
+    "serialize",
+    "deserialize",
+    "SerializationError"
 ]
 
 

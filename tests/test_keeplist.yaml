@@ -1,0 +1,32 @@
+# Dream.OS Critical Test Files
+# Files marked as true will be preserved during cleanup
+
+# Core Messaging Tests
+tests/core/messaging/utils/test_core_utils.py: true
+tests/core/messaging/bridge/test_bridge.py: true
+tests/core/messaging/handlers/test_handlers.py: true
+
+# Core Autonomy Tests
+tests/core/autonomy/test_base_response_loop_daemon.py: true
+tests/core/autonomy/test_response_processors.py: true
+tests/core/autonomy/test_runner.py: true
+
+# Core Security Tests
+tests/core/security/test_auth.py: true
+tests/core/security/test_permissions.py: true
+
+# Core Utils Tests
+tests/core/utils/test_file_manager.py: true
+tests/core/utils/test_logging.py: true
+
+# Integration Tests
+tests/integration/test_messaging_flow.py: true
+tests/integration/test_autonomy_flow.py: true
+
+# CLI Tests
+tests/cli/test_main.py: true
+tests/cli/test_commands.py: true
+
+# Bridge Tests
+tests/bridge/test_chatgpt_bridge.py: true
+tests/bridge/test_discord_bridge.py: true 

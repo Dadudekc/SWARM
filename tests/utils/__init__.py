@@ -1,24 +1,4 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
-
-from . import conftest
-from . import mock_discord
-from . import test_file_ops
-from . import test_json_utils
-from . import test_mocks
-from . import test_safe_io
-from . import test_serialization
-from . import test_utils
-from . import test_yaml_utils
-
-__all__ = [
-    'conftest',
-    'mock_discord',
-    'test_file_ops',
-    'test_json_utils',
-    'test_mocks',
-    'test_safe_io',
-    'test_serialization',
-    'test_utils',
-    'test_yaml_utils',
-]
+"""
+Test package for Dream.OS utility functions.
+Test modules will be automatically discovered by pytest.
+""" 

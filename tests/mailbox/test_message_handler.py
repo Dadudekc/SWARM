@@ -9,6 +9,7 @@ import tempfile
 import unittest
 from datetime import datetime, timedelta
 from agent_tools.mailbox.message_handler import MessageHandler
+from pathlib import Path
 
 class TestMessageHandler(unittest.TestCase):
     def setUp(self):
@@ -136,6 +137,34 @@ class TestMessageHandler(unittest.TestCase):
         self.assertEqual(len(messages), 0)
         messages = self.handler.get_messages("agent5")
         self.assertEqual(len(messages), 0)
+
+    def test_process_message(self):
+        """Test message processing."""
+        filename = "test_message.txt"
+        file_path = Path(self.handler.processed_dir) / filename
         
+        # Create test message
+        with open(file_path, "w") as f:
+            f.write("Test message content")
+            
+        # Process message
+        result = self.handler.process_message(file_path)
+        assert result is True
+        assert not file_path.exists()
+        
+    def test_handle_invalid_message(self):
+        """Test handling of invalid messages."""
+        filename = "invalid_message.txt"
+        file_path = Path(self.handler.processed_dir) / filename
+        
+        # Create invalid message
+        with open(file_path, "w") as f:
+            f.write("Invalid message content")
+            
+        # Process message
+        result = self.handler.process_message(file_path)
+        assert result is False
+        assert file_path.exists()
+
 if __name__ == '__main__':
     unittest.main() 

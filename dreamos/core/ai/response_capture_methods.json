@@ -1,0 +1,180 @@
+{
+  "response_capture_methods": [
+    {
+      "name": "File-based Outbox",
+      "description": "Write responses to a monitored directory with state flags",
+      "implementation": {
+        "path": "data/response_outbox",
+        "format": "JSON with metadata",
+        "state_flags": ["pending", "processed", "failed"]
+      },
+      "pros": [
+        "Simple to implement",
+        "Persistent storage",
+        "Easy to debug",
+        "Works across process boundaries"
+      ],
+      "cons": [
+        "File I/O overhead",
+        "Need to handle file locking",
+        "Potential for stale files",
+        "Limited real-time capabilities"
+      ],
+      "considerations": [
+        "Use watchdog for monitoring",
+        "Implement cleanup routines",
+        "Add retry mechanisms",
+        "Consider file size limits"
+      ]
+    },
+    {
+      "name": "Named Pipes",
+      "description": "Unix-style named pipes for inter-process communication",
+      "implementation": {
+        "path": "/tmp/dreamos_response_pipe",
+        "format": "Binary stream",
+        "protocol": "Length-prefixed messages"
+      },
+      "pros": [
+        "Low latency",
+        "Built-in synchronization",
+        "No file cleanup needed",
+        "Efficient for streaming"
+      ],
+      "cons": [
+        "Unix-specific (Windows needs alternatives)",
+        "No persistence by default",
+        "Limited to local machine",
+        "Buffer size constraints"
+      ],
+      "considerations": [
+        "Handle pipe creation/deletion",
+        "Implement reconnection logic",
+        "Add message framing",
+        "Consider Windows compatibility"
+      ]
+    },
+    {
+      "name": "TCP Socket Streaming",
+      "description": "Local TCP server for response streaming",
+      "implementation": {
+        "port": 8080,
+        "protocol": "WebSocket",
+        "format": "JSON messages"
+      },
+      "pros": [
+        "Cross-platform",
+        "Real-time capabilities",
+        "Built-in error handling",
+        "Can be extended to remote"
+      ],
+      "cons": [
+        "More complex setup",
+        "Port management needed",
+        "Security considerations",
+        "Connection overhead"
+      ],
+      "considerations": [
+        "Use asyncio for async I/O",
+        "Implement heartbeat",
+        "Add authentication",
+        "Handle reconnection"
+      ]
+    },
+    {
+      "name": "Local HTTP Callbacks",
+      "description": "HTTP webhook-style callbacks to local server",
+      "implementation": {
+        "endpoint": "http://localhost:3000/api/responses",
+        "method": "POST",
+        "format": "JSON payload"
+      },
+      "pros": [
+        "Standard protocol",
+        "Easy to debug",
+        "Extensible",
+        "Works with existing tools"
+      ],
+      "cons": [
+        "HTTP overhead",
+        "Need web server",
+        "More complex than pipes",
+        "Potential for timeouts"
+      ],
+      "considerations": [
+        "Use FastAPI/Flask",
+        "Add retry logic",
+        "Implement rate limiting",
+        "Handle timeouts"
+      ]
+    },
+    {
+      "name": "VS Code Extension Hook",
+      "description": "Custom VS Code extension for response capture",
+      "implementation": {
+        "extension_id": "dreamos.response-capture",
+        "api": "VS Code Extension API",
+        "format": "VS Code notifications"
+      },
+      "pros": [
+        "Tight IDE integration",
+        "Rich UI capabilities",
+        "User-friendly",
+        "Persistent settings"
+      ],
+      "cons": [
+        "VS Code specific",
+        "Extension maintenance",
+        "Distribution overhead",
+        "Version dependencies"
+      ],
+      "considerations": [
+        "Use TypeScript",
+        "Follow VS Code guidelines",
+        "Add configuration UI",
+        "Handle updates"
+      ]
+    },
+    {
+      "name": "Redis Pub/Sub",
+      "description": "Redis-based publish/subscribe for response streaming",
+      "implementation": {
+        "host": "localhost",
+        "port": 6379,
+        "channels": ["responses", "errors"],
+        "format": "JSON messages"
+      },
+      "pros": [
+        "High performance",
+        "Built-in persistence",
+        "Scalable",
+        "Cross-platform"
+      ],
+      "cons": [
+        "Additional dependency",
+        "Memory usage",
+        "Configuration needed",
+        "Potential for message loss"
+      ],
+      "considerations": [
+        "Use aioredis for async",
+        "Implement message queuing",
+        "Add error handling",
+        "Monitor memory usage"
+      ]
+    }
+  ],
+  "recommendation": {
+    "primary": "Redis Pub/Sub",
+    "reason": "Best balance of performance, reliability, and cross-platform support",
+    "fallback": "File-based Outbox",
+    "fallback_reason": "Simple to implement and debug if Redis is unavailable"
+  },
+  "implementation_priority": [
+    "1. Set up Redis connection and basic pub/sub",
+    "2. Add message formatting and validation",
+    "3. Implement error handling and retries",
+    "4. Add monitoring and logging",
+    "5. Create fallback to file-based system"
+  ]
+} 

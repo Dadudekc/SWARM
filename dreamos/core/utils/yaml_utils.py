@@ -15,7 +15,13 @@ __all__ = [
     "save_yaml",
     "read_yaml",
     "write_yaml",
+    "YamlError",
 ]
+
+
+class YamlError(Exception):
+    """Exception raised for YAML-related errors."""
+    pass
 
 
 def read_yaml(file_path: Union[str, Path], default: Any = None) -> Any:

@@ -1,309 +1,132 @@
 """
-Test Utilities
-------------
-Common utilities for testing.
+Test Utilities Module
+
+Common utilities and mocks for testing.
 """
 
-import os
+import asyncio
 import json
+import os
 import tempfile
 from pathlib import Path
-from typing import Any, Dict, Optional, Union
+from typing import Dict, Optional
+from unittest.mock import AsyncMock, MagicMock
 
-# Test root directory
+# Test directory constants
 TEST_ROOT = Path(__file__).parent.parent
-# Test data directory
 TEST_DATA_DIR = TEST_ROOT / "data"
-# Test output directory
 TEST_OUTPUT_DIR = TEST_ROOT / "output"
-# Voice queue directory
-VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
-# Test config directory
 TEST_CONFIG_DIR = TEST_ROOT / "config"
-# Test runtime directory
 TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
-# Test temp directory
 TEST_TEMP_DIR = TEST_ROOT / "temp"
+VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
 
-def ensure_test_dirs(*paths: Path) -> None:
-    """Ensure test directories exist.
+# Ensure test directories exist
+for dir_path in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR, TEST_CONFIG_DIR, VOICE_QUEUE_DIR]:
+    dir_path.mkdir(parents=True, exist_ok=True)
+
+def create_mock_agent(agent_id: str = "test_agent") -> AsyncMock:
+    """Create a mock agent.
     
     Args:
-        *paths: Paths to create
-    """
-    for path in paths:
-        path.mkdir(parents=True, exist_ok=True)
-
-from tests.utils.mock_discord import (
-    MockGuild,
-    MockMember,
-    MockRole,
-    MockChannel,
-    MockMessage,
-    MockEmbed,
-    MockWebhook,
-    MockFile
-)
-
-def create_test_guild(
-    guild_id: int = 1,
-    name: str = "Test Guild",
-    channels: Optional[list[MockChannel]] = None,
-    members: Optional[list[MockMember]] = None,
-    roles: Optional[list[MockRole]] = None
-) -> MockGuild:
-    """Create a test guild.
-    
-    Args:
-        guild_id: Guild ID
-        name: Guild name
-        channels: List of channels
-        members: List of members
-        roles: List of roles
+        agent_id: ID of the agent
         
     Returns:
-        Mock guild
+        Mock agent instance
     """
-    return MockGuild(
-        id=guild_id,
-        name=name,
-        channels=channels or [],
-        members=members or [],
-        roles=roles or []
-    )
+    agent = AsyncMock()
+    agent.agent_id = agent_id
+    agent.get_status.return_value = {"status": "active"}
+    return agent
 
-def create_test_member(
-    member_id: int = 1,
-    name: str = "Test Member",
-    display_name: Optional[str] = None,
-    bot: bool = False
-) -> MockMember:
-    """Create a test member.
+def create_mock_bridge() -> AsyncMock:
+    """Create a mock bridge.
     
-    Args:
-        member_id: Member ID
-        name: Member name
-        display_name: Display name
-        bot: Whether member is a bot
-        
     Returns:
-        Mock member
+        Mock bridge instance
     """
-    return MockMember(
-        id=member_id,
-        name=name,
-        display_name=display_name,
-        bot=bot
-    )
+    bridge = AsyncMock()
+    bridge.process_message.return_value = "Mocked response"
+    return bridge
 
-def create_test_channel(
-    channel_id: int = 1,
-    name: str = "test-channel",
-    guild: Optional[MockGuild] = None,
-    type: str = "text"
-) -> MockChannel:
-    """Create a test channel.
+def create_mock_cellphone() -> AsyncMock:
+    """Create a mock cellphone.
     
-    Args:
-        channel_id: Channel ID
-        name: Channel name
-        guild: Parent guild
-        type: Channel type
-        
     Returns:
-        Mock channel
+        Mock cellphone instance
     """
-    return MockChannel(
-        id=channel_id,
-        name=name,
-        guild=guild,
-        type=type
-    )
+    cellphone = AsyncMock()
+    cellphone.inject_prompt.return_value = True
+    return cellphone
 
-def create_test_message(
-    message_id: int = 1,
-    content: str = "Test message",
-    channel: Optional[MockChannel] = None,
-    author: Optional[MockMember] = None
-) -> MockMessage:
-    """Create a test message.
+def create_mock_message_processor() -> AsyncMock:
+    """Create a mock message processor.
+    
+    Returns:
+        Mock message processor instance
+    """
+    processor = AsyncMock()
+    processor.process_message.return_value = True
+    return processor
+
+def create_temp_outbox() -> Path:
+    """Create a temporary outbox directory.
+    
+    Returns:
+        Path to temporary outbox directory
+    """
+    temp_dir = tempfile.mkdtemp()
+    outbox_dir = Path(temp_dir) / "bridge_outbox"
+    outbox_dir.mkdir()
+    return outbox_dir
+
+def write_test_message(outbox_path: Path, agent_id: str, content: str) -> None:
+    """Write a test message to the outbox.
     
     Args:
-        message_id: Message ID
+        outbox_path: Path to outbox directory
+        agent_id: ID of the agent
         content: Message content
-        channel: Channel the message was sent in
-        author: Message author
+    """
+    message_path = outbox_path / f"agent-{agent_id}.json"
+    with open(message_path, 'w') as f:
+        json.dump({
+            "content": content,
+            "timestamp": "2024-01-01T00:00:00Z"
+        }, f)
+
+def read_test_message(outbox_path: Path, agent_id: str) -> Optional[Dict]:
+    """Read a test message from the outbox.
+    
+    Args:
+        outbox_path: Path to outbox directory
+        agent_id: ID of the agent
         
     Returns:
-        Mock message
+        Message dictionary or None if not found
     """
-    if not channel:
-        channel = create_test_channel()
-    if not author:
-        author = create_test_member()
-    
-    return MockMessage(
-        id=message_id,
-        content=content,
-        channel=channel,
-        author=author
-    )
-
-def create_test_embed(
-    title: Optional[str] = "Test Embed",
-    description: Optional[str] = "Test description",
-    color: Optional[int] = 0x00ff00
-) -> MockEmbed:
-    """Create a test embed.
-    
-    Args:
-        title: Embed title
-        description: Embed description
-        color: Embed color
+    message_path = outbox_path / f"agent-{agent_id}.json"
+    if not message_path.exists():
+        return None
         
-    Returns:
-        Mock embed
-    """
-    return MockEmbed(
-        title=title,
-        description=description,
-        color=color
-    )
+    with open(message_path, 'r') as f:
+        return json.load(f)
 
-def create_test_webhook(
-    webhook_id: int = 1,
-    token: str = "test_token",
-    url: str = "https://discord.com/api/webhooks/test",
-    channel_id: int = 1,
-    guild_id: Optional[int] = None,
-    name: Optional[str] = None
-) -> MockWebhook:
-    """Create a test webhook.
-    
-    Args:
-        webhook_id: Webhook ID
-        token: Webhook token
-        url: Webhook URL
-        channel_id: Channel ID
-        guild_id: Guild ID
-        name: Webhook name
-        
-    Returns:
-        Mock webhook
-    """
-    return MockWebhook(
-        id=webhook_id,
-        token=token,
-        url=url,
-        channel_id=channel_id,
-        guild_id=guild_id,
-        name=name
-    )
+def ensure_test_dirs():
+    """Ensure all test directories exist."""
+    for dir_path in [TEST_OUTPUT_DIR, TEST_DATA_DIR, TEST_CONFIG_DIR, 
+                    TEST_RUNTIME_DIR, TEST_TEMP_DIR, VOICE_QUEUE_DIR]:
+        dir_path.mkdir(parents=True, exist_ok=True)
 
-def create_test_file(
-    filename: str = "test.txt",
-    content: str = "Test content",
-    description: Optional[str] = None,
-    spoiler: bool = False
-) -> MockFile:
-    """Create a test file.
-    
-    Args:
-        filename: File name
-        content: File content
-        description: File description
-        spoiler: Whether file is a spoiler
-        
-    Returns:
-        Mock file
-    """
-    with tempfile.NamedTemporaryFile(mode='w+', delete=False) as f:
-        f.write(content)
-        temp_path = f.name
-    
-    return MockFile(
-        filename=filename,
-        content=content,
-        description=description,
-        spoiler=spoiler
-    )
+def test_output_dir():
+    """Get test output directory."""
+    return TEST_OUTPUT_DIR 
 
-def create_test_config(
-    config_path: Union[str, Path],
-    config_data: Dict[str, Any]
-) -> None:
-    """Create a test configuration file.
-    
-    Args:
-        config_path: Path to config file
-        config_data: Configuration data
-    """
-    config_path = Path(config_path)
-    config_path.parent.mkdir(parents=True, exist_ok=True)
-    
-    with open(config_path, 'w') as f:
-        json.dump(config_data, f, indent=2)
-
-def cleanup_test_files(*paths: Union[str, Path]) -> None:
-    """Clean up test files.
-    
-    Args:
-        *paths: Paths to clean up
-    """
-    for path in paths:
-        path = Path(path)
-        if path.exists():
-            if path.is_file():
-                path.unlink()
-            elif path.is_dir():
-                for child in path.glob('*'):
-                    if child.is_file():
-                        child.unlink()
-                path.rmdir()
-
-def safe_remove(path: Union[str, Path]) -> None:
-    """Safely remove a file or directory.
-    
-    Args:
-        path: Path to remove
-    """
-    path = Path(path)
-    if path.exists():
-        if path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            for child in path.glob('*'):
-                if child.is_file():
-                    child.unlink()
-            path.rmdir()
-
-def cleanup_test_environment(*paths: Union[str, Path]) -> None:
-    """Clean up test environment.
-    
-    Args:
-        *paths: Paths to clean up
-    """
-    for path in paths:
-        safe_remove(path)
-
-__all__ = [
-    'ensure_test_dirs',
-    'create_test_guild',
-    'create_test_member',
-    'create_test_channel',
-    'create_test_message',
-    'create_test_embed',
-    'create_test_webhook',
-    'create_test_file',
-    'create_test_config',
-    'cleanup_test_files',
-    'safe_remove',
-    'cleanup_test_environment',
-    'TEST_ROOT',
-    'TEST_DATA_DIR',
-    'TEST_OUTPUT_DIR',
-    'VOICE_QUEUE_DIR',
-    'TEST_CONFIG_DIR',
-    'TEST_RUNTIME_DIR',
-    'TEST_TEMP_DIR'
-]
+def safe_remove(path):
+    """Stub for safe file removal."""
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
+    except Exception:
+        pass 

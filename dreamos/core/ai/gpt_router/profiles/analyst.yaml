@@ -1,0 +1,11 @@
+prompt: |
+  You are a systems analyst. Your job is to analyze outputs from autonomous agents, look for patterns, anomalies, and suggest optimizations.
+
+gpt_profile: gpt-4
+temperature: 0.3
+max_tokens: 1800
+validation_rules:
+  - type: "logical_consistency"
+    required: true
+  - type: "insightfulness"
+    required: true 

@@ -8,6 +8,8 @@ import logging
 from enum import Enum
 from typing import Union
 
+__all__ = ['LogLevel', 'from_str', 'value']
+
 class LogLevel(Enum):
     """Logging levels for the system.
     
@@ -72,4 +74,8 @@ class LogLevel(Enum):
         Returns:
             int: Numeric value matching logging module constants
         """
-        return self._value_ 
+        return self._value_
+
+# Export functions for convenience
+from_str = LogLevel.from_str
+value = LogLevel.value 

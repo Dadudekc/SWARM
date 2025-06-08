@@ -1,0 +1,76 @@
+{
+    "default_prompt": "🧠 You are Agent-{{n}}. Begin processing tasks autonomously using your devlog, inbox, and bridge_outbox. Log all actions.",
+    "startup_tasks": [
+        {
+            "task": "BOOT-SEQUENCE",
+            "objective": "Initialize memory, load last known task, validate loop",
+            "status": "assigned"
+        },
+        {
+            "task": "VALIDATE-BRIDGE",
+            "objective": "Confirm ChatGPT/Codex bridge connectivity",
+            "status": "assigned"
+        },
+        {
+            "task": "CHECK-DEVLOG",
+            "objective": "Scan devlog for legacy state and pending tasks",
+            "status": "assigned"
+        }
+    ],
+    "fallback_if_idle_minutes": 5,
+    "onboarding_instructions": "If no memory detected, load default_prompt, check devlog for legacy state.",
+    "onboarding_steps": [
+        {
+            "name": "initial_greeting",
+            "prompt": "Welcome to Dream.OS! I am your onboarding assistant. Please confirm your core capabilities are operational.",
+            "timeout": 30,
+            "expected_response": "Capabilities confirmed"
+        },
+        {
+            "name": "bridge_validation",
+            "prompt": "Testing ChatGPT/Codex bridge connectivity. Please attempt a simple code generation task.",
+            "timeout": 60,
+            "expected_response": "Bridge operational"
+        },
+        {
+            "name": "memory_initialization",
+            "prompt": "Initializing memory and loading last known state. Please confirm memory access.",
+            "timeout": 45,
+            "expected_response": "Memory initialized"
+        },
+        {
+            "name": "task_validation",
+            "prompt": "Validating task processing capabilities. Please execute a test task.",
+            "timeout": 90,
+            "expected_response": "Task processing confirmed"
+        }
+    ],
+    "recovery_actions": {
+        "stalled": {
+            "action": "restart",
+            "max_attempts": 3,
+            "cooldown_minutes": 5
+        },
+        "memory_error": {
+            "action": "reload_memory",
+            "max_attempts": 2,
+            "cooldown_minutes": 2
+        },
+        "bridge_error": {
+            "action": "retry_bridge",
+            "max_attempts": 5,
+            "cooldown_minutes": 1
+        }
+    },
+    "heartbeat_config": {
+        "interval_seconds": 30,
+        "timeout_seconds": 60,
+        "retry_attempts": 3
+    },
+    "logging_config": {
+        "devlog_level": "INFO",
+        "bridge_log_level": "DEBUG",
+        "max_log_size_mb": 100,
+        "backup_count": 5
+    }
+} 

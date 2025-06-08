@@ -14,7 +14,7 @@ import requests
 
 from PIL import Image, ImageDraw, ImageFont
 
-from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
+from dreamos.core.bridge.chatgpt.bridge import ChatGPTBridge
 
 
 _DEF_FONT = ImageFont.load_default()

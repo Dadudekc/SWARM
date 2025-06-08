@@ -7,6 +7,7 @@ from typing import Optional, List, Dict, Any
 import asyncio
 import logging
 from datetime import datetime
+from dreamos.core.bridge.chatgpt.bridge import ChatGPTBridge
 
 logger = logging.getLogger(__name__)
 
@@ -191,7 +192,6 @@ class BasicCommands(Cog):
         """Send a prompt to ChatGPT and return the response."""
         try:
             await ctx.trigger_typing()
-            from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
 
             async with ChatGPTBridge() as bridge:
                 result = await bridge.chat([{"role": "user", "content": prompt}])

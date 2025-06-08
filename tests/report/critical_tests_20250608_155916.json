@@ -1,0 +1,60 @@
+{
+  "timestamp": "20250608_155916",
+  "critical_files": [
+    {
+      "path": "tests\\autonomy\\test_task_completion.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\cli\\test_cellphone_cli.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\core\\test_agent_bus.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\core\\test_agent_io.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\core\\autonomy\\test_base_response_loop_daemon.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\core\\autonomy\\test_response_processors.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\core\\autonomy\\test_runner.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\core\\autonomy\\benchmarks\\test_response_loop_benchmarks.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\social\\utils\\test_log_manager_utils.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\utils\\test_mocks.py",
+      "reason": "marked as critical",
+      "preserve": true
+    },
+    {
+      "path": "tests\\utils\\test_utils.py",
+      "reason": "marked as critical",
+      "preserve": true
+    }
+  ]
+}

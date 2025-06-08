@@ -15,8 +15,10 @@ import jinja2
 
 from dreamos.core.autonomy.base.response_loop_daemon import BaseResponseLoopDaemon
 from dreamos.core.autonomy.memory.response_memory_tracker import ResponseMemoryTracker
-from dreamos.core.autonomy.processor_factory import ResponseProcessorFactory, ProcessorMode
+from dreamos.core.autonomy.processors.factory import ResponseProcessorFactory
+from dreamos.core.autonomy.processors.mode import ProcessorMode
 from dreamos.core.autonomy.utils.response_utils import extract_agent_id_from_file
+from dreamos.core.utils.core_utils import safe_move, restore_backup
 from .monitoring import BridgeMonitor
 from .discord_hook import DiscordHook, EventType
 
@@ -53,6 +55,10 @@ class BridgeResponseLoopDaemon(BaseResponseLoopDaemon):
             recursive=False
         )
         self.observer.start()
+        
+        # Initialize monitor and Discord hook
+        self.monitor = BridgeMonitor()
+        self.discord = DiscordHook()
     
     def _create_response_processor(self) -> ResponseProcessor:
         """Create the response processor implementation.
@@ -60,7 +66,8 @@ class BridgeResponseLoopDaemon(BaseResponseLoopDaemon):
         Returns:
             ResponseProcessor instance
         """
-        return ResponseProcessorFactory.create_processor(ProcessorMode.BRIDGE)
+        factory = ResponseProcessorFactory(self.config, self.discord_client)
+        return factory.create(ProcessorMode.BRIDGE)
     
     def _get_response_files(self) -> List[Path]:
         """Get all response files to process.
@@ -69,6 +76,73 @@ class BridgeResponseLoopDaemon(BaseResponseLoopDaemon):
             List of response file paths
         """
         return list(self.agent_mailbox.glob("*.json"))
+    
+    async def _process_response_file(self, file_path: Path) -> bool:
+        """Process a response file.
+        
+        Args:
+            file_path: Path to response file
+            
+        Returns:
+            True if processing was successful, False otherwise
+        """
+        try:
+            # Extract agent ID from filename
+            agent_id = extract_agent_id_from_file(file_path)
+            if not agent_id:
+                logger.error(f"Could not extract agent ID from {file_path}")
+                return False
+            
+            # Read response data
+            with open(file_path, 'r') as f:
+                response_data = json.load(f)
+            
+            # Process response
+            success, error = await self.processor.process_response(response_data, agent_id)
+            
+            if success:
+                # Archive successful response
+                archive_path = self.archive_dir / file_path.name
+                if not safe_move(str(file_path), str(archive_path)):
+                    logger.error(f"Failed to archive response file {file_path}")
+                    return False
+                
+                # Update metrics
+                self.monitor.update_metrics(
+                    agent_id=agent_id,
+                    response_type=response_data.get("type", "unknown")
+                )
+                
+                # Send Discord notification
+                self.discord.send_event(
+                    EventType.RESPONSE_PROCESSED,
+                    summary=f"Processed response from agent {agent_id}",
+                    details={"file": str(file_path)}
+                )
+                
+                return True
+            else:
+                # Move failed response to failed directory
+                failed_path = self.failed_dir / file_path.name
+                if not safe_move(str(file_path), str(failed_path)):
+                    logger.error(f"Failed to move failed response {file_path}")
+                    return False
+                
+                # Update agent state
+                self.agent_state.update_agent_state(agent_id, "failed")
+                
+                # Send Discord notification
+                self.discord.send_event(
+                    EventType.ERROR_OCCURRED,
+                    summary=f"Failed to process response from agent {agent_id}",
+                    details={"error": error, "file": str(file_path)}
+                )
+                
+                return False
+                
+        except Exception as e:
+            logger.error(f"Error processing response file {file_path}: {e}")
+            return False
     
     async def _resume_agent_impl(self, agent_id: str) -> bool:
         """Implementation-specific agent resume logic.
@@ -86,10 +160,20 @@ class BridgeResponseLoopDaemon(BaseResponseLoopDaemon):
                 failed_files = list(self.failed_dir.glob(f"{agent_id}_*.json"))
                 for file in failed_files:
                     archive_path = self.archive_dir / file.name
-                    file.rename(archive_path)
+                    if not safe_move(str(file), str(archive_path)):
+                        logger.error(f"Failed to move failed file {file} to archive")
+                        continue
             
             # Reset agent state
             self.agent_state.update_agent_state(agent_id, "idle")
+            
+            # Send Discord notification
+            self.discord.send_event(
+                EventType.AGENT_RESUMED,
+                summary=f"Agent {agent_id} resumed",
+                details={"status": "idle"}
+            )
+            
             return True
             
         except Exception as e:

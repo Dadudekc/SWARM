@@ -14,7 +14,6 @@ from . import core_response_loop_daemon
 from . import core_response_processor
 from . import error_tracking
 from . import midnight_runner
-from . import processor_factory
 from . import startup
 from . import state
 from . import test_devlog_bridge
@@ -36,7 +35,6 @@ __all__ = [
     'core_response_processor',
     'error_tracking',
     'midnight_runner',
-    'processor_factory',
     'startup',
     'state',
     'test_devlog_bridge',

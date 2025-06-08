@@ -25,7 +25,7 @@ import pytest
 from concurrent.futures import ThreadPoolExecutor
 
 from ..logging.log_manager import LogManager
-from ..messaging.chatgpt_bridge import ChatGPTBridge
+from ..bridge.chatgpt.bridge import ChatGPTBridge
 from ..agent_loop import AgentLoop, start_agent_loops
 from ..agent_control.devlog_manager import DevLogManager
 from dreamos.core.autonomy.base.runner_core import RunnerCore

@@ -5,13 +5,24 @@ Core logging configuration and helpers for Dream.OS.
 """
 
 import logging
-import json
 import os
+import sys
+import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, Dict, Optional, Union, List
 
 logger = logging.getLogger(__name__)
+
+_events = []
+_status = {}
+
+def log_event(event: str) -> None:
+    """
+    Stub for event logging.
+    TODO: implement full event logging logic.
+    """
+    _events.append(event)
 
 class PlatformEventLogger:
     """Log platform events with structured data."""
@@ -269,16 +280,51 @@ def log_platform_event(
         platform: Platform name
         status: Event status
         message: Event message
-        tags: Optional tags
+        tags: Optional event tags
         extra: Optional extra data
     """
-    log_data = {
-        "platform": platform,
-        "status": status,
-        "message": message,
-        "tags": tags or []
+    event = {
+        'platform': platform,
+        'status': status,
+        'message': message,
+        'tags': tags or [],
+        'extra': extra or {}
     }
-    if extra:
-        log_data.update(extra)
     
-    logger.info(log_data) 
+    # Store in global events list
+    _events.append(event)
+    
+    # Log to logger
+    log_level = logging.INFO if status == 'success' else logging.ERROR
+    logger.log(log_level, event)
+
+def setup_logging(level="INFO", format="%(asctime)s | %(levelname)s | %(message)s"):
+    """Stub for setup_logging. Sets up basic logging."""
+    import logging
+    logging.basicConfig(level=level, format=format) 
+
+class LogConfig:
+    """Stub for LogConfig class."""
+    pass 
+
+def get_events():
+    """Return the list of logged events (global _events)."""
+    return _events
+
+def clear_events():
+    """Clear all logged events."""
+    _events.clear()
+
+def update_status(key, value):
+    """Update status with key-value pair."""
+    _status[key] = value
+
+def get_status(key=None):
+    """Get status value for key or all status if no key provided."""
+    if key is None:
+        return _status.copy()
+    return _status.get(key)
+
+def reset_status():
+    """Reset all status values."""
+    _status.clear() 

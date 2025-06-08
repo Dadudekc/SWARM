@@ -14,6 +14,18 @@ from datetime import datetime, timedelta
 
 from .log_types import RotationConfig
 
+__all__ = [
+    'LogRotator',
+    '_get_file_size',
+    '_get_file_age',
+    '_rotate_file',
+    '_cleanup_old_backups',
+    'check_rotation',
+    'rotate_all',
+    'get_rotation_info',
+    'rotate'
+]
+
 logger = logging.getLogger(__name__)
 
 class LogRotator:
@@ -79,46 +91,56 @@ class LogRotator:
             logger.error(f"Error getting file age for {filepath}: {e}")
             return 0
     
-    def _rotate_file(self, filepath: Path) -> None:
+    def _rotate_file(self, file_path: Path) -> bool:
         """Rotate a single log file.
         
         Args:
-            filepath: Path to log file
+            file_path: Path to the log file to rotate
+            
+        Returns:
+            bool: True if rotation was successful
         """
         try:
-            # Generate backup filename with timestamp in the same directory as
-            # the original file. Tests expect rotated logs to sit alongside the
-            # main log rather than in a separate folder.
+            # Generate backup filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S_%f")
-            backup_path = filepath.with_name(f"{filepath.stem}_{timestamp}{filepath.suffix}")
-
-            shutil.move(str(filepath), str(backup_path))
-            filepath.touch()
-
-            logger.info(f"Rotated log file {filepath} to {backup_path}")
+            backup_path = file_path.parent / f"{file_path.stem}_{timestamp}{file_path.suffix}"
+            
+            # Move original file to backup path
+            file_path.rename(backup_path)
+            
+            # Create new empty file
+            file_path.touch()
+            
+            # Ensure file is empty
+            file_path.write_text("")
+            
+            logger.info(f"Rotated log file {file_path} to {backup_path}")
+            return True
             
         except Exception as e:
-            logger.error(f"Error rotating file {filepath}: {e}")
+            logger.error(f"Error rotating file {file_path}: {e}")
+            return False
     
     def _cleanup_old_backups(self) -> None:
         """Clean up old backup files."""
         try:
-            # Rotated files live alongside the main log file and have the form
-            # ``name_TIMESTAMP.ext``. Gather them and keep only the most recent
-            # ``backup_count`` files.
-            backup_files = sorted(
-                self.log_dir.glob("*_????????_??????.*"),
-                key=lambda x: x.stat().st_mtime,
-                reverse=True
-            )
+            # Get all backup files with timestamp in name
+            backup_files = []
+            for file in self.log_dir.glob(f"*_*_*{self.file_suffix}"):
+                if "_" in file.stem:  # Ensure it's a backup file
+                    backup_files.append(file)
             
-            # Remove excess backups
-            for backup_file in backup_files[self.backup_count:]:
+            # Sort by modification time
+            backup_files.sort(key=lambda x: x.stat().st_mtime)
+            
+            # Keep only the most recent files up to backup_count
+            while len(backup_files) > self.backup_count:
+                old_file = backup_files.pop(0)
                 try:
-                    backup_file.unlink()
-                    logger.info(f"Removed old backup file {backup_file}")
-                except OSError as e:
-                    logger.error(f"Error removing backup file {backup_file}: {e}")
+                    old_file.unlink()
+                    logger.info(f"Removed old backup file: {old_file}")
+                except Exception as e:
+                    logger.error(f"Error removing old backup file {old_file}: {e}")
                     
         except Exception as e:
             logger.error(f"Error cleaning up old backups: {e}")

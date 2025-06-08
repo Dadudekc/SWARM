@@ -1,0 +1,176 @@
+{
+  "name": "dreamos-agent-capture",
+  "displayName": "Dream.OS Agent Response Capture",
+  "description": "Captures and surfaces agent responses in Dream.OS",
+  "version": "0.1.0",
+  "engines": {
+    "vscode": "^1.60.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [
+    "onStartupFinished",
+    "onLanguage:markdown",
+    "onView:dreamosAgentOutput"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "views": {
+      "explorer": [
+        {
+          "id": "dreamosAgentOutput",
+          "name": "Dream.OS Agent Output"
+        }
+      ]
+    },
+    "commands": [
+      {
+        "command": "dreamos.captureResponse",
+        "title": "Capture Agent Response"
+      },
+      {
+        "command": "dreamos.flushBuffer",
+        "title": "Flush Response Buffer"
+      },
+      {
+        "command": "dreamos.forceEnd",
+        "title": "Force End Current Response"
+      },
+      {
+        "command": "dreamos.showLastResponse",
+        "title": "Show Last Published Response"
+      }
+    ],
+    "configuration": {
+      "title": "Dream.OS Agent Capture",
+      "properties": {
+        "dreamos.redis": {
+          "type": "object",
+          "default": {
+            "host": "localhost",
+            "port": 6379,
+            "password": "",
+            "db": 0
+          },
+          "properties": {
+            "host": {
+              "type": "string",
+              "description": "Redis server hostname"
+            },
+            "port": {
+              "type": "number",
+              "description": "Redis server port"
+            },
+            "password": {
+              "type": "string",
+              "description": "Redis server password (if required)"
+            },
+            "db": {
+              "type": "number",
+              "description": "Redis database number"
+            }
+          }
+        },
+        "dreamos.outbox": {
+          "type": "object",
+          "default": {
+            "path": "./runtime/bridge_outbox",
+            "archivePath": "./runtime/bridge_archive",
+            "maxAgeDays": 7
+          },
+          "properties": {
+            "path": {
+              "type": "string",
+              "description": "Path to response outbox directory"
+            },
+            "archivePath": {
+              "type": "string",
+              "description": "Path to response archive directory"
+            },
+            "maxAgeDays": {
+              "type": "number",
+              "description": "Maximum age of responses before archiving"
+            }
+          }
+        },
+        "dreamos.markers": {
+          "type": "object",
+          "default": {
+            "end": "//—END—",
+            "error": "//—ERROR—",
+            "warning": "//—WARNING—",
+            "success": "//—SUCCESS—"
+          },
+          "properties": {
+            "end": {
+              "type": "string",
+              "description": "Marker indicating response completion"
+            },
+            "error": {
+              "type": "string",
+              "description": "Marker indicating error state"
+            },
+            "warning": {
+              "type": "string",
+              "description": "Marker indicating warning state"
+            },
+            "success": {
+              "type": "string",
+              "description": "Marker indicating success state"
+            }
+          }
+        },
+        "dreamos.filtering": {
+          "type": "object",
+          "default": {
+            "ignoreMarkers": true,
+            "ignorePrompts": true,
+            "ignoreEmptyLines": true,
+            "redactPatterns": []
+          },
+          "properties": {
+            "ignoreMarkers": {
+              "type": "boolean",
+              "description": "Remove marker lines from final response"
+            },
+            "ignorePrompts": {
+              "type": "boolean",
+              "description": "Remove prompt lines from final response"
+            },
+            "ignoreEmptyLines": {
+              "type": "boolean",
+              "description": "Remove empty lines from final response"
+            },
+            "redactPatterns": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "Regex patterns to redact from responses"
+            }
+          }
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "pretest": "npm run compile && npm run lint",
+    "lint": "eslint src --ext ts",
+    "test": "node ./out/test/runTest.js"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.60.0",
+    "@types/node": "^16.11.7",
+    "@typescript-eslint/eslint-plugin": "^5.30.0",
+    "@typescript-eslint/parser": "^5.30.0",
+    "eslint": "^8.13.0",
+    "typescript": "^4.7.2"
+  },
+  "dependencies": {
+    "ioredis": "^5.0.0"
+  }
+} 

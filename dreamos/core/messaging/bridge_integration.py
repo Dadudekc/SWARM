@@ -12,7 +12,7 @@ from typing import Optional, Dict, Any, List
 from pathlib import Path
 from datetime import datetime
 
-from .chatgpt_bridge import ChatGPTBridge
+from ..bridge.chatgpt.bridge import ChatGPTBridge
 from .request_queue import RequestQueue
 from .response_tracker import AgentResponseTracker
 from ..monitoring.bridge_health import BridgeHealthMonitor
@@ -96,7 +96,7 @@ class BridgeIntegration:
         except Exception as e:
             logger.error(f"Error stopping bridge: {e}")
             
-    @with_retry(max_retries=3, backoff_factor=2)
+    @with_retry(max_retries=3, backoff=2)
     async def _process_request(self, request: Dict[str, Any]):
         """Process a single request with retry logic.
         

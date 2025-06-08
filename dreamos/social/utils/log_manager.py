@@ -17,14 +17,26 @@ from enum import Enum
 
 from .log_rotator import LogRotator
 from .log_types import RotationConfig
+from .log_config import LogConfig as BaseLogConfig, LogLevel
 
-class LogLevel(Enum):
-    """Log levels for social media operations."""
-    DEBUG = logging.DEBUG
-    INFO = logging.INFO
-    WARNING = logging.WARNING
-    ERROR = logging.ERROR
-    CRITICAL = logging.CRITICAL
+__all__ = [
+    'LogLevel',
+    'LogEntry',
+    'LogConfig',
+    'LogManager',
+    'set_level',
+    '_setup_logging',
+    'write_log',
+    'get_metrics',
+    'read_logs',
+    'cleanup',
+    'rotate',
+    'debug',
+    'info',
+    'warning',
+    'error',
+    'critical'
+]
 
 @dataclass
 class LogEntry:
@@ -36,31 +48,13 @@ class LogEntry:
     tags: List[str] = None
     metadata: Dict[str, Any] = None
 
-class LogConfig:
-    """Configuration for logging."""
-    
-    def __init__(self, 
-                 level: LogLevel = LogLevel.INFO,
-                 format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-                 file: Optional[str] = None):
-        """Initialize log configuration.
-        
-        Args:
-            level: Log level
-            format: Log format string
-            file: Optional log file path
-        """
-        self.level = level
-        self.format = format
-        self.file = file
-
 class LogManager:
     """Manages logging for social media operations."""
     
     _instance = None
     _lock = threading.Lock()
     
-    def __new__(cls, config: Optional[LogConfig] = None):
+    def __new__(cls, config: Optional[BaseLogConfig] = None):
         if cls._instance is None:
             with cls._lock:
                 if cls._instance is None:
@@ -68,7 +62,7 @@ class LogManager:
                     cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self, config: Optional[LogConfig] = None):
+    def __init__(self, config: Optional[BaseLogConfig] = None):
         """Initialize log manager.
         
         Args:
@@ -77,7 +71,7 @@ class LogManager:
         if self._initialized:
             return
             
-        self.config = config or LogConfig()
+        self.config = config or BaseLogConfig()
         self.logger = logging.getLogger("social")
         self.logger.setLevel(self.config.level.value)
         
@@ -87,8 +81,12 @@ class LogManager:
         self.logger.addHandler(console_handler)
         
         # Add file handler if specified
-        if self.config.file:
-            file_handler = logging.FileHandler(self.config.file)
+        if self.config.log_file:
+            file_handler = RotatingFileHandler(
+                self.config.log_file,
+                maxBytes=self.config.max_bytes,
+                backupCount=self.config.max_files
+            )
             file_handler.setFormatter(logging.Formatter(self.config.format))
             self.logger.addHandler(file_handler)
         
@@ -98,14 +96,13 @@ class LogManager:
             'entries_by_platform': {},
             'errors': 0
         }
+        
         rotation_config = RotationConfig(
-            max_size_mb=max(1, self.config.max_bytes // (1024 * 1024)),
-            max_files=self.config.backup_count,
-            max_age_days=self.config.max_age_days,
-            # Let LogRotator manage the "backups" directory itself. Passing the
-            # base log directory avoids creating nested "backups/backups" paths.
-            backup_dir=str(self.config.log_dir),
-            max_bytes=self.config.max_bytes,
+            max_size_mb=self.config.max_size_mb,
+            max_files=self.config.max_files,
+            max_age_days=self.config.compress_after_days,
+            backup_dir=self.config.log_dir,
+            max_bytes=self.config.max_bytes
         )
         self._rotator = LogRotator(rotation_config)
         self._setup_logging()

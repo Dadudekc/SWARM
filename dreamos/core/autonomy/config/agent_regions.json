@@ -1,0 +1,82 @@
+{
+    "Agent-1": {
+        "top_left": {
+            "x": -1437,
+            "y": 127
+        },
+        "bottom_right": {
+            "x": -979,
+            "y": 374
+        }
+    },
+    "Agent-2": {
+        "top_left": {
+            "x": -477,
+            "y": 133
+        },
+        "bottom_right": {
+            "x": -17,
+            "y": 342
+        }
+    },
+    "Agent-3": {
+        "top_left": {
+            "x": -1381,
+            "y": 650
+        },
+        "bottom_right": {
+            "x": -983,
+            "y": 842
+        }
+    },
+    "Agent-4": {
+        "top_left": {
+            "x": -480,
+            "y": 652
+        },
+        "bottom_right": {
+            "x": -17,
+            "y": 882
+        }
+    },
+    "Agent-5": {
+        "top_left": {
+            "x": 477,
+            "y": 66
+        },
+        "bottom_right": {
+            "x": 939,
+            "y": 305
+        }
+    },
+    "Agent-6": {
+        "top_left": {
+            "x": 1441,
+            "y": 69
+        },
+        "bottom_right": {
+            "x": 1900,
+            "y": 279
+        }
+    },
+    "Agent-7": {
+        "top_left": {
+            "x": 476,
+            "y": 589
+        },
+        "bottom_right": {
+            "x": 940,
+            "y": 827
+        }
+    },
+    "Agent-8": {
+        "top_left": {
+            "x": 1436,
+            "y": 590
+        },
+        "bottom_right": {
+            "x": 1902,
+            "y": 796
+        }
+    }
+} 

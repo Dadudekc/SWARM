@@ -1,165 +1,120 @@
 """
-Runner Test Fixtures
-------------------
-Shared fixtures for runner tests.
+Fixtures for runner tests.
 """
 
-import asyncio
 import json
-import logging
-import os
 import pytest
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, List, Set
-
-from dreamos.core.autonomy.base.runner_core import RunnerCore
-
-# Configure logging
-logging.basicConfig(level=logging.INFO)
-logger = logging.getLogger(__name__)
-
-class TestRunner(RunnerCore[str]):
-    """Test implementation of RunnerCore."""
-    
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize test runner."""
-        super().__init__(config, platform="test_runner")
-        self.test_items = ["test1", "test2", "test3"]
-        self.processed_items = []
-    
-    async def _run_iteration(self):
-        """Run a test iteration."""
-        for item in self.test_items:
-            if item not in self.in_progress_items:
-                await self.item_queue.put(item)
-                self.in_progress_items.add(item)
-    
-    async def _handle_result(self, result: Any):
-        """Handle a test result."""
-        if isinstance(result, dict):
-            item = result.get("item")
-            success = result.get("success", False)
-            
-            if item in self.in_progress_items:
-                self.in_progress_items.remove(item)
-                self.processed_items.append(item)
-                
-                if success:
-                    self.passed_items.add(item)
-                    if item in self.failed_items:
-                        self.failed_items.remove(item)
-                else:
-                    self.failed_items.add(item)
-                    if item in self.passed_items:
-                        self.passed_items.remove(item)
+from unittest.mock import MagicMock, patch
 
 @pytest.fixture
 def runner_config():
-    """Base configuration for runner tests."""
+    """Fixture providing a basic runner configuration."""
     return {
-        "check_interval": 0.1,  # 100ms for faster tests
-        "max_retries": 2,
-        "test_interval": 0.2,  # 200ms for faster tests
         "max_workers": 2,
-        "chunk_size": 10,
-        "test_timeout": 1,  # 1 second for faster tests
-        "max_concurrent_tests": 2
+        "timeout": 30,
+        "retry_count": 3,
+        "log_level": "INFO"
     }
 
 @pytest.fixture
-async def runner(runner_config):
-    """Test runner instance."""
-    runner = TestRunner(runner_config)
-    yield runner
-    await runner.stop()
-
-@pytest.fixture
 def mock_logger():
-    """Mock logger for testing."""
-    class MockLogger:
-        def __init__(self):
-            self.logs = []
-            self.errors = []
-        
-        def info(self, *args, **kwargs):
-            self.logs.append(("info", args, kwargs))
-        
-        def error(self, *args, **kwargs):
-            self.errors.append(("error", args, kwargs))
-        
-        def warning(self, *args, **kwargs):
-            self.logs.append(("warning", args, kwargs))
-        
-        def debug(self, *args, **kwargs):
-            self.logs.append(("debug", args, kwargs))
-    
-    return MockLogger()
+    """Fixture providing a mock logger."""
+    logger = MagicMock()
+    logger.info = MagicMock()
+    logger.error = MagicMock()
+    logger.warning = MagicMock()
+    logger.debug = MagicMock()
+    return logger
 
 @pytest.fixture
 def mock_bridge_handler():
-    """Mock bridge handler for testing."""
-    class MockBridgeHandler:
-        def __init__(self):
-            self.messages = []
-            self.responses = {}
-        
-        async def send_message(self, message: str, **kwargs):
-            self.messages.append(message)
-            return self.responses.get(message, "default_response")
-        
-        def set_response(self, message: str, response: str):
-            self.responses[message] = response
-    
-    return MockBridgeHandler()
+    """Fixture providing a mock bridge handler."""
+    handler = MagicMock()
+    handler.messages = []
+    handler.send_message = MagicMock(side_effect=lambda msg: handler.messages.append(msg))
+    return handler
 
 @pytest.fixture
 def mock_agent_error():
-    """Mock agent error for testing."""
-    class MockAgentError(Exception):
-        def __init__(self, message: str, code: str = "TEST_ERROR"):
-            super().__init__(message)
-            self.code = code
-            self.timestamp = datetime.now()
-    
-    return MockAgentError
+    """Fixture providing a function to create mock agent errors."""
+    def _create_error(message):
+        error = Exception(message)
+        error.agent_id = "test_agent"
+        error.timestamp = "2024-03-14T12:00:00Z"
+        return error
+    return _create_error
 
 @pytest.fixture
 def test_data_dir(tmp_path):
-    """Temporary test data directory."""
-    data_dir = tmp_path / "test_data"
-    data_dir.mkdir()
-    return data_dir
+    """Fixture providing a temporary directory for test data."""
+    return tmp_path
 
 @pytest.fixture
 def sample_test_output():
-    """Sample test output for parsing tests."""
+    """Fixture providing sample test output with failures."""
     return """
-    FAILED test_file.py::test_name - AssertionError: Test failed
-    FAILED test_file2.py::test_name2 - ValueError: Invalid value
-    PASSED test_file3.py::test_name3
+    ============================= test session starts ==============================
+    platform win32 -- Python 3.11.9, pytest-8.4.0, pluggy-1.6.0
+    collected 2 items
+
+    test_file.py::test_name FAILED                                         [ 50%]
+    test_file2.py::test_name2 FAILED                                      [100%]
+
+    =================================== FAILURES ===================================
+    _______________________________ test_name ________________________________
+    def test_name():
+    >       assert False
+    E       assert False
+
+    test_file.py:5: AssertionError
+    _______________________________ test_name2 ________________________________
+    def test_name2():
+    >       assert 1 == 2
+    E       assert 1 == 2
+
+    test_file2.py:5: AssertionError
+    =========================== short test summary info ============================
+    FAILED test_file.py::test_name - assert False
+    FAILED test_file2.py::test_name2 - assert 1 == 2
+    ============================= 2 failed in 0.12s ==============================
     """
 
 @pytest.fixture
 def mock_file_operations():
-    """Mock file operations for testing."""
+    """Fixture providing mock file operations."""
     class MockFileOps:
         def __init__(self):
             self.files = {}
-            self.deleted = set()
         
-        def write_file(self, path: str, content: str):
+        def write_file(self, path, content):
             self.files[path] = content
-        
-        def read_file(self, path: str) -> str:
+            
+        def read_file(self, path):
             return self.files.get(path, "")
-        
-        def delete_file(self, path: str):
-            self.deleted.add(path)
+            
+        def exists(self, path):
+            return path in self.files
+            
+        def remove(self, path):
             if path in self.files:
                 del self.files[path]
-        
-        def file_exists(self, path: str) -> bool:
-            return path in self.files
     
-    return MockFileOps() 
+    return MockFileOps()
+
+@pytest.fixture
+def runner(runner_config, mock_logger, mock_bridge_handler, mock_file_operations):
+    """Fixture providing a configured runner instance."""
+    from dreamos.core.autonomy.base.runner_core import RunnerCore
+    
+    runner = RunnerCore(
+        config=runner_config,
+        logger=mock_logger,
+        bridge_handler=mock_bridge_handler
+    )
+    
+    # Patch file operations
+    runner._load_config = lambda path: json.loads(mock_file_operations.read_file(path))
+    runner._save_config = lambda path, config: mock_file_operations.write_file(path, json.dumps(config))
+    
+    return runner 

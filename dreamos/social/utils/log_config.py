@@ -62,4 +62,9 @@ class LogConfig:
         os.makedirs(self.data_dir, exist_ok=True)
         
         if self.log_file is None:
-            self.log_file = os.path.join(self.log_dir, "social.log") 
+            self.log_file = os.path.join(self.log_dir, "social.log")
+            
+    @property
+    def max_bytes(self) -> int:
+        """Convert max_size_mb to bytes."""
+        return self.max_size_mb * 1024 * 1024

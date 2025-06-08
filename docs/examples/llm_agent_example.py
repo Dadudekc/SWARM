@@ -6,7 +6,7 @@ import asyncio
 import os
 from datetime import datetime
 from dreamos.core.messaging.unified_message_system import UnifiedMessageSystem, MessageMode, MessagePriority
-from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
+from dreamos.core.bridge.chatgpt.bridge import ChatGPTBridge
 from dreamos.core.ai.llm_agent import LLMAgent
 
 async def main():

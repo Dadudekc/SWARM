@@ -11,6 +11,8 @@ import threading
 import time
 import shutil
 from pathlib import Path
+import sys
+from datetime import datetime, timedelta
 try:
     import win32file
     import win32con
@@ -73,29 +75,38 @@ class FileCleanup(BaseUtils):
             logger.error(f"Error checking file lock: {e}")
             return True
             
-    def _force_close_handle(self, filepath: str) -> None:
+    def _force_close_handle(self, file_path: Path) -> bool:
         """Force close any open handles to a file on Windows.
         
         Args:
-            filepath: Path to the file
-        """
-        if platform.system() != 'Windows':
-            return
+            file_path: Path to the file
             
+        Returns:
+            bool: True if handle was closed successfully
+        """
+        if not sys.platform == "win32":
+            return True
+        
         try:
             # Try to open file with full access
             handle = win32file.CreateFile(
-                str(filepath),
+                str(file_path),
                 win32con.GENERIC_READ | win32con.GENERIC_WRITE,
-                0, None, win32con.OPEN_EXISTING,
-                win32con.FILE_ATTRIBUTE_NORMAL | win32con.FILE_FLAG_DELETE_ON_CLOSE,
+                0,  # No sharing
+                None,
+                win32con.OPEN_EXISTING,
+                win32con.FILE_ATTRIBUTE_NORMAL,
                 None
             )
-            win32file.CloseHandle(handle)
-        except pywintypes.error as e:
-            if e.winerror != 32:  # Not a sharing violation
-                logger.warning(f"Error closing handle for {filepath}: {e}")
             
+            # Close handle
+            win32file.CloseHandle(handle)
+            return True
+            
+        except Exception as e:
+            logging.warning(f"Error closing file handle: {e}")
+            return False
+
     def _wait_for_file_unlock(self, file_path: str, max_retries: int = 5) -> bool:
         """Wait for file to be unlocked.
         
@@ -114,7 +125,7 @@ class FileCleanup(BaseUtils):
                         return True
                         
                     # Try to force close any open handles
-                    self._force_close_handle(file_path)
+                    self._force_close_handle(Path(file_path))
                     time.sleep(0.2)  # Wait for handle to be released
                     
                     # Check again if file is unlocked
@@ -190,97 +201,81 @@ class FileCleanup(BaseUtils):
             logger.warning(f"Failed to remove {path}: {str(e)}")
             return False
             
-    def cleanup_directory(self, directory: str, pattern: str = "*", max_retries: int = 5) -> bool:
+    def cleanup_directory(self, directory: Path, pattern: str = "*") -> bool:
         """Clean up files in a directory matching a pattern.
         
         Args:
             directory: Directory to clean up
             pattern: File pattern to match
-            max_retries: Maximum number of retries per file
             
         Returns:
-            bool: True if all files were removed, False otherwise
+            bool: True if cleanup was successful
         """
         try:
-            directory = Path(directory)
+            # Check if directory exists
             if not directory.exists():
                 return True
                 
-            # Handle symlinks
-            if directory.is_symlink():
-                directory.unlink()
-                return True
-                
-            # Try to remove directory contents first
-            success = True
-            for item in directory.glob(pattern):
-                try:
-                    if item.is_file():
-                        # Wait for file to be unlocked on Windows
-                        if platform.system() == 'Windows':
-                            retries = 3
-                            while retries > 0 and self._is_file_locked(item):
-                                time.sleep(0.1)
-                                retries -= 1
-                        if not self.safe_remove(item, max_retries):
-                            success = False
-                    else:
-                        # Try to change permissions first
-                        if platform.system() == 'Windows':
-                            os.chmod(str(item), stat.S_IWRITE | stat.S_IREAD | stat.S_IEXEC)
-                        else:
-                            os.chmod(str(item), 0o777)
-                        time.sleep(0.1)  # Give time for permission change to take effect
-                        shutil.rmtree(item)
-                except Exception as e:
-                    logger.warning(f"Failed to remove {item}: {str(e)}")
-                    success = False
+            # Get files matching pattern
+            files = list(directory.glob(pattern))
             
-            # Then try to remove the directory itself
-            try:
-                if platform.system() == 'Windows':
-                    # Wait a bit for Windows to release the directory
-                    time.sleep(0.1)
-                directory.rmdir()
-            except Exception as e:
-                logger.warning(f"Failed to remove directory {directory}: {str(e)}")
-                success = False
-                
-            return success
+            # Remove files
+            for file in files:
+                try:
+                    if file.is_file():
+                        file.unlink()
+                    elif file.is_dir():
+                        shutil.rmtree(file)
+                except Exception as e:
+                    logging.error(f"Error removing {file}: {e}")
+                    return False
+                    
+            return True
             
         except Exception as e:
-            logger.error(f"Error cleaning up directory {directory}: {e}")
+            logging.error(f"Error cleaning up directory {directory}: {e}")
             return False
             
-    def cleanup_temp_files(self, directory: str, max_age_hours: int = 24, max_retries: int = 5) -> bool:
-        """Clean up temporary files older than max_age_hours.
+    def cleanup_temp_files(self, directory: Path, max_age_days: int = 7) -> bool:
+        """Clean up temporary files in a directory.
         
         Args:
-            directory: Directory containing temp files
-            max_age_hours: Maximum age of files in hours
-            max_retries: Maximum number of retries per file
+            directory: Directory to clean up
+            max_age_days: Maximum age of files in days
             
         Returns:
-            bool: True if all files were removed, False otherwise
+            bool: True if cleanup was successful
         """
         try:
-            directory = Path(directory)
-            if not directory.exists():
-                return True
-                
-            cutoff_time = time.time() - (max_age_hours * 3600)
-            success = True
+            # Common temporary file extensions
+            temp_extensions = {".tmp", ".temp", ".bak", ".old", ".log"}
             
-            for file_path in directory.glob("*"):
-                try:
-                    if file_path.stat().st_mtime < cutoff_time:
-                        if not self.safe_remove(file_path, max_retries):
-                            success = False
-                except Exception:
-                    continue
+            # Get all files
+            files = list(directory.glob("*"))
+            
+            # Filter temp files
+            temp_files = []
+            for file in files:
+                if file.is_file():
+                    # Check extension
+                    if file.suffix.lower() in temp_extensions:
+                        temp_files.append(file)
+                    # Check name
+                    elif "temp" in file.name.lower() or "tmp" in file.name.lower():
+                        temp_files.append(file)
                     
-            return success
+            # Remove old files
+            cutoff_time = datetime.now() - timedelta(days=max_age_days)
+            for file in temp_files:
+                try:
+                    if datetime.fromtimestamp(file.stat().st_mtime) < cutoff_time:
+                        file.unlink()
+                except Exception as e:
+                    logging.error(f"Error removing temp file {file}: {e}")
+                    return False
+                    
+            return True
             
         except Exception as e:
-            logger.error(f"Error cleaning up temp files in {directory}: {e}")
+            logging.error(f"Error cleaning up temp files in {directory}: {e}")
             return False 

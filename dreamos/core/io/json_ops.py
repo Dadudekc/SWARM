@@ -1,13 +1,38 @@
 """
-JSON file operations module.
+JSON Operations Module
+
+JSON file operations for the Dream.OS system.
 """
 
 import json
 from pathlib import Path
-from typing import Any, Dict, Optional
+from typing import Dict, Any, Optional
 import logging
 
 logger = logging.getLogger(__name__)
+
+def read_json(file_path: str) -> Dict[str, Any]:
+    """Read a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file
+        
+    Returns:
+        Dictionary containing the JSON data
+    """
+    with open(file_path) as f:
+        return json.load(f)
+        
+def write_json(file_path: str, data: Dict[str, Any], indent: int = 2) -> None:
+    """Write data to a JSON file.
+    
+    Args:
+        file_path: Path to the JSON file
+        data: Dictionary to write
+        indent: Number of spaces for indentation
+    """
+    with open(file_path, "w") as f:
+        json.dump(data, f, indent=indent)
 
 def read_json(file_path: str | Path) -> Dict[str, Any]:
     """Read JSON from file.

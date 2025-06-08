@@ -1,33 +1,23 @@
-Test Results Analysis Request
----------------------------
+Please analyze the following test results from agent {{ agent_id }}:
 
 Test: {{ response.test_name }}
 Status: {{ response.status }}
-Timestamp: {{ response.timestamp }}
+Duration: {{ response.duration }}s
 
-{% if response.error %}
-Error Details:
+```json
+{{ response.results | tojson(indent=2) }}
 ```
-{{ response.error }}
-```
-{% endif %}
-
-{% if response.result %}
-Test Output:
-```
-{{ response.result }}
-```
-{% endif %}
 
 Context:
-- Platform: {{ response.metadata.platform }}
-- Test File: {{ response.metadata.test_file }}
-- Run Duration: {{ response.metadata.duration }}
+- Test Suite: {{ response.test_suite }}
+- Environment: {{ response.environment }}
+- Timestamp: {{ response.timestamp }}
 
-Please analyze these test results and provide:
-1. What is the root cause of any failures?
-2. What is the recommended fix?
-3. Are there any patterns or trends in the test results?
-4. What should be the next step in the testing process?
+Please provide:
+1. Analysis of test results
+2. Root cause of any failures
+3. Impact assessment
+4. Recommended fixes
+5. Additional test cases needed
 
-Respond with a clear action plan. 
+Respond in a clear, structured format. 

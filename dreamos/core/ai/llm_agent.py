@@ -9,7 +9,7 @@ from typing import Dict, Any, Optional, List
 from datetime import datetime
 from ..messaging.unified_message_system import UnifiedMessageSystem
 from ..messaging.common import Message, MessageMode, MessagePriority
-from .chatgpt_bridge import ChatGPTBridge
+from ..bridge.chatgpt.bridge import ChatGPTBridge
 
 class LLMAgent:
     """Agent that integrates ChatGPT with the messaging system."""

@@ -12,6 +12,8 @@ from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import Dict, List, Optional, Union
+import asyncio
+import pyautogui
 
 # The agent_tools.mailbox package is optional and may not be available in
 # minimal test environments. Import it lazily so that basic functionality of the
@@ -90,101 +92,106 @@ class MessageQueue:
         self._save_queue()
 
 class CellPhone:
-    """Cell phone for agent communications."""
+    """Handles injecting prompts into agent conversations."""
     
-    _instance = None
-    
-    def __new__(cls, config: Dict):
-        """Ensure singleton instance."""
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-        return cls._instance
-    
-    def __init__(self, config: Dict):
-        """Initialize cell phone.
+    def __init__(self, config: Optional[Dict] = None):
+        """Initialize the cell phone.
         
         Args:
-            config: Configuration dictionary containing:
-                - message_handler: MessageHandler instance
-                - agent_id: Agent ID
+            config: Optional configuration dictionary
         """
-        if not hasattr(self, 'initialized'):
-            self.message_handler = config.get('message_handler')
-            if not self.message_handler:
-                raise ValueError("message_handler is required in config")
-                
-            self.agent_id = config.get('agent_id')
-            if not self.agent_id:
-                raise ValueError("agent_id is required in config")
-                
-            logger.info(f"Cell phone initialized for agent {self.agent_id}")
-            self.initialized = True
-    
-    @classmethod
-    def reset_singleton(cls):
-        """Reset singleton instance."""
-        cls._instance = None
-    
-    def send_message(self, to_agent: str, content: str, metadata: Optional[Dict] = None, mode: Optional[str] = None, priority: Optional[str] = None) -> bool:
-        """Send message to agent.
+        self.config = config or {}
+        self.coordinates = self._load_coordinates()
         
-        Args:
-            to_agent: Target agent ID
-            content: Message content
-            metadata: Optional message metadata
-            mode: Optional message mode
-            priority: Optional message priority
-        Returns:
-            bool: True if message sent successfully
-        """
-        if not content or not to_agent:
-            return False
-        try:
-            return self.message_handler.send_message(
-                to_agent=to_agent,
-                content=content,
-                from_agent=self.agent_id,
-                metadata=metadata or {},
-                mode=mode,
-                priority=priority
-            )
-        except Exception as e:
-            logger.error(f"Error sending message: {e}")
-            return False
-    
-    def get_messages(self) -> List[Dict]:
-        """Get messages for this agent.
+    def _load_coordinates(self) -> Dict[str, Dict[str, int]]:
+        """Load agent input coordinates.
         
         Returns:
-            List[Dict]: List of messages
+            Dictionary mapping agent IDs to coordinate dictionaries
         """
         try:
-            return self.message_handler.get_messages(self.agent_id)
+            coord_path = Path(self.config.get("coordinate_file", "config/agent_coordinates.json"))
+            if not coord_path.exists():
+                logger.warning(f"Coordinate file not found: {coord_path}")
+                return {}
+                
+            with open(coord_path, 'r') as f:
+                return json.load(f)
+                
         except Exception as e:
-            logger.error(f"Error getting messages: {e}")
-            return []
-    
-    def acknowledge_message(self, message_id: str) -> bool:
-        """Acknowledge message receipt.
+            logger.error(f"Error loading coordinates: {e}")
+            return {}
+            
+    async def inject_prompt(self, agent_id: str, prompt: str) -> bool:
+        """Inject a prompt into an agent's conversation.
         
         Args:
-            message_id: ID of message to acknowledge
+            agent_id: ID of the agent
+            prompt: Prompt to inject
             
         Returns:
-            bool: True if message acknowledged successfully
+            True if injection successful
         """
         try:
-            return self.message_handler.acknowledge_message(message_id)
+            # Get agent coordinates
+            if agent_id not in self.coordinates:
+                logger.error(f"No coordinates found for agent {agent_id}")
+                return False
+                
+            coords = self.coordinates[agent_id]
+            
+            # Click input field
+            pyautogui.click(coords["x"], coords["y"])
+            await asyncio.sleep(0.1)  # Wait for focus
+            
+            # Type prompt
+            pyautogui.write(prompt)
+            await asyncio.sleep(0.1)  # Wait for typing
+            
+            # Send message
+            pyautogui.press('enter')
+            
+            logger.info(f"Injected prompt for agent {agent_id}")
+            return True
+            
         except Exception as e:
-            logger.error(f"Error acknowledging message: {e}")
+            logger.error(f"Error injecting prompt for agent {agent_id}: {e}")
             return False
-
-    def clear_messages(self) -> bool:
-        """Clear all messages for this agent."""
+            
+    async def capture_coordinates(self, agent_id: str) -> bool:
+        """Capture input field coordinates for an agent.
+        
+        Args:
+            agent_id: ID of the agent
+            
+        Returns:
+            True if capture successful
+        """
         try:
-            return self.message_handler.clear_messages(self.agent_id)
+            logger.info(f"Move mouse to input field for agent {agent_id} and press Enter...")
+            input()  # Wait for Enter key
+            
+            # Get current mouse position
+            x, y = pyautogui.position()
+            
+            # Update coordinates
+            self.coordinates[agent_id] = {
+                "x": x,
+                "y": y
+            }
+            
+            # Save coordinates
+            coord_path = Path(self.config.get("coordinate_file", "config/agent_coordinates.json"))
+            coord_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(coord_path, 'w') as f:
+                json.dump(self.coordinates, f, indent=2)
+                
+            logger.info(f"Captured coordinates for agent {agent_id}: ({x}, {y})")
+            return True
+            
         except Exception as e:
-            logger.error(f"Error clearing messages: {e}")
+            logger.error(f"Error capturing coordinates for agent {agent_id}: {e}")
             return False
 
 async def send_message(to_agent: str, content: str, mode: str = "NORMAL", from_agent: str = "system") -> bool:

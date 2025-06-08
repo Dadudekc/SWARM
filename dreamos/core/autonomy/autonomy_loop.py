@@ -25,7 +25,7 @@ from dreamos.core.messaging.cell_phone import CellPhone
 from dreamos.core.messaging.request_queue import RequestQueue
 from dreamos.core.monitoring.bridge_health import BridgeHealthMonitor
 from dreamos.core.utils.system_ops import with_retry
-from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
+from dreamos.core.bridge.chatgpt.bridge import ChatGPTBridge
 from dreamos.core.cursor.cursor_controller import CursorController
 from dreamos.core.ai.llm_agent import LLMAgent
 from dreamos.core.messaging.message_handler import MessageHandler

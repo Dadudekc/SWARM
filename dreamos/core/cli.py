@@ -31,7 +31,7 @@ from .utils.core_utils import (
     load_yaml
 )
 from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
-from .config import ConfigManager
+from .config.config_manager import ConfigManager
 from dreamos.core.messaging.message_processor import MessageProcessor
 from dreamos.core.messaging.common import Message, MessageMode
 from dreamos.core.messaging.enums import MessagePriority

@@ -7,6 +7,13 @@ Validates media files for upload.
 import os
 from typing import List, Optional, Union, Tuple
 
+__all__ = [
+    'MediaValidator',
+    'validate_files',
+    'validate',
+    'validate_media'
+]
+
 class MediaValidator:
     """Validates media files for upload."""
     
@@ -98,4 +105,9 @@ class MediaValidator:
         Returns:
             Tuple of (is_valid, error_message)
         """
-        return self.validate_files(files, is_video) 
+        return self.validate_files(files, is_video)
+
+# Export functions for convenience
+validate_files = MediaValidator().validate_files
+validate = MediaValidator().validate
+validate_media = MediaValidator().validate_media 

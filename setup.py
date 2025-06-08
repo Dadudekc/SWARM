@@ -8,18 +8,19 @@ import os
 setup(
     name="dreamos",
     version="0.1.0",
-    packages=find_packages(include=['dreamos', 'dreamos.*', 'agent_tools', 'agent_tools.*', 'social', 'social.*']),
+    packages=find_packages(),
     install_requires=[
-        "pyautogui",
-        "pyperclip",
-        "Pillow",
-        "pygetwindow",
-        "schedule",
+        "python-dateutil",
+        "typing-extensions",
+        "PyQt5",
         "pytest",
-        "pytest-asyncio",
         "pytest-cov",
-        "discord.py>=2.0.0",
-        "python-dotenv>=0.19.0",
+        "black",
+        "isort",
+        "mypy",
+        "jsonschema>=4.0.0",
+        "aiofiles>=0.8.0",
+        "pydantic>=2.0.0"
     ],
     package_data={
         "dreamos": ["core/*"],

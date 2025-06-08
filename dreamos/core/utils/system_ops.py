@@ -75,4 +75,24 @@ def normalize_coordinates(x: int, y: int, max_x: int, max_y: int) -> Tuple[float
     Returns:
         Normalized (x, y) coordinates
     """
-    return (x / max_x, y / max_y) 
+    return (x / max_x, y / max_y)
+
+def get_system_info() -> dict:
+    """
+    Stub for system info retrieval.
+    TODO: implement full system info gathering.
+    """
+    return {
+        'platform': 'windows',
+        'version': '10.0.18362',
+        'arch': 'x64'
+    }
+
+def decorator(func):
+    """
+    Stub decorator for system operations.
+    TODO: implement actual decorator logic.
+    """
+    def wrapper(*args, **kwargs):
+        return func(*args, **kwargs)
+    return wrapper

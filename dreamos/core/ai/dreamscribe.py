@@ -15,6 +15,7 @@ from dataclasses import dataclass, asdict
 import hashlib
 from uuid import uuid4
 from ..nlp.keyword_extract import KeywordExtractor
+from .gpt_router import Router, Engine
 
 # Constants
 MEMORY_CORPUS_PATH = Path("runtime/memory_corpus.json")
@@ -48,13 +49,17 @@ class NarrativeThread:
 class Dreamscribe:
     """The core memory and narrative system for Dream.OS."""
     
-    def __init__(self):
+    def __init__(self, scraper=None):
         """Initialize the Dreamscribe system."""
         self.logger = logging.getLogger("dreamscribe")
         self.memory_corpus: Dict[str, Dict[str, Any]] = {}
         self.threads: Dict[str, List[str]] = {}
         self.insight_patterns: Dict[str, List[Dict[str, Any]]] = {}
         self.keyword_extractor = KeywordExtractor()
+        
+        # Initialize GPT routing system
+        self.router = Router()
+        self.engine = Engine(scraper) if scraper else None
         
         # Ensure directories exist
         NARRATIVE_THREADS_PATH.mkdir(parents=True, exist_ok=True)
@@ -195,57 +200,72 @@ class Dreamscribe:
         self.threads[thread_id].append(fragment["memory_id"])
         self._save_thread(thread_id)
     
+    def process_with_gpt(self, content: str, context: Dict[str, Any]) -> str:
+        """Process content using the GPT router system.
+        
+        Args:
+            content: The content to process
+            context: Additional context for processing
+            
+        Returns:
+            Processed content from GPT
+        """
+        if not self.engine:
+            self.logger.warning("GPT engine not initialized, skipping processing")
+            return content
+            
+        # Create a context URL that will route to dreamscribe profile
+        context_url = f"log/{context.get('agent_id', 'system')}/{context.get('type', 'devlog')}"
+        
+        # Get the dreamscribe profile
+        profile = self.router.decide_prompt(context_url)
+        
+        # Process with GPT
+        result = self.engine.process_conversation(context_url)
+        
+        return result["reply"]
+
     def ingest_devlog(self, devlog_entry: Dict[str, Any]) -> str:
         """Ingest a development log entry into the memory corpus.
         
         Args:
-            devlog_entry: Dictionary containing the log entry data
+            devlog_entry: The devlog entry to ingest
             
         Returns:
             ID of the created memory fragment
         """
-        # Generate unique ID for this memory fragment
-        fragment_id = str(uuid4())
+        # Process with GPT if available
+        if self.engine:
+            processed_content = self.process_with_gpt(
+                devlog_entry["content"],
+                {"type": "devlog", "agent_id": devlog_entry.get("agent_id", "system")}
+            )
+            devlog_entry["content"] = processed_content
         
-        # Parse timestamp (handle float or string)
-        raw_timestamp = devlog_entry.get("timestamp", time.time())
-        timestamp = (
-            float(raw_timestamp)
-            if isinstance(raw_timestamp, (int, float))
-            else time.time()
+        # Create memory fragment
+        fragment = MemoryFragment(
+            timestamp=time.time(),
+            agent_id=devlog_entry.get("agent_id", "system"),
+            content=devlog_entry["content"],
+            context=devlog_entry.get("context", {}),
+            insights=[],
+            connections=[],
+            memory_id=str(uuid4()),
+            type="devlog"
         )
         
-        # Create memory fragment with all fields
-        fragment = {
-            "memory_id": fragment_id,
-            "timestamp": timestamp,
-            "agent_id": devlog_entry.get("agent_id", "unknown"),
-            "content": devlog_entry.get("content", ""),
-            "context": devlog_entry.get("context", {}),
-            "insights": devlog_entry.get("insights", []),
-            "connections": [],
-            "type": devlog_entry.get("type", "devlog"),
-            "narrative_weight": devlog_entry.get("narrative_weight", 1.0)
-        }
+        # Extract insights and connections
+        fragment.insights = self._extract_insights(asdict(fragment))
+        fragment.connections = self._find_connections(asdict(fragment))
         
-        # Store in corpus with unique ID
-        self.memory_corpus[fragment_id] = fragment
-        
-        # Extract insights if not provided
-        if not fragment["insights"]:
-            fragment["insights"] = self._extract_insights(fragment)
-        
-        # Find connections
-        fragment["connections"] = self._find_connections(fragment)
-        
-        # Update threads
-        self._update_narratives(fragment)
-        
-        # Save changes
+        # Add to memory corpus
+        self.memory_corpus[fragment.memory_id] = asdict(fragment)
         self._save_memory_corpus()
         
-        self.logger.info(f"Memory ingested: {fragment_id} from agent {fragment['agent_id']}")
-        return fragment_id
+        # Update narrative threads
+        self._update_narratives(asdict(fragment))
+        
+        return fragment.memory_id
     
     def get_memory(self, memory_id: str) -> Optional[Dict[str, Any]]:
         """Get a memory fragment by ID.

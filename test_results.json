@@ -1,0 +1,19 @@
+{
+  "start_time": "2025-06-08T16:14:01.259541",
+  "tests": {
+    "tests/ui/test_gui.py": {
+      "path": "D:\\SWARM\\Dream.OS\\tests\\ui\\test_gui.py",
+      "stdout": "Warning: Could not import mock discord modules: No module named 'dreamos.core.bridge.base.bridge'; 'dreamos.core.bridge.base' is not a package\nWarning: Could not import mock discord modules: No module named 'dreamos.core.bridge.base.bridge'; 'dreamos.core.bridge.base' is not a package\n",
+      "stderr": "ImportError while loading conftest 'D:\\SWARM\\Dream.OS\\tests\\ui\\conftest.py'.\ntests\\ui\\conftest.py:10: in <module>\n    from dreamos.core.ui import MainWindow\ndreamos\\core\\__init__.py:4: in <module>\n    from . import agent_interface\ndreamos\\core\\agent_interface.py:11: in <module>\n    from .messaging.cell_phone import CellPhone\ndreamos\\core\\messaging\\__init__.py:4: in <module>\n    from . import agent_bridge_handler\ndreamos\\core\\messaging\\agent_bridge_handler.py:12: in <module>\n    from .bridge_integration import BridgeIntegration\ndreamos\\core\\messaging\\bridge_integration.py:15: in <module>\n    from ..bridge.chatgpt.bridge import ChatGPTBridge\ndreamos\\core\\bridge\\chatgpt\\bridge.py:16: in <module>\n    from ..base.bridge import BaseBridge\nE   ModuleNotFoundError: No module named 'dreamos.core.bridge.base.bridge'; 'dreamos.core.bridge.base' is not a package\n",
+      "returncode": 4,
+      "timestamp": "2025-06-08T16:14:04.354351"
+    }
+  },
+  "summary": {
+    "total": 1,
+    "passed": 0,
+    "failed": 1,
+    "skipped": 0
+  },
+  "end_time": "2025-06-08T16:14:04.355351"
+}

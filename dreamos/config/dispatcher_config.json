@@ -1,0 +1,25 @@
+{
+    "paths": {
+        "runtime": "runtime"
+    },
+    "dispatcher": {
+        "check_interval": 10,
+        "cooldown_minutes": 5,
+        "max_queue_size": 100,
+        "routing": {
+            "strategy": "round_robin",
+            "fallback_agent": "agent-0",
+            "topic_matching": true
+        },
+        "prompt_templates": {
+            "default": "🛰️ DIRECT: TASK FROM {source_id}\n\nTopic: {topic}\nPriority: {priority}\n\n{content}\n\nRequired Action:\n- Process this task\n- Update your devlog\n- Send response to bridge_outbox/\n- Wait for next instruction",
+            "high_priority": "🚨 URGENT: TASK FROM {source_id}\n\nTopic: {topic}\nPriority: {priority}\n\n{content}\n\nRequired Action:\n- Process this task IMMEDIATELY\n- Update your devlog\n- Send response to bridge_outbox/\n- Wait for next instruction"
+        }
+    },
+    "topics": {
+        "code": ["agent-1", "agent-2"],
+        "research": ["agent-3", "agent-4"],
+        "planning": ["agent-0"],
+        "general": ["agent-0", "agent-1", "agent-2", "agent-3", "agent-4"]
+    }
+} 

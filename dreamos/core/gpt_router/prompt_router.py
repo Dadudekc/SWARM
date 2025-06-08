@@ -21,10 +21,23 @@ class PromptRouter:
             return yaml.safe_load(fh)
 
     def decide_prompt(self, convo_url: str) -> Dict[str, str]:
-        if "code" in convo_url:
+        # Extract context from URL or conversation
+        context = convo_url.lower()
+        
+        # Route based on context patterns
+        if "analyze" in context or "pattern" in context:
+            profile = self._load_profile("analyst")
+        elif "log" in context or "lore" in context:
+            profile = self._load_profile("dreamscribe")
+        elif "error" in context or "traceback" in context:
+            profile = self._load_profile("debugger")
+        elif "research" in context or "compare" in context:
+            profile = self._load_profile("researcher")
+        elif "code" in context:
             profile = self._load_profile("codexpert")
-        elif "summary" in convo_url:
+        elif "summary" in context:
             profile = self._load_profile("summarizer")
         else:
             profile = self._load_profile("default")
+            
         return profile

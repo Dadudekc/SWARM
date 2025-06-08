@@ -1,24 +1,14 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""
+Dream.OS - A distributed operating system for AI agents
+"""
 
-from . import conftest
-from . import exec_overnight_tests
-from . import pyautogui
-from . import pygetwindow
-from . import run_overnight
-from . import run_overnight_tests
-from . import setup
-from . import test_chatgpt_bridge
-from . import test_debug_time
+__version__ = "0.1.0"
+
+# Package-level imports
+from dreamos.core import *
+from dreamos.utils import *
+from dreamos.config import *
 
 __all__ = [
-    'conftest',
-    'exec_overnight_tests',
-    'pyautogui',
-    'pygetwindow',
-    'run_overnight',
-    'run_overnight_tests',
-    'setup',
-    'test_chatgpt_bridge',
-    'test_debug_time',
+    '__version__',
 ]

@@ -5,10 +5,12 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, Dict, List, Type
 
 import aiofiles
+from jsonschema import validate, ValidationError as SchemaValidationError
 
+from .exceptions import DreamOSError
 from .safe_io import async_atomic_write
 
 logger = logging.getLogger(__name__)
@@ -20,8 +22,35 @@ __all__ = [
     "write_json",
     "async_save_json",
     "async_load_json",
+    "validate_json",
+    "JsonValidationError"
 ]
 
+class JsonValidationError(DreamOSError):
+    """Raised when JSON validation fails."""
+    def __init__(self, message: str, errors: Optional[List[str]] = None):
+        super().__init__(message)
+        self.errors = errors or []
+
+def validate_json(data: Any, schema: Dict[str, Any]) -> None:
+    """
+    Validate JSON data against a schema.
+    
+    Args:
+        data: The JSON data to validate
+        schema: The JSON schema to validate against
+        
+    Raises:
+        JsonValidationError: If validation fails
+    """
+    try:
+        validate(instance=data, schema=schema)
+    except SchemaValidationError as e:
+        errors = [str(err) for err in e.context] if e.context else [str(e)]
+        raise JsonValidationError(
+            f"JSON validation failed: {e.message}",
+            errors=errors
+        )
 
 def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
     """Load JSON data from file."""

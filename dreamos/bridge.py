@@ -128,6 +128,20 @@ class HybridResponseHandler:
 
         return text_part, memory_update
 
+def parse_hybrid_response(raw_response: str) -> Tuple[str, dict]:
+    """Extract text and structured JSON data from a hybrid response.
+    
+    Args:
+        raw_response: The raw response string containing both text and JSON
+        
+    Returns:
+        Tuple of (text_part, memory_update) where:
+        - text_part is the narrative text with JSON blocks removed
+        - memory_update is the parsed JSON data or empty dict if none found
+    """
+    handler = HybridResponseHandler()
+    return handler.parse_hybrid_response(raw_response)
+
 class ChatGPTBridge:
     """Main bridge service for ChatGPT integration."""
     

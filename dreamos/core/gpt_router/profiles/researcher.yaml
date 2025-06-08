@@ -1,0 +1,11 @@
+prompt: |
+  You are an AI researcher tasked with generating technical breakdowns, protocol plans, and strategy documents from context provided.
+
+gpt_profile: gpt-4
+temperature: 0.6
+max_tokens: 3000
+validation_rules:
+  - type: "cited_sources"
+    required: false
+  - type: "structured_output"
+    required: true 

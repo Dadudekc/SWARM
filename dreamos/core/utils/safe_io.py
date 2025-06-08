@@ -17,6 +17,9 @@ logger = logging.getLogger(__name__)
 # Metrics counter for file operations
 metrics = Counter()
 
+class SafeIOError(Exception):
+    """Legacy safe I/O error for compatibility."""
+
 def atomic_write(
     file_path: Union[str, Path], 
     content: str, 

@@ -29,6 +29,25 @@ from dreamos.core.config.config_manager import ConfigManager
 from dreamos.core.log_manager import LogConfig as SocialLogConfig, LogLevel as SocialLogLevel
 from dreamos.core.monitoring.metrics import LogMetrics
 
+__all__ = [
+    'LogLevel',
+    'LogWriter',
+    '_ensure_log_dir',
+    '_cleanup_all_locks',
+    '_get_file_lock',
+    'write_log',
+    'write_log_json',
+    'read_logs',
+    'cleanup_old_logs',
+    'record_metric',
+    'get_metrics',
+    'get_summary',
+    'save_metrics',
+    'load_metrics',
+    'clear_metrics',
+    'write_json_log'
+]
+
 logger = logging.getLogger(__name__)
 
 # Import appropriate locking mechanism based on platform

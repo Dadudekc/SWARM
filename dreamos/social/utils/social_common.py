@@ -55,7 +55,8 @@ class SocialMediaUtils(BaseUtils):
         """
         try:
             wait = WebDriverWait(self.driver, timeout or self.timeout)
-            return wait.until(EC.presence_of_element_located((by, value)))
+            element = wait.until(EC.presence_of_element_located((by, value)))
+            return element
         except TimeoutException:
             self.logger.warning(f"Timeout waiting for element: {value}")
             return None
@@ -78,7 +79,8 @@ class SocialMediaUtils(BaseUtils):
         """
         try:
             wait = WebDriverWait(self.driver, timeout or self.timeout)
-            return wait.until(EC.element_to_be_clickable((by, value)))
+            element = wait.until(EC.element_to_be_clickable((by, value)))
+            return element
         except TimeoutException:
             self.logger.warning(f"Timeout waiting for clickable element: {value}")
             return None
@@ -101,6 +103,11 @@ class SocialMediaUtils(BaseUtils):
         """
         for attempt in range(max_retries):
             try:
+                # Wait for element to be clickable
+                wait = WebDriverWait(self.driver, delay)
+                wait.until(EC.element_to_be_clickable(element))
+                
+                # Try to click
                 element.click()
                 return True
             except (ElementClickInterceptedException, NoSuchElementException) as e:

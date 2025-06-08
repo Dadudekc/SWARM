@@ -1,0 +1,18 @@
+Please analyze the following response from agent {{ agent_id }}:
+
+```json
+{{ response | tojson(indent=2) }}
+```
+
+Context:
+- Type: {{ response.type }}
+- Timestamp: {{ response.timestamp }}
+- Priority: {{ response.priority }}
+
+Please provide:
+1. A clear analysis of the response
+2. Any potential issues or concerns
+3. Recommended next steps
+4. Additional context or information needed
+
+Respond in a clear, structured format. 

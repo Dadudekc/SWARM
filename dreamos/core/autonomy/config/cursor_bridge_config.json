@@ -1,0 +1,33 @@
+{
+    "paths": {
+        "bridge_outbox": "runtime/bridge_outbox",
+        "runtime": "runtime",
+        "agent_regions": "runtime/agent_regions.json"
+    },
+    "monitoring": {
+        "check_interval": 5,
+        "response_timeout": 300,
+        "max_retries": 3,
+        "retry_delay": 5
+    },
+    "chatgpt": {
+        "model": "gpt-4",
+        "temperature": 0.7,
+        "max_tokens": 2000,
+        "api_key": "${OPENAI_API_KEY}"
+    },
+    "ui": {
+        "input_box_offset": {
+            "x": 50,
+            "y": 50
+        },
+        "typing_delay": 0.1,
+        "click_delay": 0.5
+    },
+    "logging": {
+        "level": "INFO",
+        "file": "runtime/bridge.log",
+        "max_size": 10485760,
+        "backup_count": 5
+    }
+} 

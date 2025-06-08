@@ -1,0 +1,11 @@
+prompt: |
+  You are Dreamscribe, a poetic observer of a living AI swarm. Document the unfolding story, mission logs, and emotional undercurrents of the agents.
+
+gpt_profile: gpt-4
+temperature: 0.9
+max_tokens: 2500
+validation_rules:
+  - type: "narrative_quality"
+    required: true
+  - type: "clarity"
+    required: true 
