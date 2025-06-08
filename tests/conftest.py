@@ -257,50 +257,6 @@ def pytest_configure(config):
         "cellphone_pipeline: marks tests that require cellphone pipeline"
     )
 
-    # Import mock Discord modules
-    mock_discord = importlib.import_module('tests.utils.mock_discord')
-    
-    # Create a mock for discord.ext
-    mock_ext = SimpleNamespace()
-    mock_ext.commands = mock_discord.commands
-    
-    # Create a mock for discord.ui
-    mock_ui = SimpleNamespace()
-    mock_ui.View = mock_discord.ui.View
-    mock_ui.Button = mock_discord.ui.Button
-    mock_ui.Select = mock_discord.ui.Select
-    mock_ui.TextInput = mock_discord.ui.TextInput
-    mock_ui.Modal = mock_discord.ui.Modal
-    mock_ui.ButtonStyle = mock_discord.ui.ButtonStyle
-    
-    # Patch all Discord-related modules
-    sys.modules['discord'] = mock_discord.discord
-    sys.modules['discord.ext'] = mock_ext
-    sys.modules['discord.ext.commands'] = mock_discord.commands
-    sys.modules['discord.ui'] = mock_ui
-    sys.modules['discord.voice_client'] = mock_discord.VoiceClient
-    sys.modules['discord.gateway'] = mock_discord.Gateway
-    sys.modules['discord.opus'] = mock_discord.Opus
-    sys.modules['discord.opus_loader'] = mock_discord.OpusLoader
-    sys.modules['discord.voice_state'] = mock_discord.VoiceState
-    sys.modules['discord.voice_protocol'] = mock_discord.VoiceProtocol
-    sys.modules['discord.voice_region'] = mock_discord.VoiceRegion
-    sys.modules['discord.voice_recv'] = mock_discord.VoiceRecv
-    sys.modules['discord.voice_send'] = mock_discord.VoiceSend
-    sys.modules['discord.voice_utils'] = mock_discord.VoiceUtils
-    sys.modules['discord.voice_websocket'] = mock_discord.VoiceWebSocket
-    sys.modules['discord.voice_websocket_client'] = mock_discord.VoiceWebSocketClient
-    sys.modules['discord.voice_websocket_server'] = mock_discord.VoiceWebSocketServer
-    sys.modules['discord.voice_websocket_utils'] = mock_discord.VoiceWebSocketUtils
-    sys.modules['discord.voice_websocket_voice'] = mock_discord.VoiceWebSocketVoice
-    sys.modules['discord.voice_websocket_voice_client'] = mock_discord.VoiceWebSocketVoiceClient
-    sys.modules['discord.voice_websocket_voice_server'] = mock_discord.VoiceWebSocketVoiceServer
-    sys.modules['discord.voice_websocket_voice_utils'] = mock_discord.VoiceWebSocketVoiceUtils
-    sys.modules['discord.voice_websocket_voice_websocket'] = mock_discord.VoiceWebSocketVoiceWebSocket
-    sys.modules['discord.voice_websocket_voice_websocket_client'] = mock_discord.VoiceWebSocketVoiceWebSocketClient
-    sys.modules['discord.voice_websocket_voice_websocket_server'] = mock_discord.VoiceWebSocketVoiceWebSocketServer
-    sys.modules['discord.voice_websocket_voice_websocket_utils'] = mock_discord.VoiceWebSocketVoiceWebSocketUtils
-
 def pytest_collection_modifyitems(items):
     """Modify test items."""
     # Skip Windows-specific tests on non-Windows platforms

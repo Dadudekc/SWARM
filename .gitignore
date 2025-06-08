@@ -164,3 +164,6 @@ backups/
 data/health/
 *.runtime.log
 task_backlog.json
+
+# New virtual environment
+.venv_new/
