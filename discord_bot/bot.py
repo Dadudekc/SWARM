@@ -86,7 +86,16 @@ class DreamOSBot(commands.Bot):
                         self.logger.error(f"Failed to load cog {cog_file.stem}: {e}")
             
             # Initialize components
-            # TODO: Initialize orchestrator and log manager
+            runtime_dir = Path(self.config.get("runtime_dir", "runtime"))
+            channel_id = int(self.config.get("channels", {}).get("devlog", 0))
+            token = self.config.get("token", "")
+
+            self.orchestrator = SystemOrchestrator(
+                runtime_dir=runtime_dir,
+                discord_token=token,
+                channel_id=channel_id,
+            )
+            self.log_manager = self.orchestrator.log_manager
             
         except Exception as e:
             self.logger.error(f"Error in setup_hook: {e}")
