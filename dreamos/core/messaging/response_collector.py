@@ -372,6 +372,11 @@ class ResponseCollector:
             
             # Wait for response to start
             start_time = time.time()
+            outbox_file = Path(f"runtime/bridge_outbox/agent-{agent_id or 'unknown'}.json")
+            if outbox_file.exists():
+                age = time.time() - outbox_file.stat().st_mtime
+                if age > 300:
+                    logger.warning(f"Outbox file for {agent_id or 'unknown'} is stale")
             last_text = self._get_cursor_text()
             logger.debug(f"Initial text: {last_text[:100] if last_text else 'None'}")
             
@@ -390,13 +395,22 @@ class ResponseCollector:
                     # Found new response
                     self.last_response = current_text
                     self._save_response(current_text, agent_id)
-                    
+
                     # Try to copy response if copy button region is defined
                     for name, region in self.agent_regions.items():
                         if agent_id is None or region.agent_id == agent_id:
                             if region.try_copy_response():
                                 logger.info(f"Successfully copied response for agent {region.agent_id}")
-                    
+
+                    ts_end = time.time()
+                    outbox_file.parent.mkdir(parents=True, exist_ok=True)
+                    save_json({
+                        "status": "complete",
+                        "response": current_text,
+                        "started_at": start_time,
+                        "completed_at": ts_end
+                    }, outbox_file)
+
                     return True
                 
                 # Check agent region stability
@@ -404,6 +418,14 @@ class ResponseCollector:
                     if agent_id is None or region.agent_id == agent_id:
                         if region.is_stable():
                             logger.info(f"Agent {region.agent_id or 'unknown'} response stabilized")
+                            ts_end = time.time()
+                            outbox_file.parent.mkdir(parents=True, exist_ok=True)
+                            save_json({
+                                "status": "complete",
+                                "response": self.last_response or "",
+                                "started_at": start_time,
+                                "completed_at": ts_end
+                            }, outbox_file)
                             return True
                 
                 time.sleep(0.1)  # Check every 100ms

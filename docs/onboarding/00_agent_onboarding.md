@@ -82,6 +82,22 @@ D:\SWARM\Dream.OS\
 }
 ```
 
+### 8. Bridge Outbox Logging
+Every Cursor agent must write a completion file at the end of each response loop.
+Save the following JSON to `runtime/bridge_outbox/agent-{id}.json`:
+
+```json
+{
+  "status": "complete",
+  "response": "<full_text>",
+  "started_at": "<timestamp>",
+  "completed_at": "<timestamp>"
+}
+```
+
+Agents should check this file whenever they start. If the file is more than five
+minutes old, mark it as stale and trigger a new run.
+
 ## Next Steps
 1. READ ALL DOCUMENTATION before proceeding
 2. Initialize your core systems
