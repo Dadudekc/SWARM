@@ -96,7 +96,7 @@ class LogConfig:
     
     # Batching settings
     batch_size: int = DEFAULT_BATCH_SIZE
-    batch_timeout: float = DEFAULT_BATCH_TIMEOUT
+    batch_timeout: int = DEFAULT_BATCH_TIMEOUT
     
     # Maintenance settings
     rotation_check_interval: float = DEFAULT_ROTATION_CHECK_INTERVAL
@@ -122,9 +122,20 @@ class LogConfig:
         # Ensure max_bytes and max_file_size are synchronized
         self.max_bytes = self.max_file_size
         
-        # Create log directory if it doesn't exist
+        # Validate log directory
         if self.log_dir:
-            os.makedirs(self.log_dir, exist_ok=True)
+            try:
+                # Check if parent directory exists and is writable
+                parent_dir = os.path.dirname(os.path.abspath(self.log_dir))
+                if not os.path.exists(parent_dir):
+                    raise ValueError(f"Parent directory does not exist: {parent_dir}")
+                if not os.access(parent_dir, os.W_OK):
+                    raise ValueError(f"Parent directory is not writable: {parent_dir}")
+                
+                # Try to create log directory
+                os.makedirs(self.log_dir, exist_ok=True)
+            except (OSError, PermissionError) as e:
+                raise ValueError(f"Invalid log directory: {self.log_dir} - {str(e)}")
             
         # Set default file path if not specified
         if self.log_to_file and not self.file_path:

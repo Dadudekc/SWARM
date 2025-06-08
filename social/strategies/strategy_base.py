@@ -22,8 +22,8 @@ from selenium.common.exceptions import (
     WebDriverException
 )
 
-from dreamos.core.log_manager import LogConfig, LogLevel
-from dreamos.core.log_manager import LogManager
+from dreamos.core.logging.log_config import LogConfig, LogLevel
+from dreamos.core.logging.log_manager import LogManager
 from dreamos.core.monitoring.metrics import LogMetrics
 from dreamos.social.utils.social_common import SocialMediaUtils
 from dreamos.core.agent_control.devlog_manager import DevLogManager
@@ -62,11 +62,12 @@ class SocialMediaStrategy(ABC):
         if logger:
             self.logger = logger
         else:
-            self.logger = LogManager(
-                log_dir=config.get("log_config", {}).get("log_dir", "logs"),
-                level=config.get("log_config", {}).get("level", "INFO"),
-                output_format=config.get("log_config", {}).get("output_format", "text")
+            log_config = LogConfig(
+                level=LogLevel.from_string(config.get("log_config", {}).get("level", "INFO")),
+                format=config.get("log_config", {}).get("output_format", "%(asctime)s - %(name)s - %(levelname)s - %(message)s"),
+                file_path=os.path.join(config.get("log_config", {}).get("log_dir", "logs"), f"{agent_id}.log")
             )
+            self.logger = LogManager(config=log_config)
         
         # Initialize utils
         self.utils = SocialMediaUtils(self.logger)

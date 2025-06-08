@@ -6,10 +6,11 @@ Manages automatic test failure handling and fix loops.
 
 import asyncio
 import logging
+import json
 from typing import Dict, Any, Optional, List
 
 from .base.runner_core import RunnerCore
-from .bridge_outbox_handler import BridgeOutboxHandler
+from .handlers.bridge_outbox_handler import BridgeOutboxHandler
 from .codex_patch_tracker import CodexPatchTracker
 
 logger = logging.getLogger(__name__)

@@ -21,13 +21,16 @@ except Exception:  # pragma: no cover - win32 modules unavailable on non-Windows
     pywintypes = None
 import stat
 
+from .base import BaseUtils
+
 logger = logging.getLogger(__name__)
 
-class FileCleanup:
+class FileCleanup(BaseUtils):
     """Handles safe file cleanup with proper lock handling."""
     
-    def __init__(self):
+    def __init__(self, config: dict = None):
         """Initialize cleanup utility."""
+        super().__init__(config or {})
         self._lock = threading.RLock()
         self._file_locks = {}
         

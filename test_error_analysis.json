@@ -257,5 +257,21 @@
       "quarantined": 67,
       "notes": "Applied skip markers to strategy tests; fixed persistent queue priority handling"
     }
-  ]
+  ],
+  "IMPORT_ERROR": [
+    {
+      "file": "dreamos/core/autonomy/base/test_runner.py",
+      "error": "ModuleNotFoundError: No module named 'dreamos.core.autonomy.base.runner'",
+      "fix": "Update import to use runner_core instead of runner"
+    },
+    {
+      "file": "dreamos/core/autonomy/auto_trigger_runner.py",
+      "error": "ModuleNotFoundError: No module named 'dreamos.core.autonomy.bridge_outbox_handler'",
+      "fix": "Update import path to use handlers.bridge_outbox_handler"
+    }
+  ],
+  "ATTRIBUTE_ERROR": [],
+  "ASSERTION_FAILURE": [],
+  "FIXTURE_MISSING": [],
+  "RUNTIME_EXCEPTION": []
 }

@@ -1,5 +1,5 @@
 """
-Stub implementation of DevlogManager for testing purposes.
+Stub implementation of DevLogManager for testing purposes.
 """
 
 import logging
@@ -7,11 +7,11 @@ from typing import Optional, Dict, Any
 
 logger = logging.getLogger(__name__)
 
-class DevlogManager:
-    """Stub implementation of DevlogManager."""
+class DevLogManager:
+    """Stub implementation of DevLogManager."""
     
     def __init__(self, *args, **kwargs):
-        """Initialize stub DevlogManager."""
+        """Initialize stub DevLogManager."""
         self.logger = logger
     
     def log_event(self, event: str, data: Optional[Dict[str, Any]] = None) -> None:

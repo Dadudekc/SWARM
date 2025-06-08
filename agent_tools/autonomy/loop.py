@@ -26,7 +26,7 @@ from dreamos.core.utils.system_ops import with_retry
 from dreamos.core.ai.chatgpt_bridge import ChatGPTBridge
 from dreamos.core.cursor_controller import CursorController
 from dreamos.core.ai.llm_agent import LLMAgent
-from agent_tools.general_tools.browser.integration import StealthBrowserBridge
+from agent_tools.swarm_tools.browser.integration import StealthBrowserBridge
 from agent_tools.mailbox.message_handler import MessageHandler
 
 # Constants & paths
@@ -88,7 +88,7 @@ class AutonomyLoop:
         logger.info(f"Received signal {signum}, initiating shutdown...")
         self.running = False
     
-    @with_retry(max_retries=3, backoff_factor=2.0)
+    @with_retry(max_retries=3, backoff=2.0)
     async def _process_task(self, task: dict):
         """Process a single task.
         

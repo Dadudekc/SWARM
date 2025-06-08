@@ -6,6 +6,7 @@ Shared types and constants for logging system.
 
 from dataclasses import dataclass
 from typing import Optional
+from enum import Enum, auto
 
 # Constants
 DEFAULT_MAX_SIZE_MB = 10
@@ -13,6 +14,19 @@ DEFAULT_MAX_FILES = 5
 DEFAULT_MAX_AGE_DAYS = 30
 DEFAULT_COMPRESS_AFTER_DAYS = 7
 DEFAULT_MAX_BYTES = DEFAULT_MAX_SIZE_MB * 1024 * 1024  # 10MB in bytes
+
+class LogTypes(Enum):
+    """Enumeration of log types used in the system."""
+    INFO = auto()
+    WARNING = auto()
+    ERROR = auto()
+    DEBUG = auto()
+    CRITICAL = auto()
+    AUDIT = auto()
+    PERFORMANCE = auto()
+    SECURITY = auto()
+    SYSTEM = auto()
+    USER = auto()
 
 @dataclass
 class RotationConfig:

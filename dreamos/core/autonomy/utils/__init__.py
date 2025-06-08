@@ -1,12 +1,12 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import async_file_watcher
+from .async_file_watcher import AsyncFileWatcher
 from . import response_utils
 from . import test_async_file_watcher
 
 __all__ = [
-    'async_file_watcher',
+    'AsyncFileWatcher',
     'response_utils',
     'test_async_file_watcher',
 ]

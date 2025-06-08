@@ -5,9 +5,9 @@ Main Discord bot implementation.
 from tests.utils.mock_discord import (
     commands,
     Intents,
-    Activity,
-    ActivityType
+    Activity
 )
+from dreamos.core.discord_bot.activity import ActivityType
 import asyncio
 import logging
 import os

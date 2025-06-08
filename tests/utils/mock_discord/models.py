@@ -3,6 +3,13 @@
 from typing import Optional, List, Dict, Any, Union
 from dataclasses import dataclass
 
+class Activity:
+    """Mock Discord Activity for testing."""
+    
+    def __init__(self, name: str, type: str = "playing"):
+        self.name = name
+        self.type = type
+
 class MockGuild:
     """Mock Discord Guild for testing."""
     
@@ -184,6 +191,207 @@ class MockWebhook:
         """Mock deleting a webhook message."""
         self.messages = [m for m in self.messages if m.id != message_id]
 
+class Embed:
+    """Mock Discord Embed class."""
+    def __init__(self, title=None, description=None, color=None):
+        self.title = title
+        self.description = description
+        self.color = color
+        self.fields = []
+        self.footer = None
+        self.image = None
+        self.thumbnail = None
+
+    def add_field(self, name, value, inline=False):
+        """Add a field to the embed."""
+        self.fields.append({"name": name, "value": value, "inline": inline})
+
+    def set_footer(self, text, icon_url=None):
+        """Set the footer of the embed."""
+        self.footer = {"text": text, "icon_url": icon_url}
+
+    def set_image(self, url):
+        """Set the image of the embed."""
+        self.image = {"url": url}
+
+    def set_thumbnail(self, url):
+        """Set the thumbnail of the embed."""
+        self.thumbnail = {"url": url}
+
+class ButtonStyle:
+    """Mock Discord ButtonStyle class."""
+    Primary = 1
+    Secondary = 2
+    Success = 3
+    Danger = 4
+    Link = 5
+
+class Interaction:
+    """Mock Discord Interaction class."""
+    def __init__(self, user=None, message=None, channel=None):
+        self.user = user
+        self.message = message
+        self.channel = channel
+        self.response = None
+
+    async def respond(self, content=None, embed=None, ephemeral=False):
+        """Mock response to an interaction."""
+        self.response = {
+            "content": content,
+            "embed": embed,
+            "ephemeral": ephemeral
+        }
+        return self.response
+
+    async def followup(self, content=None, embed=None, ephemeral=False):
+        """Mock followup to an interaction."""
+        return await self.respond(content, embed, ephemeral)
+
+class Color:
+    """Mock Discord Color class."""
+    
+    def __init__(self, value: int):
+        self.value = value
+    
+    def __eq__(self, other: Any) -> bool:
+        if not isinstance(other, Color):
+            return False
+        return self.value == other.value
+    
+    @classmethod
+    def default(cls) -> 'Color':
+        return cls(0)
+    
+    @classmethod
+    def blue(cls) -> 'Color':
+        return cls(0x3498db)
+    
+    @classmethod
+    def dark_blue(cls) -> 'Color':
+        return cls(0x206694)
+    
+    @classmethod
+    def green(cls) -> 'Color':
+        return cls(0x2ecc71)
+    
+    @classmethod
+    def dark_green(cls) -> 'Color':
+        return cls(0x27ae60)
+    
+    @classmethod
+    def red(cls) -> 'Color':
+        return cls(0xe74c3c)
+    
+    @classmethod
+    def dark_red(cls) -> 'Color':
+        return cls(0xc0392b)
+    
+    @classmethod
+    def gold(cls) -> 'Color':
+        return cls(0xf1c40f)
+    
+    @classmethod
+    def dark_gold(cls) -> 'Color':
+        return cls(0xf39c12)
+    
+    @classmethod
+    def purple(cls) -> 'Color':
+        return cls(0x9b59b6)
+    
+    @classmethod
+    def dark_purple(cls) -> 'Color':
+        return cls(0x8e44ad)
+    
+    @classmethod
+    def teal(cls) -> 'Color':
+        return cls(0x1abc9c)
+    
+    @classmethod
+    def dark_teal(cls) -> 'Color':
+        return cls(0x16a085)
+    
+    @classmethod
+    def orange(cls) -> 'Color':
+        return cls(0xe67e22)
+    
+    @classmethod
+    def dark_orange(cls) -> 'Color':
+        return cls(0xd35400)
+    
+    @classmethod
+    def grey(cls) -> 'Color':
+        return cls(0x95a5a6)
+    
+    @classmethod
+    def dark_grey(cls) -> 'Color':
+        return cls(0x7f8c8d)
+    
+    @classmethod
+    def darker_grey(cls) -> 'Color':
+        return cls(0x2c2f33)
+    
+    @classmethod
+    def light_grey(cls) -> 'Color':
+        return cls(0xbcc0c0)
+    
+    @classmethod
+    def dark_theme(cls) -> 'Color':
+        return cls(0x36393f)
+    
+    @classmethod
+    def blurple(cls) -> 'Color':
+        return cls(0x7289da)
+    
+    @classmethod
+    def dark_blurple(cls) -> 'Color':
+        return cls(0x5865f2)
+
+def create_mock_embed(title: Optional[str] = None, description: Optional[str] = None,
+                     color: Optional[int] = None, fields: Optional[List[Dict[str, Any]]] = None,
+                     footer: Optional[Dict[str, str]] = None, image: Optional[Dict[str, str]] = None,
+                     thumbnail: Optional[Dict[str, str]] = None) -> MockEmbed:
+    """Create a mock embed with the given parameters.
+    
+    Args:
+        title: Optional title for the embed
+        description: Optional description for the embed
+        color: Optional color for the embed
+        fields: Optional list of field dictionaries
+        footer: Optional footer dictionary
+        image: Optional image dictionary
+        thumbnail: Optional thumbnail dictionary
+        
+    Returns:
+        A new MockEmbed instance
+    """
+    embed = MockEmbed(
+        title=title,
+        description=description,
+        color=color
+    )
+    
+    if fields:
+        for field in fields:
+            embed.add_field(
+                name=field.get('name', ''),
+                value=field.get('value', ''),
+                inline=field.get('inline', False)
+            )
+            
+    if footer:
+        embed.set_footer(
+            text=footer.get('text', ''),
+            icon_url=footer.get('icon_url')
+        )
+        
+    if image:
+        embed.set_image(url=image.get('url', ''))
+        
+    if thumbnail:
+        embed.set_thumbnail(url=thumbnail.get('url', ''))
+        
+    return embed
+
 __all__ = [
     'MockGuild',
     'MockRole',
@@ -192,5 +400,11 @@ __all__ = [
     'MockMessage',
     'MockEmbed',
     'MockWebhook',
-    'MockFile'
+    'MockFile',
+    'Activity',
+    'create_mock_embed',
+    'Embed',
+    'ButtonStyle',
+    'Interaction',
+    'Color'
 ]

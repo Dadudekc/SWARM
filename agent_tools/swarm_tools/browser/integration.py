@@ -106,7 +106,7 @@ class StealthBrowserBridge:
         
         logger.info("StealthBrowser bridge service stopped")
         
-    @with_retry(max_retries=3, backoff_factor=2.0)
+    @with_retry(max_retries=3, backoff=2.0)
     async def launch_browser(self) -> None:
         """Launch browser with retry logic."""
         self.stealth_browser.start()

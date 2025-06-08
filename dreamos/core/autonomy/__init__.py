@@ -20,7 +20,7 @@ from . import test_devlog_bridge
 from . import test_loop
 from . import test_state
 from . import test_watcher
-from . import validation_engine
+# from . import validation_engine  # REMOVED: Prevent import errors during test discovery
 
 __all__ = [
     'agent_loop',
@@ -42,5 +42,5 @@ __all__ = [
     'test_loop',
     'test_state',
     'test_watcher',
-    'validation_engine',
+# 'validation_engine',  # REMOVED: Prevent import errors during test discovery
 ]

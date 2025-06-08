@@ -1,8 +1,9 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import rate_limiter
+from .rate_limiter import RateLimiter, rate_limit
 
 __all__ = [
-    'rate_limiter',
+    'RateLimiter',
+    'rate_limit',
 ]

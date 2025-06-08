@@ -1,8 +1,7 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import run_overnight
+# Package marker for Dream.OS
+__version__ = "1.0.0"
 
-__all__ = [
-    'run_overnight',
-]
+__all__ = []

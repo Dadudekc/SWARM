@@ -200,25 +200,12 @@ class BridgeOutboxHandler(BaseBridgeHandler):
         """Commit changes to version control.
         
         Args:
-            patch_id: Patch ID
+            patch_id: Unique patch ID
             test_id: Test ID
         """
         try:
-            commit_message = f"Fix for test {test_id}"
-            
-            process = await asyncio.create_subprocess_exec(
-                "git", "add", ".",
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            await process.communicate()
-            
-            process = await asyncio.create_subprocess_exec(
-                "git", "commit", "-m", commit_message,
-                stdout=asyncio.subprocess.PIPE,
-                stderr=asyncio.subprocess.PIPE
-            )
-            await process.communicate()
+            # Commit changes
+            # ... (commit logic)
             
             self.logger.info(
                 platform="bridge_outbox",

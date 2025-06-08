@@ -539,4 +539,6 @@ class BaseStateManager:
         return {
             agent_id: self.get_stats(agent_id)
             for agent_id in self.agents
-        } 
+        }
+
+__all__ = ['BaseStateManager'] 

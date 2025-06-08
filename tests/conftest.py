@@ -9,6 +9,8 @@ import sys
 import pytest
 import tempfile
 import shutil
+import gc
+import time
 from pathlib import Path
 from typing import Generator, Dict, Any
 import importlib
@@ -26,6 +28,29 @@ TEST_CONFIG_DIR = TEST_ROOT / "config"
 TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
 TEST_TEMP_DIR = TEST_ROOT / "temp"
 VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
+
+def safe_delete(path: Path, retries: int = 3, delay: float = 0.2) -> None:
+    """Safely delete a file with retries and GC flush.
+    
+    Args:
+        path: Path to file to delete
+        retries: Number of retry attempts
+        delay: Delay between retries in seconds
+    """
+    for _ in range(retries):
+        try:
+            if path.exists():
+                path.unlink()
+            return
+        except PermissionError:
+            gc.collect()  # Force garbage collection
+            time.sleep(delay)
+    
+    # Last attempt (force Windows handle release)
+    try:
+        os.remove(str(path))
+    except Exception as e:
+        print(f"[WARN] Could not delete {path}: {e}")
 
 # Mock data
 MOCK_AGENT_CONFIG = {
@@ -50,16 +75,16 @@ def setup_test_environment():
     
     yield
     
-    # Cleanup
+    # Cleanup with safe deletion
     if TEST_DATA_DIR.exists():
         for file in TEST_DATA_DIR.glob("*"):
-            file.unlink()
+            safe_delete(file)
     if TEST_CONFIG_DIR.exists():
         for file in TEST_CONFIG_DIR.glob("*"):
-            file.unlink()
+            safe_delete(file)
     if TEST_RUNTIME_DIR.exists():
         for file in TEST_RUNTIME_DIR.glob("*"):
-            file.unlink()
+            safe_delete(file)
 
 @pytest.fixture
 def clean_test_dirs(tmp_path, monkeypatch):
@@ -81,7 +106,7 @@ def clean_test_dirs(tmp_path, monkeypatch):
         if child.is_dir():
             shutil.rmtree(child)
         else:
-            child.unlink()
+            safe_delete(child)
 
 @pytest.fixture(scope="session")
 def test_env() -> Dict[str, str]:
@@ -104,7 +129,7 @@ def test_file(temp_dir: Path) -> Generator[Path, None, None]:
     test_file = temp_dir / "test.txt"
     yield test_file
     if test_file.exists():
-        test_file.unlink()
+        safe_delete(test_file)
 
 @pytest.fixture(scope="function")
 def test_json(temp_dir: Path) -> Generator[Path, None, None]:
@@ -112,7 +137,7 @@ def test_json(temp_dir: Path) -> Generator[Path, None, None]:
     test_file = temp_dir / "test.json"
     yield test_file
     if test_file.exists():
-        test_file.unlink()
+        safe_delete(test_file)
 
 @pytest.fixture(scope="function")
 def test_yaml(temp_dir: Path) -> Generator[Path, None, None]:
@@ -120,7 +145,7 @@ def test_yaml(temp_dir: Path) -> Generator[Path, None, None]:
     test_file = temp_dir / "test.yaml"
     yield test_file
     if test_file.exists():
-        test_file.unlink()
+        safe_delete(test_file)
 
 @pytest.fixture(scope="function")
 def test_log_dir(temp_dir: Path) -> Generator[Path, None, None]:
@@ -131,7 +156,7 @@ def test_log_dir(temp_dir: Path) -> Generator[Path, None, None]:
     if log_dir.exists():
         for file in log_dir.glob("*"):
             if file.is_file():
-                file.unlink()
+                safe_delete(file)
         log_dir.rmdir()
 
 @pytest.fixture(scope="function")
@@ -143,7 +168,7 @@ def test_bridge_outbox(temp_dir: Path) -> Generator[Path, None, None]:
     if outbox.exists():
         for file in outbox.glob("*"):
             if file.is_file():
-                file.unlink()
+                safe_delete(file)
         outbox.rmdir()
 
 @pytest.fixture(scope="function")
@@ -241,9 +266,12 @@ def pytest_configure(config):
     
     # Create a mock for discord.ui
     mock_ui = SimpleNamespace()
-    mock_ui.View = mock_discord.View
-    mock_ui.Button = mock_discord.Button
-    mock_ui.Select = mock_discord.Select
+    mock_ui.View = mock_discord.ui.View
+    mock_ui.Button = mock_discord.ui.Button
+    mock_ui.Select = mock_discord.ui.Select
+    mock_ui.TextInput = mock_discord.ui.TextInput
+    mock_ui.Modal = mock_discord.ui.Modal
+    mock_ui.ButtonStyle = mock_discord.ui.ButtonStyle
     
     # Patch all Discord-related modules
     sys.modules['discord'] = mock_discord.discord

@@ -227,42 +227,25 @@ def test_invalid_log_dir():
         with pytest.raises((OSError, PermissionError)):
             log_dir.mkdir(parents=True, exist_ok=True)
 
-def test_log_level():
+def test_log_level(tmp_path):
     """Test log level configuration and entry counting."""
     
-    # Create config with log level
-    config = {
-        "agent_id": "test_agent",
-        "platform": "test",
-        "credentials": {
-            "username": "test_user",
-            "password": "test_pass"
-        },
-        "log_dir": "logs",
-        "log_level": "INFO"
-    }
+    # Create a temporary log file
+    log_file = tmp_path / "test.log"
     
-    # Save config
-    config_path = TEST_CONFIG_DIR / "agent_config.yaml"
-    config_path.parent.mkdir(parents=True, exist_ok=True)
+    # Create a dedicated logger for this test
+    logger = logging.getLogger("test_log_level")
+    logger.setLevel(logging.INFO)  # Set to INFO level
     
-    with open(config_path, "w") as f:
-        yaml.dump(config, f)
+    # Create a file handler
+    file_handler = logging.FileHandler(str(log_file))
+    file_handler.setLevel(logging.INFO)
+    formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+    file_handler.setFormatter(formatter)
     
-    # Create log directory
-    log_dir = TEST_RUNTIME_DIR / config["log_dir"]
-    log_dir.mkdir(parents=True, exist_ok=True)
-
-    # Configure logging
-    log_file = log_dir / "test.log"
-    # Ensure any previous log data is removed so tests run in isolation
-    log_file.unlink(missing_ok=True)
-    logging.basicConfig(
-        level=config["log_level"],
-        format='%(asctime)s - %(levelname)s - %(message)s',
-        filename=str(log_file),
-        force=True
-    )
+    # Remove any existing handlers and add our file handler
+    logger.handlers = []
+    logger.addHandler(file_handler)
     
     # Write test log entries
     test_messages = [
@@ -272,12 +255,14 @@ def test_log_level():
         "Error message"
     ]
     
-    logging.debug(test_messages[0])
-    logging.info(test_messages[1])
-    logging.warning(test_messages[2])
-    logging.error(test_messages[3])
-
-    logging.shutdown()
+    logger.debug(test_messages[0])
+    logger.info(test_messages[1])
+    logger.warning(test_messages[2])
+    logger.error(test_messages[3])
+    
+    # Remove handler and close file
+    logger.removeHandler(file_handler)
+    file_handler.close()
     
     # Verify log file exists and contains entries
     assert log_file.exists(), "Log file should exist"

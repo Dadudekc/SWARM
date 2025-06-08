@@ -25,6 +25,7 @@ from . import router
 from . import types
 from . import ui
 from . import unified_message_system
+from .cell_phone import send_message, CellPhone, MessageMode
 
 __all__ = [
     'base',
@@ -51,4 +52,7 @@ __all__ = [
     'types',
     'ui',
     'unified_message_system',
+    'send_message',
+    'CellPhone',
+    'MessageMode',
 ]

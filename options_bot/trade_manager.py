@@ -4,26 +4,32 @@ from pathlib import Path
 from broker import Broker
 from monte_carlo import batch_pop
 from strategy_core import tech_signal
-from dreamos.social.utils.log_manager import LogManager
+from dreamos.core.logging.log_manager import LogManager
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 
 
 class TradeManager:
     def __init__(self, cfg):
-        self.log = LogManager()
+        log_config = LogConfig(
+            level=LogLevel.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            file_path="logs/options_bot.log"
+        )
+        self.log = LogManager(config=log_config)
         self.broker = Broker(cfg['alpaca'])
         self.cfg = cfg['trade']
         self.outbox = Path('runtime/bridge_outbox')
         self.outbox.mkdir(parents=True, exist_ok=True)
 
     def run_cycle(self):
-        self.log.info('options_bot', 'Running trade cycle')
+        self.log.info('Running trade cycle')
         hist = self.broker.get_history(self.cfg['symbol'], '1h', 400)
         long_sig, short_sig, atr = tech_signal(hist)
-        self.log.info('options_bot', f'Signal L:{long_sig} S:{short_sig}')
+        self.log.info(f'Signal L:{long_sig} S:{short_sig}')
 
         chain = self.broker.get_option_chain(self.cfg['symbol'])
         if chain is None:
-            self.log.error('options_bot', 'No option chain data')
+            self.log.error('No option chain data')
             return
 
         calls = chain[chain['type'] == 'call']
@@ -45,13 +51,13 @@ class TradeManager:
         ].sort_values('pop', ascending=False)
 
         if df.empty:
-            self.log.info('options_bot', 'No trade meets criteria')
+            self.log.info('No trade meets criteria')
             return
 
         tgt = df.iloc[0]
         qty = self._size_position(tgt.mark)
         side = 'buy' if is_call else 'sell'
-        self.log.info('options_bot', f'Placing order {tgt.symbol} qty {qty} side {side}')
+        self.log.info(f'Placing order {tgt.symbol} qty {qty} side {side}')
         self.broker.send_order(tgt.symbol, qty, self.cfg['order_type'], side=side)
         self._log_trade({
             'symbol': tgt.symbol,
@@ -70,4 +76,4 @@ class TradeManager:
         fname = self.outbox / f"trade-{datetime.utcnow().timestamp()}.json"
         with open(fname, 'w') as f:
             json.dump(info, f)
-        self.log.info('options_bot', f'Logged trade {fname}')
+        self.log.info(f'Logged trade {fname}')

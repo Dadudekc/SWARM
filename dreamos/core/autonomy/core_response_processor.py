@@ -10,7 +10,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, Tuple
 
-from dreamos.core.autonomy.validation_engine import ValidationEngine
+from .validation_engine import ValidationEngine
 from dreamos.core.autonomy.base.response_loop_daemon import ResponseProcessor
 
 # Configure logging

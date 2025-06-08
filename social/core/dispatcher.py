@@ -15,7 +15,8 @@ from unittest.mock import Mock
 
 from .driver_manager import DriverManager
 from ..config.social_config import social_config, Platform
-from ..utils.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.logging.log_manager import LogManager
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 from .rate_limiter import RateLimiter
 from ..strategies.reddit.handlers.login_handler import LoginHandler
 from ..utils.media_validator import MediaValidator
@@ -45,17 +46,11 @@ class SocialPlatformDispatcher:
         # Initialize LogManager with social-specific config
         log_config = LogConfig(
             level=LogLevel.INFO,
-            log_dir="logs/social",
-            log_format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            date_format="%Y-%m-%d %H:%M:%S",
-            max_bytes=10 * 1024 * 1024,  # 10MB
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            file_path=os.path.join("logs/social", "dispatcher.log"),
+            max_file_size=10 * 1024 * 1024,  # 10MB
             backup_count=5,
-            max_age_days=30,
-            platforms={
-                "social": "social.log",
-                "dispatcher": "dispatcher.log",
-                "rate_limiter": "rate_limiter.log"
-            }
+            max_age_days=30
         )
         self.log_manager = LogManager(config=log_config)
         
@@ -116,8 +111,6 @@ class SocialPlatformDispatcher:
         
         # Log enabled platforms
         self.log_manager.info(
-            platform="social",
-            status="initialized",
             message="Social platform dispatcher initialized",
             metadata={
                 "enabled_platforms": list(self.enabled_platforms.keys()),
@@ -137,8 +130,6 @@ class SocialPlatformDispatcher:
         
         # Log driver initialization
         self.log_manager.info(
-            platform="social",
-            status="drivers_initialized",
             message="Driver sessions initialized",
             metadata={
                 "session_ids": self.session_ids,

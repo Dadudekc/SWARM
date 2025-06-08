@@ -106,7 +106,7 @@ class AutonomyLoop:
         logger.info(f"Received signal {signum}, initiating shutdown...")
         self.running = False
     
-    @with_retry(max_retries=3, backoff_factor=2.0)
+    @with_retry(max_retries=3, backoff=2.0)
     async def _process_task(self, task: dict):
         """Process a single task.
         

@@ -13,8 +13,8 @@ from PyQt5.QtWidgets import (
     QTableWidgetItem, QHeaderView
 )
 from PyQt5.QtCore import Qt, QTimer
-from dreamos.core.log_manager import LogManager
-from dreamos.core.config.config_manager import ConfigManager
+from dreamos.core.logging.log_manager import LogManager
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 
 class LogMonitor(QWidget):
     """GUI component for monitoring and displaying logs."""
@@ -28,12 +28,13 @@ class LogMonitor(QWidget):
         super().__init__(parent)
         
         # Initialize LogManager
-        log_config = ConfigManager(
-            log_dir="logs/gui",
-            batch_size=10,
-            batch_timeout=0.5,
-            max_retries=2,
-            retry_delay=0.1
+        log_config = LogConfig(
+            level=LogLevel.INFO,
+            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+            file_path="logs/gui/monitor.log",
+            max_file_size=10 * 1024 * 1024,  # 10MB
+            backup_count=5,
+            max_age_days=7
         )
         self.log_manager = LogManager(config=log_config)
         

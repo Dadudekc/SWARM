@@ -28,7 +28,11 @@ class MockWebhook:
             author=MockMember(id=self.id, name=self.name or "Webhook")
         )
 
+# Alias MockWebhook as Webhook for compatibility
+Webhook = MockWebhook
+
 __all__ = [
     'MockWebhook',
+    'Webhook',
     'MockFile'
 ] 

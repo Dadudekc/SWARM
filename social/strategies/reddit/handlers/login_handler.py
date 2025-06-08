@@ -21,9 +21,9 @@ import json
 import re
 from dataclasses import dataclass
 from pathlib import Path
-from dreamos.core.log_manager import LogManager
+from dreamos.core.logging.log_manager import LogManager
 from dreamos.social.utils.social_common import SocialMediaUtils
-from dreamos.core.logging.log_config import LogLevel
+from dreamos.core.logging.log_config import LogConfig, LogLevel
 from ..config import RedditConfig
 
 logger = logging.getLogger(__name__)
@@ -69,7 +69,7 @@ class LoginHandler:
         """
         self.driver = driver
         self.config = config
-        self.logger = logger or LogManager(level=LogLevel.INFO)
+        self.logger = logger or LogManager(config=LogConfig(level=LogLevel.INFO))
         self.memory_updates = memory_update or {"stats": {"is_logged_in": False}}
         self.selectors = {
             "username_input": "//input[@id='loginUsername']",

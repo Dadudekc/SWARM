@@ -59,6 +59,66 @@ class Message:
         if 'embed' in kwargs:
             self.embeds.append(kwargs['embed'])
 
+class Interaction:
+    """Mock Discord Interaction."""
+    def __init__(
+        self,
+        id: int = 123456789,
+        type: int = 2,  # 2 = application command
+        data: Optional[Dict[str, Any]] = None,
+        guild_id: Optional[int] = None,
+        channel_id: Optional[int] = None,
+        member: Optional[Member] = None,
+        user: Optional[Member] = None,
+        token: str = "mock_token",
+        version: int = 1,
+        **kwargs
+    ):
+        self.id = id
+        self.type = type
+        self.data = data or {}
+        self.guild_id = guild_id
+        self.channel_id = channel_id
+        self.member = member
+        self.user = user or member
+        self.token = token
+        self.version = version
+        self.response = InteractionResponse(self)
+        self.followup = InteractionFollowup(self)
+
+    async def respond(self, content: Optional[str] = None, **kwargs) -> None:
+        """Mock responding to an interaction."""
+        await self.response.send_message(content, **kwargs)
+
+class InteractionResponse:
+    """Mock Discord Interaction Response."""
+    def __init__(self, interaction: Interaction):
+        self.interaction = interaction
+        self._responded = False
+
+    async def send_message(
+        self,
+        content: Optional[str] = None,
+        **kwargs
+    ) -> None:
+        """Mock sending a response message."""
+        if self._responded:
+            raise RuntimeError("Interaction already responded to")
+        self._responded = True
+
+class InteractionFollowup:
+    """Mock Discord Interaction Followup."""
+    def __init__(self, interaction: Interaction):
+        self.interaction = interaction
+
+    async def send(
+        self,
+        content: Optional[str] = None,
+        **kwargs
+    ) -> None:
+        """Mock sending a followup message."""
+        pass
+
 class Context:
     """Mock Discord Context."""
     def __init__(
@@ -347,3 +407,226 @@ async def send_message(
     if embed:
         message.embeds.append(embed)
     return message 
+
+# Voice-related mock classes
+class VoiceClient:
+    """Mock Discord Voice Client."""
+    def __init__(self, channel=None, guild=None):
+        self.channel = channel
+        self.guild = guild
+        self.is_connected = False
+        self.is_playing = False
+
+    async def connect(self):
+        """Mock connecting to voice channel."""
+        self.is_connected = True
+
+    async def disconnect(self):
+        """Mock disconnecting from voice channel."""
+        self.is_connected = False
+
+    async def play(self, source):
+        """Mock playing audio source."""
+        self.is_playing = True
+
+    async def stop(self):
+        """Mock stopping playback."""
+        self.is_playing = False
+
+class Gateway:
+    """Mock Discord Gateway."""
+    def __init__(self):
+        self.connected = False
+
+    async def connect(self):
+        """Mock connecting to gateway."""
+        self.connected = True
+
+    async def disconnect(self):
+        """Mock disconnecting from gateway."""
+        self.connected = False
+
+class Opus:
+    """Mock Discord Opus."""
+    def __init__(self):
+        self.loaded = False
+
+    def load(self):
+        """Mock loading Opus."""
+        self.loaded = True
+
+class OpusLoader:
+    """Mock Discord Opus Loader."""
+    def __init__(self):
+        self.loaded = False
+
+    def load_opus(self):
+        """Mock loading Opus."""
+        self.loaded = True
+
+class VoiceState:
+    """Mock Discord Voice State."""
+    def __init__(self):
+        self.connected = False
+        self.channel = None
+
+class VoiceProtocol:
+    """Mock Discord Voice Protocol."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceRegion:
+    """Mock Discord Voice Region."""
+    def __init__(self, name="us-east"):
+        self.name = name
+
+class VoiceRecv:
+    """Mock Discord Voice Receiver."""
+    def __init__(self):
+        self.receiving = False
+
+class VoiceSend:
+    """Mock Discord Voice Sender."""
+    def __init__(self):
+        self.sending = False
+
+class VoiceUtils:
+    """Mock Discord Voice Utils."""
+    @staticmethod
+    def get_voice_client(guild):
+        """Mock getting voice client."""
+        return VoiceClient(guild=guild)
+
+class VoiceWebSocket:
+    """Mock Discord Voice WebSocket."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketClient:
+    """Mock Discord Voice WebSocket Client."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketServer:
+    """Mock Discord Voice WebSocket Server."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketUtils:
+    """Mock Discord Voice WebSocket Utils."""
+    @staticmethod
+    def get_voice_websocket(guild):
+        """Mock getting voice websocket."""
+        return VoiceWebSocket()
+
+class VoiceWebSocketVoice:
+    """Mock Discord Voice WebSocket Voice."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketVoiceClient:
+    """Mock Discord Voice WebSocket Voice Client."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketVoiceServer:
+    """Mock Discord Voice WebSocket Voice Server."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketVoiceUtils:
+    """Mock Discord Voice WebSocket Voice Utils."""
+    @staticmethod
+    def get_voice_websocket_voice(guild):
+        """Mock getting voice websocket voice."""
+        return VoiceWebSocketVoice()
+
+class VoiceWebSocketVoiceWebSocket:
+    """Mock Discord Voice WebSocket Voice WebSocket."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketVoiceWebSocketClient:
+    """Mock Discord Voice WebSocket Voice WebSocket Client."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketVoiceWebSocketServer:
+    """Mock Discord Voice WebSocket Voice WebSocket Server."""
+    def __init__(self):
+        self.connected = False
+
+class VoiceWebSocketVoiceWebSocketUtils:
+    """Mock Discord Voice WebSocket Voice WebSocket Utils."""
+    @staticmethod
+    def get_voice_websocket_voice_websocket(guild):
+        """Mock getting voice websocket voice websocket."""
+        return VoiceWebSocketVoiceWebSocket()
+
+# Update discord module with voice-related classes
+discord.VoiceClient = VoiceClient
+discord.Gateway = Gateway
+discord.Opus = Opus
+discord.OpusLoader = OpusLoader
+discord.VoiceState = VoiceState
+discord.VoiceProtocol = VoiceProtocol
+discord.VoiceRegion = VoiceRegion
+discord.VoiceRecv = VoiceRecv
+discord.VoiceSend = VoiceSend
+discord.VoiceUtils = VoiceUtils
+discord.VoiceWebSocket = VoiceWebSocket
+discord.VoiceWebSocketClient = VoiceWebSocketClient
+discord.VoiceWebSocketServer = VoiceWebSocketServer
+discord.VoiceWebSocketUtils = VoiceWebSocketUtils
+discord.VoiceWebSocketVoice = VoiceWebSocketVoice
+discord.VoiceWebSocketVoiceClient = VoiceWebSocketVoiceClient
+discord.VoiceWebSocketVoiceServer = VoiceWebSocketVoiceServer
+discord.VoiceWebSocketVoiceUtils = VoiceWebSocketVoiceUtils
+discord.VoiceWebSocketVoiceWebSocket = VoiceWebSocketVoiceWebSocket
+discord.VoiceWebSocketVoiceWebSocketClient = VoiceWebSocketVoiceWebSocketClient
+discord.VoiceWebSocketVoiceWebSocketServer = VoiceWebSocketVoiceWebSocketServer
+discord.VoiceWebSocketVoiceWebSocketUtils = VoiceWebSocketVoiceWebSocketUtils 
+
+class Intents:
+    """Mock Discord Intents."""
+    def __init__(self):
+        self.guilds = False
+        self.members = False
+        self.bans = False
+        self.emojis = False
+        self.integrations = False
+        self.webhooks = False
+        self.invites = False
+        self.voice_states = False
+        self.presences = False
+        self.messages = False
+        self.guild_messages = False
+        self.dm_messages = False
+        self.reactions = False
+        self.guild_reactions = False
+        self.dm_reactions = False
+        self.typing = False
+        self.guild_typing = False
+        self.dm_typing = False
+        self.message_content = False
+
+    @classmethod
+    def default(cls):
+        """Create default intents."""
+        intents = cls()
+        intents.guilds = True
+        intents.messages = True
+        intents.message_content = True
+        return intents
+
+    @classmethod
+    def all(cls):
+        """Create all intents."""
+        intents = cls()
+        for attr in dir(intents):
+            if not attr.startswith('_') and isinstance(getattr(intents, attr), bool):
+                setattr(intents, attr, True)
+        return intents
+
+# Update discord module with Intents
+discord.Intents = Intents 

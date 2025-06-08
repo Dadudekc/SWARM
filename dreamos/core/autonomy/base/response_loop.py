@@ -7,7 +7,7 @@ from abc import ABC, abstractmethod
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Any, Dict, Generic, Optional, Protocol, Set, TypeVar
+from typing import Any, Dict, Generic, Optional, Protocol, Set, TypeVar, List
 
 from ..state import StateManager
 from ..utils import AsyncFileWatcher
@@ -240,4 +240,173 @@ class BaseResponseLoop(Generic[T], ABC):
         Returns:
             True if response is valid, False otherwise
         """
-        pass 
+        pass
+
+class ResponseLoop(BaseResponseLoop[T]):
+    """Concrete implementation of response loop.
+    
+    This class provides a concrete implementation of the base response loop
+    with default implementations for loading and validating responses.
+    """
+    
+    async def _load_response(self, response_file: Path) -> T:
+        """Load a response from file.
+        
+        Args:
+            response_file: Path to the response file
+            
+        Returns:
+            Loaded response data
+        """
+        try:
+            with open(response_file, 'r') as f:
+                data = json.load(f)
+            return data
+        except Exception as e:
+            logger.error(f"Error loading response from {response_file}: {e}")
+            raise
+    
+    def _validate_response(self, response_data: T) -> bool:
+        """Validate response data.
+        
+        Args:
+            response_data: Response data to validate
+            
+        Returns:
+            True if response is valid, False otherwise
+        """
+        if not isinstance(response_data, dict):
+            return False
+            
+        required_fields = ['type', 'data', 'metadata']
+        return all(field in response_data for field in required_fields)
+    
+    async def _handle_item(self, item: T) -> Any:
+        """Handle a response item.
+        
+        Args:
+            item: The response item to handle
+            
+        Returns:
+            Result of handling the item
+        """
+        try:
+            response_type = item['type']
+            response_data = item['data']
+            metadata = item['metadata']
+            
+            # Process based on type
+            if response_type == 'message':
+                return await self._handle_message(response_data, metadata)
+            elif response_type == 'command':
+                return await self._handle_command(response_data, metadata)
+            elif response_type == 'event':
+                return await self._handle_event(response_data, metadata)
+            else:
+                logger.warning(f"Unknown response type: {response_type}")
+                return None
+                
+        except Exception as e:
+            logger.error(f"Error handling item: {e}")
+            raise
+    
+    async def _handle_message(self, data: Dict[str, Any], metadata: Dict[str, Any]) -> Any:
+        """Handle a message response.
+        
+        Args:
+            data: Message data
+            metadata: Response metadata
+            
+        Returns:
+            Result of handling the message
+        """
+        raise NotImplementedError("Message handling not implemented")
+    
+    async def _handle_command(self, data: Dict[str, Any], metadata: Dict[str, Any]) -> Any:
+        """Handle a command response.
+        
+        Args:
+            data: Command data
+            metadata: Response metadata
+            
+        Returns:
+            Result of handling the command
+        """
+        raise NotImplementedError("Command handling not implemented")
+    
+    async def _handle_event(self, data: Dict[str, Any], metadata: Dict[str, Any]) -> Any:
+        """Handle an event response.
+        
+        Args:
+            data: Event data
+            metadata: Response metadata
+            
+        Returns:
+            Result of handling the event
+        """
+        raise NotImplementedError("Event handling not implemented")
+
+class ResponseLoop:
+    """Response loop for agent communication."""
+    
+    def __init__(self, max_queue_size: int = 1000):
+        """Initialize response loop.
+        
+        Args:
+            max_queue_size: Maximum number of responses to queue
+        """
+        self.queue: List[Dict[str, Any]] = []
+        self.max_queue_size = max_queue_size
+        self._lock = asyncio.Lock()
+        
+    async def add_response(self, response: Dict[str, Any]) -> None:
+        """Add a response to the queue.
+        
+        Args:
+            response: Response dictionary
+        """
+        async with self._lock:
+            if len(self.queue) >= self.max_queue_size:
+                logger.warning("Response queue full, dropping oldest response")
+                self.queue.pop(0)
+            self.queue.append(response)
+            
+    async def next_response(self) -> Optional[Dict[str, Any]]:
+        """Get next response from queue.
+        
+        Returns:
+            Next response or None if queue empty
+        """
+        async with self._lock:
+            return self.queue.pop(0) if self.queue else None
+            
+    async def peek_response(self) -> Optional[Dict[str, Any]]:
+        """Peek at next response without removing it.
+        
+        Returns:
+            Next response or None if queue empty
+        """
+        async with self._lock:
+            return self.queue[0] if self.queue else None
+            
+    def clear(self) -> None:
+        """Clear all responses."""
+        self.queue.clear()
+        
+    @property
+    def is_empty(self) -> bool:
+        """Check if queue is empty.
+        
+        Returns:
+            bool: True if queue is empty
+        """
+        return len(self.queue) == 0
+        
+    @property
+    def queue_size(self) -> int:
+        """Get current queue size.
+        
+        Returns:
+            int: Number of responses in queue
+        """
+        return len(self.queue) 

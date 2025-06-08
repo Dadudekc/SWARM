@@ -8,6 +8,9 @@ from . import error_tracker
 from . import tracker
 from . import types
 
+from .error_tracker import ErrorTracker, ErrorSeverity
+from .error_handler import ErrorHandler
+
 __all__ = [
     'base',
     'error_handler',
@@ -15,4 +18,7 @@ __all__ = [
     'error_tracker',
     'tracker',
     'types',
+    'ErrorTracker',
+    'ErrorHandler',
+    'ErrorSeverity',
 ]

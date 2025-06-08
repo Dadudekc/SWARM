@@ -22,8 +22,9 @@ from dreamos.core.utils.core_utils import (
     save_json,
     ensure_dir
 )
-from dreamos.core.logging.log_manager import LogManager, LogConfig, LogLevel
-from dreamos.core.autonomy.controller import AgentController
+from dreamos.core.logging.log_manager import LogManager, LogConfig
+from dreamos.core.logging.log_config import LogLevel
+from dreamos.core.agent_control.controller import AgentController
 from dreamos.core.logging.agent_logger import AgentLogger
 from dreamos.core.messaging.message_processor import MessageProcessor
 from dreamos.core.shared.persistent_queue import PersistentQueue
@@ -32,19 +33,12 @@ from dreamos.core.config.config_manager import ConfigManager
 from dreamos.utils.discord_client import Client, Command
 
 # Initialize logging
-log_manager = LogManager(LogConfig(
+log_config = LogConfig(
     level=LogLevel.DEBUG,
-    log_dir="logs",
     format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    max_file_size=10 * 1024 * 1024,  # 10MB
-    backup_count=5,
-    max_age_days=7,
-    platforms={
-        "system": "system.log",
-        "agent": "agent.log",
-        "dreamscribe": "dreamscribe.log"
-    }
-))
+    file_path="logs/system.log"
+)
+log_manager = LogManager(config=log_config)
 logger = log_manager
 
 class AgentLoop:
@@ -66,26 +60,20 @@ class AgentLoop:
         self.dreamscribe = Dreamscribe()
         
         # Initialize LogManager with custom config
-        log_config = LogConfig(
+        agent_log_config = LogConfig(
             level=LogLevel.DEBUG,
-            log_dir="logs",
             format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            max_file_size=10 * 1024 * 1024,  # 10MB
-            backup_count=5,
-            max_age_days=7,
-            platforms={
-                "system": "system.log",
-                "agent": "agent.log",
-                "dreamscribe": "dreamscribe.log"
-            }
+            file_path="logs/agent.log"
         )
-        self.log_manager = LogManager(config=log_config)
+        self.log_manager = LogManager(config=agent_log_config)
         
         # Log initialization
         self.log_manager.info(
-            platform="agent_loop",
-            status="initialized",
-            message="Agent loop initialized with Dreamscribe integration"
+            message="Agent loop initialized with Dreamscribe integration",
+            extra={
+                "platform": "agent_loop",
+                "status": "initialized"
+            }
         )
     
     async def initialize_agent(self, agent_id: str) -> None:
@@ -103,17 +91,21 @@ class AgentLoop:
                 await agent.initialize()
                 self.initialized_agents.add(agent_id)
                 self.log_manager.info(
-                    platform="agent_loop",
-                    status="success",
                     message=f"Successfully initialized agent {agent_id}",
-                    tags=["init", "success"]
+                    extra={
+                        "platform": "agent_loop",
+                        "status": "success",
+                        "tags": ["init", "success"]
+                    }
                 )
         except Exception as e:
             self.log_manager.error(
-                platform="agent_loop",
-                status="error",
                 message=f"Failed to initialize agent {agent_id}: {str(e)}",
-                tags=["init", "error"]
+                extra={
+                    "platform": "agent_loop",
+                    "status": "error",
+                    "tags": ["init", "error"]
+                }
             )
             raise
     
@@ -125,9 +117,11 @@ class AgentLoop:
     async def run(self) -> None:
         """Run the agent loop."""
         self.log_manager.info(
-            platform="agent_loop",
-            status="started",
-            message="Starting agent loop"
+            message="Starting agent loop",
+            extra={
+                "platform": "agent_loop",
+                "status": "started"
+            }
         )
         logger.info("Starting agent loop...")
         
@@ -148,18 +142,22 @@ class AgentLoop:
                 
             except KeyboardInterrupt:
                 self.log_manager.info(
-                    platform="agent_loop",
-                    status="stopped",
-                    message="Agent loop stopped by user"
+                    message="Agent loop stopped by user",
+                    extra={
+                        "platform": "agent_loop",
+                        "status": "stopped"
+                    }
                 )
                 logger.info("Agent loop stopped by user")
                 break
             except Exception as e:
                 self.log_manager.error(
-                    platform="agent_loop",
-                    status="error",
                     message="Error in agent loop",
-                    error=str(e)
+                    extra={
+                        "platform": "agent_loop",
+                        "status": "error",
+                        "error": str(e)
+                    }
                 )
                 logger.error(f"Error in agent loop: {e}")
                 await asyncio.sleep(5)  # Longer sleep on error
@@ -167,10 +165,12 @@ class AgentLoop:
                 # Log metrics before shutdown
                 metrics = self.log_manager.get_metrics()
                 self.log_manager.info(
-                    platform="agent_loop",
-                    status="metrics",
                     message="Agent loop metrics at shutdown",
-                    metadata=metrics
+                    extra={
+                        "platform": "agent_loop",
+                        "status": "metrics",
+                        "metadata": metrics
+                    }
                 )
                 
                 # Cleanup

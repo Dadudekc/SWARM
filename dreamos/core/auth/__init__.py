@@ -1,10 +1,21 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""
+Authentication Module
+-------------------
+Core authentication functionality for Dream.OS.
+"""
 
-from . import interface
-from . import retry
+from .manager import AuthManager, AuthError
+from .token import TokenHandler, TokenInfo
+from .session import Session, SessionManager
+from .login_handler import LoginHandler, LoginError
 
 __all__ = [
-    'interface',
-    'retry',
+    'AuthManager',
+    'AuthError',
+    'TokenHandler',
+    'TokenInfo',
+    'Session',
+    'SessionManager',
+    'LoginHandler',
+    'LoginError'
 ]

@@ -17,10 +17,12 @@ from selenium.common.exceptions import (
     ElementClickInterceptedException
 )
 
+from .base import BaseUtils
+
 # Configure basic logger
 logger = logging.getLogger(__name__)
 
-class SocialMediaUtils:
+class SocialMediaUtils(BaseUtils):
     """Common utilities for social media operations."""
     
     def __init__(self, driver, config: dict):
@@ -30,8 +32,8 @@ class SocialMediaUtils:
             driver: Selenium WebDriver instance
             config: Configuration dictionary
         """
+        super().__init__(config)
         self.driver = driver
-        self.config = config
         self.timeout = config.get("timeout", 30)
         self.logger = logger
         
