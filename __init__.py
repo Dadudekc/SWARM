@@ -1,7 +1,12 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-# Package marker for Dream.OS
-__version__ = "1.0.0"
+from . import pyautogui
+from . import pygetwindow
+from . import run_tests
 
-__all__ = []
+__all__ = [
+    'pyautogui',
+    'pygetwindow',
+    'run_tests',
+]

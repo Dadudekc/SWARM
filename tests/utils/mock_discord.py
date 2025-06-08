@@ -3,6 +3,28 @@
 from typing import Any, Dict, List, Optional, Union, Callable
 from datetime import datetime
 from dataclasses import dataclass, field
+from types import SimpleNamespace
+
+__all__ = [
+    'Guild', 'Member', 'TextChannel', 'Message', 'Interaction',
+    'InteractionResponse', 'InteractionFollowup', 'Context', 'Embed',
+    'CommandError', 'CommandNotFound', 'MissingRequiredArgument',
+    'BadArgument', 'Command', 'Bot', 'commands', 'ext',
+    'create_mock_embed', 'create_mock_context', 'create_mock_guild',
+    'create_mock_member', 'create_mock_channel', 'create_mock_message',
+    'MockMessage', 'MockUser', 'MockChannel', 'MockGuild',
+    'send_message', 'VoiceClient', 'Gateway', 'Opus', 'OpusLoader',
+    'VoiceState', 'VoiceProtocol', 'VoiceRegion', 'VoiceRecv',
+    'VoiceSend', 'VoiceUtils', 'VoiceWebSocket', 'VoiceWebSocketClient',
+    'VoiceWebSocketServer', 'VoiceWebSocketUtils', 'VoiceWebSocketVoice',
+    'VoiceWebSocketVoiceClient', 'VoiceWebSocketVoiceServer',
+    'VoiceWebSocketVoiceUtils', 'VoiceWebSocketVoiceWebSocket',
+    'VoiceWebSocketVoiceWebSocketClient', 'VoiceWebSocketVoiceWebSocketServer',
+    'VoiceWebSocketVoiceWebSocketUtils', 'Intents'
+]
+
+# Create mock discord module
+discord = SimpleNamespace()
 
 # Mock Discord.py classes
 class Guild:
@@ -255,15 +277,13 @@ class ext:
     commands = commands
 
 # Create a mock discord module
-discord = type('discord', (), {
-    'Guild': Guild,
-    'Member': Member,
-    'TextChannel': TextChannel,
-    'Message': Message,
-    'Context': Context,
-    'Embed': Embed,
-    'ext': ext
-})()
+discord.Guild = Guild
+discord.Member = Member
+discord.TextChannel = TextChannel
+discord.Message = Message
+discord.Context = Context
+discord.Embed = Embed
+discord.ext = ext
 
 def create_mock_embed(
     title: Optional[str] = None,

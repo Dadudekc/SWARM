@@ -1,10 +1,8 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-import os
+from . import bridge
 
-if not os.environ.get("SWARM_SKIP_BRIDGE"):
-    from . import bridge
-    __all__ = ['bridge']
-else:
-    __all__ = []
+__all__ = [
+    'bridge',
+]

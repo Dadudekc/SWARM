@@ -26,6 +26,14 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install -r requirements-test.txt
+
+    - name: Check for large modules
+      run: |
+        python tools/find_large_modules.py \
+          --base dreamos/ \
+          --limit 300 \
+          --exclude "**/__init__.py" "**/tests/**" "**/migrations/**" \
+          --fail-on-hit
         
     - name: Run unit tests with coverage
       run: |

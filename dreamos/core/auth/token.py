@@ -6,6 +6,8 @@ import time
 import logging
 import secrets
 import hashlib
+import hmac
+import os
 from typing import Dict, Any, Optional, Union
 from datetime import datetime, timedelta
 from dataclasses import dataclass
@@ -44,14 +46,22 @@ class TokenHandler:
         """Initialize the token handler.
         
         Args:
-            secret_key: Secret key for token signing (default: random)
+            secret_key: Secret key for token signing (default: from env or random)
             default_ttl: Default token lifetime in seconds
             min_token_length: Minimum token length in bytes
         """
-        self.secret_key = secret_key or secrets.token_hex(32)
+        self.secret_key = secret_key or self._load_secret_key()
         self.default_ttl = default_ttl
         self.min_token_length = min_token_length
         self._tokens: Dict[str, TokenInfo] = {}
+    
+    def _load_secret_key(self) -> str:
+        """Load secret key from environment or generate new one."""
+        secret = os.getenv("DREAMOS_SECRET")
+        if not secret:
+            logger.warning("DREAMOS_SECRET not found in environment, generating new key")
+            secret = secrets.token_urlsafe(32)
+        return secret
     
     def generate_token(
         self,
@@ -71,8 +81,8 @@ class TokenHandler:
         Returns:
             Generated token
         """
-        # Generate random token
-        token = secrets.token_hex(max(self.min_token_length, 16))
+        # Generate random token using URL-safe base64
+        raw_token = secrets.token_urlsafe(max(self.min_token_length, 32))
         
         # Create token info
         now = datetime.now()
@@ -84,14 +94,17 @@ class TokenHandler:
             data=data or {}
         )
         
+        # Sign token
+        signed_token = self._sign_token(raw_token)
+        
         # Store token
-        self._tokens[token] = token_info
+        self._tokens[signed_token] = token_info
         logger.info(f"Generated token for user {user_id} with scope {scope}")
         
-        return token
+        return signed_token
     
     def validate_token(self, token: str) -> bool:
-        """Validate a token.
+        """Validate a token using constant-time comparison.
         
         Args:
             token: Token to validate
@@ -102,7 +115,14 @@ class TokenHandler:
         token_info = self._tokens.get(token)
         if token_info is None or not token_info.is_valid:
             return False
-        return True
+            
+        # Verify token signature using constant-time comparison
+        try:
+            raw_token = token.split('.')[0]  # Extract raw token before signature
+            expected_signature = self._sign_token(raw_token)
+            return hmac.compare_digest(token, expected_signature)
+        except Exception:
+            return False
     
     def get_token_info(self, token: str) -> Optional[TokenInfo]:
         """Get token information.
@@ -179,7 +199,7 @@ class TokenHandler:
         return len(expired)
     
     def _sign_token(self, token: str) -> str:
-        """Sign a token with the secret key.
+        """Sign a token with the secret key using HMAC-SHA256.
         
         Args:
             token: Token to sign
@@ -187,7 +207,9 @@ class TokenHandler:
         Returns:
             Signed token
         """
-        # In a real implementation, this would use a proper signing algorithm
-        return hashlib.sha256(
-            f"{token}:{self.secret_key}".encode()
-        ).hexdigest() 
+        signer = hmac.new(
+            self.secret_key.encode(),
+            token.encode(),
+            hashlib.sha256
+        )
+        return f"{token}.{signer.hexdigest()}" 

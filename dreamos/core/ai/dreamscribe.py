@@ -14,6 +14,7 @@ import logging
 from dataclasses import dataclass, asdict
 import hashlib
 from uuid import uuid4
+from ..nlp.keyword_extract import KeywordExtractor
 
 # Constants
 MEMORY_CORPUS_PATH = Path("runtime/memory_corpus.json")
@@ -53,6 +54,7 @@ class Dreamscribe:
         self.memory_corpus: Dict[str, Dict[str, Any]] = {}
         self.threads: Dict[str, List[str]] = {}
         self.insight_patterns: Dict[str, List[Dict[str, Any]]] = {}
+        self.keyword_extractor = KeywordExtractor()
         
         # Ensure directories exist
         NARRATIVE_THREADS_PATH.mkdir(parents=True, exist_ok=True)
@@ -62,6 +64,12 @@ class Dreamscribe:
         self._load_threads()
         self._load_insight_patterns()
         
+        # Initialize keyword extractor with stop words
+        if "stop_words" in self.insight_patterns:
+            self.keyword_extractor = KeywordExtractor(
+                stop_words=set(self.insight_patterns["stop_words"])
+            )
+    
     def _load_memory_corpus(self):
         """Load memory corpus from disk."""
         if MEMORY_CORPUS_PATH.exists():
@@ -119,17 +127,30 @@ class Dreamscribe:
             self.logger.error(f"Failed to save insight patterns: {e}")
     
     def _extract_insights(self, fragment: Dict[str, Any]) -> List[Dict[str, Any]]:
-        """Extract insights from a memory fragment.
+        """Extract insights from a memory fragment using keyword extraction.
         
         Args:
             fragment: Memory fragment to analyze
             
         Returns:
-            List of extracted insights
+            List of extracted insights with frequency ratios
         """
-        # TODO: Implement NLP-based insight extraction
-        # For now, return empty list
-        return []
+        if not fragment.get("content"):
+            return []
+            
+        # Use keyword extractor to get insights
+        keywords = self.keyword_extractor.extract(
+            fragment["content"],
+            max_keywords=5
+        )
+        
+        return [
+            {
+                "content": kw["keyword"],
+                "frequency_ratio": kw["frequency_ratio"]
+            }
+            for kw in keywords
+        ]
     
     def _find_connections(self, fragment: Dict[str, Any]) -> List[str]:
         """Find connections between memory fragments.

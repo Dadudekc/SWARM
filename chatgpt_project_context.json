@@ -1,7 +1,23 @@
 {
     "project_root": "D:\\SWARM\\Dream.OS",
-    "num_files_analyzed": 38,
+    "num_files_analyzed": 161,
     "analysis_details": {
+        "run_tests.py": {
+            "language": ".py",
+            "functions": [
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "pygetwindow.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
         "__init__.py": {
             "language": ".py",
             "functions": [],
@@ -9,46 +25,191 @@
             "routes": [],
             "complexity": 0
         },
-        "archive\\deprecated\\auth_managers\\__init__.py": {
+        "pyautogui.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
         },
-        "archive\\deprecated\\auth_managers\\core_auth_manager.py": {
+        "agent_tools\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\autonomy\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\general_tools\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\general_tools\\browser\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\mailbox\\task_handler.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "_attempt_login",
-                "login",
-                "logout",
-                "verify_session",
-                "refresh_token",
-                "cleanup_expired_sessions",
-                "login_operation"
+                "get_agent_task"
             ],
             "classes": {
-                "AuthManager": {
+                "TaskHandler": {
                     "methods": [
                         "__init__",
-                        "_attempt_login",
-                        "login",
-                        "logout",
-                        "verify_session",
-                        "refresh_token",
-                        "cleanup_expired_sessions"
+                        "get_agent_task"
                     ],
-                    "docstring": "Authentication manager implementing the platform-agnostic interface.",
-                    "base_classes": [
-                        "AbstractAuthInterface"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "docstring": null,
+                    "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 15
+            "complexity": 4
+        },
+        "agent_tools\\autonomy\\loop.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_handle_shutdown",
+                "load_tasks",
+                "save_devlog",
+                "paste_to_cursor"
+            ],
+            "classes": {
+                "AutonomyLoop": {
+                    "methods": [
+                        "__init__",
+                        "_handle_shutdown",
+                        "load_tasks",
+                        "save_devlog",
+                        "paste_to_cursor"
+                    ],
+                    "docstring": "Main autonomy loop for Dream.OS.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "agent_tools\\mailbox\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\general_tools\\browser\\integration.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_setup_driver",
+                "get",
+                "close"
+            ],
+            "classes": {
+                "StealthBrowserBridge": {
+                    "methods": [
+                        "__init__",
+                        "_setup_driver",
+                        "get",
+                        "close"
+                    ],
+                    "docstring": "Stealth browser automation bridge.\n\nThis class provides a stealthy browser automation interface that helps\navoid detection by websites. It uses various techniques to make the\nbrowser appear more like a regular user.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "agent_tools\\scanner\\scanner.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\scanner\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\swarm_tools\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "agent_tools\\swarm_tools\\browser\\integration.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "StealthBrowserBridge": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Bridge service for StealthBrowser integration with dreamos.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "agent_tools\\swarm_tools\\browser\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "backups\\auth_backup_20250605_161813\\auth\\interface.py": {
+            "language": ".py",
+            "functions": [
+                "login",
+                "logout",
+                "verify_session",
+                "refresh_token"
+            ],
+            "classes": {
+                "AuthError": {
+                    "methods": [],
+                    "docstring": "Base class for authentication errors.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "AbstractAuthInterface": {
+                    "methods": [
+                        "login",
+                        "logout",
+                        "verify_session",
+                        "refresh_token"
+                    ],
+                    "docstring": "Abstract base class defining the authentication interface.",
+                    "base_classes": [
+                        "ABC"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 8
         },
         "backups\\auth_backup_20250605_161813\\auth\\base.py": {
             "language": ".py",
@@ -65,196 +226,42 @@
                         "time_remaining"
                     ],
                     "docstring": "Mixin providing expiration-related functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 6
         },
-        "archive\\deprecated\\auth_managers\\legacy_auth_manager.py": {
+        "backups\\auth_backup_20250605_161813\\auth\\retry.py": {
             "language": ".py",
             "functions": [
+                "retry",
                 "__init__",
-                "_attempt_login",
-                "login",
-                "logout",
-                "verify_session",
-                "refresh_token",
-                "cleanup_expired_sessions",
-                "login_operation"
+                "calculate_delay",
+                "execute",
+                "decorator",
+                "wrapper"
             ],
             "classes": {
-                "AuthManager": {
-                    "methods": [
-                        "__init__",
-                        "_attempt_login",
-                        "login",
-                        "logout",
-                        "verify_session",
-                        "refresh_token",
-                        "cleanup_expired_sessions"
-                    ],
-                    "docstring": "Authentication manager implementing the platform-agnostic interface.",
-                    "base_classes": [
-                        "AbstractAuthInterface"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 15
-        },
-        "archive\\deprecated\\auth_managers\\legacy_session_manager.py": {
-            "language": ".py",
-            "functions": [
-                "extend",
-                "is_valid",
-                "time_remaining",
-                "__init__",
-                "start_cleanup",
-                "stop_cleanup",
-                "create_session",
-                "get_session",
-                "invalidate_session",
-                "cleanup_expired",
-                "_generate_session_id",
-                "cleanup_loop"
-            ],
-            "classes": {
-                "Session": {
-                    "methods": [
-                        "extend",
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Represents an active user session.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "SessionManager": {
-                    "methods": [
-                        "__init__",
-                        "start_cleanup",
-                        "stop_cleanup",
-                        "create_session",
-                        "get_session",
-                        "invalidate_session",
-                        "cleanup_expired",
-                        "_generate_session_id"
-                    ],
-                    "docstring": "Manages user sessions with automatic cleanup.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 23
-        },
-        "backups\\auth_backup_20250605_161813\\auth\\interface.py": {
-            "language": ".py",
-            "functions": [
-                "login",
-                "logout",
-                "verify_session",
-                "refresh_token"
-            ],
-            "classes": {
-                "AuthError": {
+                "RetryError": {
                     "methods": [],
-                    "docstring": "Base class for authentication errors.",
+                    "docstring": "Base class for retry-related errors.",
                     "base_classes": [
                         "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 },
-                "AbstractAuthInterface": {
-                    "methods": [
-                        "login",
-                        "logout",
-                        "verify_session",
-                        "refresh_token"
-                    ],
-                    "docstring": "Abstract base class defining the authentication interface.",
-                    "base_classes": [
-                        "ABC"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 8
-        },
-        "archive\\dupe_logging\\base_log_manager.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {
-                "LogLevel": {
-                    "methods": [],
-                    "docstring": "Standard log levels for consistent logging across the application.",
-                    "base_classes": [
-                        "Enum"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 0
-        },
-        "backups\\auth_backup_20250605_161813\\auth\\session.py": {
-            "language": ".py",
-            "functions": [
-                "extend",
-                "is_valid",
-                "time_remaining",
-                "__init__",
-                "start_cleanup",
-                "stop_cleanup",
-                "create_session",
-                "get_session",
-                "invalidate_session",
-                "cleanup_expired",
-                "_generate_session_id",
-                "cleanup_loop"
-            ],
-            "classes": {
-                "Session": {
-                    "methods": [
-                        "extend",
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Represents an active user session.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "SessionManager": {
+                "RetryMechanism": {
                     "methods": [
                         "__init__",
-                        "start_cleanup",
-                        "stop_cleanup",
-                        "create_session",
-                        "get_session",
-                        "invalidate_session",
-                        "cleanup_expired",
-                        "_generate_session_id"
+                        "calculate_delay",
+                        "execute"
                     ],
-                    "docstring": "Manages user sessions with automatic cleanup.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "docstring": "Implements retry logic with exponential backoff.",
+                    "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 23
+            "complexity": 9
         },
         "backups\\auth_backup_20250605_161813\\auth\\token.py": {
             "language": ".py",
@@ -277,9 +284,7 @@
                         "time_remaining"
                     ],
                     "docstring": "Represents token metadata.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 },
                 "TokenHandler": {
                     "methods": [
@@ -293,9 +298,7 @@
                         "_sign_token"
                     ],
                     "docstring": "Handles token generation, validation, and refresh.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
@@ -323,9 +326,7 @@
                         "time_remaining"
                     ],
                     "docstring": "Mixin providing expiration-related functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
@@ -357,9 +358,7 @@
                     "docstring": "Authentication manager implementing the platform-agnostic interface.",
                     "base_classes": [
                         "AbstractAuthInterface"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 }
             },
             "routes": [],
@@ -381,9 +380,7 @@
                     "docstring": "Base class for retry-related errors.",
                     "base_classes": [
                         "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 },
                 "RetryMechanism": {
                     "methods": [
@@ -392,58 +389,11 @@
                         "execute"
                     ],
                     "docstring": "Implements retry logic with exponential backoff.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 9
-        },
-        "backups\\auth_backup_20250605_162224\\auth\\token.py": {
-            "language": ".py",
-            "functions": [
-                "is_valid",
-                "time_remaining",
-                "__init__",
-                "generate_token",
-                "validate_token",
-                "get_token_info",
-                "refresh_token",
-                "invalidate_token",
-                "cleanup_expired",
-                "_sign_token"
-            ],
-            "classes": {
-                "TokenInfo": {
-                    "methods": [
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Represents token metadata.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "TokenHandler": {
-                    "methods": [
-                        "__init__",
-                        "generate_token",
-                        "validate_token",
-                        "get_token_info",
-                        "refresh_token",
-                        "invalidate_token",
-                        "cleanup_expired",
-                        "_sign_token"
-                    ],
-                    "docstring": "Handles token generation, validation, and refresh.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 20
         },
         "backups\\auth_backup_20250605_162224\\auth\\session.py": {
             "language": ".py",
@@ -469,9 +419,7 @@
                         "time_remaining"
                     ],
                     "docstring": "Represents an active user session.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 },
                 "SessionManager": {
                     "methods": [
@@ -485,13 +433,52 @@
                         "_generate_session_id"
                     ],
                     "docstring": "Manages user sessions with automatic cleanup.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 23
+        },
+        "backups\\auth_backup_20250605_162224\\auth\\token.py": {
+            "language": ".py",
+            "functions": [
+                "is_valid",
+                "time_remaining",
+                "__init__",
+                "generate_token",
+                "validate_token",
+                "get_token_info",
+                "refresh_token",
+                "invalidate_token",
+                "cleanup_expired",
+                "_sign_token"
+            ],
+            "classes": {
+                "TokenInfo": {
+                    "methods": [
+                        "is_valid",
+                        "time_remaining"
+                    ],
+                    "docstring": "Represents token metadata.",
+                    "base_classes": []
+                },
+                "TokenHandler": {
+                    "methods": [
+                        "__init__",
+                        "generate_token",
+                        "validate_token",
+                        "get_token_info",
+                        "refresh_token",
+                        "invalidate_token",
+                        "cleanup_expired",
+                        "_sign_token"
+                    ],
+                    "docstring": "Handles token generation, validation, and refresh.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 20
         },
         "backups\\auth_backup_20250605_162224\\auth\\__init__.py": {
             "language": ".py",
@@ -515,9 +502,7 @@
                         "time_remaining"
                     ],
                     "docstring": "Mixin providing expiration-related functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
@@ -537,9 +522,7 @@
                     "docstring": "Base class for authentication errors.",
                     "base_classes": [
                         "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 },
                 "AbstractAuthInterface": {
                     "methods": [
@@ -551,9 +534,7 @@
                     "docstring": "Abstract base class defining the authentication interface.",
                     "base_classes": [
                         "ABC"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 }
             },
             "routes": [],
@@ -585,48 +566,11 @@
                     "docstring": "Authentication manager implementing the platform-agnostic interface.",
                     "base_classes": [
                         "AbstractAuthInterface"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 }
             },
             "routes": [],
             "complexity": 15
-        },
-        "backups\\auth_backup_20250605_162744\\auth\\retry.py": {
-            "language": ".py",
-            "functions": [
-                "retry",
-                "__init__",
-                "calculate_delay",
-                "execute",
-                "decorator",
-                "wrapper"
-            ],
-            "classes": {
-                "RetryError": {
-                    "methods": [],
-                    "docstring": "Base class for retry-related errors.",
-                    "base_classes": [
-                        "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "RetryMechanism": {
-                    "methods": [
-                        "__init__",
-                        "calculate_delay",
-                        "execute"
-                    ],
-                    "docstring": "Implements retry logic with exponential backoff.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 9
         },
         "backups\\auth_backup_20250605_162744\\auth\\session.py": {
             "language": ".py",
@@ -652,9 +596,7 @@
                         "time_remaining"
                     ],
                     "docstring": "Represents an active user session.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 },
                 "SessionManager": {
                     "methods": [
@@ -668,58 +610,11 @@
                         "_generate_session_id"
                     ],
                     "docstring": "Manages user sessions with automatic cleanup.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 23
-        },
-        "backups\\auth_backup_20250605_162744\\auth\\token.py": {
-            "language": ".py",
-            "functions": [
-                "is_valid",
-                "time_remaining",
-                "__init__",
-                "generate_token",
-                "validate_token",
-                "get_token_info",
-                "refresh_token",
-                "invalidate_token",
-                "cleanup_expired",
-                "_sign_token"
-            ],
-            "classes": {
-                "TokenInfo": {
-                    "methods": [
-                        "is_valid",
-                        "time_remaining"
-                    ],
-                    "docstring": "Represents token metadata.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "TokenHandler": {
-                    "methods": [
-                        "__init__",
-                        "generate_token",
-                        "validate_token",
-                        "get_token_info",
-                        "refresh_token",
-                        "invalidate_token",
-                        "cleanup_expired",
-                        "_sign_token"
-                    ],
-                    "docstring": "Handles token generation, validation, and refresh.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 20
         },
         "backups\\auth_backup_20250605_162744\\auth\\__init__.py": {
             "language": ".py",
@@ -728,7 +623,248 @@
             "routes": [],
             "complexity": 0
         },
+        "discord_bot\\bot.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_config"
+            ],
+            "classes": {
+                "DreamOSBot": {
+                    "methods": [
+                        "__init__",
+                        "_load_config"
+                    ],
+                    "docstring": "Dream.OS Discord bot implementation.",
+                    "base_classes": [
+                        "commands.Bot"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 4
+        },
+        "discord_bot\\commands.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_config",
+                "cog_unload"
+            ],
+            "classes": {
+                "AgentCommands": {
+                    "methods": [
+                        "__init__",
+                        "_load_config",
+                        "cog_unload"
+                    ],
+                    "docstring": "Commands for managing agents.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "discord_bot\\devlog_commands.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "DevlogCommands": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Commands for managing agent development logs.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "discord_bot\\log_utils.py": {
+            "language": ".py",
+            "functions": [
+                "get_logs_embed"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "discord_bot\\help_menu.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "setup_pages",
+                "setup_buttons",
+                "add_category_buttons",
+                "add_navigation_buttons",
+                "__init__"
+            ],
+            "classes": {
+                "HelpMenu": {
+                    "methods": [
+                        "__init__",
+                        "setup_pages",
+                        "setup_buttons",
+                        "add_category_buttons",
+                        "add_navigation_buttons"
+                    ],
+                    "docstring": "Help menu view for displaying command documentation.",
+                    "base_classes": [
+                        "ui.View"
+                    ]
+                },
+                "CommandSearchModal": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Modal for searching commands with enhanced UI.",
+                    "base_classes": [
+                        "discord.ui.Modal"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 12
+        },
+        "discord_bot\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\bridge.py": {
+            "language": ".py",
+            "functions": [
+                "parse_hybrid_response",
+                "__init__",
+                "_load_config",
+                "_validate_config",
+                "_find_chat_input",
+                "_find_send_button",
+                "_find_login_button",
+                "_save_requests",
+                "_save_health",
+                "_is_logged_in"
+            ],
+            "classes": {
+                "BridgeRequest": {
+                    "methods": [],
+                    "docstring": "A request to be processed by the bridge.",
+                    "base_classes": []
+                },
+                "BridgeHealth": {
+                    "methods": [],
+                    "docstring": "Health status information.",
+                    "base_classes": []
+                },
+                "HybridResponseHandler": {
+                    "methods": [
+                        "parse_hybrid_response"
+                    ],
+                    "docstring": "Parses hybrid responses containing both text and structured data.",
+                    "base_classes": []
+                },
+                "ChatGPTBridge": {
+                    "methods": [
+                        "__init__",
+                        "_load_config",
+                        "_validate_config",
+                        "_find_chat_input",
+                        "_find_send_button",
+                        "_find_login_button",
+                        "_save_requests",
+                        "_save_health",
+                        "_is_logged_in"
+                    ],
+                    "docstring": "Main bridge service for ChatGPT integration.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 20
+        },
+        "dreamos\\core\\agent_loop.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "AgentLoop": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Manages an agent's processing loop.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "dreamos\\core\\cursor_controller.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "move_to",
+                "click",
+                "type_text",
+                "press_enter",
+                "press_ctrl_enter",
+                "press_ctrl_n",
+                "press_ctrl_v",
+                "press_ctrl_a"
+            ],
+            "classes": {
+                "CursorController": {
+                    "methods": [
+                        "__init__",
+                        "move_to",
+                        "click",
+                        "type_text",
+                        "press_enter",
+                        "press_ctrl_enter",
+                        "press_ctrl_n",
+                        "press_ctrl_v",
+                        "press_ctrl_a"
+                    ],
+                    "docstring": "Controls cursor movement and input for agent interaction.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 18
+        },
         "dreamos\\core\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\agent_control\\bridge_outbox_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_outbox",
+                "_save_outbox"
+            ],
+            "classes": {
+                "BridgeOutboxHandler": {
+                    "methods": [
+                        "__init__",
+                        "_load_outbox",
+                        "_save_outbox"
+                    ],
+                    "docstring": "Handles outbox operations for bridge communication.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "dreamos\\core\\agent_control\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
@@ -749,9 +885,7 @@
                     "docstring": "Base class for authentication errors.",
                     "base_classes": [
                         "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 },
                 "AbstractAuthInterface": {
                     "methods": [
@@ -763,13 +897,18 @@
                     "docstring": "Abstract base class defining the authentication interface.",
                     "base_classes": [
                         "ABC"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 }
             },
             "routes": [],
             "complexity": 8
+        },
+        "dreamos\\core\\auth\\login_handler.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "dreamos\\core\\auth\\retry.py": {
             "language": ".py",
@@ -787,9 +926,7 @@
                     "docstring": "Base class for retry-related errors.",
                     "base_classes": [
                         "Exception"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    ]
                 },
                 "RetryMechanism": {
                     "methods": [
@@ -798,13 +935,52 @@
                         "execute"
                     ],
                     "docstring": "Implements retry logic with exponential backoff.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 9
+        },
+        "dreamos\\core\\auth\\token.py": {
+            "language": ".py",
+            "functions": [
+                "is_valid",
+                "time_remaining",
+                "__init__",
+                "generate_token",
+                "validate_token",
+                "get_token_info",
+                "refresh_token",
+                "invalidate_token",
+                "cleanup_expired",
+                "_sign_token"
+            ],
+            "classes": {
+                "TokenInfo": {
+                    "methods": [
+                        "is_valid",
+                        "time_remaining"
+                    ],
+                    "docstring": "Represents token metadata.",
+                    "base_classes": []
+                },
+                "TokenHandler": {
+                    "methods": [
+                        "__init__",
+                        "generate_token",
+                        "validate_token",
+                        "get_token_info",
+                        "refresh_token",
+                        "invalidate_token",
+                        "cleanup_expired",
+                        "_sign_token"
+                    ],
+                    "docstring": "Handles token generation, validation, and refresh.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 20
         },
         "dreamos\\core\\auth\\__init__.py": {
             "language": ".py",
@@ -813,12 +989,803 @@
             "routes": [],
             "complexity": 0
         },
+        "dreamos\\core\\autonomy\\agent_loop.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_inbox",
+                "load_inbox",
+                "save_inbox"
+            ],
+            "classes": {
+                "AgentLoop": {
+                    "methods": [
+                        "__init__",
+                        "_load_inbox",
+                        "load_inbox",
+                        "save_inbox"
+                    ],
+                    "docstring": "Monitors agent inboxes and processes incoming prompts.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "dreamos\\core\\autonomy\\autonomy_loop.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_handle_shutdown",
+                "load_tasks",
+                "save_devlog"
+            ],
+            "classes": {
+                "AutonomyLoop": {
+                    "methods": [
+                        "__init__",
+                        "_handle_shutdown",
+                        "load_tasks",
+                        "save_devlog"
+                    ],
+                    "docstring": "Main autonomy loop for Dream.OS.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "dreamos\\core\\autonomy\\autonomy_loop_runner.py": {
+            "language": ".py",
+            "functions": [
+                "run_pytest",
+                "__init__",
+                "_load_agent_ownership",
+                "_should_run_iteration",
+                "_determine_responsible_agent",
+                "generate_fix_prompt",
+                "apply_code_patch",
+                "commit_code"
+            ],
+            "classes": {
+                "AutonomyLoopRunner": {
+                    "methods": [
+                        "__init__",
+                        "_load_agent_ownership",
+                        "_should_run_iteration",
+                        "_determine_responsible_agent",
+                        "generate_fix_prompt",
+                        "apply_code_patch",
+                        "commit_code"
+                    ],
+                    "docstring": "Manages the autonomous test-fix loop.",
+                    "base_classes": [
+                        null
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 15
+        },
+        "dreamos\\core\\autonomy\\auto_trigger_runner.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_should_trigger",
+                "_determine_responsible_agent"
+            ],
+            "classes": {
+                "AutoTriggerRunner": {
+                    "methods": [
+                        "__init__",
+                        "_should_trigger",
+                        "_determine_responsible_agent"
+                    ],
+                    "docstring": "Manages automatic test failure handling and fix loops.",
+                    "base_classes": [
+                        null
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "dreamos\\core\\autonomy\\codex_patch_tracker.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "track_patch",
+                "get_patch_status",
+                "get_all_patches"
+            ],
+            "classes": {
+                "CodexPatchTracker": {
+                    "methods": [
+                        "__init__",
+                        "track_patch",
+                        "get_patch_status",
+                        "get_all_patches"
+                    ],
+                    "docstring": "Tracks and manages code patches generated by Codex.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "dreamos\\core\\autonomy\\core_response_loop_daemon.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_create_response_processor",
+                "_get_response_files",
+                "__init__",
+                "on_created"
+            ],
+            "classes": {
+                "CoreResponseLoopDaemon": {
+                    "methods": [
+                        "__init__",
+                        "_create_response_processor",
+                        "_get_response_files"
+                    ],
+                    "docstring": "Core response loop daemon implementation.",
+                    "base_classes": [
+                        "BaseResponseLoopDaemon"
+                    ]
+                },
+                "BridgeOutboxHandler": {
+                    "methods": [
+                        "__init__",
+                        "on_created"
+                    ],
+                    "docstring": "Handles file creation events in bridge outbox.",
+                    "base_classes": [
+                        "FileSystemEventHandler"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "dreamos\\core\\autonomy\\core_response_processor.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "CoreResponseProcessor": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Processes responses for the core response loop.",
+                    "base_classes": [
+                        "ResponseProcessor"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "dreamos\\core\\autonomy\\test_devlog_bridge.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_config"
+            ],
+            "classes": {
+                "TestDevLogBridge": {
+                    "methods": [
+                        "__init__",
+                        "_load_config"
+                    ],
+                    "docstring": "Bridges test automation with devlog system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 4
+        },
+        "dreamos\\core\\autonomy\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\autonomy\\base\\bridge_outbox_handler.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\autonomy\\base\\response_loop.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_validate_response",
+                "_validate_response",
+                "__init__",
+                "clear",
+                "is_empty",
+                "queue_size"
+            ],
+            "classes": {
+                "ResponseLoopConfig": {
+                    "methods": [],
+                    "docstring": "Configuration protocol for response loops.",
+                    "base_classes": [
+                        "Protocol"
+                    ]
+                },
+                "ResponseMetadata": {
+                    "methods": [],
+                    "docstring": "Metadata for response processing.",
+                    "base_classes": []
+                },
+                "BaseResponseLoop": {
+                    "methods": [
+                        "__init__",
+                        "_validate_response"
+                    ],
+                    "docstring": "Base class for all response loop daemons.\n\nProvides common functionality for:\n- File polling and response processing\n- State management and transitions\n- Error handling and recovery\n- Resource cleanup",
+                    "base_classes": [
+                        null,
+                        "ABC"
+                    ]
+                },
+                "ResponseLoop": {
+                    "methods": [
+                        "__init__",
+                        "clear",
+                        "is_empty",
+                        "queue_size"
+                    ],
+                    "docstring": "Response loop for agent communication.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 13
+        },
+        "dreamos\\core\\autonomy\\base\\state_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_setup_metrics",
+                "_setup_recovery",
+                "_validate_backup",
+                "get_recovery_events",
+                "_validate_transition",
+                "get_state",
+                "get_metadata",
+                "get_history",
+                "is_stuck",
+                "get_stuck_agents",
+                "_update_metrics",
+                "get_stats",
+                "get_all_stats"
+            ],
+            "classes": {
+                "AgentStateType": {
+                    "methods": [],
+                    "docstring": "Enumeration of possible agent states.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "StateTransitionError": {
+                    "methods": [],
+                    "docstring": "Raised when a state transition is invalid.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "StateCorruptionError": {
+                    "methods": [],
+                    "docstring": "Raised when state data is corrupted.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "BaseStateManager": {
+                    "methods": [
+                        "__init__",
+                        "_setup_metrics",
+                        "_setup_recovery",
+                        "_validate_backup",
+                        "get_recovery_events",
+                        "_validate_transition",
+                        "get_state",
+                        "get_metadata",
+                        "get_history",
+                        "is_stuck",
+                        "get_stuck_agents",
+                        "_update_metrics",
+                        "get_stats",
+                        "get_all_stats"
+                    ],
+                    "docstring": "Base class for unified state management.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 28
+        },
+        "dreamos\\core\\autonomy\\base\\test_runner.py": {
+            "language": ".py",
+            "functions": [
+                "config",
+                "runner"
+            ],
+            "classes": {
+                "TestRunner": {
+                    "methods": [],
+                    "docstring": "Test implementation of BaseRunner.",
+                    "base_classes": [
+                        "RunnerCore"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "dreamos\\core\\autonomy\\bridge\\test_devlog_bridge_isolated.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_config"
+            ],
+            "classes": {
+                "AutonomyRunnerProtocol": {
+                    "methods": [],
+                    "docstring": "Protocol defining required AutonomyLoopRunner methods.",
+                    "base_classes": [
+                        "Protocol"
+                    ]
+                },
+                "TestDevLogBridge": {
+                    "methods": [
+                        "__init__",
+                        "_load_config"
+                    ],
+                    "docstring": "Bridges test automation with devlog system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 4
+        },
+        "dreamos\\core\\autonomy\\base\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\autonomy\\error\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\autonomy\\handlers\\bridge_outbox_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "BridgeOutboxHandler": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Processes agent responses and applies code changes.",
+                    "base_classes": [
+                        "BaseBridgeHandler"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "dreamos\\core\\autonomy\\handlers\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\autonomy\\utils\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\autonomy\\validation\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\cursor\\cursor_controller.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "type_text",
+                "press_ctrl_s"
+            ],
+            "classes": {
+                "CursorController": {
+                    "methods": [
+                        "__init__",
+                        "type_text",
+                        "press_ctrl_s"
+                    ],
+                    "docstring": "Controls the Cursor IDE for applying code changes.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "dreamos\\core\\discord_bot\\activity.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "ActivityType": {
+                    "methods": [],
+                    "docstring": "Discord activity types.",
+                    "base_classes": [
+                        "IntEnum"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\logging\\log_config.py": {
+            "language": ".py",
+            "functions": [
+                "get_log_path",
+                "get_metrics_path",
+                "get_retention_date",
+                "setup_logging",
+                "should_log",
+                "from_string",
+                "__post_init__",
+                "to_dict",
+                "from_dict",
+                "save",
+                "load",
+                "__str__",
+                "__repr__"
+            ],
+            "classes": {
+                "LogLevel": {
+                    "methods": [
+                        "should_log",
+                        "from_string"
+                    ],
+                    "docstring": "Standardized log levels for Dream.OS logging system.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "LogConfig": {
+                    "methods": [
+                        "__post_init__",
+                        "to_dict",
+                        "from_dict",
+                        "save",
+                        "load",
+                        "__str__",
+                        "__repr__"
+                    ],
+                    "docstring": "Configuration for logging system.\n\nThis is the unified configuration class that consolidates all logging settings\nacross Dream.OS. It supports both simple and advanced logging configurations.\n\nBasic usage:\n    config = LogConfig(level=LogLevel.INFO)\n    \nAdvanced usage:\n    config = LogConfig(\n        level=LogLevel.DEBUG,\n        log_dir=\"logs\",\n        format=\"%(asctime)s - %(name)s - %(levelname)s - %(message)s\",\n        max_file_size=10 * 1024 * 1024,\n        backup_count=5,\n        max_age_days=7,\n        platforms={\n            \"system\": \"system.log\",\n            \"agent\": \"agent.log\"\n        }\n    )",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 22
+        },
+        "dreamos\\core\\logging\\log_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "configure",
+                "_setup_logging",
+                "debug",
+                "info",
+                "warning",
+                "error",
+                "critical",
+                "get_metrics",
+                "shutdown"
+            ],
+            "classes": {
+                "LogLevel": {
+                    "methods": [],
+                    "docstring": "Log levels.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "LogConfig": {
+                    "methods": [],
+                    "docstring": "Log configuration.",
+                    "base_classes": []
+                },
+                "LogManager": {
+                    "methods": [
+                        "__init__",
+                        "configure",
+                        "_setup_logging",
+                        "debug",
+                        "info",
+                        "warning",
+                        "error",
+                        "critical",
+                        "get_metrics",
+                        "shutdown"
+                    ],
+                    "docstring": "Manages logging for the Dream.OS system.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 20
+        },
+        "dreamos\\core\\logging\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\messaging\\chatgpt_bridge.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_load_health",
+                "_update_health",
+                "start",
+                "stop",
+                "_process_request",
+                "_worker_loop",
+                "_ensure_valid_session",
+                "_handle_login",
+                "_launch_browser",
+                "_send_prompt",
+                "_focus_cursor_window",
+                "_paste_to_cursor",
+                "_load_pending_requests",
+                "_save_pending_requests",
+                "_worker_loop"
+            ],
+            "classes": {
+                "ChatGPTBridge": {
+                    "methods": [
+                        "__init__",
+                        "_load_health",
+                        "_update_health",
+                        "start",
+                        "stop",
+                        "_process_request",
+                        "_worker_loop",
+                        "_ensure_valid_session",
+                        "_handle_login",
+                        "_launch_browser",
+                        "_send_prompt",
+                        "_focus_cursor_window",
+                        "_paste_to_cursor",
+                        "_load_pending_requests",
+                        "_save_pending_requests",
+                        "_worker_loop"
+                    ],
+                    "docstring": "Manages communication between Dream.OS agents and ChatGPT.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 32
+        },
+        "dreamos\\core\\messaging\\response_collector.py": {
+            "language": ".py",
+            "functions": [
+                "collect_response",
+                "load_regions",
+                "save_regions",
+                "__init__",
+                "load_template",
+                "detect_copy_button",
+                "click_copy_button",
+                "__init__",
+                "capture",
+                "is_stable",
+                "try_copy_response",
+                "__init__",
+                "_load_agent_regions",
+                "_find_cursor_windows",
+                "_get_cursor_text",
+                "start_collecting",
+                "_save_response",
+                "get_saved_responses",
+                "get_latest_response",
+                "clear_responses"
+            ],
+            "classes": {
+                "CopyButtonDetector": {
+                    "methods": [
+                        "__init__",
+                        "load_template",
+                        "detect_copy_button",
+                        "click_copy_button"
+                    ],
+                    "docstring": "Detects and interacts with the copy button in Cursor.",
+                    "base_classes": []
+                },
+                "AgentRegion": {
+                    "methods": [
+                        "__init__",
+                        "capture",
+                        "is_stable",
+                        "try_copy_response"
+                    ],
+                    "docstring": "Defines a region for monitoring agent responses.",
+                    "base_classes": []
+                },
+                "ResponseCollector": {
+                    "methods": [
+                        "__init__",
+                        "_load_agent_regions",
+                        "_find_cursor_windows",
+                        "_get_cursor_text",
+                        "start_collecting",
+                        "_save_response",
+                        "get_saved_responses",
+                        "get_latest_response",
+                        "clear_responses"
+                    ],
+                    "docstring": "Collects and saves Cursor agent responses for SWARM.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 37
+        },
+        "dreamos\\core\\messaging\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\monitoring\\metrics_server.py": {
+            "language": ".py",
+            "functions": [
+                "_load_metrics",
+                "metrics",
+                "start"
+            ],
+            "classes": {},
+            "routes": [
+                {
+                    "function": "metrics",
+                    "method": "ROUTE",
+                    "path": "/metrics"
+                }
+            ],
+            "complexity": 3
+        },
+        "dreamos\\core\\monitoring\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\utils\\exceptions.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "FileOperationError": {
+                    "methods": [],
+                    "docstring": "Raised when a file operation fails.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\utils\\file_ops.py": {
+            "language": ".py",
+            "functions": [
+                "ensure_dir",
+                "clear_dir",
+                "archive_file",
+                "extract_agent_id",
+                "backup_file",
+                "safe_rmdir"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
+        },
+        "dreamos\\core\\utils\\file_utils.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "dreamos\\core\\utils\\retry.py": {
+            "language": ".py",
+            "functions": [
+                "with_retry",
+                "decorator",
+                "wrapper"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "dreamos\\core\\utils\\safe_io.py": {
+            "language": ".py",
+            "functions": [
+                "atomic_write",
+                "safe_read",
+                "safe_write"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "dreamos\\core\\utils\\serialization.py": {
+            "language": ".py",
+            "functions": [
+                "load_json",
+                "save_json",
+                "read_json",
+                "write_json",
+                "restore_backup",
+                "read_yaml",
+                "load_yaml",
+                "write_yaml",
+                "save_yaml"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 9
+        },
         "dreamos\\core\\utils\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},
             "routes": [],
             "complexity": 0
+        },
+        "dreamos\\social\\utils\\base.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "BaseUtils": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Base utilities for social media operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 2
         },
         "dreamos\\social\\utils\\cleanup.py": {
             "language": ".py",
@@ -843,59 +1810,13 @@
                         "cleanup_temp_files"
                     ],
                     "docstring": "Handles safe file cleanup with proper lock handling.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": [
+                        "BaseUtils"
+                    ]
                 }
             },
             "routes": [],
             "complexity": 14
-        },
-        "dreamos\\social\\utils\\json_settings.py": {
-            "language": ".py",
-            "functions": [
-                "__post_init__",
-                "__getattr__",
-                "__iter__",
-                "items",
-                "values",
-                "__getitem__",
-                "as_dict",
-                "__init__",
-                "reload",
-                "convert"
-            ],
-            "classes": {
-                "ConfigNode": {
-                    "methods": [
-                        "__post_init__",
-                        "__getattr__",
-                        "__iter__",
-                        "items",
-                        "values",
-                        "__getitem__",
-                        "as_dict"
-                    ],
-                    "docstring": "Data holder that provides attribute access like a dotmap.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                },
-                "JSONConfig": {
-                    "methods": [
-                        "__init__",
-                        "reload"
-                    ],
-                    "docstring": "Load configuration from a JSON file.",
-                    "base_classes": [
-                        "ConfigNode"
-                    ],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
-                }
-            },
-            "routes": [],
-            "complexity": 19
         },
         "dreamos\\social\\utils\\log_pipeline.py": {
             "language": ".py",
@@ -928,38 +1849,69 @@
                         "__del__"
                     ],
                     "docstring": "Unified log handling system combining batching and reading functionality.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 22
         },
-        "dreamos\\social\\utils\\media_validator.py": {
+        "dreamos\\social\\utils\\log_writer.py": {
             "language": ".py",
             "functions": [
+                "write_json_log",
                 "__init__",
-                "validate_files",
-                "validate",
-                "validate_media"
+                "_ensure_log_dir",
+                "_cleanup_all_locks",
+                "_get_file_lock",
+                "write_log",
+                "write_log_json",
+                "read_logs",
+                "cleanup_old_logs",
+                "record_metric",
+                "get_metrics",
+                "get_summary",
+                "save_metrics",
+                "load_metrics",
+                "clear_metrics"
             ],
             "classes": {
-                "MediaValidator": {
+                "LogLevel": {
+                    "methods": [],
+                    "docstring": "Log levels for entries.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "LogWriter": {
                     "methods": [
                         "__init__",
-                        "validate_files",
-                        "validate",
-                        "validate_media"
+                        "_ensure_log_dir",
+                        "_cleanup_all_locks",
+                        "_get_file_lock",
+                        "write_log",
+                        "write_log_json",
+                        "read_logs",
+                        "cleanup_old_logs",
+                        "record_metric",
+                        "get_metrics",
+                        "get_summary",
+                        "save_metrics",
+                        "load_metrics",
+                        "clear_metrics"
                     ],
-                    "docstring": "Validates media files for upload.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "docstring": "Handles writing log entries to files.",
+                    "base_classes": []
                 }
             },
             "routes": [],
-            "complexity": 8
+            "complexity": 29
+        },
+        "dreamos\\social\\utils\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
         },
         "dreamos\\social\\utils\\social_common.py": {
             "language": ".py",
@@ -988,56 +1940,2399 @@
                         "upload_media"
                     ],
                     "docstring": "Common utilities for social media operations.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "base_classes": [
+                        "BaseUtils"
+                    ]
                 }
             },
             "routes": [],
             "complexity": 18
         },
-        "dreamos\\social\\utils\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "social\\strategies\\twitter\\rate_limiting\\__init__.py": {
-            "language": ".py",
-            "functions": [],
-            "classes": {},
-            "routes": [],
-            "complexity": 0
-        },
-        "social\\utils\\rate_limiter.py": {
+        "gui\\components\\log_monitor.py": {
             "language": ".py",
             "functions": [
                 "__init__",
-                "check_rate_limit",
-                "set_rate_limit",
-                "reset_limits",
-                "get_remaining"
+                "_setup_ui",
+                "refresh_logs",
+                "clear_logs",
+                "_show_details",
+                "closeEvent"
             ],
             "classes": {
-                "RateLimiter": {
+                "LogMonitor": {
                     "methods": [
                         "__init__",
-                        "check_rate_limit",
-                        "set_rate_limit",
-                        "reset_limits",
-                        "get_remaining"
+                        "_setup_ui",
+                        "refresh_logs",
+                        "clear_logs",
+                        "_show_details",
+                        "closeEvent"
                     ],
-                    "docstring": "Handles rate limiting for API operations.",
-                    "base_classes": [],
-                    "maturity": "Core Asset",
-                    "agent_type": "Utility"
+                    "docstring": "GUI component for monitoring and displaying logs.",
+                    "base_classes": [
+                        "QWidget"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 12
+        },
+        "options_bot\\broker.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "get_history",
+                "get_option_chain",
+                "send_order",
+                "get_equity"
+            ],
+            "classes": {
+                "Broker": {
+                    "methods": [
+                        "__init__",
+                        "get_history",
+                        "get_option_chain",
+                        "send_order",
+                        "get_equity"
+                    ],
+                    "docstring": null,
+                    "base_classes": []
                 }
             },
             "routes": [],
             "complexity": 10
         },
+        "options_bot\\data_loader.py": {
+            "language": ".py",
+            "functions": [
+                "fetch_history",
+                "fetch_option_chain"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
+        "options_bot\\monte_carlo.py": {
+            "language": ".py",
+            "functions": [
+                "simulate_prices",
+                "pop_above",
+                "batch_pop"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "options_bot\\run_bot.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "options_bot\\strategy_core.py": {
+            "language": ".py",
+            "functions": [
+                "tech_signal"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "options_bot\\trade_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "run_cycle",
+                "_try_execute",
+                "_size_position",
+                "_log_trade"
+            ],
+            "classes": {
+                "TradeManager": {
+                    "methods": [
+                        "__init__",
+                        "run_cycle",
+                        "_try_execute",
+                        "_size_position",
+                        "_log_trade"
+                    ],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "options_bot\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "scripts\\isolate_stubborn_tests.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "scripts\\list_large_files.py": {
+            "language": ".py",
+            "functions": [
+                "find_large_files",
+                "main"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
+        "scripts\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\core\\dispatcher.py": {
+            "language": ".py",
+            "functions": [
+                "main",
+                "__init__",
+                "_update_memory",
+                "dispatch_all",
+                "_process_platform",
+                "_shutdown_all_drivers"
+            ],
+            "classes": {
+                "SocialPlatformDispatcher": {
+                    "methods": [
+                        "__init__",
+                        "_update_memory",
+                        "dispatch_all",
+                        "_process_platform",
+                        "_shutdown_all_drivers"
+                    ],
+                    "docstring": "Main dispatcher for handling social media operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 11
+        },
+        "social\\core\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\strategies\\platform_strategy_base.py": {
+            "language": ".py",
+            "functions": [
+                "retry_with_recovery",
+                "decorator",
+                "__init__",
+                "_calculate_retry_delay",
+                "_log_error_with_trace",
+                "_track_operation_time",
+                "_update_memory",
+                "_log_action",
+                "_handle_media_upload",
+                "_validate_media",
+                "get_memory_updates",
+                "get_operation_stats",
+                "is_logged_in",
+                "login",
+                "post",
+                "create_post",
+                "_create_post_impl",
+                "_find_element",
+                "_click_element",
+                "_send_keys",
+                "initialize",
+                "wrapper"
+            ],
+            "classes": {
+                "PlatformStrategy": {
+                    "methods": [
+                        "__init__",
+                        "_calculate_retry_delay",
+                        "_log_error_with_trace",
+                        "_track_operation_time",
+                        "_update_memory",
+                        "_log_action",
+                        "_handle_media_upload",
+                        "_validate_media",
+                        "get_memory_updates",
+                        "get_operation_stats",
+                        "is_logged_in",
+                        "login",
+                        "post",
+                        "create_post",
+                        "_create_post_impl",
+                        "_find_element",
+                        "_click_element",
+                        "_send_keys",
+                        "initialize"
+                    ],
+                    "docstring": "Base class for all social media platform strategies.",
+                    "base_classes": [
+                        "ABC"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 41
+        },
+        "social\\strategies\\reddit_media.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "validate_media",
+                "upload_media",
+                "_create_media_dir"
+            ],
+            "classes": {
+                "RedditMediaHandler": {
+                    "methods": [
+                        "__init__",
+                        "validate_media",
+                        "upload_media",
+                        "_create_media_dir"
+                    ],
+                    "docstring": "Handler for Reddit media operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "social\\strategies\\reddit_strategy.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_validate_config",
+                "_setup_rate_limiter",
+                "_check_rate_limit",
+                "_handle_error",
+                "calculate_retry_delay",
+                "_validate_media",
+                "_upload_media",
+                "_create_media_dir",
+                "_verify_post_success",
+                "_handle_rate_limit",
+                "_handle_retry",
+                "retry_operation",
+                "login",
+                "post_devlog",
+                "post",
+                "create_post",
+                "comment",
+                "is_logged_in",
+                "record_metric",
+                "get_metrics",
+                "get_summary",
+                "save_metrics",
+                "load_metrics",
+                "clear_metrics"
+            ],
+            "classes": {
+                "RedditStrategy": {
+                    "methods": [
+                        "__init__",
+                        "_validate_config",
+                        "_setup_rate_limiter",
+                        "_check_rate_limit",
+                        "_handle_error",
+                        "calculate_retry_delay",
+                        "_validate_media",
+                        "_upload_media",
+                        "_create_media_dir",
+                        "_verify_post_success",
+                        "_handle_rate_limit",
+                        "_handle_retry",
+                        "retry_operation",
+                        "login",
+                        "post_devlog",
+                        "post",
+                        "create_post",
+                        "comment",
+                        "is_logged_in",
+                        "record_metric",
+                        "get_metrics",
+                        "get_summary",
+                        "save_metrics",
+                        "load_metrics",
+                        "clear_metrics"
+                    ],
+                    "docstring": "Strategy for interacting with Reddit.",
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 50
+        },
+        "social\\strategies\\strategy_base.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "_init_memory",
+                "login",
+                "logout",
+                "post",
+                "_validate_media",
+                "_upload_media",
+                "_update_memory",
+                "calculate_retry_delay",
+                "take_screenshot",
+                "wait_for_element",
+                "wait_for_clickable",
+                "record_metric",
+                "get_metrics",
+                "get_summary",
+                "save_metrics",
+                "load_metrics",
+                "clear_metrics"
+            ],
+            "classes": {
+                "SocialMediaStrategy": {
+                    "methods": [
+                        "__init__",
+                        "_init_memory",
+                        "login",
+                        "logout",
+                        "post",
+                        "_validate_media",
+                        "_upload_media",
+                        "_update_memory",
+                        "calculate_retry_delay",
+                        "take_screenshot",
+                        "wait_for_element",
+                        "wait_for_clickable",
+                        "record_metric",
+                        "get_metrics",
+                        "get_summary",
+                        "save_metrics",
+                        "load_metrics",
+                        "clear_metrics"
+                    ],
+                    "docstring": "Base class for social media strategies.",
+                    "base_classes": [
+                        "ABC"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 36
+        },
+        "social\\strategies\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\strategies\\reddit\\exceptions.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "RedditError": {
+                    "methods": [],
+                    "docstring": "Base class for Reddit strategy exceptions.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "LogoutError": {
+                    "methods": [],
+                    "docstring": "Raised when logout fails due to session/auth issues.",
+                    "base_classes": [
+                        "RedditError"
+                    ]
+                },
+                "LoginError": {
+                    "methods": [],
+                    "docstring": "Exception raised when login fails.",
+                    "base_classes": [
+                        "RedditError"
+                    ]
+                },
+                "PostError": {
+                    "methods": [],
+                    "docstring": "Raised when post operations fail.",
+                    "base_classes": [
+                        "RedditError"
+                    ]
+                },
+                "MediaError": {
+                    "methods": [],
+                    "docstring": "Exception raised when media operations fail.",
+                    "base_classes": [
+                        "RedditError"
+                    ]
+                },
+                "AuthenticationError": {
+                    "methods": [],
+                    "docstring": "Raised when authentication fails.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "RateLimitError": {
+                    "methods": [],
+                    "docstring": "Raised when rate limit is exceeded.",
+                    "base_classes": [
+                        "RedditError"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\strategies\\reddit\\strategy.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "record_metric",
+                "get_metrics",
+                "get_summary",
+                "save_metrics",
+                "load_metrics",
+                "clear_metrics",
+                "_load_session",
+                "_save_session",
+                "_is_session_valid",
+                "login",
+                "is_logged_in",
+                "verify_session",
+                "create_post",
+                "_handle_rate_limit",
+                "_handle_error",
+                "post",
+                "comment",
+                "_validate_media",
+                "retry_operation"
+            ],
+            "classes": {
+                "RedditStrategy": {
+                    "methods": [
+                        "__init__",
+                        "record_metric",
+                        "get_metrics",
+                        "get_summary",
+                        "save_metrics",
+                        "load_metrics",
+                        "clear_metrics",
+                        "_load_session",
+                        "_save_session",
+                        "_is_session_valid",
+                        "login",
+                        "is_logged_in",
+                        "verify_session",
+                        "create_post",
+                        "_handle_rate_limit",
+                        "_handle_error",
+                        "post",
+                        "comment",
+                        "_validate_media",
+                        "retry_operation"
+                    ],
+                    "docstring": "Strategy for interacting with Reddit.",
+                    "base_classes": [
+                        "PlatformStrategy"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 40
+        },
+        "social\\strategies\\reddit\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\strategies\\reddit\\handlers\\base_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "configure",
+                "get_config",
+                "validate",
+                "cleanup"
+            ],
+            "classes": {
+                "BaseHandler": {
+                    "methods": [
+                        "__init__",
+                        "configure",
+                        "get_config",
+                        "validate",
+                        "cleanup"
+                    ],
+                    "docstring": "Abstract base handler for Reddit strategy modules.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "social\\strategies\\reddit\\handlers\\login_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "set_credentials",
+                "validate_credentials",
+                "_validate_session_cookie",
+                "_clear_session",
+                "is_logged_in",
+                "_handle_login_error",
+                "login",
+                "verify_session",
+                "check_login_state",
+                "logout",
+                "refresh_session",
+                "_save_session",
+                "_load_session",
+                "get_session",
+                "get_headers",
+                "get_last_action",
+                "get_last_error"
+            ],
+            "classes": {
+                "LoginCredentials": {
+                    "methods": [],
+                    "docstring": "Reddit login credentials.",
+                    "base_classes": []
+                },
+                "LoginSession": {
+                    "methods": [],
+                    "docstring": "Reddit login session.",
+                    "base_classes": []
+                },
+                "LoginError": {
+                    "methods": [],
+                    "docstring": "Login error.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "LoginHandler": {
+                    "methods": [
+                        "__init__",
+                        "set_credentials",
+                        "validate_credentials",
+                        "_validate_session_cookie",
+                        "_clear_session",
+                        "is_logged_in",
+                        "_handle_login_error",
+                        "login",
+                        "verify_session",
+                        "check_login_state",
+                        "logout",
+                        "refresh_session",
+                        "_save_session",
+                        "_load_session",
+                        "get_session",
+                        "get_headers",
+                        "get_last_action",
+                        "get_last_error"
+                    ],
+                    "docstring": "Handles Reddit login operations.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 36
+        },
+        "social\\strategies\\reddit\\handlers\\logout_handler.py": {
+            "language": ".py",
+            "functions": [
+                "__init__"
+            ],
+            "classes": {
+                "LogoutHandler": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Handles logout operations for Reddit strategy.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "social\\strategies\\reddit\\handlers\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\strategies\\reddit\\rate_limiting\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\strategies\\reddit\\validators\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\utils\\cleanup.py": {
+            "language": ".py",
+            "functions": [
+                "cleanup_temp_files",
+                "cleanup_old_logs"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 2
+        },
+        "social\\utils\\devlog_manager.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "log_event",
+                "get_log",
+                "clear_log",
+                "add_entry"
+            ],
+            "classes": {
+                "DevLogManager": {
+                    "methods": [
+                        "__init__",
+                        "log_event",
+                        "get_log",
+                        "clear_log",
+                        "add_entry"
+                    ],
+                    "docstring": "Stub implementation of DevLogManager.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 10
+        },
+        "social\\utils\\log_batcher.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "add_log",
+                "flush",
+                "should_flush"
+            ],
+            "classes": {
+                "LogBatcher": {
+                    "methods": [
+                        "__init__",
+                        "add_log",
+                        "flush",
+                        "should_flush"
+                    ],
+                    "docstring": "Handles batching of logs for efficient processing.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 8
+        },
+        "social\\utils\\log_types.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "LogTypes": {
+                    "methods": [],
+                    "docstring": "Enumeration of log types used in the system.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "RotationConfig": {
+                    "methods": [],
+                    "docstring": "Configuration for log rotation.\n\nAttributes:\n    max_size_mb: Maximum size of log file in MB before rotation\n    max_files: Maximum number of backup files to keep\n    max_age_days: Maximum age of log files in days\n    compress_after_days: Number of days after which to compress old logs\n    backup_dir: Optional directory for backup files\n    max_bytes: Maximum size of log file in bytes before rotation",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\utils\\media_validator.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "validate_media"
+            ],
+            "classes": {
+                "MediaValidator": {
+                    "methods": [
+                        "__init__",
+                        "validate_media"
+                    ],
+                    "docstring": "Validates media files for social media posts.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 4
+        },
+        "social\\utils\\social_common.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "social\\utils\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\conftest.py": {
+            "language": ".py",
+            "functions": [
+                "safe_delete",
+                "setup_test_environment",
+                "clean_test_dirs",
+                "test_env",
+                "temp_dir",
+                "test_file",
+                "test_json",
+                "test_yaml",
+                "test_log_dir",
+                "test_bridge_outbox",
+                "test_config",
+                "mock_message",
+                "mock_agent",
+                "MOCK_AGENT_CONFIG",
+                "pytest_configure",
+                "pytest_collection_modifyitems"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 16
+        },
+        "tests\\test_config.py": {
+            "language": ".py",
+            "functions": [
+                "setup_test_environment",
+                "cleanup_test_environment",
+                "test_config_defaults",
+                "test_config_custom_values",
+                "test_invalid_log_dir",
+                "test_log_level",
+                "test_json_config_access",
+                "test_json_config_integration_with_log_manager",
+                "test_bridge_specific_config",
+                "test_config_validation",
+                "test_file_permissions",
+                "setup_teardown",
+                "test_env",
+                "test_config",
+                "test_data_dir",
+                "test_output_dir",
+                "test_runtime_dir",
+                "test_temp_dir"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 18
+        },
+        "tests\\test_imports.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\community\\test_base.py": {
+            "language": ".py",
+            "functions": [
+                "temp_config_dir",
+                "temp_log_dir",
+                "base_instance",
+                "test_init",
+                "test_create_default_config",
+                "test_save_config",
+                "test_save_config_permission_error",
+                "test_load_config",
+                "test_load_nonexistent_config",
+                "test_load_invalid_config",
+                "test_update_metrics",
+                "test_update_metrics_invalid_type",
+                "test_update_metrics_nested"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 13
+        },
+        "tests\\stubborn\\test_agent_loop_dreamscribe.py": {
+            "language": ".py",
+            "functions": [
+                "mock_agent_control",
+                "agent_loop",
+                "agent_loop"
+            ],
+            "classes": {
+                "MockQtWidgets": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "MockQtCore": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "MockQtGui": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QMainWindow": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QWidget": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QVBoxLayout": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QPushButton": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QLabel": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QFrame": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QSizePolicy": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "Qt": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QSize": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QObject": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "pyqtSignal": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QFont": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QColor": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "QPalette": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 3
+        },
+        "tests\\stubborn\\test_discord_commands.py": {
+            "language": ".py",
+            "functions": [
+                "mock_bot",
+                "mock_context",
+                "mock_orchestrator",
+                "mock_log_manager"
+            ],
+            "classes": {
+                "TestBasicCommands": {
+                    "methods": [],
+                    "docstring": "Test the basic commands functionality.",
+                    "base_classes": []
+                },
+                "TestAgentCommands": {
+                    "methods": [],
+                    "docstring": "Test the agent command functionality.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 4
+        },
+        "tests\\stubborn\\test_dispatcher.py": {
+            "language": ".py",
+            "functions": [
+                "setup_test_directories",
+                "mock_driver",
+                "mock_config",
+                "mock_memory_update",
+                "mock_strategy",
+                "mock_limits",
+                "mock_rate_limiter",
+                "log_manager",
+                "test_retry_on_login_failure",
+                "test_max_retries_exceeded",
+                "test_rate_limit_respect",
+                "test_rate_limit_persistent",
+                "test_valid_media_processing",
+                "test_invalid_media_rejection",
+                "login_side_effect",
+                "is_logged_in_side_effect"
+            ],
+            "classes": {
+                "TestDispatcherRetryLogic": {
+                    "methods": [
+                        "test_retry_on_login_failure",
+                        "test_max_retries_exceeded"
+                    ],
+                    "docstring": "Test suite for dispatcher retry functionality.",
+                    "base_classes": []
+                },
+                "TestDispatcherRateLimiting": {
+                    "methods": [
+                        "test_rate_limit_respect",
+                        "test_rate_limit_persistent"
+                    ],
+                    "docstring": "Test suite for dispatcher rate limiting functionality.",
+                    "base_classes": []
+                },
+                "TestDispatcherMediaValidation": {
+                    "methods": [
+                        "test_valid_media_processing",
+                        "test_invalid_media_rejection"
+                    ],
+                    "docstring": "Test suite for dispatcher media validation functionality.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 22
+        },
+        "tests\\stubborn\\test_file_ops.py": {
+            "language": ".py",
+            "functions": [
+                "temp_dir",
+                "test_data",
+                "test_safe_file_handle",
+                "test_ensure_dir",
+                "test_safe_rmdir",
+                "test_json_operations",
+                "test_yaml_operations",
+                "test_rotate_file",
+                "test_safe_write_read",
+                "test_permission_errors"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 10
+        },
+        "tests\\stubborn\\test_file_utils.py": {
+            "language": ".py",
+            "functions": [
+                "temp_dir",
+                "sample_data",
+                "test_ensure_dir",
+                "test_safe_write",
+                "test_safe_read",
+                "test_load_save_json",
+                "test_load_save_yaml",
+                "test_find_files",
+                "test_cleanup_old_files",
+                "test_safe_write_errors",
+                "test_safe_read_errors",
+                "test_json_errors",
+                "test_yaml_errors",
+                "test_ensure_dir_permissions",
+                "test_cross_platform_paths",
+                "not_serializable"
+            ],
+            "classes": {
+                "InvalidData": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 16
+        },
+        "tests\\stubborn\\test_init_mailbox.py": {
+            "language": ".py",
+            "functions": [
+                "test_imports",
+                "temp_mailbox_dir",
+                "test_agent_id",
+                "mailbox",
+                "test_get_initial_state",
+                "test_init_mailbox_creates_files",
+                "test_init_mailbox_file_contents",
+                "test_init_mailbox_duplicate",
+                "test_reset_mailbox_creates_backup",
+                "test_reset_mailbox_restores_state",
+                "test_reset_nonexistent_mailbox",
+                "test_init_mailbox_invalid_agent_id",
+                "test_init_mailbox_invalid_directory",
+                "test_reset_mailbox_permission_error",
+                "test_concurrent_mailbox_operations",
+                "test_mailbox_file_permissions",
+                "test_mailbox_file_encoding",
+                "test_mailbox_file_corruption",
+                "test_mailbox_directory_cleanup",
+                "raise_oserror",
+                "mock_copytree",
+                "init_operation",
+                "reset_operation"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 23
+        },
+        "tests\\stubborn\\test_log_metrics.py": {
+            "language": ".py",
+            "functions": [
+                "metrics",
+                "test_metrics_initialization",
+                "test_metrics_increment_logs",
+                "test_metrics_record_error",
+                "test_metrics_record_rotation",
+                "test_metrics_reset"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 6
+        },
+        "tests\\stubborn\\test_log_manager.py": {
+            "language": ".py",
+            "functions": [
+                "reset_log_manager",
+                "cleanup",
+                "metrics",
+                "test_metrics_initialization",
+                "test_metrics_increment_logs",
+                "test_metrics_record_error",
+                "test_metrics_record_rotation",
+                "test_metrics_reset",
+                "test_log_rotation",
+                "test_log_cleanup"
+            ],
+            "classes": {
+                "TestLogMetrics": {
+                    "methods": [
+                        "test_metrics_initialization",
+                        "test_metrics_increment_logs",
+                        "test_metrics_record_error",
+                        "test_metrics_record_rotation",
+                        "test_metrics_reset"
+                    ],
+                    "docstring": "Test suite for log metrics functionality.",
+                    "base_classes": []
+                },
+                "TestLogManager": {
+                    "methods": [
+                        "test_log_rotation",
+                        "test_log_cleanup"
+                    ],
+                    "docstring": "Test suite for log manager functionality.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 17
+        },
+        "tests\\stubborn\\test_quarantine.py": {
+            "language": ".py",
+            "functions": [
+                "mock_driver",
+                "mock_utils",
+                "mock_config",
+                "mock_logger",
+                "mock_memory",
+                "login_handler",
+                "temp_log_dir",
+                "log_config",
+                "log_manager",
+                "test_is_logged_in_when_login_form_present",
+                "test_login_success",
+                "test_retry_on_login_failure",
+                "test_max_retries_exceeded",
+                "test_rate_limit_persistent",
+                "test_basic_logging",
+                "test_log_levels",
+                "test_get_entries",
+                "test_metadata",
+                "test_error_handling",
+                "test_twitter_strategy_is_logged_in",
+                "test_invalid_media_rejection",
+                "test_valid_media_processing",
+                "test_log_levels",
+                "test_get_entries",
+                "test_metadata",
+                "test_error_handling",
+                "test_verify_session_valid",
+                "test_login_failure_missing_button",
+                "test_login_retry_click_failure",
+                "test_login_missing_credentials",
+                "test_reddit_strategy_integration",
+                "test_reddit_strategy_error_recovery",
+                "test_devlog_embed_validation",
+                "test_config_defaults",
+                "test_config_custom_values"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 35
+        },
+        "tests\\stubborn\\test_reddit_media.py": {
+            "language": ".py",
+            "functions": [
+                "mock_driver",
+                "mock_utils",
+                "mock_logger",
+                "media_handler",
+                "temp_image_file",
+                "temp_video_file",
+                "test_validate_media_empty_list",
+                "test_validate_media_too_many_images",
+                "test_validate_media_too_many_videos",
+                "test_validate_media_unsupported_format",
+                "test_validate_media_file_not_found",
+                "test_validate_media_success",
+                "test_upload_media_missing_button",
+                "test_upload_media_button_click_failure",
+                "test_upload_media_missing_file_input",
+                "test_upload_media_upload_timeout",
+                "test_upload_media_success",
+                "test_upload_media_multiple_files",
+                "test_handle_upload_error"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 19
+        },
+        "tests\\stubborn\\test_reddit_rate_limiter.py": {
+            "language": ".py",
+            "functions": [
+                "rate_limiter",
+                "test_initialization",
+                "test_custom_limits",
+                "test_rate_limit_reset",
+                "test_rate_limit_exhaustion",
+                "test_get_rate_limit",
+                "test_rate_limit_window"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 7
+        },
+        "tests\\stubborn\\test_reddit_strategy.py": {
+            "language": ".py",
+            "functions": [
+                "patch_sqlite_and_rate_limiter",
+                "patch_social_media_utils",
+                "mock_sqlite",
+                "mock_driver",
+                "specific_strategy_mock_config",
+                "mock_memory_update",
+                "mock_utils",
+                "mock_log_manager",
+                "test_init",
+                "test_calculate_retry_delay",
+                "test_validate_media_single_image",
+                "test_validate_media_empty",
+                "test_validate_media_unsupported_format",
+                "test_login_success",
+                "test_login_missing_credentials",
+                "test_login_failure",
+                "test_login_verification_failed",
+                "test_login_input_not_found",
+                "test_login_button_click_failed",
+                "test_is_logged_in_true",
+                "test_is_logged_in_false",
+                "test_post_success_with_redis",
+                "test_post_not_logged_in",
+                "test_post_failure",
+                "test_post_button_not_found",
+                "test_post_media_validation_failed",
+                "test_post_media_upload_failed",
+                "test_upload_media_success",
+                "test_upload_media_button_not_found",
+                "test_upload_media_click_failed",
+                "test_validate_media_too_many_files",
+                "test_validate_media_file_too_large",
+                "test_validate_media_file_not_found",
+                "test_validate_media_valid_image",
+                "test_validate_media_invalid_format",
+                "test_validate_media_too_many_images",
+                "test_validate_media_video_unsupported",
+                "test_validate_media_valid_video_when_specified",
+                "test_platform_initialization_missing_keys",
+                "test_platform_initialization_valid_keys",
+                "test_reddit_strategy_error_handling",
+                "test_devlog_embed_validation",
+                "test_reddit_strategy_retry_behavior",
+                "test_reddit_strategy_rate_limiting",
+                "test_reddit_strategy_media_validation_edge_cases",
+                "test_reddit_strategy_error_recovery",
+                "test_reddit_strategy_integration",
+                "test_logout_success",
+                "test_logout_failure",
+                "test_create_post_success",
+                "test_create_post_failure",
+                "test_create_post_with_media",
+                "test_validate_media_success",
+                "test_validate_media_failure",
+                "test_rate_limiting",
+                "test_rate_limit_exceeded",
+                "test_retry_mechanism",
+                "test_max_retries_exceeded",
+                "test_error_recovery",
+                "strategy",
+                "test_logout_success",
+                "test_logout_failure",
+                "test_create_post_success",
+                "test_create_post_failure",
+                "test_create_post_with_media",
+                "test_rate_limiting",
+                "test_rate_limit_exceeded",
+                "test_retry_mechanism",
+                "test_max_retries_exceeded",
+                "test_error_recovery"
+            ],
+            "classes": {
+                "TestRedditStrategy": {
+                    "methods": [
+                        "strategy",
+                        "test_logout_success",
+                        "test_logout_failure",
+                        "test_create_post_success",
+                        "test_create_post_failure",
+                        "test_create_post_with_media",
+                        "test_rate_limiting",
+                        "test_rate_limit_exceeded",
+                        "test_retry_mechanism",
+                        "test_max_retries_exceeded",
+                        "test_error_recovery"
+                    ],
+                    "docstring": "Test suite for Reddit strategy functionality.",
+                    "base_classes": [
+                        "BaseStrategyTest"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 81
+        },
+        "tests\\stubborn\\test_strategy.py": {
+            "language": ".py",
+            "functions": [
+                "mock_driver",
+                "mock_config",
+                "mock_memory_update",
+                "strategy",
+                "test_initialization",
+                "test_login",
+                "test_post_success",
+                "test_post_not_logged_in",
+                "test_comment_success",
+                "test_comment_not_logged_in",
+                "test_post_with_media",
+                "test_initialization",
+                "test_is_logged_in",
+                "test_post_success",
+                "test_post_not_logged_in",
+                "test_comment_success",
+                "test_comment_not_logged_in"
+            ],
+            "classes": {
+                "TestRedditStrategy": {
+                    "methods": [
+                        "test_initialization",
+                        "test_is_logged_in",
+                        "test_post_success",
+                        "test_post_not_logged_in",
+                        "test_comment_success",
+                        "test_comment_not_logged_in"
+                    ],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 23
+        },
+        "tests\\stubborn\\test_strategy_base.py": {
+            "language": ".py",
+            "functions": [
+                "patch_sqlite_and_rate_limiter",
+                "patch_social_media_utils",
+                "mock_sqlite",
+                "mock_driver",
+                "specific_strategy_mock_config",
+                "mock_memory_update",
+                "mock_utils",
+                "mock_log_manager",
+                "test_init",
+                "test_calculate_retry_delay",
+                "test_validate_media_single_image",
+                "test_validate_media_empty",
+                "test_validate_media_unsupported_format",
+                "test_login_success",
+                "test_login_missing_credentials",
+                "test_login_failure",
+                "test_login_verification_failed",
+                "test_login_input_not_found",
+                "test_login_button_click_failed",
+                "test_is_logged_in_true",
+                "test_is_logged_in_false",
+                "test_post_success_with_redis",
+                "test_post_not_logged_in",
+                "test_post_failure",
+                "test_post_button_not_found",
+                "test_post_media_validation_failed",
+                "test_post_media_upload_failed",
+                "test_upload_media_success",
+                "test_upload_media_button_not_found",
+                "test_upload_media_click_failed",
+                "test_validate_media_too_many_files",
+                "test_validate_media_file_too_large",
+                "test_validate_media_file_not_found",
+                "test_validate_media_valid_image",
+                "test_validate_media_invalid_format",
+                "test_validate_media_too_many_images",
+                "test_validate_media_video_unsupported",
+                "test_validate_media_valid_video_when_specified",
+                "test_reddit_strategy_error_handling",
+                "test_devlog_embed_validation",
+                "test_reddit_strategy_retry_behavior",
+                "test_reddit_strategy_rate_limiting",
+                "test_reddit_strategy_media_validation_edge_cases",
+                "test_reddit_strategy_error_recovery",
+                "test_reddit_strategy_integration",
+                "strategy",
+                "test_platform_initialization_missing_keys",
+                "test_platform_initialization_valid_keys",
+                "test_devlog_embed_validation"
+            ],
+            "classes": {
+                "TestStrategyBase": {
+                    "methods": [
+                        "strategy",
+                        "test_platform_initialization_missing_keys",
+                        "test_platform_initialization_valid_keys",
+                        "test_devlog_embed_validation"
+                    ],
+                    "docstring": "Test suite for base strategy functionality.",
+                    "base_classes": [
+                        "BaseStrategyTest"
+                    ]
+                }
+            },
+            "routes": [],
+            "complexity": 53
+        },
+        "tests\\stubborn\\test_special_chars.py": {
+            "language": ".py",
+            "functions": [
+                "test_multiline_text"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 1
+        },
+        "tests\\stubborn\\test_voicebot.py": {
+            "language": ".py",
+            "functions": [
+                "voice_queue_dir",
+                "mock_voice_client",
+                "voice_bot"
+            ],
+            "classes": {},
+            "routes": [],
+            "complexity": 3
+        },
+        "tests\\stubborn\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\utils\\mock_discord.py": {
+            "language": ".py",
+            "functions": [
+                "create_mock_embed",
+                "create_mock_context",
+                "create_mock_guild",
+                "create_mock_member",
+                "create_mock_channel",
+                "create_mock_message",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "add_field",
+                "__init__",
+                "__init__",
+                "command",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "get_member",
+                "get_channel",
+                "__init__",
+                "__init__",
+                "__init__",
+                "load",
+                "__init__",
+                "load_opus",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "__init__",
+                "get_voice_client",
+                "__init__",
+                "__init__",
+                "__init__",
+                "get_voice_websocket",
+                "__init__",
+                "__init__",
+                "__init__",
+                "get_voice_websocket_voice",
+                "__init__",
+                "__init__",
+                "__init__",
+                "get_voice_websocket_voice_websocket",
+                "__init__",
+                "default",
+                "all",
+                "decorator"
+            ],
+            "classes": {
+                "Guild": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Guild.",
+                    "base_classes": []
+                },
+                "Member": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Member.",
+                    "base_classes": []
+                },
+                "TextChannel": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Text Channel.",
+                    "base_classes": []
+                },
+                "Message": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Message.",
+                    "base_classes": []
+                },
+                "Interaction": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Interaction.",
+                    "base_classes": []
+                },
+                "InteractionResponse": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Interaction Response.",
+                    "base_classes": []
+                },
+                "InteractionFollowup": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Interaction Followup.",
+                    "base_classes": []
+                },
+                "Context": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Context.",
+                    "base_classes": []
+                },
+                "Embed": {
+                    "methods": [
+                        "add_field"
+                    ],
+                    "docstring": "Mock Discord Embed.",
+                    "base_classes": []
+                },
+                "CommandError": {
+                    "methods": [],
+                    "docstring": "Base class for command errors.",
+                    "base_classes": [
+                        "Exception"
+                    ]
+                },
+                "CommandNotFound": {
+                    "methods": [],
+                    "docstring": "Command not found error.",
+                    "base_classes": [
+                        "CommandError"
+                    ]
+                },
+                "MissingRequiredArgument": {
+                    "methods": [],
+                    "docstring": "Missing required argument error.",
+                    "base_classes": [
+                        "CommandError"
+                    ]
+                },
+                "BadArgument": {
+                    "methods": [],
+                    "docstring": "Bad argument error.",
+                    "base_classes": [
+                        "CommandError"
+                    ]
+                },
+                "Command": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord command.",
+                    "base_classes": []
+                },
+                "Bot": {
+                    "methods": [
+                        "__init__",
+                        "command"
+                    ],
+                    "docstring": "Mock Discord bot.",
+                    "base_classes": []
+                },
+                "commands": {
+                    "methods": [],
+                    "docstring": "Mock discord.ext.commands module.",
+                    "base_classes": []
+                },
+                "ext": {
+                    "methods": [],
+                    "docstring": "Mock discord.ext module.",
+                    "base_classes": []
+                },
+                "MockMessage": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord message object.",
+                    "base_classes": []
+                },
+                "MockUser": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord user object.",
+                    "base_classes": []
+                },
+                "MockChannel": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord channel object.",
+                    "base_classes": []
+                },
+                "MockGuild": {
+                    "methods": [
+                        "__init__",
+                        "get_member",
+                        "get_channel"
+                    ],
+                    "docstring": "Mock Discord guild object.",
+                    "base_classes": []
+                },
+                "VoiceClient": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice Client.",
+                    "base_classes": []
+                },
+                "Gateway": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Gateway.",
+                    "base_classes": []
+                },
+                "Opus": {
+                    "methods": [
+                        "__init__",
+                        "load"
+                    ],
+                    "docstring": "Mock Discord Opus.",
+                    "base_classes": []
+                },
+                "OpusLoader": {
+                    "methods": [
+                        "__init__",
+                        "load_opus"
+                    ],
+                    "docstring": "Mock Discord Opus Loader.",
+                    "base_classes": []
+                },
+                "VoiceState": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice State.",
+                    "base_classes": []
+                },
+                "VoiceProtocol": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice Protocol.",
+                    "base_classes": []
+                },
+                "VoiceRegion": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice Region.",
+                    "base_classes": []
+                },
+                "VoiceRecv": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice Receiver.",
+                    "base_classes": []
+                },
+                "VoiceSend": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice Sender.",
+                    "base_classes": []
+                },
+                "VoiceUtils": {
+                    "methods": [
+                        "get_voice_client"
+                    ],
+                    "docstring": "Mock Discord Voice Utils.",
+                    "base_classes": []
+                },
+                "VoiceWebSocket": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketClient": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Client.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketServer": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Server.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketUtils": {
+                    "methods": [
+                        "get_voice_websocket"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Utils.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoice": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceClient": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice Client.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceServer": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice Server.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceUtils": {
+                    "methods": [
+                        "get_voice_websocket_voice"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice Utils.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocket": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice WebSocket.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocketClient": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice WebSocket Client.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocketServer": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice WebSocket Server.",
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocketUtils": {
+                    "methods": [
+                        "get_voice_websocket_voice_websocket"
+                    ],
+                    "docstring": "Mock Discord Voice WebSocket Voice WebSocket Utils.",
+                    "base_classes": []
+                },
+                "Intents": {
+                    "methods": [
+                        "__init__",
+                        "default",
+                        "all"
+                    ],
+                    "docstring": "Mock Discord Intents.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 97
+        },
         "tests\\utils\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\utils\\mock_discord\\commands.py": {
+            "language": ".py",
+            "functions": [
+                "command",
+                "cog_unload",
+                "add_cog",
+                "remove_cog",
+                "get_cog",
+                "add_command",
+                "remove_command",
+                "get_command",
+                "decorator"
+            ],
+            "classes": {
+                "Command": {
+                    "methods": [],
+                    "docstring": "Mock command.",
+                    "base_classes": []
+                },
+                "Group": {
+                    "methods": [
+                        "command"
+                    ],
+                    "docstring": "Mock command group.",
+                    "base_classes": [
+                        "Command"
+                    ]
+                },
+                "Cog": {
+                    "methods": [
+                        "cog_unload"
+                    ],
+                    "docstring": "Mock cog.",
+                    "base_classes": []
+                },
+                "Bot": {
+                    "methods": [
+                        "add_cog",
+                        "remove_cog",
+                        "get_cog",
+                        "add_command",
+                        "remove_command",
+                        "get_command"
+                    ],
+                    "docstring": "Mock Discord bot.",
+                    "base_classes": []
+                },
+                "Context": {
+                    "methods": [],
+                    "docstring": "Mock command context.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 17
+        },
+        "tests\\utils\\mock_discord\\discord.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "__init__",
+                "default",
+                "all",
+                "__init__",
+                "from_rgb",
+                "from_str"
+            ],
+            "classes": {
+                "Status": {
+                    "methods": [],
+                    "docstring": "Mock Status enum.",
+                    "base_classes": [
+                        "str",
+                        "Enum"
+                    ]
+                },
+                "ChannelType": {
+                    "methods": [],
+                    "docstring": "Mock ChannelType enum.",
+                    "base_classes": [
+                        "int",
+                        "Enum"
+                    ]
+                },
+                "ActivityType": {
+                    "methods": [],
+                    "docstring": "Mock activity types.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "Activity": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Activity class.",
+                    "base_classes": []
+                },
+                "Intents": {
+                    "methods": [
+                        "__init__",
+                        "default",
+                        "all"
+                    ],
+                    "docstring": "Mock Intents class.",
+                    "base_classes": []
+                },
+                "Color": {
+                    "methods": [
+                        "__init__",
+                        "from_rgb",
+                        "from_str"
+                    ],
+                    "docstring": "Mock Discord color class.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 14
+        },
+        "tests\\utils\\mock_discord\\interaction.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "__init__",
+                "__init__"
+            ],
+            "classes": {
+                "Interaction": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Interaction class.",
+                    "base_classes": []
+                },
+                "InteractionResponse": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord InteractionResponse class.",
+                    "base_classes": []
+                },
+                "InteractionFollowup": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord InteractionFollowup class.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 6
+        },
+        "tests\\utils\\mock_discord\\models.py": {
+            "language": ".py",
+            "functions": [
+                "create_mock_embed",
+                "__init__",
+                "__init__",
+                "get_role",
+                "get_member",
+                "get_channel",
+                "__init__",
+                "add_member",
+                "remove_member",
+                "__init__",
+                "add_role",
+                "remove_role",
+                "__init__",
+                "__init__",
+                "__init__",
+                "add_field",
+                "set_footer",
+                "set_image",
+                "set_thumbnail",
+                "__init__",
+                "__init__",
+                "__init__",
+                "add_field",
+                "set_footer",
+                "set_image",
+                "set_thumbnail",
+                "__init__",
+                "__init__",
+                "__eq__",
+                "default",
+                "blue",
+                "dark_blue",
+                "green",
+                "dark_green",
+                "red",
+                "dark_red",
+                "gold",
+                "dark_gold",
+                "purple",
+                "dark_purple",
+                "teal",
+                "dark_teal",
+                "orange",
+                "dark_orange",
+                "grey",
+                "dark_grey",
+                "darker_grey",
+                "light_grey",
+                "dark_theme",
+                "blurple",
+                "dark_blurple"
+            ],
+            "classes": {
+                "Activity": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Activity for testing.",
+                    "base_classes": []
+                },
+                "MockGuild": {
+                    "methods": [
+                        "__init__",
+                        "get_role",
+                        "get_member",
+                        "get_channel"
+                    ],
+                    "docstring": "Mock Discord Guild for testing.",
+                    "base_classes": []
+                },
+                "MockRole": {
+                    "methods": [
+                        "__init__",
+                        "add_member",
+                        "remove_member"
+                    ],
+                    "docstring": "Mock Discord Role for testing.",
+                    "base_classes": []
+                },
+                "MockMember": {
+                    "methods": [
+                        "__init__",
+                        "add_role",
+                        "remove_role"
+                    ],
+                    "docstring": "Mock Discord Member for testing.",
+                    "base_classes": []
+                },
+                "MockChannel": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Channel for testing.",
+                    "base_classes": []
+                },
+                "MockMessage": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Message for testing.",
+                    "base_classes": []
+                },
+                "MockEmbed": {
+                    "methods": [
+                        "__init__",
+                        "add_field",
+                        "set_footer",
+                        "set_image",
+                        "set_thumbnail"
+                    ],
+                    "docstring": "Mock Discord Embed for testing.",
+                    "base_classes": []
+                },
+                "MockFile": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord File for testing.",
+                    "base_classes": []
+                },
+                "MockWebhook": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Webhook for testing.",
+                    "base_classes": []
+                },
+                "Embed": {
+                    "methods": [
+                        "__init__",
+                        "add_field",
+                        "set_footer",
+                        "set_image",
+                        "set_thumbnail"
+                    ],
+                    "docstring": "Mock Discord Embed class.",
+                    "base_classes": []
+                },
+                "ButtonStyle": {
+                    "methods": [],
+                    "docstring": "Mock Discord ButtonStyle class.",
+                    "base_classes": []
+                },
+                "Interaction": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord Interaction class.",
+                    "base_classes": []
+                },
+                "Color": {
+                    "methods": [
+                        "__init__",
+                        "__eq__",
+                        "default",
+                        "blue",
+                        "dark_blue",
+                        "green",
+                        "dark_green",
+                        "red",
+                        "dark_red",
+                        "gold",
+                        "dark_gold",
+                        "purple",
+                        "dark_purple",
+                        "teal",
+                        "dark_teal",
+                        "orange",
+                        "dark_orange",
+                        "grey",
+                        "dark_grey",
+                        "darker_grey",
+                        "light_grey",
+                        "dark_theme",
+                        "blurple",
+                        "dark_blurple"
+                    ],
+                    "docstring": "Mock Discord Color class.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 101
+        },
+        "tests\\utils\\mock_discord\\voice.py": {
+            "language": ".py",
+            "functions": [
+                "stop"
+            ],
+            "classes": {
+                "VoiceClient": {
+                    "methods": [
+                        "stop"
+                    ],
+                    "docstring": "Simplified mock of ``discord.VoiceClient``.",
+                    "base_classes": []
+                },
+                "Gateway": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "Opus": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "OpusLoader": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceState": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceProtocol": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceRegion": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceRecv": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceSend": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceUtils": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocket": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketClient": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketServer": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketUtils": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoice": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceClient": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceServer": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceUtils": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocket": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocketClient": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocketServer": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                },
+                "VoiceWebSocketVoiceWebSocketUtils": {
+                    "methods": [],
+                    "docstring": null,
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 2
+        },
+        "tests\\utils\\mock_discord\\ui.py": {
+            "language": ".py",
+            "functions": [
+                "__init__",
+                "add_item",
+                "__init__",
+                "__init__",
+                "add_option",
+                "__init__",
+                "__init__",
+                "add_item"
+            ],
+            "classes": {
+                "ButtonStyle": {
+                    "methods": [],
+                    "docstring": "Mock button styles.",
+                    "base_classes": [
+                        "Enum"
+                    ]
+                },
+                "View": {
+                    "methods": [
+                        "__init__",
+                        "add_item"
+                    ],
+                    "docstring": "Mock Discord view.",
+                    "base_classes": []
+                },
+                "Button": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord button.",
+                    "base_classes": []
+                },
+                "Select": {
+                    "methods": [
+                        "__init__",
+                        "add_option"
+                    ],
+                    "docstring": "Mock Discord select menu.",
+                    "base_classes": []
+                },
+                "TextInput": {
+                    "methods": [
+                        "__init__"
+                    ],
+                    "docstring": "Mock Discord text input.",
+                    "base_classes": []
+                },
+                "Modal": {
+                    "methods": [
+                        "__init__",
+                        "add_item"
+                    ],
+                    "docstring": "Mock Discord modal.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 16
+        },
+        "tests\\utils\\mock_discord\\webhook.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {
+                "MockWebhook": {
+                    "methods": [],
+                    "docstring": "Mock Discord webhook.",
+                    "base_classes": []
+                }
+            },
+            "routes": [],
+            "complexity": 0
+        },
+        "tests\\utils\\mock_discord\\__init__.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tools\\start_metrics_server.py": {
+            "language": ".py",
+            "functions": [],
+            "classes": {},
+            "routes": [],
+            "complexity": 0
+        },
+        "tools\\__init__.py": {
             "language": ".py",
             "functions": [],
             "classes": {},

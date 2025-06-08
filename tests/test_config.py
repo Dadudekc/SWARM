@@ -16,14 +16,9 @@ from tests.utils.test_utils import (
 )
 import yaml
 from dreamos.core.config.config_manager import ConfigManager
-from dreamos.core.utils.file_utils import (
-    safe_read,
-    safe_write,
-    read_json,
-    write_json,
-    ensure_dir,
-    safe_rmdir
-)
+from dreamos.core.io.json_ops import read_json, write_json
+from dreamos.core.io.atomic import safe_read, safe_write
+from dreamos.core.utils.file_utils import ensure_dir, safe_rmdir
 
 # Test constants - Use relative paths from TEST_ROOT
 MOCK_AGENT_CONFIG = {

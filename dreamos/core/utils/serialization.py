@@ -10,18 +10,63 @@ from typing import Any, Optional, Union
 import aiofiles
 import yaml
 
-from .safe_io import async_atomic_write
+from .safe_io import async_atomic_write, atomic_write
+from .exceptions import FileOpsError, FileOpsIOError, FileOpsPermissionError
 
 logger = logging.getLogger(__name__)
+
+# Re-export stubs for backward compatibility
+from .json_utils import (
+    load_json as load_json,  # noqa
+    save_json as save_json,  # noqa
+    read_json as read_json,  # noqa
+    write_json as write_json,  # noqa
+    async_save_json as async_save_json,  # noqa
+    async_load_json as async_load_json,  # noqa
+)
+
+from .yaml_utils import (
+    load_yaml as load_yaml,  # noqa
+    save_yaml as save_yaml,  # noqa
+    read_yaml as read_yaml,  # noqa
+    write_yaml as write_yaml,  # noqa
+)
+
+__all__ = [
+    "load_json",
+    "save_json",
+    "read_json",
+    "write_json",
+    "async_save_json",
+    "async_load_json",
+    "load_yaml",
+    "save_yaml",
+    "read_yaml",
+    "write_yaml",
+]
 
 
 def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
     """Load JSON data from file."""
     try:
         with open(file_path, "r") as f:
-            return json.load(f)
-    except Exception as e:  # pragma: no cover - simple log
-        logger.error(f"Error loading JSON from {file_path}: {e}")
+            data = json.load(f)
+            logger.info(
+                "json_loaded",
+                extra={
+                    "path": str(file_path),
+                    "size": len(str(data))
+                }
+            )
+            return data
+    except (json.JSONDecodeError, OSError, IOError) as e:
+        logger.error(
+            "json_load_error",
+            extra={
+                "path": str(file_path),
+                "error": str(e)
+            }
+        )
         return default
 
 
@@ -41,15 +86,34 @@ def read_json(file_path: Union[str, Path], default: Any = None) -> Any:
     return load_json(file_path, default)
 
 
-def write_json(data: Any, filepath: str, indent: int = 4) -> bool:
-    """Write data to a JSON file."""
+def write_json(path: Union[str, Path], data: dict) -> None:
+    """Write JSON to a file atomically."""
+    path = Path(path)
     try:
-        with open(filepath, "w", encoding="utf-8") as f:
-            json.dump(data, f, indent=indent)
-        return True
-    except Exception as e:  # pragma: no cover - simple log
-        logger.error(f"Failed to write JSON to {filepath}: {e}")
-        return False
+        # Ensure parent directory exists
+        path.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Convert to JSON string
+        content = json.dumps(data, indent=2)
+        
+        # Write atomically
+        if not atomic_write(path, content):
+            raise FileOpsIOError(f"Failed to write JSON to {path}")
+            
+        logger.info(
+            "json_written",
+            extra={
+                "path": str(path),
+                "size": len(content)
+            }
+        )
+            
+    except PermissionError as e:
+        raise FileOpsPermissionError(f"Permission denied: {path}") from e
+    except (OSError, IOError) as e:
+        raise FileOpsIOError(f"I/O error: {path}") from e
+    except TypeError as e:
+        raise FileOpsError(f"JSON data cannot be serialized: {path}") from e
 
 
 def restore_backup(backup_path: str, target_path: str) -> bool:
@@ -66,14 +130,29 @@ def restore_backup(backup_path: str, target_path: str) -> bool:
         return False
 
 
-def read_yaml(file_path: Union[str, Path], default: Any = None) -> Any:
-    """Read YAML data from file."""
+def read_yaml(path: Union[str, Path], default: Any = None) -> Any:
+    """Read YAML from a file."""
     try:
-        with open(file_path, "r") as f:
-            return yaml.safe_load(f)
-    except Exception as e:  # pragma: no cover - simple log
-        logger.error(f"Error reading YAML from {file_path}: {e}")
-        return default
+        with open(path, 'r') as f:
+            content = f.read()
+            try:
+                data = yaml.safe_load(content)
+                logger.info(
+                    "yaml_loaded",
+                    extra={
+                        "path": str(path),
+                        "size": len(content)
+                    }
+                )
+                return data
+            except yaml.YAMLError as e:
+                if default is not None:
+                    return default
+                raise FileOpsError(f'Invalid YAML in {path}: {e}')
+    except (OSError, IOError) as e:
+        if default is not None:
+            return default
+        raise FileOpsIOError(f'I/O error reading {path}') from e
 
 
 def load_yaml(file_path: Union[str, Path], default: Any = None) -> Any:
@@ -81,15 +160,30 @@ def load_yaml(file_path: Union[str, Path], default: Any = None) -> Any:
     return read_yaml(file_path, default)
 
 
-def write_yaml(file_path: Union[str, Path], data: Any) -> bool:
-    """Write data to YAML file."""
+def write_yaml(path: Union[str, Path], data: dict) -> None:
+    """Write YAML to a file atomically."""
     try:
-        with open(file_path, "w") as f:
-            yaml.safe_dump(data, f, default_flow_style=False)
-        return True
-    except Exception as e:  # pragma: no cover - simple log
-        logger.error(f"Error writing YAML to {file_path}: {e}")
-        return False
+        # Convert to YAML string
+        content = yaml.safe_dump(data, default_flow_style=False)
+        
+        # Write atomically
+        if not atomic_write(path, content):
+            raise FileOpsIOError(f"Failed to write YAML to {path}")
+            
+        logger.info(
+            "yaml_written",
+            extra={
+                "path": str(path),
+                "size": len(content)
+            }
+        )
+            
+    except PermissionError as e:
+        raise FileOpsPermissionError(f'Permission denied: {path}') from e
+    except (OSError, IOError) as e:
+        raise FileOpsIOError(f'I/O error: {path}') from e
+    except TypeError as e:
+        raise FileOpsError(f'YAML data cannot be serialized: {path}') from e
 
 
 def save_yaml(file_path: Union[str, Path], data: Any) -> bool:

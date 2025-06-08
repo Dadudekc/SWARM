@@ -1,31 +1,18 @@
 # AUTO-GENERATED __init__.py
-# PATCH: Remove circular and broken imports for test stability
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .cleanup import *
-from .media_validator import MediaValidator
-from .log_manager import LogManager
-from .log_metrics import LogMetrics
-from .log_rotator import LogRotator
-from .log_types import LogTypes
-from .devlog_manager import DevLogManager
-from .social_common import SocialMediaUtils
-from .log_batcher import LogBatcher
+from . import cleanup
+from . import devlog_manager
+from . import log_batcher
+from . import log_types
+from . import media_validator
+from . import social_common
 
 __all__ = [
     'cleanup',
-    'media_validator',
-    'log_manager',
-    'log_metrics',
-    'log_rotator',
-    'log_types',
     'devlog_manager',
     'log_batcher',
-    'MediaValidator',
-    'LogManager',
-    'LogMetrics',
-    'LogRotator',
-    'LogTypes',
-    'DevLogManager',
-    'SocialMediaUtils',
-    'LogBatcher',
+    'log_types',
+    'media_validator',
+    'social_common',
 ]

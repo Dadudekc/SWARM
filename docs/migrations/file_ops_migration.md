@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide outlines the migration process from scattered file operations to the new centralized `file_ops.py` module. The migration will improve code consistency, error handling, and maintainability.
+This guide outlines the migration process from scattered file operations to the new centralized utility modules. The migration will improve code consistency, error handling, and maintainability.
 
 ## Migration Map
 
@@ -13,12 +13,29 @@ This guide outlines the migration process from scattered file operations to the 
 | `with open(path, 'r') as f: json.load(f)` | `read_json(path, default=None)` | `data = read_json('config.json', {})` |
 | `with open(path, 'w') as f: json.dump(data, f)` | `write_json(path, data)` | `write_json('config.json', config)` |
 
+Import from:
+```python
+from dreamos.core.utils.json_utils import (
+    read_json, write_json,
+    load_json, save_json,
+    async_load_json, async_save_json
+)
+```
+
 ### 2. YAML Operations
 
 | Old Pattern | New Pattern | Example |
 |------------|-------------|---------|
 | `with open(path, 'r') as f: yaml.safe_load(f)` | `read_yaml(path, default=None)` | `config = read_yaml('config.yaml', {})` |
 | `with open(path, 'w') as f: yaml.dump(data, f)` | `write_yaml(path, data)` | `write_yaml('config.yaml', config)` |
+
+Import from:
+```python
+from dreamos.core.utils.yaml_utils import (
+    read_yaml, write_yaml,
+    load_yaml, save_yaml
+)
+```
 
 ### 3. Directory Operations
 
@@ -27,12 +44,26 @@ This guide outlines the migration process from scattered file operations to the 
 | `os.makedirs(path, exist_ok=True)` | `ensure_dir(path)` | `ensure_dir('logs')` |
 | `shutil.rmtree(path)` | `safe_rmdir(path, recursive=True)` | `safe_rmdir('temp', recursive=True)` |
 
+Import from:
+```python
+from dreamos.core.utils.file_ops import (
+    ensure_dir, safe_rmdir
+)
+```
+
 ### 4. File Operations
 
 | Old Pattern | New Pattern | Example |
 |------------|-------------|---------|
 | `with open(path, mode) as f:` | `with safe_file_handle(path, mode) as f:` | `with safe_file_handle('file.txt', 'r') as f:` |
 | Manual file rotation | `rotate_file(path, max_size, max_files)` | `rotate_file('app.log', 10*1024*1024, 5)` |
+
+Import from:
+```python
+from dreamos.core.utils.file_ops import (
+    safe_file_handle, rotate_file
+)
+```
 
 ## Priority Modules for Migration
 

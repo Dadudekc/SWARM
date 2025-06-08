@@ -1,0 +1,39 @@
+name: Module Size Check
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+jobs:
+  check-module-size:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+          
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install ruff mypy pytest
+          
+      - name: Check module sizes
+        run: |
+          python tools/find_large_modules.py \
+            --base dreamos/ \
+            --limit 300 \
+            --fail-on-hit \
+            --exclude "**/tests/**" "**/migrations/**"
+            
+      - name: Run type checks
+        run: |
+          mypy dreamos/
+          
+      - name: Run linter
+        run: |
+          ruff check dreamos/ 

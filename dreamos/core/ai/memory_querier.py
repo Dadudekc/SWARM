@@ -7,7 +7,9 @@ Enables agents to query and analyze their narrative memory corpus.
 import time
 from typing import List, Dict, Any, Optional, Union
 from datetime import datetime, timedelta
+from functools import lru_cache
 from .dreamscribe import Dreamscribe
+import difflib
 
 class MemoryQuerier:
     """Provides query interface for agent memory corpus."""
@@ -137,6 +139,24 @@ class MemoryQuerier:
         
         return summary
         
+    @lru_cache(maxsize=2048)
+    def _calculate_memory_similarity(
+        self,
+        content1: str,
+        content2: str
+    ) -> float:
+        """Calculate similarity between two memory contents using difflib.
+        Results are cached to avoid recomputing for frequently compared memories.
+        
+        Args:
+            content1: First memory content
+            content2: Second memory content
+            
+        Returns:
+            Similarity score between 0 and 1
+        """
+        return difflib.SequenceMatcher(None, content1, content2).ratio()
+        
     def find_similar_threads(
         self,
         memory_id: str,
@@ -158,14 +178,19 @@ class MemoryQuerier:
             return []
             
         similar_threads = []
+        ref_content = reference["content"].lower()
         
         # Compare with other memories
         for other_id, other_memory in self.dreamscribe.memory_corpus.items():
             if other_id == memory_id:
                 continue
                 
-            # Calculate similarity
-            similarity = self._calculate_memory_similarity(reference, other_memory)
+            # Calculate similarity using cached function
+            similarity = self._calculate_memory_similarity(
+                ref_content,
+                other_memory["content"].lower()
+            )
+            
             if similarity >= min_similarity:
                 similar_threads.append({
                     "memory_id": other_id,
@@ -180,37 +205,6 @@ class MemoryQuerier:
             key=lambda x: x["similarity"],
             reverse=True
         )[:limit]
-        
-    def _calculate_memory_similarity(
-        self,
-        memory1: Dict[str, Any],
-        memory2: Dict[str, Any]
-    ) -> float:
-        """Calculate similarity between two memories.
-        
-        Args:
-            memory1: First memory
-            memory2: Second memory
-            
-        Returns:
-            Similarity score between 0 and 1
-        """
-        # Simple content-based similarity for now
-        # TODO: Implement more sophisticated similarity metrics
-        content1 = memory1["content"].lower()
-        content2 = memory2["content"].lower()
-        
-        # Calculate word overlap
-        words1 = set(content1.split())
-        words2 = set(content2.split())
-        
-        if not words1 or not words2:
-            return 0.0
-            
-        intersection = len(words1 & words2)
-        union = len(words1 | words2)
-        
-        return intersection / union if union > 0 else 0.0
         
     def get_agent_insights(
         self,

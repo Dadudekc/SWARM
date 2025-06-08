@@ -9,60 +9,140 @@ import json
 from datetime import datetime
 from pathlib import Path
 from typing import Any, List, Optional, Union
+from fasteners import InterProcessLock
 
-from .safe_io import async_delete_file
+from .safe_io import async_delete_file, atomic_write
+from .exceptions import FileOpsError, FileOpsPermissionError, FileOpsIOError
 
 logger = logging.getLogger(__name__)
 
+# Lock for directory operations
+_dir_lock = InterProcessLock("dreamos_dir_ops")
+
+def safe_mkdir(path: Union[str, Path]) -> None:
+    """Safely create a directory with concurrency protection.
+    
+    Args:
+        path: Path to create directory at
+        
+    Raises:
+        FileOpsError: If path exists and is a file
+        FileOpsPermissionError: If permission denied
+        FileOpsIOError: If other I/O error occurs
+    """
+    path = Path(path)
+    if path.exists() and path.is_file():
+        raise FileOpsError(f"Path {path} exists and is a file")
+        
+    with _dir_lock:
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            logger.info(
+                "directory_created",
+                extra={"path": str(path)}
+            )
+        except PermissionError as e:
+            logger.error(
+                "directory_create_permission_error",
+                extra={
+                    "path": str(path),
+                    "error": str(e)
+                }
+            )
+            raise FileOpsPermissionError(f"Permission denied: {path}") from e
+        except OSError as e:
+            logger.error(
+                "directory_create_error",
+                extra={
+                    "path": str(path),
+                    "error": str(e)
+                }
+            )
+            raise FileOpsIOError(f"I/O error: {path}") from e
+
 
 def ensure_dir(path: Union[str, Path]) -> bool:
-    """Ensure directory exists."""
+    """Ensure directory exists with concurrency protection."""
     try:
-        Path(path).mkdir(parents=True, exist_ok=True)
+        safe_mkdir(path)
         return True
-    except Exception as e:  # pragma: no cover - simple log
+    except Exception as e:
         logger.error(f"Error creating directory {path}: {e}")
         return False
 
 
 def clear_dir(path: Union[str, Path]) -> bool:
-    """Clear directory contents."""
+    """Clear directory contents safely."""
+    path = Path(path)
     try:
-        for item in Path(path).glob("*"):
-            if item.is_file():
-                item.unlink()
-            elif item.is_dir():
-                shutil.rmtree(item)
+        with _dir_lock:
+            if path.exists():
+                shutil.rmtree(path)
+                path.mkdir(parents=True)
+                logger.info(
+                    "directory_cleared",
+                    extra={"path": str(path)}
+                )
         return True
-    except Exception as e:  # pragma: no cover - simple log
-        logger.error(f"Error clearing directory {path}: {e}")
+    except Exception as e:
+        logger.error(
+            "directory_clear_error",
+            extra={
+                "path": str(path),
+                "error": str(e)
+            }
+        )
         return False
 
 
 def archive_file(
-    file_path: Path, archive_dir: Path, logger: Optional[logging.Logger] = None
+    source: Union[str, Path],
+    dest: Union[str, Path],
+    timestamp: Optional[datetime] = None
 ) -> bool:
-    """Archive a file to the specified directory."""
+    """Archive a file with atomic operations."""
+    source = Path(source)
+    dest = Path(dest)
+    
+    if not source.exists():
+        return False
+        
     try:
-        archive_dir.mkdir(parents=True, exist_ok=True)
-        archive_path = archive_dir / file_path.name
-        file_path.rename(archive_path)
-        if logger:
+        # Ensure destination directory exists
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        
+        # Read source content
+        with open(source, 'rb') as f:
+            content = f.read()
+            
+        # Write to destination atomically
+        success = atomic_write(
+            dest,
+            content,
+            mode='wb',
+            encoding=None  # Binary mode
+        )
+        
+        if success:
             logger.info(
-                platform="file_ops",
-                status="archived",
-                message=f"Archived file {file_path.name}",
-                tags=["archive", "success"],
+                "file_archived",
+                extra={
+                    "source": str(source),
+                    "dest": str(dest)
+                }
             )
-        return True
-    except Exception as e:  # pragma: no cover - simple log
-        if logger:
-            logger.error(
-                platform="file_ops",
-                status="error",
-                message=f"Error archiving file {file_path}: {e}",
-                tags=["archive", "error"],
-            )
+            
+        return success
+        
+    except Exception as e:
+        logger.error(
+            "file_archive_error",
+            extra={
+                "source": str(source),
+                "dest": str(dest),
+                "error": str(e)
+            }
+        )
         return False
 
 

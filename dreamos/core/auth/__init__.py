@@ -1,21 +1,16 @@
-"""
-Authentication Module
--------------------
-Core authentication functionality for Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .manager import AuthManager, AuthError
-from .token import TokenHandler, TokenInfo
-from .session import Session, SessionManager
-from .login_handler import LoginHandler, LoginError
+from . import base
+from . import interface
+from . import login_handler
+from . import retry
+from . import token
 
 __all__ = [
-    'AuthManager',
-    'AuthError',
-    'TokenHandler',
-    'TokenInfo',
-    'Session',
-    'SessionManager',
-    'LoginHandler',
-    'LoginError'
+    'base',
+    'interface',
+    'login_handler',
+    'retry',
+    'token',
 ]

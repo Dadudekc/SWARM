@@ -4,6 +4,8 @@
 
 The Dream.OS logging system provides a unified, configurable logging infrastructure for all components. It supports multiple log levels, file rotation, and integration with monitoring systems.
 
+> **Note:** The logging system is now part of the unified Auth & Browser stack, with all browser-related utilities consolidated under `dreamos.core.browser`.
+
 ## Usage
 
 ```python
@@ -107,9 +109,11 @@ If you're migrating from the old logging system, update your imports:
 ```python
 # Old
 from social.utils.log_manager import LogManager, LogConfig, LogLevel
+from agent_tools.swarm_tools.browser.integration import BrowserLogger
 
 # New
 from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
+from dreamos.core.browser.logger import BrowserLogger
 ```
 
 ## Architecture

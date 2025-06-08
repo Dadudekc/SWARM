@@ -1,8 +1,9 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""Dream.OS Self-Discovery toolkit."""
 
-from . import journal
+from .journal import Journal      # noqa: F401
+from .prompts import DEFAULT_REFLECTION_PROMPT  # noqa: F401
 
 __all__ = [
-    'journal',
+    'Journal',
+    'DEFAULT_REFLECTION_PROMPT',
 ]

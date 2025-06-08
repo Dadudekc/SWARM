@@ -1,8 +1,8 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import agent_operations
+from . import bridge_outbox_handler
 
 __all__ = [
-    'agent_operations',
+    'bridge_outbox_handler',
 ]
