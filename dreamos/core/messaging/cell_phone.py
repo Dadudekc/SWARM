@@ -16,6 +16,7 @@ import asyncio
 import pyautogui
 import re
 from types import SimpleNamespace
+import math
 
 # The agent_tools.mailbox package is optional and may not be available in
 # minimal test environments. Import it lazily so that basic functionality of the
@@ -59,7 +60,7 @@ class MessageQueue:
         
     def _load_queue(self):
         """Load the queue from disk."""
-        if self.queue_path.exists():
+        if self.queue_path.exists() and self.queue_path.stat().st_size > 0:
             with open(self.queue_path, 'r') as f:
                 self.queue = json.load(f)
         else:
@@ -132,7 +133,7 @@ class CellPhone:
             prompt: Prompt to inject
             
         Returns:
-            True if injection successful
+            True if injection successful, False otherwise
         """
         try:
             # Get agent coordinates
@@ -142,8 +143,22 @@ class CellPhone:
                 
             coords = self.coordinates[agent_id]
             
+            # Validate coordinate types
+            x = coords.get("x")
+            y = coords.get("y")
+            
+            # Check for valid numeric types and values
+            if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
+                logger.error(f"Invalid coordinate types for agent {agent_id}: x={x}, y={y}")
+                return False
+                
+            # Check for infinite values
+            if math.isinf(x) or math.isinf(y):
+                logger.error(f"Invalid infinite coordinates for agent {agent_id}: x={x}, y={y}")
+                return False
+            
             # Click input field
-            pyautogui.click(coords["x"], coords["y"])
+            pyautogui.click(x, y)
             await asyncio.sleep(0.1)  # Wait for focus
             
             # Type prompt
@@ -248,8 +263,15 @@ def validate_phone_number(phone_number: str) -> bool:
     Returns:
         True if valid, False otherwise
     """
-    # Basic validation - can be enhanced based on requirements
-    return bool(phone_number and phone_number.replace('+', '').replace('-', '').replace(' ', '').isdigit())
+    # Remove all non-digit characters
+    digits = ''.join(filter(str.isdigit, phone_number))
+    
+    # Check if we have a valid number of digits
+    if len(digits) == 10:  # Standard US number
+        return True
+    elif len(digits) == 11 and digits.startswith('1'):  # US number with country code
+        return True
+    return False
 
 def format_phone_number(raw: str) -> str:
     """Formats a phone number into (123) 456-7890 style.
