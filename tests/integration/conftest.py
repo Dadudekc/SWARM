@@ -29,11 +29,11 @@ def setup_test_env():
     """Set up test environment."""
     # Create test directories
     test_dirs = [
-        "data/bridge_outbox",
-        "data/archive",
-        "data/failed",
-        "data/runtime/memory",
-        "logs"
+        Path("data/bridge_outbox"),
+        Path("data/archive"),
+        Path("data/failed"),
+        Path("data/runtime/memory"),
+        Path("logs")
     ]
     
     for dir_path in test_dirs:
@@ -43,7 +43,7 @@ def setup_test_env():
     
     # Clean up test directories
     for dir_path in test_dirs:
-        if Path(dir_path).exists():
+        if dir_path.exists():
             clean_dir(dir_path)
 
 @pytest.fixture

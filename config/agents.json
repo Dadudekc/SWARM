@@ -1,0 +1,11 @@
+[
+    {
+        "id": "test_agent",
+        "role": "test",
+        "capabilities": ["test"],
+        "config": {
+            "test_mode": true,
+            "bridge_enabled": true
+        }
+    }
+] 

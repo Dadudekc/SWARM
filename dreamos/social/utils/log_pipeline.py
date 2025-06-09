@@ -30,6 +30,7 @@ except Exception:  # pragma: no cover - unavailable on non-Windows
 from .log_entry import LogEntry
 from .log_rotator import LogRotator
 from .log_config import LogConfig
+from .log_level import LogLevel
 
 __all__ = [
     'LogPipeline',
@@ -51,80 +52,79 @@ class LogPipeline:
     """Pipeline for handling log entries with batching and platform-specific routing."""
     
     def __init__(self, config: LogConfig):
-        """Initialize the log pipeline.
+        """Initialize the pipeline.
         
         Args:
-            config: LogConfig instance containing pipeline configuration
+            config: Log configuration
         """
         self.config = config
         self.batch: List[LogEntry] = []
-        self.last_batch_time = time.time()
         self.running = False
+        self._lock = threading.Lock()
+        self._flush_thread = None
         
         # Ensure log directory exists
         self.config.log_dir.mkdir(parents=True, exist_ok=True)
     
-    def add_entry(self, entry: Dict[str, Any] | LogEntry) -> None:
+    def add_entry(self, entry: Union[Dict[str, Any], LogEntry]) -> None:
         """Add a log entry to the pipeline.
         
         Args:
-            entry: Dictionary or LogEntry containing log data
+            entry: Log entry dictionary or LogEntry object
         """
         if not self.running:
+            logger.warning("Pipeline not running, entry not added")
             return
             
-        # Validate required fields
         if isinstance(entry, dict):
+            # Validate required fields
             if "platform" not in entry or "message" not in entry:
-                raise ValueError("Log entry must contain 'platform' and 'message' fields")
-            
-            # Set defaults for optional fields
-            if "level" not in entry:
-                entry["level"] = self.config.level
-            if "timestamp" not in entry:
-                entry["timestamp"] = datetime.now().isoformat()
+                logger.error("Log entry missing required fields")
+                return
                 
+            # Set defaults
+            entry.setdefault("level", LogLevel.INFO.value)
+            entry.setdefault("timestamp", datetime.now().isoformat())
+            
+            # Convert to LogEntry
             entry = LogEntry(**entry)
-        
-        self.batch.append(entry)
-        
-        # Check if we need to flush
-        if (len(self.batch) >= self.config.batch_size or 
-            time.time() - self.last_batch_time >= self.config.batch_timeout):
-            self.flush()
+            
+        with self._lock:
+            self.batch.append(entry)
+            
+            # Flush if batch size reached
+            if len(self.batch) >= self.config.batch_size:
+                self.flush()
     
     def flush(self) -> None:
-        """Flush the current batch to log files."""
+        """Flush the current batch of log entries."""
         if not self.batch:
             return
             
-        # Group entries by platform
-        platform_entries: Dict[str, List[LogEntry]] = {}
-        for entry in self.batch:
-            platform = entry.platform
-            if platform not in platform_entries:
-                platform_entries[platform] = []
-            platform_entries[platform].append(entry)
-        
-        # Write entries to respective log files
-        for platform, entries in platform_entries.items():
-            log_file = self.config.platforms.get(platform)
-            if not log_file:
-                log_file = self.config.log_dir / f"{platform}.log"
-                self.config.platforms[platform] = log_file
+        with self._lock:
+            # Group entries by platform
+            platform_entries: Dict[str, List[LogEntry]] = {}
+            for entry in self.batch:
+                platform = entry.platform
+                if platform not in platform_entries:
+                    platform_entries[platform] = []
+                platform_entries[platform].append(entry)
             
-            # Ensure log file exists
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            log_file.touch(exist_ok=True)
+            # Write entries to platform-specific files
+            for platform, entries in platform_entries.items():
+                log_file = self.config.platforms.get(platform, self.config.log_file)
+                
+                try:
+                    log_file.parent.mkdir(parents=True, exist_ok=True)
+                    with open(log_file, 'a') as f:
+                        for entry in entries:
+                            json.dump(entry.to_dict(), f)
+                            f.write('\n')
+                except Exception as e:
+                    logger.error(f"Error writing to {platform} log: {e}")
             
-            # Write entries
-            with log_file.open("a", encoding="utf-8") as f:
-                for entry in entries:
-                    f.write(json.dumps(entry.to_dict()) + "\n")
-        
-        # Clear batch and update time
-        self.batch.clear()
-        self.last_batch_time = time.time()
+            # Clear batch
+            self.batch.clear()
     
     def get_log_info(self) -> Dict[str, Any]:
         """Get information about log files.
@@ -134,70 +134,80 @@ class LogPipeline:
         """
         info = {
             "total_size": 0,
-            "platforms": {},
-            "total_entries": 0
+            "platforms": {}
         }
         
-        try:
-            for platform, log_file in self.config.platforms.items():
+        for platform, log_file in self.config.platforms.items():
+            try:
                 if log_file.exists():
                     size = log_file.stat().st_size
                     info["total_size"] += size
                     
                     # Count entries
-                    entry_count = 0
-                    with log_file.open("r", encoding="utf-8") as f:
-                        for _ in f:
-                            entry_count += 1
+                    with open(log_file) as f:
+                        entry_count = sum(1 for _ in f)
                     
                     info["platforms"][platform] = {
                         "size": size,
                         "entries": entry_count
                     }
-                    info["total_entries"] += entry_count
-        except Exception as e:
-            print(f"Error getting log info: {e}")
-        
+            except Exception as e:
+                logger.error(f"Error getting info for {platform}: {e}")
+                
         return info
     
-    def read_logs(self, platform: str, level: Optional[str] = None) -> List[Dict[str, Any]]:
-        """Read log entries for a specific platform.
+    def read_logs(self, platform: Optional[str] = None, level: Optional[LogLevel] = None) -> List[Dict[str, Any]]:
+        """Read log entries.
         
         Args:
-            platform: Platform to read logs from
-            level: Optional log level to filter by
+            platform: Optional platform filter
+            level: Optional level filter
             
         Returns:
             List of log entries
         """
         entries = []
-        log_file = self.config.platforms.get(platform)
+        log_files = [self.config.platforms[platform]] if platform else self.config.platforms.values()
         
-        if not log_file or not log_file.exists():
-            return entries
-            
-        try:
-            with log_file.open("r", encoding="utf-8") as f:
-                for line in f:
-                    try:
-                        entry = json.loads(line)
-                        if level is None or entry.get("level") == level:
-                            entries.append(entry)
-                    except json.JSONDecodeError:
-                        continue
-        except Exception as e:
-            print(f"Error reading logs: {e}")
-            
+        for log_file in log_files:
+            try:
+                with open(log_file) as f:
+                    for line in f:
+                        try:
+                            entry = json.loads(line)
+                            if level is None or entry.get("level") == level.value:
+                                entries.append(entry)
+                        except json.JSONDecodeError:
+                            continue
+            except Exception as e:
+                logger.error(f"Error reading log file {log_file}: {e}")
+                
         return entries
     
     def start(self) -> None:
         """Start the pipeline."""
+        if self.running:
+            return
+            
         self.running = True
+        self._flush_thread = threading.Thread(target=self._flush_loop, daemon=True)
+        self._flush_thread.start()
     
     def stop(self) -> None:
-        """Stop the pipeline and flush any remaining entries."""
+        """Stop the pipeline."""
+        if not self.running:
+            return
+            
         self.running = False
+        if self._flush_thread:
+            self._flush_thread.join()
         self.flush()
+    
+    def _flush_loop(self) -> None:
+        """Background thread for periodic flushing."""
+        while self.running:
+            time.sleep(self.config.batch_timeout)
+            self.flush()
     
     def __del__(self):
         """Cleanup on deletion."""
