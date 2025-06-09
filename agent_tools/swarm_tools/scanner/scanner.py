@@ -1,5 +1,8 @@
 """Scanner module for analyzing project structure."""
 
+import warnings
+warnings.filterwarnings("ignore", category=RuntimeWarning, module="agent_tools.swarm_tools.scanner")
+
 import os
 from pathlib import Path
 from typing import List, Optional, Set
