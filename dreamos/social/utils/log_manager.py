@@ -18,6 +18,7 @@ from enum import Enum
 from .log_rotator import LogRotator
 from .log_types import RotationConfig
 from .log_config import LogConfig as BaseLogConfig, LogLevel
+from .log_pipeline import LogPipeline
 
 __all__ = [
     'LogLevel',
@@ -105,6 +106,7 @@ class LogManager:
             max_bytes=self.config.max_bytes
         )
         self._rotator = LogRotator(rotation_config)
+        self.pipeline = LogPipeline(self.config)
         self._setup_logging()
         self._initialized = True
 
@@ -149,7 +151,7 @@ class LogManager:
             self.logger.addHandler(file_handler)
             self._handlers[platform] = file_handler
     
-    def write_log(self, message: str, level: str = "INFO", platform: str = "system", **kwargs) -> None:
+    def write_log(self, platform: str, message: str, level: LogLevel = LogLevel.INFO, **kwargs) -> None:
         """Write a log entry."""
         try:
             # Update metrics
@@ -158,8 +160,21 @@ class LogManager:
             self._metrics['entries_by_platform'][platform] = self._metrics['entries_by_platform'].get(platform, 0) + 1
             
             # Log message
-            log_method = getattr(self.logger, level.lower(), self.logger.info)
-            log_method(message, extra=kwargs)
+            logger = logging.getLogger(f"dreamos.social.{platform}")
+            log_entry = {
+                "timestamp": datetime.now().isoformat(),
+                "level": level.value,
+                "message": message,
+                "platform": platform,
+                **kwargs
+            }
+            
+            # Add to pipeline
+            self.pipeline.add_entry(log_entry)
+            
+            # Log to file
+            log_method = getattr(logger, level.value.lower())
+            log_method(message)
             
         except Exception as e:
             self._metrics['errors'] += 1
@@ -167,53 +182,46 @@ class LogManager:
     
     def get_metrics(self) -> Dict[str, Any]:
         """Get current metrics."""
-        return dict(self._metrics)
+        metrics = {
+            "total_entries": self._metrics['total_entries'],
+            "platforms": {}
+        }
+        
+        for platform, log_file in self.config.platforms.items():
+            if log_file.exists():
+                size = log_file.stat().st_size
+                entries = len(self.read_logs(platform))
+                metrics["platforms"][platform] = {
+                    "size_bytes": size,
+                    "entries": entries
+                }
+        
+        return metrics
     
-    def read_logs(
-        self,
-        platform: Optional[str] = None,
-        level: Optional[str] = None,
-        start_time: Optional[datetime] = None,
-        end_time: Optional[datetime] = None,
-        limit: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
-        """Read log entries with optional filtering."""
-        try:
-            log_dir = Path(self.config.log_dir)
-            entries = []
+    def read_logs(self, platform: str, level: Optional[LogLevel] = None) -> List[Dict[str, Any]]:
+        """Read logs for a platform.
+        
+        Args:
+            platform: Platform name
+            level: Optional log level filter
             
-            # Get log file for platform
-            if platform and platform not in self.config.platforms:
-                raise ValueError(f"Invalid platform: {platform}")
-                
-            log_file = log_dir / self.config.platforms[platform]
-            
-            # Read and parse log file
-            with open(log_file, 'r') as f:
-                for line in f:
-                    try:
-                        entry = json.loads(line)
-                        if isinstance(entry, dict):
-                            # Apply filters
-                            if level and entry.get("level") != level:
-                                continue
-                            if start_time and datetime.fromisoformat(entry.get("timestamp", "")) < start_time:
-                                continue
-                            if end_time and datetime.fromisoformat(entry.get("timestamp", "")) > end_time:
-                                continue
-                            entries.append(entry)
-                    except json.JSONDecodeError:
-                        continue
-            
-            # Apply limit
-            if limit is not None:
-                entries = entries[-limit:]
-                
-            return entries
-            
-        except Exception as e:
-            logging.error(f"Error reading logs: {e}")
+        Returns:
+            List of log entries
+        """
+        log_file = self.config.get_platform_log(platform)
+        if not log_file or not log_file.exists():
             return []
+            
+        entries = []
+        with open(log_file, 'r') as f:
+            for line in f:
+                try:
+                    entry = json.loads(line)
+                    if level is None or entry.get("level") == level.value:
+                        entries.append(entry)
+                except json.JSONDecodeError:
+                    continue
+        return entries
     
     def cleanup(self) -> None:
         """Clean up old log files."""
@@ -288,20 +296,20 @@ class LogManager:
     
     def debug(self, platform: str, message: str, **kwargs) -> None:
         """Write debug log entry."""
-        self.write_log(message=message, level="DEBUG", platform=platform, **kwargs)
+        self.write_log(platform=platform, message=message, level="DEBUG", **kwargs)
     
     def info(self, platform: str, message: str, **kwargs) -> None:
         """Write info log entry."""
-        self.write_log(message=message, level="INFO", platform=platform, **kwargs)
+        self.write_log(platform=platform, message=message, level="INFO", **kwargs)
     
     def warning(self, platform: str, message: str, **kwargs) -> None:
         """Write warning log entry."""
-        self.write_log(message=message, level="WARNING", platform=platform, **kwargs)
+        self.write_log(platform=platform, message=message, level="WARNING", **kwargs)
     
     def error(self, platform: str, message: str, **kwargs) -> None:
         """Write error log entry."""
-        self.write_log(message=message, level="ERROR", platform=platform, **kwargs)
+        self.write_log(platform=platform, message=message, level="ERROR", **kwargs)
     
     def critical(self, platform: str, message: str, **kwargs) -> None:
         """Write critical log entry."""
-        self.write_log(message=message, level="CRITICAL", platform=platform, **kwargs)
+        self.write_log(platform=platform, message=message, level="CRITICAL", **kwargs)

@@ -69,4 +69,20 @@ class KeywordExtractor:
                 "frequency_ratio": min(count / total, 1.0)
             }
             for word, count in top_words
-        ] 
+        ]
+
+def extract(text: str, max_keywords: int = 5, min_length: int = 3) -> List[Dict[str, Any]]:
+    """Extract keywords from text using the default extractor.
+    
+    Args:
+        text: Text to extract keywords from
+        max_keywords: Maximum number of keywords to return
+        min_length: Minimum word length to consider
+        
+    Returns:
+        List of keywords with frequency ratios
+    """
+    extractor = KeywordExtractor()
+    return extractor.extract(text, max_keywords, min_length)
+
+__all__ = ['KeywordExtractor', 'extract'] 

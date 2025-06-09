@@ -119,3 +119,16 @@ class CoordinateManager:
     def list_agents(self) -> List[str]:
         """Return list of agent identifiers."""
         return sorted(self.coordinates.keys())
+
+__all__ = [
+    'CoordinateManager',
+    'load_coordinates',
+    'save_coordinates',
+    '_process_raw',
+    'get_coordinates',
+    'set_coordinates',
+    'get_agent_coordinates',
+    'get_input_box_coordinates',
+    'get_copy_button_coordinates',
+    'list_agents'
+]

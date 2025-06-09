@@ -1,70 +1,72 @@
-"""Logging configuration for the social media platform."""
+"""
+Log configuration module.
+"""
 
-import os
+from pathlib import Path
+from typing import Dict, Optional
 from dataclasses import dataclass, field
-from enum import Enum
-from typing import Optional
-
-class LogLevel(Enum):
-    """Log levels for the application."""
-    DEBUG = "DEBUG"
-    INFO = "INFO"
-    WARNING = "WARNING"
-    ERROR = "ERROR"
-    CRITICAL = "CRITICAL"
-
-# Default configuration values
-DEFAULT_MAX_SIZE_MB = 10
-DEFAULT_BATCH_SIZE = 1000
-DEFAULT_BATCH_TIMEOUT = 5  # seconds
-DEFAULT_MAX_FILES = 5
-DEFAULT_ROTATION_CHECK_INTERVAL = 60  # seconds
-DEFAULT_CLEANUP_INTERVAL = 3600  # seconds (1 hour)
-DEFAULT_COMPRESS_AFTER_DAYS = 7
-DEFAULT_LOG_DIR = "logs"
+from .log_level import LogLevel
 
 @dataclass
 class LogConfig:
     """Configuration for logging system."""
     
-    # Base paths
-    log_dir: str = DEFAULT_LOG_DIR
-    config_dir: str = "config"
-    data_dir: str = "data"
-    
-    # Log file settings
-    max_size_mb: int = DEFAULT_MAX_SIZE_MB
-    max_files: int = DEFAULT_MAX_FILES
-    compress_after_days: int = DEFAULT_COMPRESS_AFTER_DAYS
-    
-    # Batching settings
-    batch_size: int = DEFAULT_BATCH_SIZE
-    batch_timeout: int = DEFAULT_BATCH_TIMEOUT
-    
-    # Maintenance settings
-    rotation_check_interval: int = DEFAULT_ROTATION_CHECK_INTERVAL
-    cleanup_interval: int = DEFAULT_CLEANUP_INTERVAL
-    
-    # Logging settings
+    log_dir: Path
+    max_size_mb: int = 10
+    max_files: int = 5
+    batch_size: int = 100
+    batch_timeout: float = 5.0
     level: LogLevel = LogLevel.INFO
-    format: str = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
-    date_format: str = "%Y-%m-%d %H:%M:%S"
-    
-    # Optional settings
-    log_to_console: bool = True
-    log_to_file: bool = True
-    log_file: Optional[str] = None
+    platforms: Dict[str, Path] = field(default_factory=dict)
+    compress_after_days: int = 7
     
     def __post_init__(self):
-        """Ensure required directories exist."""
-        os.makedirs(self.log_dir, exist_ok=True)
-        os.makedirs(self.config_dir, exist_ok=True)
-        os.makedirs(self.data_dir, exist_ok=True)
-        
-        if self.log_file is None:
-            self.log_file = os.path.join(self.log_dir, "social.log")
+        """Initialize after dataclass creation."""
+        # Convert string path to Path if needed
+        if isinstance(self.log_dir, str):
+            self.log_dir = Path(self.log_dir)
             
+        # Create log directory if it doesn't exist
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize platform log files
+        self._init_platform_logs()
+    
+    def _init_platform_logs(self):
+        """Initialize log files for each platform."""
+        default_platforms = ["default", "system", "error"]
+        for platform in default_platforms:
+            log_file = self.log_dir / f"{platform}.log"
+            self.platforms[platform] = log_file
+            log_file.touch(exist_ok=True)
+    
     @property
     def max_bytes(self) -> int:
-        """Convert max_size_mb to bytes."""
+        """Get maximum log file size in bytes."""
         return self.max_size_mb * 1024 * 1024
+    
+    def add_platform(self, platform: str) -> Path:
+        """Add a new platform log file.
+        
+        Args:
+            platform: Platform name
+            
+        Returns:
+            Path to platform log file
+        """
+        if platform not in self.platforms:
+            log_file = self.log_dir / f"{platform}.log"
+            self.platforms[platform] = log_file
+            log_file.touch(exist_ok=True)
+        return self.platforms[platform]
+    
+    def get_platform_log(self, platform: str) -> Optional[Path]:
+        """Get log file path for a platform.
+        
+        Args:
+            platform: Platform name
+            
+        Returns:
+            Path to platform log file or None if not found
+        """
+        return self.platforms.get(platform)

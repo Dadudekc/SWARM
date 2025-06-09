@@ -29,6 +29,7 @@ except Exception:  # pragma: no cover - unavailable on non-Windows
 
 from .log_entry import LogEntry
 from .log_rotator import LogRotator
+from .log_config import LogConfig
 
 __all__ = [
     'LogPipeline',
@@ -49,25 +50,16 @@ logger = logging.getLogger(__name__)
 class LogPipeline:
     """Unified log handling system combining batching and reading functionality."""
     
-    def __init__(
-        self,
-        log_dir: str,
-        batch_size: int = 1000,
-        batch_timeout: float = 5.0,
-        max_retries: int = 10
-    ):
-        """Initialize log pipeline.
+    def __init__(self, config: LogConfig):
+        """Initialize the log pipeline.
         
         Args:
-            log_dir: Directory to write/read log files
-            batch_size: Maximum number of entries per batch
-            batch_timeout: Maximum time to wait before flushing (seconds)
-            max_retries: Maximum number of retries for file operations
+            config: Log configuration
         """
-        self.log_dir = Path(log_dir)
-        self.batch_size = batch_size
-        self.batch_timeout = batch_timeout
-        self.max_retries = max_retries
+        self.config = config
+        self.batch: List[Dict[str, Any]] = []
+        self.last_batch_time = time.time()
+        self._running = False
         
         # Batching state
         self.entries = []
@@ -79,7 +71,7 @@ class LogPipeline:
         self._file_locks = {}
         
         # Ensure log directory exists
-        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.config.log_dir.mkdir(parents=True, exist_ok=True)
         
         # Register cleanup
         atexit.register(self.stop)
@@ -142,7 +134,7 @@ class LogPipeline:
     
     def _wait_for_file_unlock(self, file_path: str) -> bool:
         """Wait for file to be unlocked with exponential backoff."""
-        for attempt in range(self.max_retries):
+        for attempt in range(self.config.max_retries):
             try:
                 if platform.system() == 'Windows':
                     if not self._is_file_locked(file_path):
@@ -157,189 +149,148 @@ class LogPipeline:
             except (OSError, pywintypes.error) as e:
                 logger.warning(f"Wait for unlock failed (attempt {attempt+1}) for {file_path}: {e}")
                 time.sleep(0.2 + 0.1 * attempt)
-        logger.error(f"File {file_path} could not be unlocked after {self.max_retries} attempts.")
+        logger.error(f"File {file_path} could not be unlocked after {self.config.max_retries} attempts.")
         return False
     
-    def add_entry(self, entry: Union[Dict[str, Any], LogEntry]) -> None:
-        """Add a log entry to the batch.
+    def add_entry(self, entry: Dict[str, Any]) -> None:
+        """Add an entry to the batch.
         
         Args:
-            entry: Log entry as dict or LogEntry object
+            entry: Log entry to add
         """
         try:
-            # Convert dict to LogEntry if needed
-            if isinstance(entry, dict):
-                if "platform" not in entry:
-                    raise ValueError("Platform must be specified")
-                if "message" not in entry:
-                    raise ValueError("Message must be specified")
-                    
-                # Set defaults if not provided
-                if "level" not in entry:
-                    entry["level"] = "INFO"
-                if "timestamp" not in entry:
-                    entry["timestamp"] = datetime.now()
-                    
-                entry = LogEntry(**entry)
-                
-            # Check if we need to flush
-            if (datetime.now() - self.last_batch_time).total_seconds() >= self.batch_timeout:
-                self.flush()
-                
-            # Add to batch
-            self.entries.append(entry)
+            # Validate required fields
+            if "platform" not in entry:
+                raise ValueError("Platform must be specified")
+            if "message" not in entry:
+                raise ValueError("Message must be specified")
             
-            # Flush if batch is full
-            if len(self.entries) >= self.batch_size:
+            # Set defaults
+            if "level" not in entry:
+                entry["level"] = "INFO"
+            if "timestamp" not in entry:
+                entry["timestamp"] = datetime.now().isoformat()
+            
+            # Convert dict to LogEntry if needed
+            if not isinstance(entry, LogEntry):
+                entry = LogEntry.from_dict(entry)
+            
+            # Check if we need to flush
+            current_time = time.time()
+            if (current_time - self.last_batch_time >= self.config.batch_timeout or 
+                len(self.batch) >= self.config.batch_size):
                 self.flush()
-                
+            
+            # Add to batch
+            self.batch.append(entry.to_dict())
+            
         except Exception as e:
             logger.error(f"Error adding entry to batch: {e}")
-            raise
     
     def flush(self) -> None:
         """Flush the current batch to log files."""
-        if not self.entries:
+        if not self.batch:
             return
-        
+            
         try:
             # Group entries by platform
-            platform_entries = {}
-            for entry in self.entries:
-                if entry.platform not in platform_entries:
-                    platform_entries[entry.platform] = []
-                platform_entries[entry.platform].append(entry)
-                
-            # Write entries for each platform
+            platform_entries: Dict[str, List[Dict[str, Any]]] = {}
+            for entry in self.batch:
+                platform = entry["platform"]
+                if platform not in platform_entries:
+                    platform_entries[platform] = []
+                platform_entries[platform].append(entry)
+            
+            # Write to platform log files
             for platform, entries in platform_entries.items():
-                log_file = self.log_dir / f"{platform}.log"
+                log_file = self.config.get_platform_log(platform)
+                if not log_file:
+                    log_file = self.config.add_platform(platform)
                 
-                # Ensure log file exists
-                log_file.parent.mkdir(exist_ok=True)
-                if not log_file.exists():
-                    log_file.touch()
-                    
+                # Ensure file exists
+                log_file.touch(exist_ok=True)
+                
                 # Write entries
-                with open(log_file, "a") as f:
+                with open(log_file, 'a') as f:
                     for entry in entries:
-                        f.write(json.dumps(entry.to_dict()) + "\n")
-                    
-            # Clear batch and update last batch time
-            self.entries.clear()
-            self.last_batch_time = datetime.now()
+                        f.write(json.dumps(entry) + '\n')
+            
+            # Clear batch and update time
+            self.batch.clear()
+            self.last_batch_time = time.time()
             
         except Exception as e:
-            logger.error(f"Error flushing log batch: {e}")
-            raise
-    
-    def read_logs(
-        self,
-        platform: Optional[str] = None,
-        level: Optional[str] = None,
-        limit: Optional[int] = None
-    ) -> List[Dict[str, Any]]:
-        """Read log entries with filtering.
-        
-        Args:
-            platform: Optional platform to filter by
-            level: Optional log level to filter by
-            limit: Optional maximum number of entries to return
-            
-        Returns:
-            List[Dict[str, Any]]: Filtered log entries
-        """
-        entries = []
-        try:
-            if platform:
-                log_files = [self.log_dir / f"{platform}.json"]
-            else:
-                log_files = list(self.log_dir.glob("*.json"))
-                
-            for log_file in log_files:
-                if not log_file.exists():
-                    continue
-                    
-                if not self._wait_for_file_unlock(log_file):
-                    logger.warning(f"Could not unlock file {log_file}")
-                    continue
-                    
-                try:
-                    with open(log_file, 'r') as f:
-                        content = f.read()
-                        if not content:
-                            continue
-                            
-                        file_entries = json.loads(content)
-                        if not isinstance(file_entries, list):
-                            file_entries = [file_entries]
-                            
-                        for entry in file_entries:
-                            if level and entry.get("level") != level:
-                                continue
-                            entries.append(entry)
-                            if limit and len(entries) >= limit:
-                                break
-                                
-                except Exception as e:
-                    logger.error(f"Error reading log file {log_file}: {e}")
-                    continue
-                    
-            # Sort by timestamp and apply limit
-            entries.sort(key=lambda x: x.get("timestamp", ""), reverse=True)
-            if limit:
-                entries = entries[:limit]
-                
-            return entries
-            
-        except Exception as e:
-            logger.error(f"Error reading logs: {e}")
-            return []
+            logger.error(f"Error flushing batch: {e}")
     
     def get_log_info(self) -> Dict[str, Any]:
         """Get information about log files.
         
         Returns:
-            Dict containing log file information
+            Dictionary with log file information
         """
         try:
             info = {
-                "platforms": {},
                 "total_size": 0,
-                "total_entries": 0
+                "total_entries": 0,
+                "platforms": {}
             }
             
-            # Get all log files
-            log_dir = Path(self.log_dir)
-            for log_file in log_dir.glob("*.log"):
-                platform = log_file.stem
-                size = log_file.stat().st_size
-                
-                # Count entries
-                entry_count = 0
-                with open(log_file) as f:
-                    for _ in f:
-                        entry_count += 1
-                    
-                info["platforms"][platform] = {
-                    "size": size,
-                    "entries": entry_count
-                }
-                info["total_size"] += size
-                info["total_entries"] += entry_count
-                
+            for platform, log_file in self.config.platforms.items():
+                if log_file.exists():
+                    size = log_file.stat().st_size
+                    entries = len(self.read_logs(platform))
+                    info["platforms"][platform] = {
+                        "size_bytes": size,
+                        "entries": entries
+                    }
+                    info["total_size"] += size
+                    info["total_entries"] += entries
+            
             return info
             
         except Exception as e:
             logger.error(f"Error getting log info: {e}")
-            return {"platforms": {}, "total_size": 0, "total_entries": 0}
+            return {
+                "total_size": 0,
+                "total_entries": 0,
+                "platforms": {}
+            }
+    
+    def read_logs(self, platform: str) -> List[Dict[str, Any]]:
+        """Read logs for a platform.
+        
+        Args:
+            platform: Platform name
+            
+        Returns:
+            List of log entries
+        """
+        log_file = self.config.get_platform_log(platform)
+        if not log_file or not log_file.exists():
+            return []
+            
+        entries = []
+        with open(log_file, 'r') as f:
+            for line in f:
+                try:
+                    entry = json.loads(line)
+                    entries.append(entry)
+                except json.JSONDecodeError:
+                    continue
+        return entries
+    
+    def start(self) -> None:
+        """Start the pipeline."""
+        if self._running:
+            raise RuntimeError("Pipeline is already running")
+        self._running = True
     
     def stop(self) -> None:
-        """Stop pipeline and flush any remaining entries."""
-        with self._lock:
-            if not self._shutdown:
-                self._shutdown = True
-                self.flush()
-                self._file_locks.clear()
+        """Stop the pipeline."""
+        if not self._running:
+            raise RuntimeError("Pipeline is not running")
+        self.flush()
+        self._running = False
     
     def __del__(self):
         """Cleanup on deletion."""

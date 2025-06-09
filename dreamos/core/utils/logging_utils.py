@@ -294,6 +294,10 @@ def log_platform_event(
     # Store in global events list
     _events.append(event)
     
+    # Store in platform logger if it exists
+    if hasattr(logger, 'platform_logger'):
+        logger.platform_logger.events.append(event)
+    
     # Log to logger
     log_level = logging.INFO if status == 'success' else logging.ERROR
     logger.log(log_level, event)

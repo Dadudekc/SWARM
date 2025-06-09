@@ -274,3 +274,19 @@ class AuthManager:
                 data = json.load(f)
                 
             self.users = data['users'] 
+
+__all__ = [
+    'AuthManager',
+    'AuthError',
+    'register_user',
+    'authenticate',
+    'validate_token',
+    'get_user_info',
+    'update_user_metadata',
+    'assign_role',
+    'remove_role',
+    '_is_locked_out',
+    '_record_failed_attempt',
+    'save_users',
+    'load_users'
+] 

@@ -249,24 +249,11 @@ def validate_phone_number(phone_number: str) -> bool:
     # Basic validation - can be enhanced based on requirements
     return bool(phone_number and phone_number.replace('+', '').replace('-', '').replace(' ', '').isdigit())
 
-def format_phone_number(phone_number: str) -> str:
-    """
-    Format a phone number to a standard format.
-    
-    Args:
-        phone_number: Phone number to format
-        
-    Returns:
-        Formatted phone number
-    """
-    # Remove all non-digit characters
-    digits = ''.join(filter(str.isdigit, phone_number))
-    
-    # Add country code if missing
-    if not digits.startswith('1') and len(digits) == 10:
-        digits = '1' + digits
-    
-    return f"+{digits}"
+def format_phone_number(number: str) -> str:
+    """Formats a phone number into (123) 456-7890 style."""
+    if len(number) == 10 and number.isdigit():
+        return f"({number[:3]}) {number[3:6]}-{number[6:]}"
+    return number
 
 # Remove legacy CLI/test harness code below this line
 # (No argparse, no __main__ block, no legacy CLI functions) 
@@ -281,19 +268,10 @@ class CaptainPhone(CellPhone):
             cls._instance = super().__new__(cls)
         return cls._instance
     
-    def __init__(self, config: Dict):
-        """Initialize the captain phone.
-        
-        Args:
-            config: Configuration dictionary containing:
-                - message_handler: MessageHandler instance
-                - agent_id: ID of this agent (should be 'captain')
-        """
-        if not hasattr(self, 'initialized'):
-            super().__init__(config)
-            if self.agent_id != 'captain':
-                raise ValueError("CaptainPhone must be initialized with agent_id='captain'")
-            self.initialized = True
+    def __init__(self, config: Optional[Dict] = None):
+        if not hasattr(self, 'agent_id'):
+            self.agent_id = "captain"
+            super().__init__(config or {})
     
     @classmethod
     def reset_singleton(cls):

@@ -1,10 +1,9 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""Scanner package for project analysis."""
 
-from . import dry_scanner
-from . import scanner
+from .scanner import Scanner
+from .dry_scanner import DryScanner
 
 __all__ = [
-    'dry_scanner',
-    'scanner',
+    'Scanner',
+    'DryScanner',
 ]

@@ -127,17 +127,52 @@ def restore_backup(src: Path, backup_dir: Path) -> None:  # noqa: D401
 
 def load_yaml(path: Path | str) -> dict:  # noqa: D401
     """
-    Thin shim for tests that expect a yaml-loader in file_utils.
-    Uses `yaml.safe_load`.  Returns empty dict on FileNotFoundError.
+    Read YAML data from a file.
+    
+    Args:
+        path: Path to the YAML file
+        
+    Returns:
+        Dict containing the YAML data
+        
+    Raises:
+        FileNotFoundError: If file doesn't exist
+        yaml.YAMLError: If file contains invalid YAML
     """
-
-    from yaml import safe_load
-
+    from yaml import safe_load, YAMLError
+    
     try:
         with open(path, "r", encoding="utf-8") as fh:
             return safe_load(fh) or {}
     except FileNotFoundError:
         return {}
+    except YAMLError as e:
+        raise YAMLError(f"Invalid YAML in file {path}: {str(e)}")
+
+def save_yaml(data: dict, path: Path | str) -> None:  # noqa: D401
+    """
+    Write YAML data to a file.
+    
+    Args:
+        data: Dict to write as YAML
+        path: Path to write the YAML file to
+        
+    Raises:
+        OSError: If file cannot be written
+        yaml.YAMLError: If data cannot be serialized to YAML
+    """
+    from yaml import safe_dump, YAMLError
+    
+    try:
+        # Ensure parent directory exists
+        os.makedirs(os.path.dirname(path), exist_ok=True)
+        
+        with open(path, "w", encoding="utf-8") as fh:
+            safe_dump(data, fh, default_flow_style=False)
+    except (OSError, IOError) as e:
+        raise OSError(f"Failed to write YAML file {path}: {str(e)}")
+    except YAMLError as e:
+        raise YAMLError(f"Data cannot be serialized to YAML: {str(e)}")
 
 __all__ = [
     "atomic_write",
@@ -157,4 +192,6 @@ __all__ = [
     "load_json",
     "save_json",
     "async_save_json",
+    "read_yaml",
+    "save_yaml",
 ]

@@ -20,6 +20,27 @@ from types import SimpleNamespace
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
+# Create test directories
+TEST_ROOT = Path(__file__).parent
+TEST_DATA_DIR = TEST_ROOT / "data"
+TEST_OUTPUT_DIR = TEST_ROOT / "output"
+TEST_CONFIG_DIR = TEST_ROOT / "config"
+TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
+TEST_TEMP_DIR = TEST_ROOT / "temp"
+VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
+
+# Ensure test directories exist
+for dir_path in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR, TEST_CONFIG_DIR, VOICE_QUEUE_DIR]:
+    dir_path.mkdir(parents=True, exist_ok=True)
+
+# Now import test utilities
+from tests.utils.test_utils import (
+    ensure_test_dirs,
+    test_output_dir,
+    create_temp_outbox,
+    safe_remove
+)
+
 def safe_delete(path: Path, retries: int = 3, delay: float = 0.2) -> None:
     """Safely delete a file with retries and GC flush.
     
