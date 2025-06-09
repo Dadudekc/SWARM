@@ -87,404 +87,124 @@ class LogLevel(Enum):
     CRITICAL = "CRITICAL"
 
 class LogWriter:
-    """Handles writing log entries to files."""
+    """Handles writing log entries to files with rotation and cleanup."""
     
-    def __init__(self, log_dir: str, config: LogConfig):
-        """Initialize log writer.
+    def __init__(self, config: LogConfig):
+        """Initialize the log writer.
         
         Args:
-            log_dir: Directory to store log files
+            config: LogConfig instance containing writer configuration
         """
-        self.log_dir = Path(log_dir).resolve()
-        self._config = config
-        self._metrics = LogMetrics(self._config)
-        self._logger = logging.getLogger(self.__class__.__name__)
-        self._file_handles = {}
-        self._lock = threading.Lock()
-        self._file_locks = {}
-        self.rotator = None  # Will be set by LogManager
-        
-        # Register cleanup on exit
-        atexit.register(self._cleanup_all_locks)
-        
-        # Ensure log directory exists with proper permissions
+        self.config = config
         self._ensure_log_dir()
     
     def _ensure_log_dir(self) -> None:
-        """Ensure log directory exists with proper permissions."""
-        try:
-            self.log_dir.mkdir(parents=True, exist_ok=True)
-            if platform_module.system() != 'nt':  # Not Windows
-                os.chmod(self.log_dir, 0o700)
-        except Exception as e:
-            logger.error(f"Failed to create log directory: {e}")
-            raise
+        """Ensure log directory exists."""
+        self.config.log_dir.mkdir(parents=True, exist_ok=True)
     
-    def _cleanup_all_locks(self) -> None:
-        """Clean up all file locks."""
-        for file_path, lock_info in list(self._file_locks.items()):
-            try:
-                if 'file' in lock_info:
-                    lock_info['file'].close()
-            except Exception as e:
-                logger.error(f"Error cleaning up lock for {file_path}: {e}")
-            finally:
-                self._file_locks.pop(file_path, None)
-    
-    @contextmanager
-    def _get_file_lock(self, file_path: Union[str, Path], mode: str = 'a', timeout: float = 5.0) -> TextIO:
-        """Get a file lock for writing.
-        
-        Args:
-            file_path: Path to file
-            mode: File open mode ('a' for append, 'w' for write)
-            timeout: Maximum time to wait for lock in seconds
-            
-        Yields:
-            File handle with lock
-            
-        Raises:
-            TimeoutError: If lock cannot be acquired within timeout
-            IOError: If file cannot be opened
-        """
-        file_path = Path(file_path).resolve()
-        lock_file = file_path.with_suffix(file_path.suffix + '.lock')
-        start_time = time.time()
-        
-        try:
-            # Ensure parent directory exists
-            file_path.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Try to acquire lock
-            while time.time() - start_time < timeout:
-                try:
-                    if platform_module.system() == 'Windows':
-                        # Try to create/access lock file
-                        handle = win32file.CreateFile(
-                            str(lock_file),
-                            win32con.GENERIC_READ | win32con.GENERIC_WRITE,
-                            0,  # No sharing
-                            None,
-                            win32con.OPEN_ALWAYS,
-                            win32con.FILE_ATTRIBUTE_NORMAL,
-                            None
-                        )
-                        
-                        # Try to lock the file
-                        try:
-                            win32file.LockFileEx(
-                                handle,
-                                LOCK_EX | LOCK_NB,
-                                0,
-                                0xFFFFFFFF,
-                                pywintypes.OVERLAPPED()
-                            )
-                            # Lock acquired
-                            break
-                        except pywintypes.error as e:
-                            # Lock failed, close handle and retry
-                            win32file.CloseHandle(handle)
-                            if e.winerror != 33:  # ERROR_LOCK_VIOLATION
-                                raise
-                            time.sleep(0.1)
-                            continue
-                    else:
-                        # Unix-style locking
-                        f = open(lock_file, 'a')
-                        try:
-                            fcntl.flock(f.fileno(), LOCK_EX | LOCK_NB)
-                            # Lock acquired
-                            break
-                        except IOError:
-                            f.close()
-                            time.sleep(0.1)
-                            continue
-                except Exception as e:
-                    if time.time() - start_time >= timeout:
-                        raise TimeoutError(f"Could not acquire lock for {file_path} after {timeout} seconds")
-                    time.sleep(0.1)
-                    continue
-            
-            # Open the actual file
-            try:
-                file_existed = Path(file_path).exists()
-                f = open(file_path, mode)
-                if not file_existed and platform_module.system() != 'Windows':
-                    os.chmod(file_path, 0o600)
-                if platform_module.system() == 'Windows':
-                    self._file_locks[file_path] = {'handle': handle, 'file': f}
-                else:
-                    self._file_locks[file_path] = {'file': f, 'lock_file': lock_file}
-                yield f
-            except Exception as e:
-                # Clean up lock if file open fails
-                if platform_module.system() == 'Windows':
-                    win32file.CloseHandle(handle)
-                else:
-                    fcntl.flock(f.fileno(), LOCK_UN)
-                    f.close()
-                raise IOError(f"Could not open file {file_path}: {e}")
-                
-        except Exception as e:
-            if isinstance(e, TimeoutError):
-                raise
-            raise IOError(f"Error acquiring lock for {file_path}: {e}")
-            
-        finally:
-            # Clean up lock
-            if file_path in self._file_locks:
-                lock_info = self._file_locks[file_path]
-                try:
-                    if platform_module.system() == 'Windows':
-                        win32file.UnlockFileEx(
-                            lock_info['handle'],
-                            0,
-                            0xFFFFFFFF,
-                            pywintypes.OVERLAPPED()
-                        )
-                        win32file.CloseHandle(lock_info['handle'])
-                    else:
-                        fcntl.flock(lock_info['file'].fileno(), LOCK_UN)
-                    lock_info['file'].close()
-                except Exception as e:
-                    logger.error(f"Error releasing lock for {file_path}: {e}")
-                finally:
-                    self._file_locks.pop(file_path, None)
-    
-    def write_log(self, platform_or_entry: Union[str, Dict[str, Any]], level: Optional[str] = None, message: Optional[str] = None, format: str = "json") -> None:
+    def write_log(self, platform: str, message: str, level: str = "INFO") -> None:
         """Write a log entry.
         
         Args:
-            platform_or_entry: Either platform name or complete log entry dict
-            level: Log level (if platform_or_entry is platform name)
-            message: Log message (if platform_or_entry is platform name)
-            format: Output format ("json" or "text")
+            platform: Platform name
+            message: Log message
+            level: Log level
         """
-        try:
-            if isinstance(platform_or_entry, dict):
-                entry = platform_or_entry
-                platform = entry.get('platform', 'unknown')
-            else:
-                platform = platform_or_entry
-                entry = {
-                    'platform': platform,
-                    'level': level,
-                    'message': message,
-                    'timestamp': datetime.now().isoformat()
-                }
-            
-            # Handle log level
-            level = entry.get('level')
-            if level:
-                try:
-                    level = LogLevel(level.upper())
-                except ValueError:
-                    raise ValueError(f"Invalid log level: {level}")
-            
-            # Create log entry
-            log_entry = {
-                'timestamp': entry.get('timestamp', datetime.now().isoformat()),
-                'level': level.value if isinstance(level, LogLevel) else level,
-                'message': entry.get('message', ''),
-                'platform': platform,
-                'status': entry.get('status', 'info'),
-                'tags': entry.get('tags', []),
-                'metadata': entry.get('metadata', {})
-            }
-            
-            # Write entry
-            if format == "json":
-                self.write_log_json(platform, log_entry)
-            else:
-                self.write_log_text(platform, log_entry)
-                
-        except Exception as e:
-            logging.error(f"Error writing log: {e}")
-            raise
-
-    def write_log_json(self, platform: str, data: Dict[str, Any]) -> None:
+        entry = LogEntry(
+            platform=platform,
+            message=message,
+            level=level,
+            timestamp=datetime.now().isoformat()
+        )
+        self.write_log_json(entry.to_dict())
+    
+    def write_log_json(self, entry: Dict[str, Any]) -> None:
         """Write a log entry in JSON format.
         
         Args:
-            platform: Platform identifier
-            data: Log entry data
+            entry: Log entry dictionary
         """
-        log_file = self.log_dir / f"{platform}.log"
+        if "platform" not in entry:
+            raise ValueError("Platform must be specified")
+            
+        platform = entry["platform"]
+        log_file = self.config.platforms.get(platform)
         
-        try:
-            with self._get_file_lock(log_file, 'a') as f:
-                # Read existing entries
-                entries = []
-                try:
-                    content = f.read()
-                    if content:
-                        try:
-                            # Try to parse as JSON array first
-                            entries = json.loads(content)
-                            if not isinstance(entries, list):
-                                entries = [entries]
-                        except json.JSONDecodeError:
-                            # If not valid JSON array, try line by line
-                            entries = []
-                            for line in content.splitlines():
-                                if line.strip():
-                                    try:
-                                        entry = json.loads(line)
-                                        entries.append(entry)
-                                    except json.JSONDecodeError:
-                                        logging.warning(f"Skipping invalid JSON line: {line}")
-                except Exception as e:
-                    logging.error(f"Error reading existing log entries: {e}")
-                
-                # Add new entry
-                entries.append(data)
-                
-                # Write back all entries
-                f.seek(0)
-                f.truncate()
-                json.dump(entries, f, indent=2)
-                f.write('\n')  # Add newline for readability
-                
-        except Exception as e:
-            logging.error(f"Error writing JSON log: {e}")
-            raise
-
-    def read_logs(self, platform: str, start_time: Optional[datetime] = None, 
-                 end_time: Optional[datetime] = None) -> List[Dict[str, Any]]:
-        """Read log entries.
+        if not log_file:
+            log_file = self.config.log_dir / f"{platform}.log"
+            self.config.platforms[platform] = log_file
+        
+        # Ensure log file exists
+        log_file.parent.mkdir(parents=True, exist_ok=True)
+        log_file.touch(exist_ok=True)
+        
+        # Write entry
+        with log_file.open("a", encoding="utf-8") as f:
+            f.write(json.dumps(entry) + "\n")
+    
+    def read_logs(self, platform: str, level: Optional[str] = None) -> List[Dict[str, Any]]:
+        """Read log entries for a platform.
         
         Args:
-            platform: Platform identifier
-            start_time: Start time filter
-            end_time: End time filter
+            platform: Platform name
+            level: Optional log level to filter by
             
         Returns:
             List of log entries
         """
-        log_file = self.log_dir / f"{platform}.log"
         entries = []
+        log_file = self.config.platforms.get(platform)
+        
+        if not log_file or not log_file.exists():
+            return entries
+            
+        try:
+            with log_file.open("r", encoding="utf-8") as f:
+                for line in f:
+                    try:
+                        entry = json.loads(line)
+                        if level is None or entry.get("level") == level:
+                            entries.append(entry)
+                    except json.JSONDecodeError:
+                        continue
+        except Exception as e:
+            print(f"Error reading logs: {e}")
+            
+        return entries
+    
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get metrics about log files.
+        
+        Returns:
+            Dictionary containing metrics
+        """
+        metrics = {
+            "total_size": 0,
+            "platforms": {},
+            "total_entries": 0
+        }
         
         try:
-            with self._get_file_lock(log_file, 'r') as f:
-                try:
-                    content = f.read()
-                    if content:
-                        try:
-                            # Try to parse as JSON array first
-                            entries = json.loads(content)
-                            if not isinstance(entries, list):
-                                entries = [entries]
-                        except json.JSONDecodeError:
-                            # If not valid JSON array, try line by line
-                            entries = []
-                            for line in content.splitlines():
-                                if line.strip():
-                                    try:
-                                        entry = json.loads(line)
-                                        entries.append(entry)
-                                    except json.JSONDecodeError:
-                                        logging.warning(f"Skipping invalid JSON line: {line}")
-                except Exception as e:
-                    logging.error(f"Error reading log entries: {e}")
-                
-                # Apply time filters
-                if start_time or end_time:
-                    filtered_entries = []
-                    for entry in entries:
-                        try:
-                            entry_time = datetime.fromisoformat(entry['timestamp'])
-                            if start_time and entry_time < start_time:
-                                continue
-                            if end_time and entry_time > end_time:
-                                continue
-                            filtered_entries.append(entry)
-                        except (KeyError, ValueError) as e:
-                            logging.warning(f"Skipping entry with invalid timestamp: {e}")
-                    entries = filtered_entries
-                
-                return entries
-                
+            for platform, log_file in self.config.platforms.items():
+                if log_file.exists():
+                    size = log_file.stat().st_size
+                    metrics["total_size"] += size
+                    
+                    # Count entries
+                    entry_count = 0
+                    with log_file.open("r", encoding="utf-8") as f:
+                        for _ in f:
+                            entry_count += 1
+                    
+                    metrics["platforms"][platform] = {
+                        "size": size,
+                        "entries": entry_count
+                    }
+                    metrics["total_entries"] += entry_count
         except Exception as e:
-            logging.error(f"Error reading logs: {e}")
-            return []
-
-    def cleanup_old_logs(self, max_age_days: int) -> None:
-        """Clean up old log files.
+            print(f"Error getting metrics: {e}")
         
-        Args:
-            max_age_days: Maximum age of log files in days
-        """
-        try:
-            cutoff_time = datetime.now() - timedelta(days=max_age_days)
-            
-            for log_file in self.log_dir.glob('*.log'):
-                try:
-                    if log_file.stat().st_mtime < cutoff_time.timestamp():
-                        with self._get_file_lock(log_file) as f:
-                            f.close()  # Ensure file is closed before deletion
-                        log_file.unlink()
-                except Exception as e:
-                    logger.error(f"Error cleaning up old log file {log_file}: {e}")
-        except Exception as e:
-            logger.error(f"Error in cleanup_old_logs: {e}")
-            raise
-
-    def record_metric(self, metric_type: str, value: float, tags: Optional[List[str]] = None, metadata: Optional[Dict[str, Any]] = None) -> None:
-        """Record a metric.
-        
-        Args:
-            metric_type: Type of metric
-            value: Metric value
-            tags: Optional tags
-            metadata: Optional metadata
-        """
-        self._metrics.record_metric(metric_type, value, tags, metadata)
-        
-    def get_metrics(self, metric_type: Optional[str] = None, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> Dict[str, Any]:
-        """Get metrics with optional filtering.
-        
-        Args:
-            metric_type: Optional metric type to filter by
-            start_time: Optional start time to filter by
-            end_time: Optional end time to filter by
-            
-        Returns:
-            Dictionary of metric entries
-        """
-        return self._metrics.get_metrics(metric_type, start_time, end_time)
-        
-    def get_summary(self, metric_type: Optional[str] = None, start_time: Optional[datetime] = None, end_time: Optional[datetime] = None) -> Dict[str, Any]:
-        """Get metric summary statistics.
-        
-        Args:
-            metric_type: Optional metric type to filter by
-            start_time: Optional start time to filter by
-            end_time: Optional end time to filter by
-            
-        Returns:
-            Dictionary of summary statistics
-        """
-        return self._metrics.get_summary(metric_type, start_time, end_time)
-        
-    def save_metrics(self, filepath: Optional[str] = None) -> None:
-        """Save metrics to file.
-        
-        Args:
-            filepath: Optional file path to save to
-        """
-        self._metrics.save_metrics(filepath)
-        
-    def load_metrics(self, filepath: Optional[str] = None) -> None:
-        """Load metrics from file.
-        
-        Args:
-            filepath: Optional file path to load from
-        """
-        self._metrics.load_metrics(filepath)
-        
-    def clear_metrics(self) -> None:
-        """Clear all metrics."""
-        self._metrics.clear_metrics()
+        return metrics
 
 def write_json_log(platform: str, status: str, message: str, level: str = "INFO", 
                   tags: Optional[List[str]] = None, metadata: Optional[Dict[str, Any]] = None,

@@ -16,6 +16,20 @@ from .security_config import SecurityConfig
 from .identity_utils import IdentityUtils
 from .session_manager import SessionManager
 
+__all__ = [
+    'AuthError',
+    'AuthManager',
+    'register_user',
+    'authenticate',
+    'validate_token',
+    'get_user_info',
+    'update_user_metadata',
+    'assign_role',
+    'remove_role',
+    'save_users',
+    'load_users'
+]
+
 class AuthError(Exception):
     """Base class for authentication errors."""
     pass
@@ -274,19 +288,3 @@ class AuthManager:
                 data = json.load(f)
                 
             self.users = data['users'] 
-
-__all__ = [
-    'AuthManager',
-    'AuthError',
-    'register_user',
-    'authenticate',
-    'validate_token',
-    'get_user_info',
-    'update_user_metadata',
-    'assign_role',
-    'remove_role',
-    '_is_locked_out',
-    '_record_failed_attempt',
-    'save_users',
-    'load_users'
-] 

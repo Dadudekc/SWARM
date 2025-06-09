@@ -19,26 +19,50 @@ class LogConfig:
     level: LogLevel = LogLevel.INFO
     platforms: Dict[str, Path] = field(default_factory=dict)
     compress_after_days: int = 7
+    format: str = "%(asctime)s [%(levelname)-8s] %(message)s (%(filename)s:%(lineno)d)"
+    config_dir: Optional[Path] = None
     
     def __post_init__(self):
         """Initialize after dataclass creation."""
-        # Convert string path to Path if needed
+        # Convert string paths to Path objects
         if isinstance(self.log_dir, str):
             self.log_dir = Path(self.log_dir)
-            
-        # Create log directory if it doesn't exist
-        self.log_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize platform log files
+        # Set config_dir to log_dir if not specified
+        if self.config_dir is None:
+            self.config_dir = self.log_dir
+        
+        # Create directories
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.config_dir.mkdir(parents=True, exist_ok=True)
+        
+        # Initialize platform logs
         self._init_platform_logs()
     
     def _init_platform_logs(self):
-        """Initialize log files for each platform."""
-        default_platforms = ["default", "system", "error"]
-        for platform in default_platforms:
-            log_file = self.log_dir / f"{platform}.log"
-            self.platforms[platform] = log_file
-            log_file.touch(exist_ok=True)
+        """Initialize default platform log files."""
+        default_platforms = {
+            "default": self.log_dir / "default.log",
+            "system": self.log_dir / "system.log",
+            "error": self.log_dir / "error.log"
+        }
+        
+        # Update platforms dict with defaults if not present
+        for platform, log_path in default_platforms.items():
+            if platform not in self.platforms:
+                self.platforms[platform] = log_path
+                log_path.parent.mkdir(parents=True, exist_ok=True)
+                log_path.touch(exist_ok=True)
+    
+    def __str__(self) -> str:
+        """String representation of the config."""
+        return str(self.log_dir)
+    
+    def __eq__(self, other) -> bool:
+        """Equality comparison."""
+        if not isinstance(other, LogConfig):
+            return False
+        return str(self.log_dir) == str(other.log_dir)
     
     @property
     def max_bytes(self) -> int:
