@@ -48,14 +48,14 @@ class AgentDashboard(QMainWindow):
         self.setMinimumSize(1200, 800)
         
         # Set up UI
-        self._setup_ui()
+        self.setup_ui()
         
         # Start update timer
         self.update_timer = QTimer()
         self.update_timer.timeout.connect(self._update_status)
         self.update_timer.start(1000)  # Update every second
         
-    def _setup_ui(self):
+    def setup_ui(self):
         """Set up the dashboard UI."""
         # Create central widget
         central_widget = QWidget()
@@ -226,4 +226,9 @@ class AgentDashboard(QMainWindow):
         Args:
             message: Message to log
         """
-        self.devlog.append(f"[{datetime.now().isoformat()}] {message}") 
+        self.devlog.append(f"[{datetime.now().isoformat()}] {message}")
+
+__all__ = [
+    'AgentDashboard',
+    'setup_ui'
+] 

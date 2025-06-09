@@ -17,8 +17,9 @@ from typing import Any, Dict, List, Optional, Set
 from .base_controller import BaseController
 from .agent_controller import AgentController
 from dreamos.core.agent_control.agent_operations import AgentOperations
+from dreamos.core.agent_control.agent_status import AgentStatus
+from dreamos.core.agent_control.onboarding.agent_onboarder import AgentOnboarder
 from dreamos.core.agent_control.agent_restarter import AgentRestarter
-from dreamos.core.agent_control.agent_onboarder import AgentOnboarder
 from dreamos.core.bridge.processors.bridge_response_loop_daemon import BridgeResponseLoopDaemon
 from dreamos.core.bridge.chatgpt_bridge import ChatGPTBridge
 from dreamos.core.agent_control.agent_cellphone import AgentCellphone
@@ -26,30 +27,34 @@ from dreamos.core.agent_control.agent_cellphone import AgentCellphone
 logger = logging.getLogger(__name__)
 
 class SystemController(BaseController):
-    """Controller for orchestrating all agents in the system."""
+    """System-wide controller for managing agents and their interactions."""
     
     def __init__(self,
                  message_processor,
                  agent_status,
                  agent_ops: AgentOperations,
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 bridge: Optional[ChatGPTBridge] = None,
+                 cellphone: Optional[AgentCellphone] = None):
         """Initialize the system controller.
         
         Args:
-            message_processor: For handling message routing
-            agent_status: For tracking agent state
+            message_processor: Message processing interface
+            agent_status: Agent status tracker
             agent_ops: Agent operations interface
             config: Optional configuration dictionary
+            bridge: Optional ChatGPT bridge instance (will create default if None)
+            cellphone: Optional agent cellphone instance (will create default if None)
         """
         super().__init__(message_processor, agent_status, config)
         self.agent_ops = agent_ops
         self.agent_controllers: Dict[str, AgentController] = {}
         
         # Initialize components
-        self.restarter = AgentRestarter(agent_ops, self.agent_status, config)
-        self.onboarder = AgentOnboarder(agent_ops, self.agent_status, config)
-        self.bridge = ChatGPTBridge(config)
-        self.cellphone = AgentCellphone(config)
+        self.restarter = AgentRestarter(agent_ops, agent_status, config)
+        self.cellphone = cellphone or AgentCellphone(config)
+        self.onboarder = AgentOnboarder(agent_ops, agent_status, cellphone=self.cellphone, config=config)
+        self.bridge = bridge or ChatGPTBridge(config)
         
         # Bridge loop daemons
         self.bridge_daemons: Dict[str, BridgeResponseLoopDaemon] = {}
@@ -250,19 +255,27 @@ class SystemController(BaseController):
             agent_id: ID of the agent to start daemon for
         """
         try:
+            # Create daemon config
+            config = {
+                "paths": {
+                    "base": str(Path("runtime/bridge_outbox")),
+                    "outbox": str(Path("runtime/bridge_outbox") / agent_id),
+                    "inbox": str(Path("runtime/bridge_inbox") / agent_id)
+                },
+                "bridge": {
+                    "agent_id": agent_id,
+                    "injector": self.cellphone.inject_prompt
+                }
+            }
+            
             # Create daemon
-            daemon = BridgeResponseLoopDaemon(
-                agent_id=agent_id,
-                outbox_path=f"runtime/bridge_outbox/agent-{agent_id}.json",
-                bridge=self.bridge,
-                injector=self.cellphone.inject_prompt
-            )
+            daemon = BridgeResponseLoopDaemon(config=config)
             
             # Store daemon
             self.bridge_daemons[agent_id] = daemon
             
             # Start daemon
-            task = asyncio.create_task(daemon.run_forever())
+            task = asyncio.create_task(daemon.start())
             self._bridge_tasks[agent_id] = task
             
             logger.info(f"Started bridge daemon for agent {agent_id}")
@@ -349,3 +362,21 @@ class SystemController(BaseController):
             status["agents"][agent_id] = agent_status
             
         return status 
+
+    async def _create_agent_controller(self, agent_id: str) -> bool:
+        """Create and register an AgentController for the given agent_id."""
+        try:
+            if agent_id in self.agent_controllers:
+                return True  # Already exists
+            controller = AgentController(
+                agent_id=agent_id,
+                message_processor=self.message_processor,
+                agent_ops=self.agent_ops,
+                agent_status=self.agent_status,
+                config=self.config
+            )
+            self.agent_controllers[agent_id] = controller
+            return True
+        except Exception as e:
+            logger.error(f"Failed to create AgentController for {agent_id}: {e}")
+            return False 

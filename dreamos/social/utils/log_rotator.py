@@ -15,6 +15,7 @@ from typing import Optional, List, Dict, Any, Union
 from datetime import datetime, timedelta
 
 from .log_types import RotationConfig
+from .log_config import LogConfig
 
 __all__ = [
     'LogRotator',
@@ -31,26 +32,46 @@ __all__ = [
 logger = logging.getLogger(__name__)
 
 class LogRotator:
-    """Handles log file rotation and cleanup."""
+    """Handles log file rotation and compression."""
     
-    def __init__(self, log_dir: Path, max_size_mb: int = 10, max_files: int = 5, compress_after_days: int = 7):
-        """Initialize the log rotator.
+    def __init__(
+        self,
+        log_dir: Union[str, Path, LogConfig],
+        max_size_mb: int = 10,
+        max_files: int = 5,
+        backup_count: Optional[int] = None,  # Alias for max_files
+        compress_after_days: int = 7,
+        max_age_days: Optional[int] = None  # Alias for compress_after_days
+    ):
+        """Initialize log rotator.
         
         Args:
-            log_dir: Directory containing log files
-            max_size_mb: Maximum size of log files in MB
-            max_files: Maximum number of backup files to keep
-            compress_after_days: Days after which to compress old backups
+            log_dir: Log directory path or LogConfig object
+            max_size_mb: Maximum file size in MB
+            max_files: Maximum number of backup files
+            backup_count: Alias for max_files (legacy support)
+            compress_after_days: Days before compression
+            max_age_days: Alias for compress_after_days (legacy support)
         """
-        self.log_dir = Path(log_dir)
-        self.max_size_bytes = max_size_mb * 1024 * 1024
-        self.max_files = max_files
-        self.compress_after_days = compress_after_days
-        
-        # Ensure log directory exists
-        self.log_dir.mkdir(parents=True, exist_ok=True)
-    
-    def _get_file_size(self, file_path: Path) -> int:
+        if isinstance(log_dir, LogConfig):
+            self._config = log_dir
+            self.log_dir = log_dir.log_dir
+            self.max_size_mb = log_dir.max_size_mb
+            self.max_files = log_dir.max_files
+            self.compress_after_days = log_dir.compress_after_days
+        else:
+            self._config = None
+            self.log_dir = Path(log_dir)
+            self.max_size_mb = max_size_mb
+            self.max_files = backup_count if backup_count is not None else max_files
+            self.compress_after_days = max_age_days if max_age_days is not None else compress_after_days
+            
+        if backup_count is not None:
+            logging.warning("backup_count parameter is deprecated, use max_files instead")
+        if max_age_days is not None:
+            logging.warning("max_age_days parameter is deprecated, use compress_after_days instead")
+
+    def _get_file_size(self, file_path: Union[str, Path]) -> int:
         """Get file size in bytes.
         
         Args:
@@ -60,12 +81,12 @@ class LogRotator:
             File size in bytes
         """
         try:
-            return file_path.stat().st_size
-        except Exception as e:
+            return os.path.getsize(file_path)
+        except OSError as e:
             logger.error(f"Error getting file size for {file_path}: {e}")
             return 0
     
-    def _get_file_age(self, file_path: Path) -> int:
+    def _get_file_age(self, file_path: Union[str, Path]) -> float:
         """Get file age in days.
         
         Args:
@@ -75,14 +96,14 @@ class LogRotator:
             File age in days
         """
         try:
-            mtime = file_path.stat().st_mtime
-            age = datetime.now() - datetime.fromtimestamp(mtime)
-            return age.days
-        except Exception as e:
+            mtime = os.path.getmtime(file_path)
+            age = time.time() - mtime
+            return age / (24 * 3600)  # Convert to days
+        except OSError as e:
             logger.error(f"Error getting file age for {file_path}: {e}")
             return 0
     
-    def _rotate_file(self, file_path: Path) -> bool:
+    def _rotate_file(self, file_path: Union[str, Path]) -> bool:
         """Rotate a log file.
         
         Args:
@@ -91,148 +112,178 @@ class LogRotator:
         Returns:
             True if rotation was successful
         """
-        if not file_path.exists():
-            return False
-            
         try:
-            # Generate backup filename with timestamp
+            file_path = Path(file_path)
+            if not file_path.exists():
+                return False
+            
+            # Create backup filename with timestamp
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
             backup_path = file_path.parent / f"{file_path.stem}_{timestamp}{file_path.suffix}"
             
             # Move current file to backup
             shutil.move(str(file_path), str(backup_path))
             
-            # Create new empty file
+            # Create new empty log file
             file_path.touch()
             
-            # Clean up old backups
-            self._cleanup_old_backups(file_path)
-            
+            logger.info(f"Rotated log file {file_path} to {backup_path}")
             return True
+            
         except Exception as e:
             logger.error(f"Error rotating file {file_path}: {e}")
             return False
     
-    def _cleanup_old_backups(self, file_path: Path) -> None:
+    def _cleanup_old_backups(self, file_path: Union[str, Path]) -> None:
         """Clean up old backup files.
         
         Args:
-            file_path: Path to current log file
+            file_path: Base file path
         """
         try:
+            file_path = Path(file_path)
+            pattern = f"{file_path.stem}.*.log"
+            
             # Get all backup files
-            backup_pattern = f"{file_path.stem}_*{file_path.suffix}"
-            backup_files = sorted(
-                file_path.parent.glob(backup_pattern),
+            backups = sorted(
+                self.log_dir.glob(pattern),
                 key=lambda p: p.stat().st_mtime,
                 reverse=True
             )
             
             # Remove excess backups
-            for backup_file in backup_files[self.max_files:]:
+            for backup in backups[self.max_files:]:
                 try:
-                    backup_file.unlink()
+                    backup.unlink()
+                    logger.info(f"Removed old backup {backup}")
                 except Exception as e:
-                    logger.error(f"Error deleting backup {backup_file}: {e}")
+                    logger.error(f"Error removing backup {backup}: {e}")
                     
-            # Compress old backups
-            self._compress_old_backups(file_path)
         except Exception as e:
             logger.error(f"Error cleaning up backups for {file_path}: {e}")
     
-    def _compress_old_backups(self, file_path: Path) -> None:
-        """Compress old backup files.
+    def _compress_backup(self, backup_path: Union[str, Path]) -> None:
+        """Compress a backup file.
         
         Args:
-            file_path: Path to current log file
+            backup_path: Path to backup file
         """
         try:
-            # Get all backup files
-            backup_pattern = f"{file_path.stem}_*{file_path.suffix}"
-            backup_files = file_path.parent.glob(backup_pattern)
+            backup_path = Path(backup_path)
+            if not backup_path.exists():
+                return
             
-            for backup_file in backup_files:
-                # Skip already compressed files
-                if backup_file.suffix == '.gz':
-                    continue
-                    
-                # Check file age
-                if self._get_file_age(backup_file) >= self.compress_after_days:
-                    try:
-                        # Compress file
-                        with open(backup_file, 'rb') as f_in:
-                            with gzip.open(f"{backup_file}.gz", 'wb') as f_out:
-                                shutil.copyfileobj(f_in, f_out)
-                        
-                        # Remove original
-                        backup_file.unlink()
-                    except Exception as e:
-                        logger.error(f"Error compressing {backup_file}: {e}")
+            # Check if already compressed
+            if backup_path.suffix == ".gz":
+                return
+            
+            # Compress file
+            with open(backup_path, "rb") as f_in:
+                with gzip.open(f"{backup_path}.gz", "wb") as f_out:
+                    f_out.writelines(f_in)
+            
+            # Remove original
+            backup_path.unlink()
+            logger.info(f"Compressed backup {backup_path}")
+            
         except Exception as e:
-            logger.error(f"Error compressing backups for {file_path}: {e}")
+            logger.error(f"Error compressing backup {backup_path}: {e}")
     
-    def check_rotation(self, file_path: Path) -> bool:
-        """Check if a file needs rotation.
+    def check_rotation(self, log_file: Union[str, Path]) -> bool:
+        """Check if file needs rotation.
         
         Args:
-            file_path: Path to log file
+            log_file: Path to log file
             
         Returns:
-            True if file should be rotated
+            True if rotation needed
         """
-        if not file_path.exists():
+        log_file = Path(log_file)
+        if not log_file.exists():
             return False
             
-        try:
-            # Check file size
-            if self._get_file_size(file_path) >= self.max_size_bytes:
-                return True
-                
-            # Check file age
-            if self._get_file_age(file_path) >= self.compress_after_days:
-                return True
-                
-            return False
-        except Exception as e:
-            logger.error(f"Error checking rotation for {file_path}: {e}")
-            return False
-    
-    def rotate_all(self) -> None:
-        """Rotate all log files in the directory."""
-        try:
-            for file_path in self.log_dir.glob("*.log"):
-                if self.check_rotation(file_path):
-                    self._rotate_file(file_path)
-        except Exception as e:
-            logger.error(f"Error rotating all files: {e}")
-    
-    def get_rotation_info(self, file_path: Path) -> Dict[str, Any]:
-        """Get information about file rotation status.
+        # Check file size
+        if log_file.stat().st_size >= self.max_size_mb * 1024 * 1024:
+            return True
+            
+        # Check file age
+        if self._get_file_age(log_file) >= self.compress_after_days:
+            return True
+            
+        return False
+
+    def rotate_file(self, log_file: Union[str, Path]) -> bool:
+        """Rotate a log file.
         
         Args:
-            file_path: Path to log file
+            log_file: Path to log file
             
         Returns:
-            Dictionary containing rotation information
+            True if successful
         """
-        info = {
-            "size": self._get_file_size(file_path),
-            "age_days": self._get_file_age(file_path),
-            "needs_rotation": False,
-            "backup_count": 0
+        log_file = Path(log_file)
+        if not log_file.exists():
+            return False
+            
+        try:
+            # Create backup filename
+            backup_file = log_file.with_suffix(f"{log_file.suffix}.1")
+            
+            # Rename current file
+            shutil.move(log_file, backup_file)
+            
+            # Create new empty file
+            log_file.touch()
+            
+            # Compress old backup if needed
+            if self._get_file_age(backup_file) >= self.compress_after_days:
+                self._compress_backup(backup_file)
+                
+            # Clean up old backups
+            self._cleanup_old_backups(log_file)
+            
+            return True
+            
+        except Exception as e:
+            logging.error(f"Error rotating file {log_file}: {e}")
+            return False
+
+    def rotate_all(self) -> int:
+        """Rotate all log files.
+        
+        Returns:
+            Number of files rotated
+        """
+        count = 0
+        for log_file in self.log_dir.glob("*.log"):
+            if self.check_rotation(log_file) and self.rotate_file(log_file):
+                count += 1
+        return count
+
+    def get_rotation_info(self, log_file: Union[str, Path]) -> Dict:
+        """Get rotation information for a file.
+        
+        Args:
+            log_file: Path to log file
+            
+        Returns:
+            Dictionary with rotation info
+        """
+        log_file = Path(log_file)
+        if not log_file.exists():
+            return {
+                "size": 0,
+                "age_days": 0,
+                "backup_count": 0,
+                "needs_rotation": False
+            }
+            
+        return {
+            "size": self._get_file_size(log_file),
+            "age_days": self._get_file_age(log_file),
+            "backup_count": len(list(log_file.parent.glob(f"{log_file.stem}{log_file.suffix}.*"))),
+            "needs_rotation": self.check_rotation(log_file)
         }
-        
-        try:
-            # Check if rotation needed
-            info["needs_rotation"] = self.check_rotation(file_path)
-            
-            # Count backup files
-            backup_pattern = f"{file_path.stem}_*{file_path.suffix}"
-            info["backup_count"] = len(list(file_path.parent.glob(backup_pattern)))
-        except Exception as e:
-            logger.error(f"Error getting rotation info for {file_path}: {e}")
-            
-        return info
     
     def rotate(self, filepath: str) -> str:
         """Rotate a log file by path and return the new backup path."""

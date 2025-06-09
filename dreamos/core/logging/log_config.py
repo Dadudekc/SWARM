@@ -85,6 +85,7 @@ class LogConfig:
     # File settings
     log_dir: str = DEFAULT_LOG_DIR
     file_path: Optional[str] = None
+    log_file: Optional[str] = None  # Alias for file_path
     max_file_size: int = DEFAULT_MAX_SIZE_MB * 1024 * 1024  # 10MB in bytes
     max_bytes: int = DEFAULT_MAX_SIZE_MB * 1024 * 1024  # Alias for max_file_size
     backup_count: int = DEFAULT_MAX_FILES
@@ -122,6 +123,12 @@ class LogConfig:
         # Ensure max_bytes and max_file_size are synchronized
         self.max_bytes = self.max_file_size
         
+        # Ensure log_file and file_path are synchronized
+        if self.log_file and not self.file_path:
+            self.file_path = self.log_file
+        elif self.file_path and not self.log_file:
+            self.log_file = self.file_path
+        
         # Validate log directory
         if self.log_dir:
             try:
@@ -140,6 +147,7 @@ class LogConfig:
         # Set default file path if not specified
         if self.log_to_file and not self.file_path:
             self.file_path = os.path.join(self.log_dir, "system.log")
+            self.log_file = self.file_path
             
         # Validate numeric values
         if self.batch_size <= 0:
@@ -167,6 +175,7 @@ class LogConfig:
             "date_format": self.date_format,
             "log_dir": self.log_dir,
             "file_path": self.file_path,
+            "log_file": self.log_file,
             "max_file_size": self.max_file_size,
             "max_bytes": self.max_bytes,
             "backup_count": self.backup_count,
@@ -228,6 +237,7 @@ class LogConfig:
             f"format='{self.format}', "
             f"date_format='{self.date_format}', "
             f"file_path='{self.file_path}', "
+            f"log_file='{self.log_file}', "
             f"max_file_size={self.max_file_size}, "
             f"backup_count={self.backup_count}, "
             f"max_age_days={self.max_age_days}, "

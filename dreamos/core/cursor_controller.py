@@ -112,3 +112,27 @@ class CursorController:
         except Exception as e:
             logger.error(f"Error pressing Ctrl+A: {e}")
             raise 
+
+# Create singleton instance
+_cursor_controller = CursorController()
+
+def move_to(x: int, y: int):
+    """Move cursor to specified coordinates
+    
+    Args:
+        x: X coordinate (0 to screen_width, or negative for right-edge offset)
+        y: Y coordinate (0 to screen_height)
+    """
+    return _cursor_controller.move_to(x, y)
+
+__all__ = [
+    'CursorController',
+    'move_to',
+    'click',
+    'type_text',
+    'press_enter',
+    'press_ctrl_enter',
+    'press_ctrl_n',
+    'press_ctrl_v',
+    'press_ctrl_a'
+] 

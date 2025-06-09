@@ -60,4 +60,21 @@ class AgentCellphone:
             except Exception as e:
                 logger.error(f"Error processing message: {e}")
             finally:
-                self.message_queue.task_done() 
+                self.message_queue.task_done()
+
+    async def inject_prompt(self, agent_id: str, prompt: str) -> bool:
+        """Inject a prompt directly into an agent's conversation.
+        
+        Args:
+            agent_id: Target agent ID
+            prompt: Prompt to inject
+            
+        Returns:
+            True if prompt was injected successfully
+        """
+        try:
+            # Use send_message with high priority for prompt injection
+            return await self.send_message(agent_id, prompt, priority=5)
+        except Exception as e:
+            logger.error(f"Error injecting prompt to agent {agent_id}: {e}")
+            return False 

@@ -44,6 +44,10 @@ if __name__ == "__main__":
 # Version information
 __version__ = "1.0.0"
 
+# Runtime directory
+RUNTIME_DIR = Path("runtime")
+RUNTIME_DIR.mkdir(parents=True, exist_ok=True)
+
 # Initialize logging
 log_manager = LogManager(LogConfig(
     level=LogLevel.INFO,
@@ -57,7 +61,7 @@ class MessageCLI:
     
     def __init__(self):
         """Initialize the CLI interface."""
-        self.processor = MessageProcessor()
+        self.processor = MessageProcessor(str(RUNTIME_DIR))
         logger.info("CLI interface initialized")
     
     def send_message(self, to_agent: str, content: str, mode: MessageMode = MessageMode.NORMAL) -> bool:
@@ -247,6 +251,56 @@ Let's begin your integration into the Dream.OS ecosystem."""
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
+
+# Create singleton instance
+_cli = MessageCLI()
+
+def send_message(to_agent: str, content: str, mode: MessageMode = MessageMode.NORMAL) -> bool:
+    """Send a message to an agent.
+    
+    Args:
+        to_agent: The recipient agent ID
+        content: The message content
+        mode: The message mode
+        
+    Returns:
+        bool: True if message was successfully sent
+    """
+    return _cli.send_message(to_agent, content, mode)
+
+def get_status() -> dict:
+    """Get current message status.
+    
+    Returns:
+        Dict containing message statistics
+    """
+    return _cli.get_status()
+
+def clear_messages(agent_id: Optional[str] = None) -> None:
+    """Clear messages.
+    
+    Args:
+        agent_id: Optional agent ID to clear messages for. If None, clears all messages.
+    """
+    _cli.clear_messages(agent_id)
+
+def shutdown() -> None:
+    """Clean up resources."""
+    _cli.shutdown()
+
+__all__ = [
+    'MessageCLI',
+    'send_message',
+    'get_status',
+    'clear_messages',
+    'shutdown',
+    'direct_send_message',
+    'bus_send_message',
+    'parse_args',
+    'validate_priority',
+    'load_coordinates',
+    'cli_main'
+]
 
 if __name__ == "__main__":
     cli_main() 

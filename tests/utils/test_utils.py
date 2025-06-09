@@ -6,44 +6,24 @@ Common utilities and mocks for testing.
 
 import asyncio
 import json
+import os
 import tempfile
 from pathlib import Path
 from typing import Dict, Optional
 from unittest.mock import AsyncMock, MagicMock
 
-# Test root directory
+# Test directory constants
 TEST_ROOT = Path(__file__).parent.parent
-TEST_CONFIG_DIR = TEST_ROOT / "config"
 TEST_DATA_DIR = TEST_ROOT / "data"
-TEST_TMP_DIR = TEST_ROOT / "tmp"
 TEST_OUTPUT_DIR = TEST_ROOT / "output"
+TEST_CONFIG_DIR = TEST_ROOT / "config"
 TEST_RUNTIME_DIR = TEST_ROOT / "runtime"
 TEST_TEMP_DIR = TEST_ROOT / "temp"
 VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
 
-def ensure_test_dirs():
-    """Ensure all test directories exist."""
-    for dir_path in [TEST_CONFIG_DIR, TEST_DATA_DIR, TEST_TMP_DIR, 
-                    TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR,
-                    VOICE_QUEUE_DIR]:
-        dir_path.mkdir(parents=True, exist_ok=True)
-
-def test_output_dir() -> Path:
-    """Get the test output directory."""
-    TEST_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-    return TEST_OUTPUT_DIR
-
-def safe_remove(path: Path):
-    """Safely remove a file or directory."""
-    try:
-        if path.is_file():
-            path.unlink()
-        elif path.is_dir():
-            for child in path.iterdir():
-                safe_remove(child)
-            path.rmdir()
-    except Exception as e:
-        print(f"Warning: Failed to remove {path}: {e}")
+# Ensure test directories exist
+for dir_path in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR, TEST_CONFIG_DIR, VOICE_QUEUE_DIR]:
+    dir_path.mkdir(parents=True, exist_ok=True)
 
 def create_mock_agent(agent_id: str = "test_agent") -> AsyncMock:
     """Create a mock agent.
@@ -130,4 +110,43 @@ def read_test_message(outbox_path: Path, agent_id: str) -> Optional[Dict]:
         return None
         
     with open(message_path, 'r') as f:
-        return json.load(f) 
+        return json.load(f)
+
+def ensure_test_dirs():
+    """Ensure all test directories exist."""
+    for dir_path in [TEST_OUTPUT_DIR, TEST_DATA_DIR, TEST_CONFIG_DIR, 
+                    TEST_RUNTIME_DIR, TEST_TEMP_DIR, VOICE_QUEUE_DIR]:
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+def test_output_dir():
+    """Get test output directory."""
+    return TEST_OUTPUT_DIR 
+
+def safe_remove(path):
+    """Stub for safe file removal."""
+    try:
+        os.remove(path)
+    except FileNotFoundError:
+        pass
+    except Exception:
+        pass 
+
+__all__ = [
+    "TEST_ROOT",
+    "TEST_DATA_DIR",
+    "TEST_OUTPUT_DIR",
+    "TEST_CONFIG_DIR",
+    "TEST_RUNTIME_DIR",
+    "TEST_TEMP_DIR",
+    "VOICE_QUEUE_DIR",
+    "ensure_test_dirs",
+    "test_output_dir",
+    "create_temp_outbox",
+    "safe_remove",
+    "create_mock_agent",
+    "create_mock_bridge",
+    "create_mock_cellphone",
+    "create_mock_message_processor",
+    "write_test_message",
+    "read_test_message"
+] 

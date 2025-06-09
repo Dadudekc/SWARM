@@ -4,7 +4,14 @@ Tests for metrics module.
 
 import pytest
 from unittest.mock import MagicMock, patch
-from dreamos\core\metrics import save_metrics, load_metrics, __init__, track_command, get_command_stats, reset_stats, save_metrics, load_metrics
+from dreamos.core.metrics import (
+    CommandMetrics,
+    track_command,
+    get_command_stats,
+    reset_stats,
+    save_metrics,
+    load_metrics
+)
 
 # Fixtures
 

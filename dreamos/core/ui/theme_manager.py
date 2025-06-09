@@ -82,3 +82,21 @@ class ThemeManager:
         palette = QApplication.palette()
         window_color = palette.color(QPalette.Window)
         return window_color.lightness() < 128 
+
+# Create singleton instance
+_theme_manager = ThemeManager()
+
+def get_dialog_stylesheet() -> str:
+    """Get the stylesheet for dialogs.
+    
+    Returns:
+        CSS stylesheet string
+    """
+    return ThemeManager.get_dialog_stylesheet()
+
+__all__ = [
+    'ThemeManager',
+    'get_dialog_stylesheet',
+    'apply_dialog_theme',
+    'is_dark_theme'
+] 

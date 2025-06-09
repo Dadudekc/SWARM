@@ -13,6 +13,8 @@ from dreamos.core.monitoring.health.base import BaseHealthMonitor
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
+__all__ = ['BridgeHealthMonitor', 'check_health', 'update_metrics']
+
 class BridgeHealthMonitor(BaseHealthMonitor):
     """Monitors the health of the bridge system."""
     
@@ -68,4 +70,25 @@ class BridgeHealthMonitor(BaseHealthMonitor):
         if processing_time is not None:
             metrics["average_processing_time"] = processing_time
             
-        self.update_health(metrics=metrics) 
+        self.update_health(metrics=metrics)
+
+# Create singleton instance
+_monitor = BridgeHealthMonitor()
+
+def check_health() -> bool:
+    """Check if the bridge is healthy.
+    
+    Returns:
+        Whether the bridge is healthy
+    """
+    return _monitor.check_health()
+
+def update_metrics(success_rate: Optional[float] = None,
+                  processing_time: Optional[float] = None):
+    """Update bridge metrics.
+    
+    Args:
+        success_rate: New success rate
+        processing_time: New processing time
+    """
+    _monitor.update_metrics(success_rate=success_rate, processing_time=processing_time) 

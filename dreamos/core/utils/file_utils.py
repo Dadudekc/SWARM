@@ -2,7 +2,7 @@
 
 import json
 from pathlib import Path
-from typing import Any, Optional, Union, Dict
+from typing import Any, Optional, Union, Dict, List
 import logging
 import os
 import shutil
@@ -26,6 +26,14 @@ from .file_ops import (
 )
 
 from ..io.json_ops import read_json as _read_json, write_json as _write_json
+
+from .yaml_utils import (
+    read_yaml,
+    write_yaml,
+    load_yaml,
+    save_yaml,
+    YamlError
+)
 
 logger = logging.getLogger(__name__)
 
@@ -78,12 +86,13 @@ def write_json(data: Dict[str, Any], filepath: Union[str, Path]) -> None:
 # Alias for backward compatibility
 save_json = write_json
 
-def ensure_dir(path: Path) -> None:
+def ensure_dir(path: Union[str, Path]) -> None:
     """Ensure a directory exists.
     
     Args:
-        path: Path to the directory
+        path: Path to the directory (string or Path object)
     """
+    path = Path(path) if isinstance(path, str) else path
     path.mkdir(parents=True, exist_ok=True)
     
 def safe_rmdir(path: Path, recursive: bool = False) -> None:
@@ -125,54 +134,17 @@ def restore_backup(src: Path, backup_dir: Path) -> None:  # noqa: D401
     backup_dir.mkdir(parents=True, exist_ok=True)
     shutil.copy2(src, backup_dir / f"{src.name}.bak")
 
-def load_yaml(path: Path | str) -> dict:  # noqa: D401
-    """
-    Read YAML data from a file.
+def find_files(directory: str, extension: str = '.py') -> List[Path]:
+    """Find all files with given extension in directory.
     
     Args:
-        path: Path to the YAML file
+        directory: Directory to search in
+        extension: File extension to match (default: .py)
         
     Returns:
-        Dict containing the YAML data
-        
-    Raises:
-        FileNotFoundError: If file doesn't exist
-        yaml.YAMLError: If file contains invalid YAML
+        List of Path objects for matching files
     """
-    from yaml import safe_load, YAMLError
-    
-    try:
-        with open(path, "r", encoding="utf-8") as fh:
-            return safe_load(fh) or {}
-    except FileNotFoundError:
-        return {}
-    except YAMLError as e:
-        raise YAMLError(f"Invalid YAML in file {path}: {str(e)}")
-
-def save_yaml(data: dict, path: Path | str) -> None:  # noqa: D401
-    """
-    Write YAML data to a file.
-    
-    Args:
-        data: Dict to write as YAML
-        path: Path to write the YAML file to
-        
-    Raises:
-        OSError: If file cannot be written
-        yaml.YAMLError: If data cannot be serialized to YAML
-    """
-    from yaml import safe_dump, YAMLError
-    
-    try:
-        # Ensure parent directory exists
-        os.makedirs(os.path.dirname(path), exist_ok=True)
-        
-        with open(path, "w", encoding="utf-8") as fh:
-            safe_dump(data, fh, default_flow_style=False)
-    except (OSError, IOError) as e:
-        raise OSError(f"Failed to write YAML file {path}: {str(e)}")
-    except YAMLError as e:
-        raise YAMLError(f"Data cannot be serialized to YAML: {str(e)}")
+    return list(Path(directory).rglob(f'*{extension}'))
 
 __all__ = [
     "atomic_write",
@@ -191,7 +163,14 @@ __all__ = [
     "write_json",
     "load_json",
     "save_json",
+    "get_file_info",
+    "FileError",
     "async_save_json",
+    "restore_backup",
     "read_yaml",
+    "write_yaml",
+    "load_yaml",
     "save_yaml",
+    "find_files",
+    "YamlError"
 ]

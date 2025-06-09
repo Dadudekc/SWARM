@@ -157,6 +157,25 @@ class SystemInitializer:
             logger.error(f"Error generating status report: {e}")
             return {}
 
+# Create singleton instance
+_system_initializer = SystemInitializer()
+
+def initialize_core_systems() -> bool:
+    """Initialize all core systems.
+    
+    Returns:
+        True if initialization was successful
+    """
+    return _system_initializer.initialize_core_systems()
+
+__all__ = [
+    'SystemInitializer',
+    'initialize_core_systems',
+    'establish_communication_channels',
+    'begin_monitoring',
+    'report_status'
+]
+
 def main():
     """Main entry point for system initialization."""
     initializer = SystemInitializer()

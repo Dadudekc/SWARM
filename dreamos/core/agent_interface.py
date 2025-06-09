@@ -177,3 +177,42 @@ class AgentInterface:
             asyncio.run(self.message_system.cleanup())
         except Exception as e:
             logger.error(f"Error during cleanup: {e}")
+
+# Create singleton instance
+_agent_interface = AgentInterface()
+
+def send_command(command: str, agent_id: str, content: str, priority: int = 0) -> bool:
+    """Send a command to an agent via the Cell Phone interface.
+    
+    Args:
+        command: The command type (resume, verify, etc.)
+        agent_id: The target agent ID
+        content: The command content
+        priority: Message priority (0-5)
+        
+    Returns:
+        bool: True if command was sent successfully
+    """
+    return _agent_interface.send_command(command, agent_id, content, priority)
+
+def broadcast_command(command: str, content: str, priority: int = 0) -> Dict[str, bool]:
+    """Broadcast a command to all agents.
+    
+    Args:
+        command: The command type
+        content: The command content
+        priority: Message priority (0-5)
+        
+    Returns:
+        Dict mapping agent IDs to success status
+    """
+    return _agent_interface.broadcast_command(command, content, priority)
+
+__all__ = [
+    'AgentInterface',
+    'send_command',
+    'broadcast_command',
+    'get_agent_status',
+    'clear_agent_messages',
+    'cleanup'
+]

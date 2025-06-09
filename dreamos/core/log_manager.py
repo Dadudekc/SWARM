@@ -26,6 +26,69 @@ class LogManager:
         self._config = config or LogConfig()
         self._metrics = LogMetrics(self._config)
         self._logger = logging.getLogger(self.__class__.__name__)
+        self._setup_logging()
+        
+    def _setup_logging(self):
+        """Set up logging configuration."""
+        # Create formatter
+        formatter = logging.Formatter(self._config.format)
+        
+        # Add console handler
+        console_handler = logging.StreamHandler()
+        console_handler.setFormatter(formatter)
+        self._logger.addHandler(console_handler)
+        
+        # Add file handler if path specified
+        if self._config.file_path:
+            os.makedirs(os.path.dirname(self._config.file_path), exist_ok=True)
+            file_handler = logging.FileHandler(self._config.file_path)
+            file_handler.setFormatter(formatter)
+            self._logger.addHandler(file_handler)
+            
+    def debug(self, message: str, **kwargs):
+        """Log a debug message.
+        
+        Args:
+            message: The message to log
+            **kwargs: Additional context
+        """
+        self._logger.debug(message, extra=kwargs)
+        
+    def info(self, message: str, **kwargs):
+        """Log an info message.
+        
+        Args:
+            message: The message to log
+            **kwargs: Additional context
+        """
+        self._logger.info(message, extra=kwargs)
+        
+    def warning(self, message: str, **kwargs):
+        """Log a warning message.
+        
+        Args:
+            message: The message to log
+            **kwargs: Additional context
+        """
+        self._logger.warning(message, extra=kwargs)
+        
+    def error(self, message: str, **kwargs):
+        """Log an error message.
+        
+        Args:
+            message: The message to log
+            **kwargs: Additional context
+        """
+        self._logger.error(message, extra=kwargs)
+        
+    def critical(self, message: str, **kwargs):
+        """Log a critical message.
+        
+        Args:
+            message: The message to log
+            **kwargs: Additional context
+        """
+        self._logger.critical(message, extra=kwargs)
         
     def record_metric(self, metric_type: str, value: float, tags: Optional[List[str]] = None, metadata: Optional[Dict[str, Any]] = None) -> None:
         """Record a metric.
@@ -82,4 +145,30 @@ class LogManager:
         
     def clear_metrics(self) -> None:
         """Clear all metrics."""
-        self._metrics.clear_metrics() 
+        self._metrics.clear_metrics()
+
+# Create singleton instance
+_log_manager = LogManager()
+
+def record_metric(metric_type: str, value: float, tags: Optional[List[str]] = None, metadata: Optional[Dict[str, Any]] = None) -> None:
+    """Record a metric.
+    
+    Args:
+        metric_type: Type of metric
+        value: Metric value
+        tags: Optional tags
+        metadata: Optional metadata
+    """
+    return _log_manager.record_metric(metric_type, value, tags, metadata)
+
+__all__ = [
+    'LogManager',
+    'LogConfig',
+    'LogLevel',
+    'record_metric',
+    'get_metrics',
+    'get_summary',
+    'save_metrics',
+    'load_metrics',
+    'clear_metrics'
+] 

@@ -21,6 +21,7 @@ import psutil
 
 from dreamos.core.agent_control.agent_operations import AgentOperations
 from dreamos.core.agent_control.agent_status import AgentStatus
+from dreamos.core.agent_control.agent_cellphone import AgentCellphone
 
 logger = logging.getLogger(__name__)
 
@@ -30,17 +31,25 @@ class AgentOnboarder:
     def __init__(self,
                  agent_ops: AgentOperations,
                  agent_status: AgentStatus,
+                 cellphone: Optional[AgentCellphone] = None,
                  config: Optional[Dict] = None):
         """Initialize the agent onboarder.
         
         Args:
             agent_ops: Agent operations interface
             agent_status: Agent status tracker
+            cellphone: Optional agent cellphone instance for message injection
             config: Optional configuration dictionary
         """
         self.agent_ops = agent_ops
         self.agent_status = agent_status
+        self.cellphone = cellphone or AgentCellphone(config)
         self.config = config or {}
+        
+        # Test mode configuration
+        self.test_mode = os.environ.get("DREAMOS_TEST_MODE") == "1"
+        if self.test_mode:
+            logger.info("AgentOnboarder running in test mode - UI interactions disabled")
         
         # Timing configuration (reuse from restarter)
         self.timing = {
@@ -182,42 +191,19 @@ class AgentOnboarder:
         Returns:
             bool: True if conversation started successfully
         """
+        if self.test_mode:
+            logger.info(f"[TEST MODE] Skipping UI interaction for agent {agent_id}")
+            return True
+            
         try:
-            # Find window
-            hwnd = await self._find_cursor_window(agent_id)
-            if not hwnd:
-                logger.error(f"Could not find Cursor window for agent {agent_id}")
-                return False
-                
-            # Activate window
-            win32gui.SetForegroundWindow(hwnd)
-            await asyncio.sleep(self.timing['delay_after_window_activate'])
-            
-            # Start new conversation (Ctrl+N)
-            pyautogui.hotkey('ctrl', 'n')
-            await asyncio.sleep(self.timing['delay_after_ctrl_n'])
-            
-            # Get input coordinates
-            coords = self.input_coords.get(agent_id)
-            if not coords:
-                logger.error(f"No input coordinates configured for agent {agent_id}")
-                return False
-                
-            # Click input field
-            pyautogui.click(coords[0], coords[1])
-            await asyncio.sleep(self.timing['delay_after_click'])
-            
-            # Get and type welcome message
+            # Get welcome message
             welcome = await self._get_role_welcome(agent_id, role)
             
-            # Type with configured delay between keys
-            for char in welcome:
-                pyautogui.write(char)
-                await asyncio.sleep(self.timing['delay_between_keys'])
+            # Inject welcome message using cellphone
+            if not await self.cellphone.inject_prompt(agent_id, welcome):
+                logger.error(f"Failed to inject welcome message for agent {agent_id}")
+                return False
                 
-            # Send message (Enter)
-            pyautogui.press('enter')
-            
             return True
             
         except Exception as e:
@@ -294,4 +280,16 @@ class AgentOnboarder:
             
         except Exception as e:
             logger.error(f"Error onboarding agents: {e}")
-            return False 
+            return False
+
+    async def start(self) -> bool:
+        """No-op for controller lifecycle compatibility."""
+        return True
+
+    async def stop(self) -> bool:
+        """No-op for controller lifecycle compatibility."""
+        return True
+
+    async def resume(self) -> bool:
+        """No-op for controller lifecycle compatibility."""
+        return True 

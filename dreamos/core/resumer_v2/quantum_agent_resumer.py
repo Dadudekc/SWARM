@@ -1,8 +1,7 @@
 """
 Quantum Agent Resumer
 
-Implements a quantum-aware agent resumption system with advanced state management
-and error recovery capabilities.
+Manages agent state persistence and resumption.
 """
 
 import asyncio
@@ -11,29 +10,29 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Any, List
 import uuid
+from dreamos.core.messaging.enums import TaskStatus
+from dreamos.core.resumer_v2.agent_state_manager import AgentStateManager
 
-from .agent_state_manager import AgentStateManager, TaskState
 from .atomic_file_manager import AtomicFileManager
 
 logger = logging.getLogger(__name__)
 
 class QuantumAgentResumer:
-    """Quantum-aware agent resumption system."""
+    """Manages agent state persistence and resumption."""
     
-    def __init__(self, base_dir: str = "agent_tools/mailbox"):
-        """Initialize quantum agent resumer.
+    def __init__(self, base_dir: str):
+        """Initialize the resumer.
         
         Args:
-            base_dir: Base directory for agent communications
+            base_dir: Base directory for state files
         """
         self.base_dir = Path(base_dir)
-        if not self.base_dir.exists():
-            raise ValueError(f"Base directory {base_dir} does not exist")
-        self.state_manager = AgentStateManager(self.base_dir)
+        self.state_manager = AgentStateManager(str(self.base_dir))
+        self._event_handlers_initialized = False
         
         # Health check and monitoring
         self.health_check_interval = 60  # seconds
-        self.health_check_task: Optional[asyncio.Task] = None
+        self.health_check_task = None
         self.metrics: Dict[str, Any] = {
             "cycle_count": 0,
             "errors": 0,
@@ -41,34 +40,15 @@ class QuantumAgentResumer:
             "last_health_check": None
         }
         
-        # Initialize event handlers
-        self._init_event_handlers()
-        
-    def _init_event_handlers(self):
-        """Initialize event handlers."""
-        asyncio.create_task(self.state_manager.register_event_handler(
-            "state_update",
-            self._handle_state_update
-        ))
-        asyncio.create_task(self.state_manager.register_event_handler(
-            "task_added",
-            self._handle_task_added
-        ))
-        asyncio.create_task(self.state_manager.register_event_handler(
-            "task_updated",
-            self._handle_task_updated
-        ))
-        asyncio.create_task(self.state_manager.register_event_handler(
-            "debug_log",
-            self._handle_debug_log
-        ))
-        
     async def start(self):
-        """Start the quantum resumer system."""
-        logger.info("Starting Quantum Agent Resumer")
-        
+        """Start the resumer and initialize event handlers."""
+        if not self._event_handlers_initialized:
+            await self._init_event_handlers()
+            self._event_handlers_initialized = True
+            
         # Start health check loop
         self.health_check_task = asyncio.create_task(self._health_check_loop())
+        logger.info("Starting Quantum Agent Resumer")
         
         # Initialize state if needed
         state = await self.state_manager.get_state()
@@ -79,29 +59,117 @@ class QuantumAgentResumer:
                 raise RuntimeError("Failed to initialize state")
             
     async def stop(self):
-        """Stop the quantum resumer system."""
-        logger.info("Stopping Quantum Agent Resumer")
-        
+        """Stop the resumer and cleanup resources."""
         if self.health_check_task:
             self.health_check_task.cancel()
             try:
                 await self.health_check_task
             except asyncio.CancelledError:
                 pass
-                
-        await self.state_manager.cleanup()
+            self.health_check_task = None
+        logger.info("Stopping Quantum Agent Resumer")
+        
+    async def _init_event_handlers(self):
+        """Initialize event handlers."""
+        await self.state_manager.register_handler("state_update", self._handle_state_update)
+        await self.state_manager.register_handler("task_add", self._handle_task_add)
+        await self.state_manager.register_handler("task_update", self._handle_task_update)
+        
+    async def _handle_state_update(self, state: Dict[str, Any]):
+        """Handle state update events."""
+        logger.debug(f"State updated: {state}")
+        
+    async def _handle_task_add(self, task: Dict[str, Any]):
+        """Handle task add events."""
+        logger.debug(f"Task added: {task}")
+        
+    async def _handle_task_update(self, task: Dict[str, Any]):
+        """Handle task update events."""
+        logger.debug(f"Task updated: {task}")
+        
+    async def increment_cycle(self) -> bool:
+        """Increment cycle count."""
+        state = await self.state_manager.get_state()
+        state["cycle_count"] = state.get("cycle_count", 0) + 1
+        state["last_updated"] = datetime.now().isoformat()
+        return await self.state_manager._write_state_file_async(state)
+        
+    async def activate_test_debug_mode(self) -> bool:
+        """Activate test debug mode."""
+        state = await self.state_manager.get_state()
+        state["debug_mode"] = True
+        state["last_updated"] = datetime.now().isoformat()
+        return await self.state_manager._write_state_file_async(state)
+        
+    async def add_test_fix_task(self, task_data: Dict[str, Any]):
+        """Add a test fix task.
+        
+        Args:
+            task_data: Task data
+        """
+        task = TaskState(
+            id=str(uuid.uuid4()),
+            type="TEST_FIX",
+            status="pending",
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            data=task_data
+        )
+        
+        await self.state_manager.add_task(task)
+        
+    async def add_blocker_task(self, task_data: Dict[str, Any]):
+        """Add a blocker task.
+        
+        Args:
+            task_data: Task data
+        """
+        task = TaskState(
+            id=str(uuid.uuid4()),
+            type="BLOCKER-TEST-DEBUG",
+            status="pending",
+            created_at=datetime.now(),
+            updated_at=datetime.now(),
+            data=task_data
+        )
+        
+        await self.state_manager.add_task(task)
+        
+    async def get_test_debug_status(self) -> Dict[str, Any]:
+        """Get test debug status.
+        
+        Returns:
+            Dict: Test debug status
+        """
+        state = await self.state_manager.get_state()
+        if state is None:
+            return {
+                "mode": "unknown",
+                "cycle_count": 0,
+                "test_debug": {
+                    "active": False,
+                    "start_time": None,
+                    "completed_cycles": 0
+                }
+            }
+            
+        return {
+            "mode": state["mode"],
+            "cycle_count": state["cycle_count"],
+            "test_debug": state["test_debug"]
+        }
         
     async def _health_check_loop(self):
-        """Health check loop."""
+        """Periodic health check loop."""
         while True:
             try:
-                await self._perform_health_check()
+                state = await self.state_manager.get_state()
+                if not self.state_manager.validate_state(state):
+                    logger.error("Invalid state detected during health check")
                 await asyncio.sleep(self.health_check_interval)
-            except asyncio.CancelledError:
-                break
             except Exception as e:
-                logger.error(f"Health check failed: {str(e)}")
-                await asyncio.sleep(5)  # Brief pause before retry
+                logger.error(f"Health check error: {e}")
+                await asyncio.sleep(self.health_check_interval)
                 
     async def _perform_health_check(self):
         """Perform health check."""
@@ -168,128 +236,10 @@ class QuantumAgentResumer:
         await self.state_manager.update_state(default_state)
         logger.info("State initialized")
         
-    async def activate_test_debug_mode(self):
-        """Activate test debug mode."""
-        state = await self.state_manager.get_state()
-        if state is None:
-            await self._initialize_state()
-            state = await self.state_manager.get_state()
-            
-        state["mode"] = "test_debug"
-        state["test_debug"] = {
-            "active": True,
-            "start_time": datetime.now().isoformat(),
-            "completed_cycles": 0
-        }
-        
-        await self.state_manager.update_state(state)
-        await self.state_manager.log_debug("Test Debug Mode Activated")
-        
-    async def increment_cycle(self):
-        """Increment cycle count."""
-        state = await self.state_manager.get_state()
-        if state is None:
-            await self._initialize_state()
-            state = await self.state_manager.get_state()
-            
-        state["cycle_count"] += 1
-        state["last_active"] = datetime.now().isoformat()
-        
-        if state["mode"] == "test_debug":
-            state["test_debug"]["completed_cycles"] += 1
-            
-        await self.state_manager.update_state(state)
-        self.metrics["cycle_count"] = state["cycle_count"]
-        
-    async def add_test_fix_task(self, task_data: Dict[str, Any]):
-        """Add a test fix task.
-        
-        Args:
-            task_data: Task data
-        """
-        task = TaskState(
-            id=str(uuid.uuid4()),
-            type="TEST_FIX",
-            status="pending",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-            data=task_data
-        )
-        
-        await self.state_manager.add_task(task)
-        
-    async def add_blocker_task(self, task_data: Dict[str, Any]):
-        """Add a blocker task.
-        
-        Args:
-            task_data: Task data
-        """
-        task = TaskState(
-            id=str(uuid.uuid4()),
-            type="BLOCKER-TEST-DEBUG",
-            status="pending",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-            data=task_data
-        )
-        
-        await self.state_manager.add_task(task)
-        
-    async def get_test_debug_status(self) -> Dict[str, Any]:
-        """Get test debug status.
-        
-        Returns:
-            Dict: Test debug status
-        """
-        state = await self.state_manager.get_state()
-        if state is None:
-            return {
-                "mode": "unknown",
-                "cycle_count": 0,
-                "test_debug": {
-                    "active": False,
-                    "start_time": None,
-                    "completed_cycles": 0
-                }
-            }
-            
-        return {
-            "mode": state["mode"],
-            "cycle_count": state["cycle_count"],
-            "test_debug": state["test_debug"]
-        }
-        
-    async def _handle_state_update(self, state: Dict[str, Any]):
-        """Handle state update event.
-        
-        Args:
-            state: Updated state
-        """
-        logger.debug(f"State updated: {state}")
-        
-    async def _handle_task_added(self, task: TaskState):
-        """Handle task added event.
-        
-        Args:
-            task: Added task
-        """
-        logger.debug(f"Task added: {task}")
-        
-    async def _handle_task_updated(self, task: Dict[str, Any]):
-        """Handle task updated event.
-        
-        Args:
-            task: Updated task
-        """
-        logger.debug(f"Task updated: {task}")
-        
-    async def _handle_debug_log(self, log_entry: Dict[str, Any]):
-        """Handle debug log event.
-        
-        Args:
-            log_entry: Log entry
-        """
-        logger.debug(f"Debug log: {log_entry}")
+    async def cleanup(self):
+        """Cleanup resources."""
+        await self.stop()
+        # Additional cleanup if needed
         
     async def _handle_validation_failure(self):
         """Handle validation failure."""

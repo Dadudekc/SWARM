@@ -87,138 +87,148 @@ class LogLevel(Enum):
     CRITICAL = "CRITICAL"
 
 class LogWriter:
-    """Handles writing log entries to files with rotation and cleanup."""
+    """Handles writing log entries to files."""
     
-    def __init__(self, config: LogConfig):
-        """Initialize the log writer.
+    def __init__(self, log_dir: Union[str, Path, LogConfig]):
+        """Initialize log writer.
         
         Args:
-            config: Log configuration
+            log_dir: Log directory path or LogConfig object
         """
-        self.config = config
-        self._ensure_log_dir()
-    
-    def _ensure_log_dir(self):
-        """Ensure log directory exists."""
-        self.config.log_dir.mkdir(parents=True, exist_ok=True)
-    
-    def write_log(self, platform: str, message: str, level: LogLevel = LogLevel.INFO) -> None:
+        if isinstance(log_dir, LogConfig):
+            self._config = log_dir
+            self.log_dir = log_dir.log_dir
+        else:
+            self._config = None
+            self.log_dir = Path(log_dir)
+            
+        self.log_dir.mkdir(parents=True, exist_ok=True)
+        self._file_locks: Dict[str, logging.FileHandler] = {}
+
+    def write_log(self, entry: Union[LogEntry, Dict], platform: Optional[str] = None) -> bool:
         """Write a log entry.
         
         Args:
-            platform: Platform identifier
-            message: Log message
-            level: Log level
+            entry: LogEntry or dict with entry data
+            platform: Optional platform name
+            
+        Returns:
+            True if successful
         """
-        entry = LogEntry(
-            platform=platform,
-            message=message,
-            level=level,
-            timestamp=datetime.now().isoformat()
-        )
-        self.write_log_json(entry.to_dict())
-    
-    def write_log_json(self, entry: Dict[str, Any]) -> None:
-        """Write a log entry from a dictionary.
+        if isinstance(entry, dict):
+            entry = LogEntry.from_dict(entry)
+            
+        if not entry.message or not entry.level:
+            return False
+            
+        log_file = self._get_log_file(platform)
+        with self._get_file_lock(log_file) as handler:
+            handler.write(f"{entry}\n")
+            handler.flush()
+        return True
+
+    def write_log_json(self, entries: Union[LogEntry, Dict, List[Union[LogEntry, Dict]]]) -> bool:
+        """Write log entries in JSON format.
         
         Args:
-            entry: Log entry dictionary
-        """
-        if "platform" not in entry:
-            logger.error("Log entry missing platform")
-            return
+            entries: Single entry or list of entries
             
-        platform = entry["platform"]
-        log_file = self.config.platforms.get(platform, self.config.log_file)
-        
-        try:
-            log_file.parent.mkdir(parents=True, exist_ok=True)
-            with open(log_file, 'a') as f:
-                json.dump(entry, f)
-                f.write('\n')
-        except Exception as e:
-            logger.error(f"Error writing log: {e}")
-    
-    def read_logs(self, platform: Optional[str] = None, level: Optional[LogLevel] = None) -> List[Dict[str, Any]]:
+        Returns:
+            True if successful
+        """
+        if not isinstance(entries, list):
+            entries = [entries]
+            
+        for entry in entries:
+            if isinstance(entry, dict):
+                entry = LogEntry.from_dict(entry)
+            if not self.write_log(entry):
+                return False
+        return True
+
+    def read_logs(self, platform: Optional[str] = None, level: Optional[LogLevel] = None, limit: int = 100) -> List[LogEntry]:
         """Read log entries.
         
         Args:
             platform: Optional platform filter
             level: Optional level filter
+            limit: Maximum number of entries
             
         Returns:
             List of log entries
         """
+        log_file = self._get_log_file(platform)
+        if not log_file.exists():
+            return []
+            
         entries = []
-        log_files = [self.config.platforms[platform]] if platform else self.config.platforms.values()
-        
-        for log_file in log_files:
-            try:
-                with open(log_file) as f:
-                    for line in f:
-                        try:
-                            entry = json.loads(line)
-                            if level is None or entry.get("level") == level.value:
-                                entries.append(entry)
-                        except json.JSONDecodeError:
-                            continue
-            except Exception as e:
-                logger.error(f"Error reading log file {log_file}: {e}")
-                
+        with open(log_file, 'r') as f:
+            for line in f:
+                if len(entries) >= limit:
+                    break
+                try:
+                    entry = LogEntry.from_dict(json.loads(line))
+                    if level is None or entry.level == level:
+                        entries.append(entry)
+                except (json.JSONDecodeError, ValueError):
+                    continue
         return entries
-    
-    def get_metrics(self) -> Dict[str, Any]:
-        """Get logging metrics.
+
+    def cleanup_old_logs(self, days: int = 30) -> int:
+        """Remove log files older than specified days.
         
+        Args:
+            days: Number of days to keep
+            
         Returns:
-            Dictionary of metrics
+            Number of files removed
         """
-        metrics = {
-            "total_size": 0,
-            "file_count": 0,
-            "entry_count": 0,
-            "platforms": {}
-        }
+        count = 0
+        for log_file in self.log_dir.glob("*.log*"):
+            if log_file.stat().st_mtime < (time.time() - days * 86400):
+                try:
+                    log_file.unlink()
+                    count += 1
+                except OSError:
+                    continue
+        return count
+
+    def _get_log_file(self, platform: Optional[str] = None) -> Path:
+        """Get log file path for platform.
         
-        for platform, log_file in self.config.platforms.items():
-            try:
-                size = log_file.stat().st_size
-                metrics["total_size"] += size
-                metrics["file_count"] += 1
-                
-                # Count entries
-                with open(log_file) as f:
-                    entry_count = sum(1 for _ in f)
-                metrics["entry_count"] += entry_count
-                
-                metrics["platforms"][platform] = {
-                    "size": size,
-                    "entries": entry_count
-                }
-            except Exception as e:
-                logger.error(f"Error getting metrics for {platform}: {e}")
-                
-        return metrics
-    
-    # Legacy shims for test compatibility
-    def cleanup(self) -> None:
-        """Legacy cleanup method."""
-        pass
-    
-    def _get_file_lock(self, *args, **kwargs) -> None:
-        """Legacy file lock method."""
-        return None
-    
-    def record_metric(self, *args, **kwargs) -> None:
-        """Legacy metric recording method."""
-        pass
-    
-    def _cleanup_all_locks(self) -> None:
-        """Legacy lock cleanup method."""
-        pass
-    
-    def cleanup_old_logs(self, *args, **kwargs) -> None:
-        """Legacy log cleanup method."""
+        Args:
+            platform: Optional platform name
+            
+        Returns:
+            Log file path
+        """
+        if platform and self._config and platform in self._config.platforms:
+            return self._config.platforms[platform]
+        return self.log_dir / "social.log"
+
+    def _get_file_lock(self, log_file: Path) -> logging.FileHandler:
+        """Get file lock for log file.
+        
+        Args:
+            log_file: Log file path
+            
+        Returns:
+            File handler
+        """
+        if str(log_file) not in self._file_locks:
+            handler = logging.FileHandler(log_file)
+            handler.setFormatter(logging.Formatter(self._config.format if self._config else "%(message)s"))
+            self._file_locks[str(log_file)] = handler
+        return self._file_locks[str(log_file)]
+
+    def cleanup_all_locks(self):
+        """Clean up all file locks."""
+        for handler in self._file_locks.values():
+            handler.close()
+        self._file_locks.clear()
+
+    def record_metric(self, name: str, value: float, tags: Optional[Dict] = None, metadata: Optional[Dict] = None):
+        """Record a metric (no-op for backward compatibility)."""
         pass
 
 def write_json_log(platform: str, status: str, message: str, level: str = "INFO", 

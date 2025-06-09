@@ -82,11 +82,11 @@ class LogManager:
         self.logger.addHandler(console_handler)
         
         # Add file handler if specified
-        if self.config.log_file:
+        if self.config.file_path:
             file_handler = RotatingFileHandler(
-                self.config.log_file,
+                self.config.file_path,
                 maxBytes=self.config.max_bytes,
-                backupCount=self.config.max_files
+                backupCount=self.config.backup_count
             )
             file_handler.setFormatter(logging.Formatter(self.config.format))
             self.logger.addHandler(file_handler)

@@ -27,7 +27,9 @@ __all__ = [
     'assign_role',
     'remove_role',
     'save_users',
-    'load_users'
+    'load_users',
+    'is_locked_out',
+    'record_failed_attempt'
 ]
 
 class AuthError(Exception):
@@ -104,13 +106,13 @@ class AuthManager:
                 return False, "Invalid username or password", None
                 
             # Check login attempts
-            if self._is_locked_out(username):
+            if self.is_locked_out(username):
                 return False, "Account temporarily locked", None
                 
             # Verify password
             user = self.users[username]
             if not IdentityUtils.verify_password(password, user['password_hash'], user['salt']):
-                self._record_failed_attempt(username)
+                self.record_failed_attempt(username)
                 return False, "Invalid username or password", None
                 
             # Create session
@@ -224,8 +226,8 @@ class AuthManager:
                 self.users[username]['roles'].remove(role)
             return True, None
             
-    def _is_locked_out(self, username: str) -> bool:
-        """Check if user is locked out due to failed attempts.
+    def is_locked_out(self, username: str) -> bool:
+        """Check if a user is locked out due to too many failed attempts.
         
         Args:
             username: Username to check
@@ -236,19 +238,19 @@ class AuthManager:
         if username not in self.login_attempts:
             return False
             
-        attempts = self.login_attempts[username]
-        current_time = time.time()
-        lockout_duration = self.config.get_auth_config()['lockout_duration']
+        # Get recent attempts within lockout window
+        now = time.time()
+        window_start = now - self.config.get_identity_config()['lockout_window']
+        recent_attempts = [t for t in self.login_attempts[username] if t > window_start]
         
-        # Remove old attempts
-        attempts = [t for t in attempts if current_time - t <= lockout_duration]
-        self.login_attempts[username] = attempts
+        # Update attempts list
+        self.login_attempts[username] = recent_attempts
         
-        # Check if too many recent attempts
-        max_attempts = self.config.get_auth_config()['max_login_attempts']
-        return len(attempts) >= max_attempts
+        # Check if too many attempts
+        max_attempts = self.config.get_identity_config()['max_login_attempts']
+        return len(recent_attempts) >= max_attempts
         
-    def _record_failed_attempt(self, username: str) -> None:
+    def record_failed_attempt(self, username: str) -> None:
         """Record a failed login attempt.
         
         Args:
@@ -256,7 +258,6 @@ class AuthManager:
         """
         if username not in self.login_attempts:
             self.login_attempts[username] = []
-            
         self.login_attempts[username].append(time.time())
         
     def save_users(self, path: str) -> None:
@@ -288,3 +289,146 @@ class AuthManager:
                 data = json.load(f)
                 
             self.users = data['users'] 
+
+# Create singleton instance
+_auth_manager = AuthManager()
+
+def register_user(username: str, password: str, metadata: Optional[Dict[str, Any]] = None) -> Tuple[bool, Optional[str]]:
+    """Register a new user.
+    
+    Args:
+        username: Username
+        password: Password
+        metadata: Optional user metadata
+        
+    Returns:
+        Tuple of (success, error_message)
+    """
+    return _auth_manager.register_user(username, password, metadata)
+
+def authenticate(username: str, password: str) -> Tuple[bool, Optional[str], Optional[str]]:
+    """Authenticate a user.
+    
+    Args:
+        username: Username
+        password: Password
+        
+    Returns:
+        Tuple of (success, error_message, session_token)
+    """
+    return _auth_manager.authenticate(username, password)
+
+def validate_token(token: str) -> bool:
+    """Validate an authentication token.
+    
+    Args:
+        token: Token to validate
+        
+    Returns:
+        True if token is valid, False otherwise
+    """
+    return _auth_manager.validate_token(token)
+
+def get_user_info(token: str) -> Optional[Dict[str, Any]]:
+    """Get user information from token.
+    
+    Args:
+        token: Authentication token
+        
+    Returns:
+        User information dictionary if token valid, None otherwise
+    """
+    return _auth_manager.get_user_info(token)
+
+def update_user_metadata(token: str, metadata: Dict[str, Any]) -> bool:
+    """Update user metadata.
+    
+    Args:
+        token: Authentication token
+        metadata: New metadata to merge with existing
+        
+    Returns:
+        True if successful, False if token invalid
+    """
+    return _auth_manager.update_user_metadata(token, metadata)
+
+def assign_role(token: str, username: str, role: str) -> Tuple[bool, Optional[str]]:
+    """Assign a role to a user.
+    
+    Args:
+        token: Authentication token of admin
+        username: Username to assign role to
+        role: Role to assign
+        
+    Returns:
+        Tuple of (success, error_message)
+    """
+    return _auth_manager.assign_role(token, username, role)
+
+def remove_role(token: str, username: str, role: str) -> Tuple[bool, Optional[str]]:
+    """Remove a role from a user.
+    
+    Args:
+        token: Authentication token of admin
+        username: Username to remove role from
+        role: Role to remove
+        
+    Returns:
+        Tuple of (success, error_message)
+    """
+    return _auth_manager.remove_role(token, username, role)
+
+def save_users(path: str) -> None:
+    """Save users to a file.
+    
+    Args:
+        path: Path to save users to
+    """
+    _auth_manager.save_users(path)
+
+def load_users(path: str) -> None:
+    """Load users from a file.
+    
+    Args:
+        path: Path to load users from
+    """
+    _auth_manager.load_users(path)
+
+def is_locked_out(username: str) -> bool:
+    """Check if a user is locked out due to too many failed attempts.
+    
+    Args:
+        username: Username to check
+        
+    Returns:
+        True if user is locked out, False otherwise
+    """
+    with _auth_manager.lock:
+        if username not in _auth_manager.login_attempts:
+            return False
+            
+        # Get recent attempts within lockout window
+        now = time.time()
+        window = _auth_manager.config.get_identity_config().get('lockout_window', 300)  # 5 minutes default
+        recent_attempts = [
+            t for t in _auth_manager.login_attempts[username]
+            if now - t < window
+        ]
+        
+        # Update attempts list
+        _auth_manager.login_attempts[username] = recent_attempts
+        
+        # Check if too many attempts
+        max_attempts = _auth_manager.config.get_identity_config().get('max_login_attempts', 5)
+        return len(recent_attempts) >= max_attempts
+
+def record_failed_attempt(username: str) -> None:
+    """Record a failed login attempt for a user.
+    
+    Args:
+        username: Username to record attempt for
+    """
+    with _auth_manager.lock:
+        if username not in _auth_manager.login_attempts:
+            _auth_manager.login_attempts[username] = []
+        _auth_manager.login_attempts[username].append(time.time()) 

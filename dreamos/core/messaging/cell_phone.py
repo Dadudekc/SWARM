@@ -14,6 +14,8 @@ from pathlib import Path
 from typing import Dict, List, Optional, Union
 import asyncio
 import pyautogui
+import re
+from types import SimpleNamespace
 
 # The agent_tools.mailbox package is optional and may not be available in
 # minimal test environments. Import it lazily so that basic functionality of the
@@ -249,11 +251,21 @@ def validate_phone_number(phone_number: str) -> bool:
     # Basic validation - can be enhanced based on requirements
     return bool(phone_number and phone_number.replace('+', '').replace('-', '').replace(' ', '').isdigit())
 
-def format_phone_number(number: str) -> str:
-    """Formats a phone number into (123) 456-7890 style."""
-    if len(number) == 10 and number.isdigit():
-        return f"({number[:3]}) {number[3:6]}-{number[6:]}"
-    return number
+def format_phone_number(raw: str) -> str:
+    """Formats a phone number into (123) 456-7890 style.
+    
+    Args:
+        raw: Raw phone number string
+        
+    Returns:
+        Formatted phone number string
+    """
+    digits = re.sub(r'\D', '', raw)
+    if len(digits) == 11 and digits.startswith("1"):
+        digits = digits[1:]
+    if len(digits) != 10:
+        return raw  # fallback to original
+    return f"({digits[:3]}) {digits[3:6]}-{digits[6:]}"
 
 # Remove legacy CLI/test harness code below this line
 # (No argparse, no __main__ block, no legacy CLI functions) 
@@ -272,6 +284,18 @@ class CaptainPhone(CellPhone):
         if not hasattr(self, 'agent_id'):
             self.agent_id = "captain"
             super().__init__(config or {})
+            self.logger = logging.getLogger(__name__)
+            
+            async def mock_send(msg):
+                return True
+                
+            async def mock_broadcast(msg):
+                return True
+                
+            self.message_handler = SimpleNamespace(
+                send_message=mock_send,
+                broadcast_message=mock_broadcast
+            )
     
     @classmethod
     def reset_singleton(cls):

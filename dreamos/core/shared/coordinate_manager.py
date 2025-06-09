@@ -14,6 +14,18 @@ from .coordinate_utils import load_coordinates, validate_coordinates
 
 logger = logging.getLogger("coordinate_manager")
 
+__all__ = [
+    'CoordinateManager',
+    'load_coordinates',
+    'save_coordinates',
+    '_process_raw',
+    'get_coordinates',
+    'set_coordinates',
+    'get_agent_coordinates',
+    'get_input_box_coordinates',
+    'get_copy_button_coordinates',
+    'list_agents'
+]
 
 class CoordinateManager:
     """Manage UI coordinate configuration."""
@@ -120,15 +132,41 @@ class CoordinateManager:
         """Return list of agent identifiers."""
         return sorted(self.coordinates.keys())
 
-__all__ = [
-    'CoordinateManager',
-    'load_coordinates',
-    'save_coordinates',
-    '_process_raw',
-    'get_coordinates',
-    'set_coordinates',
-    'get_agent_coordinates',
-    'get_input_box_coordinates',
-    'get_copy_button_coordinates',
-    'list_agents'
-]
+# Create singleton instance
+_coordinate_manager = CoordinateManager()
+
+def load_coordinates() -> None:
+    """Load coordinates from disk into memory."""
+    _coordinate_manager.load_coordinates()
+
+def save_coordinates() -> None:
+    """Persist current coordinates to disk."""
+    _coordinate_manager.save_coordinates()
+
+def _process_raw(coords: Dict) -> Dict[str, Dict[str, Tuple[int, int]]]:
+    """Process raw coordinate data into a more usable format."""
+    return CoordinateManager._process_raw(coords)
+
+def get_coordinates(agent_id: str) -> Optional[Dict[str, Tuple[int, int]]]:
+    """Return tuple based coordinates for an agent."""
+    return _coordinate_manager.get_coordinates(agent_id)
+
+def set_coordinates(agent_id: str, coords: Dict[str, Tuple[int, int]]) -> None:
+    """Update coordinates for an agent and save them."""
+    _coordinate_manager.set_coordinates(agent_id, coords)
+
+def get_agent_coordinates(agent_id: str) -> Optional[Tuple[int, int]]:
+    """Get initial spot coordinates for an agent."""
+    return _coordinate_manager.get_agent_coordinates(agent_id)
+
+def get_input_box_coordinates(agent_id: str) -> Optional[Tuple[int, int]]:
+    """Get input box coordinates for an agent."""
+    return _coordinate_manager.get_input_box_coordinates(agent_id)
+
+def get_copy_button_coordinates(agent_id: str) -> Optional[Tuple[int, int]]:
+    """Get copy button coordinates for an agent."""
+    return _coordinate_manager.get_copy_button_coordinates(agent_id)
+
+def list_agents() -> List[str]:
+    """Return list of agent identifiers."""
+    return _coordinate_manager.list_agents()

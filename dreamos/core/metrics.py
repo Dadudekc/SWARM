@@ -96,4 +96,36 @@ def save_metrics(metrics_file: str, metrics: Dict) -> None:
 def load_metrics(metrics_files: List[Path]) -> Dict:
     """Load metrics from file."""
     data = load_json(str(metrics_files[-1]))
-    return data if data else {} 
+    return data if data else {}
+
+# Create singleton instance
+_metrics = CommandMetrics()
+
+def track_command(command_name: str) -> None:
+    """Track a command execution.
+    
+    Args:
+        command_name: Name of the command executed
+    """
+    _metrics.track_command(command_name)
+
+def get_command_stats() -> Dict[str, int]:
+    """Get current command statistics.
+    
+    Returns:
+        Dictionary of command names to execution counts
+    """
+    return _metrics.get_command_stats()
+
+def reset_stats() -> None:
+    """Reset command statistics."""
+    _metrics.reset_stats()
+
+__all__ = [
+    'CommandMetrics',
+    'track_command',
+    'get_command_stats',
+    'reset_stats',
+    'save_metrics',
+    'load_metrics'
+] 

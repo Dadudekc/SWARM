@@ -1,110 +1,90 @@
 """
-Log configuration module.
+Log configuration for managing log files and settings.
 """
 
-from pathlib import Path
-from typing import Dict, Optional
+import os
 from dataclasses import dataclass, field
+from datetime import datetime
+from pathlib import Path
+from typing import Dict, Optional, Union
+
 from .log_level import LogLevel
 
 @dataclass
 class LogConfig:
-    """Configuration for logging system."""
-    
-    log_dir: Path
+    """Configuration for log files and settings."""
+    log_dir: Union[str, Path]
     max_size_mb: int = 10
     max_files: int = 5
+    backup_count: int = 5  # Alias for max_files for backward compatibility
+    compress_after_days: int = 7
+    data_dir: Union[str, Path] = Path("runtime/logs/data")
     batch_size: int = 100
     batch_timeout: float = 5.0
     level: LogLevel = LogLevel.INFO
     platforms: Dict[str, Path] = field(default_factory=dict)
-    compress_after_days: int = 7
-    format: str = "%(asctime)s [%(levelname)-8s] %(message)s (%(filename)s:%(lineno)d)"
-    config_dir: Optional[Path] = None
-    
+    format: str = "%(asctime)s [%(levelname)-8s] %(message)s"
+    config_dir: Union[str, Path] = Path("runtime/logs/config")
+    log_file: Optional[Union[str, Path]] = None
+
     def __post_init__(self):
-        """Initialize configuration after construction."""
+        """Initialize paths and create necessary directories."""
         # Convert string paths to Path objects
-        if isinstance(self.log_dir, str):
-            self.log_dir = Path(self.log_dir)
-        if isinstance(self.config_dir, str):
-            self.config_dir = Path(self.config_dir)
-            
-        # Set config_dir to log_dir if not specified
-        if self.config_dir is None:
-            self.config_dir = self.log_dir
-            
-        # Create directories
+        self.log_dir = Path(self.log_dir)
+        self.data_dir = Path(self.data_dir)
+        self.config_dir = Path(self.config_dir)
+        
+        # Create directories if they don't exist
         self.log_dir.mkdir(parents=True, exist_ok=True)
+        self.data_dir.mkdir(parents=True, exist_ok=True)
         self.config_dir.mkdir(parents=True, exist_ok=True)
         
-        # Initialize platform logs
-        self._init_platform_logs()
-    
-    def _init_platform_logs(self):
-        """Initialize default platform log files."""
-        default_platforms = {
-            'default': 'default.log',
-            'system': 'system.log',
-            'error': 'error.log'
-        }
-        
-        for platform, filename in default_platforms.items():
-            log_path = self.log_dir / filename
-            self.platforms[platform] = log_path
+        # Set default log file if not specified
+        if self.log_file is None:
+            self.log_file = self.log_dir / "social.log"
+        else:
+            self.log_file = Path(self.log_file)
             
-            # Ensure log file exists
-            log_path.parent.mkdir(parents=True, exist_ok=True)
-            if not log_path.exists():
-                log_path.touch()
-    
-    @property
-    def log_file(self) -> Path:
-        """Get the default log file path."""
-        return self.log_dir / 'log.txt'
-    
-    @property
-    def data_dir(self) -> Path:
-        """Get the data directory path."""
-        return self.log_dir / 'data'
-    
-    def __str__(self) -> str:
-        """String representation of the configuration."""
-        return f"LogConfig(log_dir={self.log_dir}, level={self.level})"
-    
-    def __eq__(self, other) -> bool:
-        """Compare configurations for equality."""
-        if not isinstance(other, LogConfig):
-            return False
-        return str(self.log_dir) == str(other.log_dir)
-    
+        # Set platform log files if not specified
+        if not self.platforms:
+            self.platforms = {
+                "twitter": self.log_dir / "twitter.log",
+                "facebook": self.log_dir / "facebook.log",
+                "instagram": self.log_dir / "instagram.log",
+                "linkedin": self.log_dir / "linkedin.log"
+            }
+        else:
+            self.platforms = {k: Path(v) for k, v in self.platforms.items()}
+
     @property
     def max_bytes(self) -> int:
-        """Get maximum log file size in bytes."""
+        """Get maximum file size in bytes."""
         return self.max_size_mb * 1024 * 1024
+
+    @property
+    def file_path(self) -> Path:
+        """Legacy property for backward compatibility."""
+        return self.log_file
+
+    def __str__(self) -> str:
+        """Get string representation."""
+        return str(self.log_dir)
     
-    def add_platform(self, platform: str) -> Path:
-        """Add a new platform log file.
-        
-        Args:
-            platform: Platform name
-            
-        Returns:
-            Path to platform log file
-        """
-        if platform not in self.platforms:
-            log_file = self.log_dir / f"{platform}.log"
-            self.platforms[platform] = log_file
-            log_file.touch(exist_ok=True)
-        return self.platforms[platform]
-    
-    def get_platform_log(self, platform: str) -> Optional[Path]:
-        """Get log file path for a platform.
-        
-        Args:
-            platform: Platform name
-            
-        Returns:
-            Path to platform log file or None if not found
-        """
-        return self.platforms.get(platform)
+    def __eq__(self, other):
+        """Compare two LogConfig instances."""
+        if not isinstance(other, LogConfig):
+            return False
+        return (
+            self.log_dir == other.log_dir
+            and self.max_size_mb == other.max_size_mb
+            and self.max_files == other.max_files
+            and self.compress_after_days == other.compress_after_days
+            and self.data_dir == other.data_dir
+            and self.batch_size == other.batch_size
+            and self.batch_timeout == other.batch_timeout
+            and self.level == other.level
+            and self.platforms == other.platforms
+            and self.format == other.format
+            and self.config_dir == other.config_dir
+            and self.log_file == other.log_file
+        )

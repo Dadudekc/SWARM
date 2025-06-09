@@ -12,6 +12,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, Any
 
+__all__ = ['LogMetrics', 'increment_logs', 'record_error', 'record_rotation', 'reset', '_save', 'get_metrics', 'track_command']
 
 class LogMetrics:
     """Collects basic metrics about logging activity."""
@@ -94,3 +95,58 @@ class LogMetrics:
             "status_counts": self.status_counts,
             "format_counts": self.format_counts,
         }
+
+# Create singleton instance
+_metrics = LogMetrics()
+
+def increment_logs(
+    platform: str,
+    level: str,
+    status: str,
+    format_type: str,
+    bytes_written: int = 0,
+) -> None:
+    """Update metrics for a newly written log entry."""
+    _metrics.increment_logs(
+        platform=platform,
+        level=level,
+        status=status,
+        format_type=format_type,
+        bytes_written=bytes_written,
+    )
+
+def record_error(message: str) -> None:
+    """Record an error in the metrics."""
+    _metrics.record_error(message)
+
+def record_rotation() -> None:
+    """Record a log rotation in the metrics."""
+    _metrics.record_rotation()
+
+def reset() -> None:
+    """Reset all metrics to their initial state."""
+    _metrics.reset()
+
+def _save() -> None:
+    """Persist metrics to disk."""
+    _metrics._save()
+
+def get_metrics() -> Dict[str, Any]:
+    """Get the current metrics."""
+    return _metrics.get_metrics()
+
+def track_command(command: str, success: bool, duration: float = 0.0) -> None:
+    """Track command execution metrics.
+    
+    Args:
+        command: The command that was executed
+        success: Whether the command succeeded
+        duration: How long the command took to execute (seconds)
+    """
+    _metrics.increment_logs(
+        platform="command",
+        level="info" if success else "error",
+        status="success" if success else "failure",
+        format_type=command,
+        bytes_written=int(duration * 1000)  # Convert to milliseconds
+    )

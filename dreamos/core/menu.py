@@ -417,6 +417,13 @@ class MenuBuilder:
         """
         return self.menu
 
+# Create singleton instance
+_menu_theme = MenuTheme()
+
+def _init_theme():
+    """Initialize theme colors and styles."""
+    return _menu_theme._init_theme()
+
 def main():
     """Main entry point."""
     if not PYTQT5_AVAILABLE:
@@ -431,4 +438,18 @@ def main():
     sys.exit(app.exec_())
 
 if __name__ == "__main__":
-    main() 
+    main()
+
+__all__ = [
+    'MenuStyle',
+    'MenuItemType',
+    'MenuItem',
+    'MenuTheme',
+    'MenuButton',
+    'MenuHeader',
+    'MenuFooter',
+    'MenuSignals',
+    'Menu',
+    'MenuBuilder',
+    '_init_theme'
+] 

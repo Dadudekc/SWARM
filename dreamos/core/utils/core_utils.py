@@ -18,6 +18,8 @@ from datetime import datetime
 from functools import wraps
 import functools
 
+from .yaml_utils import write_yaml as _write_yaml
+
 logger = logging.getLogger(__name__)
 
 T = TypeVar('T')
@@ -400,12 +402,9 @@ def write_yaml(data: Dict[str, Any], path: Union[str, Path], indent: int = 2) ->
     Args:
         data: Data to write
         path: Path to write to
-        indent: Indentation level
+        indent: Indentation level (ignored, kept for backward compatibility)
     """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        yaml.safe_dump(data, f, indent=indent, sort_keys=False)
+    _write_yaml(path, data)
 
 def load_yaml(path: str | Path) -> Dict[str, Any]:
     """Load data from a YAML file.
