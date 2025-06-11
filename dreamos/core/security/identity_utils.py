@@ -117,9 +117,9 @@ class IdentityUtils:
         Returns:
             Formatted agent name
         """
-        # Remove special characters and extra spaces
-        name = re.sub(r'[^a-zA-Z0-9\s-]', '', name)
+        # Replace all non-alphanumeric characters with spaces
+        name = re.sub(r'[^a-zA-Z0-9]', ' ', name)
+        # Normalize spaces
         name = re.sub(r'\s+', ' ', name).strip()
-        
         # Convert to title case
         return name.title() 

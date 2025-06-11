@@ -14,7 +14,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Any, Optional, List, Set, Tuple, Union
 
-from .core_utils import load_json, save_json, ensure_dir
+from .json_utils import load_json, save_json
+from .file_ops import ensure_dir
 
 logger = logging.getLogger(__name__)
 

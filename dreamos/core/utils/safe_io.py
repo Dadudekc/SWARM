@@ -6,11 +6,13 @@ import logging
 import os
 import tempfile
 from pathlib import Path
-from typing import Any, Optional, Union
+from typing import Any, Optional, Union, ContextManager, TextIO
 from collections import Counter
+from contextlib import contextmanager
 
 import aiofiles
 from fasteners import InterProcessLock
+from dreamos.core.utils.exceptions import FileOpsIOError
 
 logger = logging.getLogger(__name__)
 
@@ -19,6 +21,37 @@ metrics = Counter()
 
 class SafeIOError(Exception):
     """Legacy safe I/O error for compatibility."""
+
+@contextmanager
+def safe_file_handle(file_path: Union[str, Path], mode: str = 'r', encoding: str = 'utf-8') -> ContextManager[TextIO]:
+    """Safely open a file with proper error handling.
+    
+    Args:
+        file_path: Path to the file
+        mode: File open mode ('r', 'w', etc.)
+        encoding: File encoding
+        
+    Yields:
+        File handle
+        
+    Raises:
+        FileOpsIOError: If file cannot be opened
+    """
+    file_path = Path(file_path)
+    try:
+        with open(file_path, mode, encoding=encoding) as f:
+            yield f
+    except Exception as e:
+        logger.error(
+            "file_handle_error",
+            extra={
+                "path": str(file_path),
+                "mode": mode,
+                "error": str(e)
+            }
+        )
+        metrics["file_handle_errors"] += 1
+        raise FileOpsIOError(f"Failed to open file {file_path}: {e}") from e
 
 def atomic_write(
     file_path: Union[str, Path], 

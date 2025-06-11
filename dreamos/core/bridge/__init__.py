@@ -1,26 +1,9 @@
 """
-Bridge Package
-------------
-Core bridge functionality for Dream.OS.
+Bridge package for Dream.OS.
 """
 
 from .base import BaseBridge
+from .daemon import ResponseLoopDaemon
 from .chatgpt.bridge import ChatGPTBridge
 
-def _load_config():
-    """Load bridge configuration.
-    
-    Returns:
-        Dict containing bridge configuration
-    """
-    return {
-        "dummy": True,
-        "version": "1.0.0",
-        "enabled": True
-    }
-
-__all__ = [
-    'BaseBridge',
-    'ChatGPTBridge',
-    '_load_config'
-] 
+__all__ = ['BaseBridge', 'ResponseLoopDaemon', 'ChatGPTBridge'] 

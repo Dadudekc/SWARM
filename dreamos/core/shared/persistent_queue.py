@@ -21,10 +21,15 @@ from dreamos.core.utils.core_utils import (
     atomic_write,
     safe_read,
     safe_write,
-    load_json,
-    save_json,
-    ensure_dir
+    ensure_dir,
+    get_timestamp,
+    format_duration,
+    is_valid_uuid
 )
+from dreamos.core.utils.json_utils import load_json, save_json
+from dreamos.core.utils.file_ops import ensure_dir
+from dreamos.core.utils.logging_utils import get_logger
+from dreamos.core.utils.exceptions import FileOpsError
 from dreamos.core.log_manager import LogManager
 
 logger = logging.getLogger('persistent_queue')
@@ -403,3 +408,19 @@ def save_queue(self, queue: List[Dict]) -> None:
 def load_queue_file(queue_file: str) -> List[Dict]:
     """Load queue from file."""
     return load_json(queue_file)
+
+def get_queue_size(queue_file: str = "runtime/queue/messages.json") -> int:
+    """Get the current size of a queue file.
+    
+    Args:
+        queue_file: Path to the queue file
+        
+    Returns:
+        int: Number of messages in queue
+    """
+    try:
+        queue = load_json(queue_file)
+        return len(queue)
+    except Exception as e:
+        logger.error(f"Error getting queue size: {e}")
+        return 0

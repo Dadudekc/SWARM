@@ -1,0 +1,186 @@
+name: Verify Beta Deployment
+description: Validates critical systems and components before beta deployment
+priority: high
+status: active
+agent: agent-1
+episode: episode-1
+
+steps:
+  - name: Initialize Verification
+    action: run_verification
+    params:
+      output_json: true
+      save_report: true
+    timeout: 300
+    retries: 2
+
+  - name: Check Core Systems
+    action: check_verification_results
+    params:
+      max_failures: 0
+      required_checks:
+        - System Initialization
+        - Autonomy System
+        - Runtime Directories
+        - Agent Mailboxes
+        - Required Documentation
+        - Unit Tests
+        - File Structure
+        - Agent States
+        - Task Management
+        - Autonomy Loop
+    timeout: 60
+
+  - name: Check Security
+    action: check_verification_results
+    params:
+      max_failures: 0
+      required_checks:
+        - Security Configuration
+        - Authentication System
+        - Session Management
+        - Identity Management
+    timeout: 60
+
+  - name: Check Monitoring
+    action: check_verification_results
+    params:
+      max_failures: 0
+      required_checks:
+        - Monitoring System
+        - Health Checks
+        - Metrics Collection
+        - Bridge Health
+    timeout: 60
+
+  - name: Check Error Handling
+    action: check_verification_results
+    params:
+      max_failures: 0
+      required_checks:
+        - Error Tracking
+        - Backup System
+        - Recovery System
+        - Atomic Operations
+    timeout: 60
+
+  - name: Check Integrations
+    action: check_verification_results
+    params:
+      max_failures: 0
+      required_checks:
+        - Discord Devlog
+        - Social Integrations
+        - Resumer
+        - Onboarder
+        - ChatGPT Bridge
+        - Discord Commander
+    timeout: 60
+
+  - name: Check Test Coverage
+    action: check_verification_results
+    params:
+      max_failures: 0
+      required_checks:
+        - Test Coverage
+      coverage_threshold: 80
+    timeout: 120
+
+  - name: Generate Report
+    action: generate_verification_report
+    params:
+      format: markdown
+      include_details: true
+      save_path: reports/beta_verification.md
+      sections:
+        - Core Systems
+        - Security
+        - Monitoring
+        - Error Handling
+        - Integrations
+        - Test Coverage
+        - Runtime Environment
+        - Configuration
+        - Dependencies
+    timeout: 120
+
+  - name: Notify Team
+    action: send_notification
+    params:
+      channel: beta-deployment
+      message_template: |
+        🧪 Dream.OS Beta Verification Results
+        
+        Status: {{status}}
+        Failed Checks: {{failed_checks}}
+        Report: {{report_url}}
+        
+        {% if failed_checks > 0 %}
+        ⚠️ Please review the verification report before proceeding with deployment.
+        {% else %}
+        ✅ All checks passed. Ready for beta deployment.
+        {% endif %}
+        
+        System Status:
+        - Core Systems: {{core_systems_status}}
+        - Security: {{security_status}}
+        - Monitoring: {{monitoring_status}}
+        - Error Handling: {{error_handling_status}}
+        - Runtime Environment: {{runtime_status}}
+        - Test Coverage: {{test_coverage}}%
+        
+        Integration Status:
+        - Discord Devlog: {{discord_devlog_status}}
+        - Social Integrations: {{social_integrations_status}}
+        - Resumer: {{resumer_status}}
+        - Onboarder: {{onboarder_status}}
+        - ChatGPT Bridge: {{chatgpt_bridge_status}}
+        - Discord Commander: {{discord_commander_status}}
+    timeout: 30
+
+success_criteria:
+  - all_required_checks_passed: true
+  - verification_report_generated: true
+  - team_notified: true
+  - all_integrations_verified: true
+  - test_coverage_threshold_met: true
+  - runtime_environment_ready: true
+  - security_systems_validated: true
+  - monitoring_systems_active: true
+  - error_handling_verified: true
+
+failure_handling:
+  - action: save_failure_state
+    params:
+      save_path: runtime/verification_failure.json
+      
+  - action: notify_team
+    params:
+      channel: beta-deployment
+      priority: high
+      message: "❌ Beta verification failed. Please check the failure report."
+
+dependencies:
+  - task: run_unit_tests
+  - task: check_agent_states
+  - task: validate_configs
+  - task: verify_integrations
+  - task: check_runtime_environment
+  - task: verify_security
+  - task: check_monitoring
+  - task: validate_error_handling
+
+metadata:
+  created: "2024-03-20"
+  author: "Dream.OS Team"
+  version: "1.0.0"
+  tags:
+    - beta
+    - verification
+    - deployment
+    - quality
+    - security
+    - monitoring
+    - error-handling
+    - integrations
+    - testing 

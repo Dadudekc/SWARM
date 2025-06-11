@@ -53,167 +53,150 @@ class LogPipeline:
     """Handles batched log entry processing."""
     
     def __init__(self, log_dir: Union[str, Path, LogConfig]):
-        """Initialize log pipeline.
+        """Initialize the log pipeline.
         
         Args:
-            log_dir: Log directory path or LogConfig object
+            log_dir: Either a LogConfig object or path to log directory
         """
-        if isinstance(log_dir, LogConfig):
-            self._config = log_dir
-            self.log_dir = log_dir.log_dir
-            self.batch_size = log_dir.batch_size
-            self.batch_timeout = log_dir.batch_timeout
+        if isinstance(log_dir, (str, Path)):
+            self.config = LogConfig(log_dir=str(log_dir))
+            self.log_dir = str(log_dir)  # Legacy compatibility
         else:
-            self._config = None
-            self.log_dir = Path(log_dir)
-            self.batch_size = 100
-            self.batch_timeout = 5.0
+            self.config = log_dir
+            self.log_dir = log_dir.log_dir  # Legacy compatibility
             
-        self.log_dir.mkdir(parents=True, exist_ok=True)
-        self._writer = LogWriter(self.log_dir)
+        self._writer = LogWriter(self.config)
         self._batch: List[LogEntry] = []
-        self._stop_event = threading.Event()
+        self._lock = threading.Lock()
+        self._running = False
+        self._shutdown = False
         self._flush_thread: Optional[threading.Thread] = None
+        self._logger = logging.getLogger(__name__)
+        
+        # Register cleanup on exit
+        atexit.register(self.stop)
 
-    def add_entry(self, entry: Union[LogEntry, Dict]) -> bool:
+    def add_entry(self, entry: Union[LogEntry, Dict[str, Any]]) -> None:
         """Add a log entry to the batch.
         
         Args:
-            entry: LogEntry or dict with entry data
-            
-        Returns:
-            True if successful
+            entry: Either a LogEntry object or dict with entry data
         """
+        if not self._running:
+            self.start()
+            
+        # Convert dict to LogEntry if needed
         if isinstance(entry, dict):
-            if "message" not in entry:
-                raise ValueError("Log entry must have a message field")
             entry = LogEntry.from_dict(entry)
             
-        if not entry.message or not entry.level:
-            return False
-            
-        self._batch.append(entry)
-        
-        if len(self._batch) >= self.batch_size:
-            self.flush()
-            
-        return True
-
-    def flush(self) -> bool:
-        """Flush batched entries to log files.
-        
-        Returns:
-            True if successful
-        """
-        if not self._batch:
-            return True
-            
-        try:
-            # Group entries by platform
-            entries_by_platform: Dict[str, List[LogEntry]] = {}
-            for entry in self._batch:
-                platform = entry.platform
-                if platform not in entries_by_platform:
-                    entries_by_platform[platform] = []
-                entries_by_platform[platform].append(entry)
-                
-            # Write entries for each platform
-            for platform, entries in entries_by_platform.items():
-                if not self._writer.write_log_json(entries):
-                    logging.error(f"Error writing entries for platform {platform}")
-                    return False
-                    
-            self._batch.clear()
-            return True
-            
-        except Exception as e:
-            logging.error(f"Error flushing entries: {e}")
-            return False
-
-    def get_log_info(self) -> Dict:
-        """Get information about log files.
-        
-        Returns:
-            Dictionary with log info
-        """
-        info = {
-            "total_size": 0,
-            "file_count": 0,
-            "entry_count": 0,
-            "platforms": {}
-        }
-        
-        for log_file in self.log_dir.glob("*.log*"):
-            try:
-                size = log_file.stat().st_size
-                info["total_size"] += size
-                info["file_count"] += 1
-                
-                # Count entries in file
-                with open(log_file) as f:
-                    entry_count = sum(1 for _ in f)
-                info["entry_count"] += entry_count
-                
-                # Add platform info
-                platform = log_file.stem
-                if platform not in info["platforms"]:
-                    info["platforms"][platform] = {
-                        "size": 0,
-                        "entry_count": 0
-                    }
-                info["platforms"][platform]["size"] += size
-                info["platforms"][platform]["entry_count"] += entry_count
-                
-            except Exception as e:
-                logging.error(f"Error getting info for {log_file}: {e}")
-                
-        return info
-
-    def read_logs(
-        self,
-        platform: Optional[str] = None,
-        level: Optional[LogLevel] = None,
-        limit: int = 100
-    ) -> List[LogEntry]:
-        """Read log entries.
-        
-        Args:
-            platform: Optional platform filter
-            level: Optional level filter
-            limit: Maximum number of entries
-            
-        Returns:
-            List of log entries
-        """
-        return self._writer.read_logs(platform, level, limit)
-
-    def _flush_thread(self):
-        """Background thread for periodic flushing."""
-        while not self._stop_event.is_set():
-            time.sleep(self.batch_timeout)
-            if self._batch:
+        with self._lock:
+            self._batch.append(entry)
+            if len(self._batch) >= self.config.batch_size:
                 self.flush()
 
-    def start(self):
-        """Start the log pipeline."""
-        if self._flush_thread is not None:
-            raise RuntimeError("Log pipeline is already running")
+    def flush(self) -> None:
+        """Flush the current batch to disk."""
+        with self._lock:
+            if not self._batch:
+                return
+                
+            try:
+                batch = self._batch.copy()
+                self._batch.clear()
+                
+                # Group entries by platform
+                entries_by_platform = {}
+                for entry in batch:
+                    platform = entry.platform
+                    if platform not in entries_by_platform:
+                        entries_by_platform[platform] = []
+                    entries_by_platform[platform].append(entry)
+                
+                # Write entries for each platform
+                for platform, entries in entries_by_platform.items():
+                    log_file = os.path.join(self.config.log_dir, f"{platform}.log")
+                    with self._writer._get_file_lock(log_file) as handler:
+                        for entry in entries:
+                            self._writer.write_log(entry, handler)
+            except Exception as e:
+                self._logger.error(f"Error flushing entries: {e}")
+
+    def start(self) -> None:
+        """Start the pipeline."""
+        if self._running:
+            return
             
-        self._stop_event.clear()
-        self._flush_thread = threading.Thread(target=self._flush_thread, daemon=True)
+        self._running = True
+        self._shutdown = False
+        self._flush_thread = threading.Thread(target=self._flush_thread_func, daemon=True)
         self._flush_thread.start()
 
-    def stop(self):
-        """Stop the log pipeline."""
-        if self._flush_thread is None:
-            raise RuntimeError("Log pipeline is not running")
+    def stop(self) -> None:
+        """Stop the pipeline."""
+        if not self._running:
+            return
             
-        self._stop_event.set()
-        self._flush_thread.join()
-        self._flush_thread = None
-        
-        # Final flush
+        self._running = False
+        self._shutdown = True
+        if self._flush_thread:
+            self._flush_thread.join(timeout=5.0)
         self.flush()
+
+    def _flush_thread_func(self) -> None:
+        """Background thread for periodic flushing."""
+        while self._running and not self._shutdown:
+            self.flush()
+            time.sleep(self.config.batch_timeout)
+
+    def get_log_info(self) -> Dict[str, Any]:
+        """Get information about the log files."""
+        info = {
+            "platforms": {},
+            "total_entries": 0,
+            "total_size": 0
+        }
+        
+        try:
+            for platform in self.config.platforms:
+                log_file = os.path.join(self.config.log_dir, f"{platform}.log")
+                if os.path.exists(log_file):
+                    size = os.path.getsize(log_file)
+                    entries = len(self._writer.read_logs(log_file))
+                    info["platforms"][platform] = {
+                        "size": size,
+                        "entries": entries
+                    }
+                    info["total_entries"] += entries
+                    info["total_size"] += size
+        except Exception as e:
+            self._logger.error(f"Error getting log info: {e}")
+            
+        return info
+
+    def read_logs(self, platform: Optional[str] = None, level: Optional[LogLevel] = None, limit: Optional[int] = None) -> List[LogEntry]:
+        """Read logs from the specified platform."""
+        try:
+            if platform:
+                log_file = os.path.join(self.config.log_dir, f"{platform}.log")
+                return self._writer.read_logs(log_file, level, limit)
+            else:
+                all_logs = []
+                for platform in self.config.platforms:
+                    log_file = os.path.join(self.config.log_dir, f"{platform}.log")
+                    logs = self._writer.read_logs(log_file, level, limit)
+                    all_logs.extend(logs)
+                return all_logs
+        except Exception as e:
+            self._logger.error(f"Error reading logs: {e}")
+            return []
+
+    def cleanup_old_logs(self, max_age_days: int = 30) -> None:
+        """Legacy compatibility method."""
+        self._writer.cleanup_old_logs(max_age_days)
+
+    def _cleanup_all_locks(self) -> None:
+        """Legacy compatibility method."""
+        self._writer.cleanup()
 
     def __del__(self):
         """Cleanup on deletion."""

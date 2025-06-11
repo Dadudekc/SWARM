@@ -6,11 +6,8 @@ import os
 import json
 from datetime import datetime
 
-from agent_tools.scanner.scanner import Scanner
-from agent_tools.scanner.models.analysis import FileAnalysis, ProjectAnalysis, ClassInfo
-
-# Strategic bypass - Scanner needs refactor to handle complex dependencies better
-pytestmark = pytest.mark.skip(reason="Strategic bypass - Scanner refactor pending")
+from agent_tools.swarm_tools.scanner import Scanner
+from agent_tools.swarm_tools.core.scan_results import ScanResults
 
 @pytest.fixture
 def complex_project():
@@ -78,50 +75,57 @@ def test_method_a():
 async def test_complex_project_scan(complex_project):
     """Test scanning a complex project with circular dependencies."""
     scanner = Scanner(complex_project)
-    analysis = await scanner.scan_project()
+    results = await scanner.scan()
     
-    assert isinstance(analysis, ProjectAnalysis)
-    assert len(analysis.circular_dependencies) > 0
-    assert len(analysis.modules) > 0
+    assert isinstance(results, ScanResults)
+    assert results.total_files > 0
     
-    # Verify circular dependency detection
-    circular_deps = [set(dep) for dep in analysis.circular_dependencies]
-    expected_deps = {
-        str(Path(complex_project) / "src" / "core" / "file1.py"),
-        str(Path(complex_project) / "src" / "api" / "v1" / "file2.py")
-    }
-    assert any(expected_deps.issubset(dep) for dep in circular_deps)
+    # Check for circular dependencies in architectural issues
+    circular_deps = [issue for issue in results.architectural_issues 
+                    if "circular dependency" in issue.get('description', '').lower()]
+    assert len(circular_deps) > 0
+    
+    # Verify the files were analyzed
+    file_paths = [str(Path(complex_project) / "src" / "core" / "file1.py"),
+                 str(Path(complex_project) / "src" / "api" / "v1" / "file2.py")]
+    for path in file_paths:
+        assert any(path in issue.get('location', '') for issue in results.architectural_issues)
 
 @pytest.mark.asyncio
 async def test_complex_code_analysis(complex_project):
     """Test analysis of complex code structures."""
     scanner = Scanner(complex_project)
-    analysis = await scanner.scan_project()
+    results = await scanner.scan()
     
     # Find the complex.py file analysis
-    complex_file = next(
-        (f for f in analysis.files.values() 
-         if f.path.name == "complex.py"),
-        None
-    )
+    complex_file = Path(complex_project) / "src" / "core" / "utils" / "complex.py"
+    complex_analysis = None
     
-    assert complex_file is not None
-    assert complex_file.cyclomatic_complexity > 5  # Should detect nested control structures
-    assert "complex_function" in complex_file.functions
+    for issue in results.architectural_issues:
+        if str(complex_file) in issue.get('location', ''):
+            complex_analysis = issue
+            break
+    
+    assert complex_analysis is not None
+    assert "complex" in complex_analysis.get('description', '').lower()
+    assert "complex_function" in complex_analysis.get('location', '')
 
 @pytest.mark.asyncio
 async def test_empty_project():
     """Test scanning an empty project."""
     with tempfile.TemporaryDirectory() as temp_dir:
         scanner = Scanner(temp_dir)
-        analysis = await scanner.scan_project()
+        results = await scanner.scan()
         
-        assert isinstance(analysis, ProjectAnalysis)
-        assert len(analysis.files) == 0
-        assert len(analysis.test_files) == 0
-        assert analysis.total_complexity == 0
-        assert analysis.total_duplication == 0
-        assert analysis.average_test_coverage == 0.0
+        assert isinstance(results, ScanResults)
+        assert results.total_files == 0
+        assert results.total_duplicates == 0
+        assert len(results.duplicates) == 0
+        assert len(results.architectural_issues) == 0
+        assert len(results.agent_categories) == 0
+        assert len(results.structural_insights) == 0
+        assert len(results.themes) == 0
+        assert results.scan_time >= 0
 
 @pytest.mark.asyncio
 async def test_invalid_files(complex_project):
@@ -134,10 +138,13 @@ def invalid_function()
 """)
     
     scanner = Scanner(complex_project)
-    analysis = await scanner.scan_project()
+    results = await scanner.scan()
     
-    # The invalid file should be skipped
-    assert str(invalid_file) not in analysis.files
+    # Check for syntax error in architectural issues
+    syntax_errors = [issue for issue in results.architectural_issues 
+                    if "syntax error" in issue.get('description', '').lower()]
+    assert len(syntax_errors) > 0
+    assert any(str(invalid_file) in issue.get('location', '') for issue in syntax_errors)
 
 @pytest.mark.asyncio
 async def test_large_file_handling(complex_project):
@@ -149,12 +156,17 @@ async def test_large_file_handling(complex_project):
             f.write(f"def function_{i}():\n    pass\n\n")
     
     scanner = Scanner(complex_project)
-    analysis = await scanner.scan_project()
+    results = await scanner.scan()
     
-    # Verify the large file was processed
-    assert str(large_file) in analysis.files
-    large_analysis = analysis.files[str(large_file)]
-    assert len(large_analysis.functions) == 1000
+    # Check for large file analysis
+    large_file_issues = [issue for issue in results.architectural_issues 
+                        if str(large_file) in issue.get('location', '')]
+    assert len(large_file_issues) > 0
+    
+    # Verify functions were detected
+    function_count = sum(1 for issue in large_file_issues 
+                        if "function" in issue.get('description', '').lower())
+    assert function_count > 0
 
 @pytest.mark.asyncio
 async def test_ignore_patterns_complex(complex_project):
@@ -162,16 +174,22 @@ async def test_ignore_patterns_complex(complex_project):
     scanner = Scanner(complex_project)
     
     # Ignore all core files
-    analysis = await scanner.scan_project(ignore_patterns=["**/core/**"])
+    scanner.file_manager.ignore_patterns = ["**/core/**"]
+    results = await scanner.scan()
     
     # Verify core files were ignored
-    assert not any("core" in str(Path(path).relative_to(complex_project)) for path in analysis.files.keys())
+    core_files = [issue for issue in results.architectural_issues 
+                 if "/core/" in issue.get('location', '')]
+    assert len(core_files) == 0
     
     # Ignore specific file types
-    analysis = await scanner.scan_project(ignore_patterns=["**/*.pyc", "**/__pycache__/**"])
+    scanner.file_manager.ignore_patterns = ["**/*.pyc", "**/__pycache__/**"]
+    results = await scanner.scan()
     
     # Verify all Python files were still processed
-    assert all(path.endswith(".py") for path in analysis.files.keys())
+    python_files = [issue for issue in results.architectural_issues 
+                   if issue.get('location', '').endswith('.py')]
+    assert len(python_files) > 0
 
 @pytest.mark.asyncio
 async def test_concurrent_file_processing(complex_project):
@@ -183,28 +201,33 @@ async def test_concurrent_file_processing(complex_project):
         file_path = Path(complex_project) / "src" / f"concurrent_{i}.py"
         file_path.write_text(f"def function_{i}():\n    pass\n")
     
-    analysis = await scanner.scan_project()
+    results = await scanner.scan()
     
     # Verify all files were processed
-    assert len(analysis.files) >= 10
-    for i in range(10):
-        assert f"concurrent_{i}.py" in str(analysis.files.keys())
+    concurrent_files = [issue for issue in results.architectural_issues 
+                      if "concurrent_" in issue.get('location', '')]
+    assert len(concurrent_files) >= 10
 
 @pytest.mark.asyncio
 async def test_save_results_complex(complex_project):
     """Test saving results for a complex project."""
     scanner = Scanner(complex_project)
-    analysis = await scanner.scan_project()
+    results = await scanner.scan()
+    
+    # Save results
+    assert scanner.save_results(results)
     
     # Verify all result files were created
-    assert (Path(complex_project) / "project_analysis.json").exists()
-    assert (Path(complex_project) / "test_analysis.json").exists()
-    assert (Path(complex_project) / "chatgpt_project_context.json").exists()
+    reports_dir = Path(complex_project) / "reports"
+    assert reports_dir.exists()
+    assert (reports_dir / "scan_results.json").exists()
+    assert (reports_dir / "scan_results.html").exists()
+    assert (reports_dir / "scan_results.txt").exists()
     
     # Verify JSON content
-    with open(Path(complex_project) / "project_analysis.json") as f:
+    with open(reports_dir / "scan_results.json") as f:
         data = json.load(f)
-        assert "files" in data
-        assert "dependencies" in data
-        assert "circular_dependencies" in data
-        assert "modules" in data 
+        assert "total_files" in data
+        assert "total_duplicates" in data
+        assert "architectural_issues" in data
+        assert "themes" in data 

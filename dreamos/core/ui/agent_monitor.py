@@ -17,7 +17,7 @@ from PyQt5.QtCore import Qt, QTimer, pyqtSignal
 from dreamos.core.autonomy.agent_tools.agent_cellphone import AgentCellphone
 from dreamos.core.autonomy.agent_tools.agent_restarter import AgentRestarter
 from dreamos.core.autonomy.agent_tools.agent_onboarder import AgentOnboarder
-from dreamos.core.utils.core_utils import load_json
+from dreamos.core.utils.json_utils import load_json
 
 class AgentMonitor(QWidget):
     """Widget for monitoring agent statuses."""

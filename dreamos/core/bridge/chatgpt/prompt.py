@@ -53,7 +53,8 @@ class PromptManager:
         """
         try:
             # Get template
-            template = self._get_template(metadata.get("type", "general"))
+            template_type = metadata.get("type", "general") if metadata else "general"
+            template = self._get_template(template_type)
             
             # Render template
             prompt_text = template.render(
@@ -66,10 +67,10 @@ class PromptManager:
                 "content": prompt_text,
                 "timestamp": datetime.now().isoformat(),
                 "metadata": {
-                    "type": metadata.get("type", "general"),
+                    "type": template_type,
                     "source": "prompt_manager",
                     "original_message": message,
-                    "original_metadata": metadata
+                    "original_metadata": metadata or {}
                 }
             }
             

@@ -11,7 +11,9 @@ import logging
 from datetime import datetime
 from typing import Optional, Dict, Any
 
-logger = logging.getLogger('agent_logger')
+def get_logger():
+    """Get or create the agent logger instance."""
+    return logging.getLogger('agent_logger')
 
 class AgentLogger:
     """Handles agent development logging and Discord notifications."""
@@ -21,6 +23,7 @@ class AgentLogger:
         self.log_path = f"runtime/agent_memory/{agent_id}/devlog.md"
         self.inbox_path = f"runtime/agent_memory/{agent_id}/inbox.json"
         os.makedirs(os.path.dirname(self.log_path), exist_ok=True)
+        self.logger = get_logger()
         
     def log(self, message: str, category: str = "INFO", metadata: Optional[Dict[str, Any]] = None) -> bool:
         """Log a message to the agent's devlog.
@@ -51,7 +54,7 @@ class AgentLogger:
             return True
             
         except Exception as e:
-            logger.error(f"Error logging message: {e}")
+            self.logger.error(f"Error logging message: {e}")
             return False
             
     def _create_inbox_message(self, message: str, category: str, metadata: Optional[Dict[str, Any]] = None):
@@ -69,7 +72,7 @@ class AgentLogger:
                 json.dump(inbox_message, f, indent=2)
                 
         except Exception as e:
-            logger.error(f"Error creating inbox message: {e}")
+            self.logger.error(f"Error creating inbox message: {e}")
             
     def get_log(self) -> Optional[str]:
         """Get the contents of the agent's devlog."""
@@ -81,7 +84,7 @@ class AgentLogger:
                 return f.read()
                 
         except Exception as e:
-            logger.error(f"Error reading devlog: {e}")
+            self.logger.error(f"Error reading devlog: {e}")
             return None
             
     def clear_log(self) -> bool:
@@ -103,5 +106,5 @@ class AgentLogger:
             return True
             
         except Exception as e:
-            logger.error(f"Error clearing devlog: {e}")
+            self.logger.error(f"Error clearing devlog: {e}")
             return False 

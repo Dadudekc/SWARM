@@ -13,15 +13,8 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Any, Optional
 
-from ...logging.log_manager import LogManager
-from ...utils.core_utils import (
-    load_json,
-    save_json,
-    atomic_write,
-    safe_read,
-    safe_write
-)
-from .bridge.base_bridge_handler import BaseBridgeHandler
+from dreamos.core.bridge.handlers.base import BaseBridgeHandler
+from dreamos.core.bridge.chatgpt.bridge import ChatGPTBridge
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -30,17 +23,20 @@ logger = logging.getLogger(__name__)
 class BridgeOutboxHandler(BaseBridgeHandler):
     """Processes agent responses and applies code changes."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the bridge outbox handler.
+    def __init__(
+        self,
+        bridge: ChatGPTBridge,
+        directory: Path,
+        config: Optional[Dict[str, Any]] = None
+    ):
+        """Initialize the handler.
         
         Args:
+            bridge: ChatGPT bridge instance
+            directory: Directory to monitor
             config: Optional configuration dictionary
         """
-        super().__init__(
-            config=config,
-            watch_dir=Path(config.get("paths", {}).get("bridge_outbox", "data/bridge_outbox")),
-            file_pattern="*.json"
-        )
+        super().__init__(bridge, directory, config)
     
     async def _process_items(self):
         """Process items in the handler."""
@@ -220,4 +216,27 @@ class BridgeOutboxHandler(BaseBridgeHandler):
                 status="error",
                 message=f"Error committing changes: {str(e)}",
                 tags=["commit", "error"]
-            ) 
+            )
+
+    async def _process_message(self, message: Dict[str, Any]):
+        """Process a message.
+        
+        Args:
+            message: Message to process
+        """
+        try:
+            # Extract message content
+            content = message.get('content', '')
+            if not content:
+                logger.warning("Empty message content")
+                return
+                
+            # Send to bridge
+            response = await self.bridge.send_message(content)
+            
+            # Log response
+            logger.info(f"Bridge response: {response}")
+            
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
+            raise 

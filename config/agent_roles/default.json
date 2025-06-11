@@ -1,0 +1,15 @@
+{
+    "name": "default",
+    "description": "Default agent role",
+    "welcome_message": "Hello, I am {agent_id}, your AI assistant. IMPORTANT: Duplication is the biggest project killer. Always check for existing functionality before implementing new features. How can I help you today?",
+    "capabilities": [
+        "chat",
+        "code_assistance",
+        "file_operations"
+    ],
+    "settings": {
+        "max_context_length": 4096,
+        "temperature": 0.7,
+        "response_format": "markdown"
+    }
+} 

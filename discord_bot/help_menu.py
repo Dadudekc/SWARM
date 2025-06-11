@@ -3,65 +3,49 @@ from tests.utils.mock_discord import ui, Embed, Color, ButtonStyle, Interaction
 import logging
 from datetime import datetime
 import discord
+from typing import Optional, Dict, Any
 
 logger = logging.getLogger('discord_bot')
 
 class HelpMenu(ui.View):
-    """Help menu view for displaying command documentation."""
+    """Interactive help menu for Discord bot commands."""
     
     def __init__(self):
-        super().__init__(timeout=180)  # 3 minute timeout
+        """Initialize help menu."""
+        super().__init__(timeout=180)
         self.current_page = 0
         self.pages = []
+        self.command_cache = {}  # Cache for command search
         self.setup_pages()
         self.setup_buttons()
     
     def setup_pages(self):
+        """Set up help menu pages."""
         self.pages = [
-            Embed(
-                title="Agent Commands",
-                description="Commands for managing agents",
-                color=Color.blue()
-            ),
-            Embed(
-                title="DevLog Commands",
-                description="Commands for managing agent devlogs",
-                color=Color.green()
-            ),
-            Embed(
-                title="System Commands",
-                description="Commands for system operations",
-                color=Color.red()
-            ),
-            Embed(
-                title="Channel Commands",
-                description="Commands for managing channels",
-                color=Color.gold()
-            )
+            Embed(title="Agent Commands", description="Commands for managing agents", color=Color.blue()),
+            Embed(title="DevLog Commands", description="Commands for managing agent devlogs", color=Color.green()),
+            Embed(title="System Commands", description="Commands for system management", color=Color.orange()),
+            Embed(title="Channel Commands", description="Commands for channel management", color=Color.purple())
         ]
         
-        # Add fields to pages
+        # Agent Commands
         self.pages[0].add_field(
-            name="/list",
-            value="List available agents",
+            name="/list_agents",
+            value="List all available agents",
             inline=False
         )
         self.pages[0].add_field(
-            name="/prompt <agent> <text>",
+            name="/agent_status <agent>",
+            value="Show agent status and metrics",
+            inline=False
+        )
+        self.pages[0].add_field(
+            name="/send_prompt <agent> <prompt>",
             value="Send a prompt to an agent",
             inline=False
         )
-        self.pages[0].add_field(
-            name="/message <agent> <text>",
-            value="Send a message to an agent",
-            inline=False
-        )
         
-        self.pages[1].add_field(
-            name="/devlog <agent> <text>",
-            value="Update an agent's devlog",
-            inline=False
-        )
+        # DevLog Commands
         self.pages[1].add_field(
             name="/viewlog <agent>",
             value="View an agent's devlog",
@@ -72,33 +56,30 @@ class HelpMenu(ui.View):
             value="Clear an agent's devlog",
             inline=False
         )
-        
-        self.pages[2].add_field(
-            name="/resume <agent>",
-            value="Resume an agent",
-            inline=False
-        )
-        self.pages[2].add_field(
-            name="/verify <agent>",
-            value="Verify an agent's state",
-            inline=False
-        )
-        self.pages[2].add_field(
-            name="/restore <agent>",
-            value="Restore an agent's state",
-            inline=False
-        )
-        self.pages[2].add_field(
-            name="/sync <agent>",
-            value="Sync an agent's state",
-            inline=False
-        )
-        self.pages[2].add_field(
-            name="/cleanup <agent>",
-            value="Clean up an agent's resources",
+        self.pages[1].add_field(
+            name="/log_level <agent> <level>",
+            value="Set agent's log level (DEBUG, INFO, WARNING, ERROR)",
             inline=False
         )
         
+        # System Commands
+        self.pages[2].add_field(
+            name="/system_status",
+            value="Show system status and metrics",
+            inline=False
+        )
+        self.pages[2].add_field(
+            name="/restart <component>",
+            value="Restart a system component",
+            inline=False
+        )
+        self.pages[2].add_field(
+            name="/metrics",
+            value="Show system metrics",
+            inline=False
+        )
+        
+        # Channel Commands
         self.pages[3].add_field(
             name="/channels",
             value="List channel assignments",
@@ -109,176 +90,117 @@ class HelpMenu(ui.View):
             value="Assign a channel to an agent",
             inline=False
         )
-
-    def setup_buttons(self):
-        self.add_category_buttons()
-        self.add_navigation_buttons()
-
-    def add_category_buttons(self):
-        categories = [
-            ("Agent Commands", 0, ButtonStyle.primary),
-            ("DevLog Commands", 1, ButtonStyle.success),
-            ("System Commands", 2, ButtonStyle.danger),
-            ("Channel Commands", 3, ButtonStyle.secondary)
-        ]
-        
-        # Split buttons into two rows
-        for i, (label, page_idx, style) in enumerate(categories):
-            button = ui.Button(
-                label=label,
-                style=style,
-                row=i // 2  # First 2 buttons in row 0, last 2 in row 1
-            )
-            # Create a proper callback method that captures page_idx
-            async def category_button_callback(interaction: Interaction, p_idx=page_idx):
-                await self.show_page(p_idx, interaction)
-            button.callback = category_button_callback
-            self.add_item(button)
-
-    def add_navigation_buttons(self):
-        # Add navigation buttons in a separate row
-        prev_button = ui.Button(
-            label="Previous",
-            style=ButtonStyle.secondary,
-            row=2
-        )
-        prev_button.callback = self.previous_page
-        self.add_item(prev_button)
-
-        next_button = ui.Button(
-            label="Next",
-            style=ButtonStyle.secondary,
-            row=2
-        )
-        next_button.callback = self.next_page
-        self.add_item(next_button)
-
-        # Add search button in the same row
-        search_button = ui.Button(
-            label="Search",
-            style=ButtonStyle.success,
-            row=2
-        )
-        search_button.callback = self.search_commands
-        self.add_item(search_button)
-
-    async def show_page(self, page: int, interaction: Interaction):
-        """Show specific page."""
-        self.current_page = page
-        if interaction: # Make sure interaction is not None
-            await self.update_page(interaction)
-        else:
-            # This case should ideally not happen if callbacks are set up correctly
-            # Log or handle the absence of interaction if necessary
-            logger.warn("HelpMenu.show_page called without interaction object.")
-            # Potentially, if there's a way to get the last interaction or a default one for the view:
-            # await self.update_page(self.last_interaction_or_ctx_placeholder)
-            pass # Or decide not to update if no interaction
-        
-    async def previous_page(self, interaction: Interaction):
-        """Navigate to previous page."""
-        self.current_page = (self.current_page - 1) % len(self.pages)
-        await self.update_page(interaction)
-        
-    async def next_page(self, interaction: Interaction):
-        """Navigate to next page."""
-        self.current_page = (self.current_page + 1) % len(self.pages)
-        await self.update_page(interaction)
-        
-    async def search_commands(self, interaction: Interaction):
-        """Open command search modal."""
-        modal = CommandSearchModal(self)
-        await interaction.response.send_modal(modal)
-        
-    async def update_page(self, interaction: Interaction):
-        """Update the help menu page with enhanced visual design."""
-        page = self.pages[self.current_page]
-        
-        embed = Embed(
-            title=page.title,
-            description=page.description,
-            color=page.color
+        self.pages[3].add_field(
+            name="/unassign <agent> <channel>",
+            value="Remove channel assignment from agent",
+            inline=False
         )
         
-        # Add animated header with custom image
-        embed.set_author(
-            name="Dream.OS Swarm Command Interface",
-            icon_url="https://i.imgur.com/your-swarm-icon.png",
-            url="https://github.com/Dadudekc/SWARM"
-        )
-        
-        # Add thumbnail if available
-        if hasattr(page, 'thumbnail') and page.thumbnail:
-            embed.set_thumbnail(url=page.thumbnail.url)
-        
-        # Add command fields with enhanced formatting and syntax highlighting
-        for field in page.fields:
-            embed.add_field(
-                name=f"```ansi\n{field.name}\n```",
-                value=f"```md\n{field.value}\n```",
-                inline=field.inline
-            )
-            
-        # Add interactive footer with dynamic content
-        embed.set_footer(
-            text=f"Swarm Intelligence • Page {self.current_page + 1}/{len(self.pages)} • Type !swarm_help for more info",
-            icon_url="https://i.imgur.com/your-swarm-icon.png"
-        )
-        
-        # Add timestamp for dynamic feel
-        embed.timestamp = datetime.now()
-        
-        # Add a subtle border effect
-        embed.set_image(url="https://i.imgur.com/your-border-image.png")  # Add your border image URL
-        
-        await interaction.response.edit_message(embed=embed, view=self)
-
-    async def search(self, query: str, interaction: Interaction):
-        """Search for commands matching the query."""
-        query = query.lower()
-        results = []
-        
+        # Build command cache for search
         for page in self.pages:
             for field in page.fields:
-                if query in field.name.lower() or query in field.value.lower():
-                    results.append(field)
+                cmd_name = field.name.split()[0]  # Extract command name
+                self.command_cache[cmd_name] = {
+                    'name': field.name,
+                    'value': field.value,
+                    'page': self.pages.index(page)
+                }
+    
+    def setup_buttons(self):
+        """Set up navigation buttons."""
+        # Category buttons
+        self.add_item(ui.Button(
+            label="Agents",
+            style=ButtonStyle.primary,
+            custom_id="agents",
+            row=0
+        ))
+        self.add_item(ui.Button(
+            label="DevLogs",
+            style=ButtonStyle.success,
+            custom_id="devlogs",
+            row=0
+        ))
+        self.add_item(ui.Button(
+            label="System",
+            style=ButtonStyle.danger,
+            custom_id="system",
+            row=0
+        ))
+        self.add_item(ui.Button(
+            label="Channels",
+            style=ButtonStyle.secondary,
+            custom_id="channels",
+            row=0
+        ))
         
-        if results:
-            embed = Embed(
-                title="🔍 Command Search Results",
-                description=f"Found {len(results)} matching commands",
-                color=Color.blue()
-            )
+        # Navigation buttons
+        self.add_item(ui.Button(
+            label="Previous",
+            style=ButtonStyle.secondary,
+            custom_id="prev",
+            row=1
+        ))
+        self.add_item(ui.Button(
+            label="Search",
+            style=ButtonStyle.primary,
+            custom_id="search",
+            row=1
+        ))
+        self.add_item(ui.Button(
+            label="Next",
+            style=ButtonStyle.secondary,
+            custom_id="next",
+            row=1
+        ))
+    
+    async def search_commands(self, query: str) -> Optional[Dict[str, Any]]:
+        """Search for commands matching query.
+        
+        Args:
+            query: Search query string
             
-            for field in results:
-                embed.add_field(
-                    name=field.name,
-                    value=field.value,
-                    inline=False
-                )
-            
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-        else:
+        Returns:
+            Dict containing command info if found, None otherwise
+        """
+        query = query.lower()
+        for cmd_name, cmd_info in self.command_cache.items():
+            if query in cmd_name.lower() or query in cmd_info['value'].lower():
+                return cmd_info
+        return None
+    
+    async def show_page(self, page: int, interaction: Interaction):
+        """Show specific page.
+        
+        Args:
+            page: Page number to show
+            interaction: Discord interaction object
+        """
+        if not 0 <= page < len(self.pages):
             await interaction.response.send_message(
-                "No commands found matching your search.",
+                "Invalid page number",
                 ephemeral=True
             )
+            return
+            
+        self.current_page = page
+        await self.update_page(interaction)
     
-    async def select_category(self, category: str, interaction: Interaction):
-        """Show commands for a specific category."""
-        category = category.lower()
-        category_pages = {
-            "agent": 0,  # Agent management commands
-            "devlog": 1,  # Devlog commands
-            "state": 2,  # State management commands
-            "stats": 3   # Statistics commands
-        }
+    async def update_page(self, interaction: Interaction):
+        """Update current page.
         
-        if category in category_pages:
-            await self.show_page(category_pages[category], interaction)
-        else:
+        Args:
+            interaction: Discord interaction object
+        """
+        try:
+            await interaction.response.edit_message(
+                embed=self.pages[self.current_page],
+                view=self
+            )
+        except Exception as e:
+            logger.error(f"Error updating help menu page: {e}")
             await interaction.response.send_message(
-                f"Invalid category. Available categories: {', '.join(category_pages.keys())}",
+                "Error updating help menu",
                 ephemeral=True
             )
 

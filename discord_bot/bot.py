@@ -30,7 +30,10 @@ class DreamOSBot(commands.Bot):
     """Dream.OS Discord bot implementation."""
     
     def __init__(self, *args: Any, **kwargs: Any):
-        """Initialize the bot."""
+        """Initialize the bot.
+        
+        Sets up intents, loads configuration, and initializes core components.
+        """
         intents = Intents.default()
         intents.message_content = True
         intents.members = True
@@ -50,75 +53,141 @@ class DreamOSBot(commands.Bot):
         # Initialize components
         self.orchestrator = None
         self.log_manager = None
+        self.notifier = None
+        
+        # Set up metrics
+        self.metrics_enabled = self.config.get('metrics_enabled', True)
+        if self.metrics_enabled:
+            self.setup_metrics()
     
     def _load_config(self) -> Dict[str, Any]:
-        """Load bot configuration from file.
+        """Load bot configuration.
         
         Returns:
             Dict containing bot configuration
         """
-        config_path = Path("config/discord_bot.json")
-        if not config_path.exists():
-            self.logger.warning("No config file found, using defaults")
-            return {
-                "token": os.getenv("DISCORD_TOKEN"),
-                "owner_id": int(os.getenv("OWNER_ID", "0")),
-                "log_level": "INFO"
-            }
+        config = {
+            'log_dir': 'logs',
+            'metrics_enabled': True,
+            'retry_attempts': 3,
+            'retry_delay': 1.0,
+            'webhook_urls': {},
+            'channel_assignments': {}
+        }
         
+        # Load from JSON
+        config_path = Path("config/discord_bot.json")
+        if config_path.exists():
+            try:
+                with open(config_path, "r", encoding="utf-8") as f:
+                    config.update(json.load(f))
+            except Exception as e:
+                self.logger.error(f"Failed to load config: {e}")
+        
+        return config
+    
+    def setup_metrics(self):
+        """Set up Prometheus metrics."""
         try:
-            with open(config_path) as f:
-                return json.load(f)
-        except Exception as e:
-            self.logger.error(f"Error loading config: {e}")
-            return {}
+            from prometheus_client import Counter, Gauge, Histogram
+            
+            # Command metrics
+            self.command_counter = Counter(
+                'discord_bot_commands_total',
+                'Total number of commands executed',
+                ['command', 'status']
+            )
+            
+            self.command_latency = Histogram(
+                'discord_bot_command_latency_seconds',
+                'Command execution latency',
+                ['command']
+            )
+            
+            # Message metrics
+            self.message_counter = Counter(
+                'discord_bot_messages_total',
+                'Total number of messages processed',
+                ['type', 'status']
+            )
+            
+            # System metrics
+            self.system_status = Gauge(
+                'discord_bot_system_status',
+                'System component status',
+                ['component']
+            )
+            
+        except ImportError:
+            self.logger.warning("Prometheus client not installed, metrics disabled")
+            self.metrics_enabled = False
     
     async def setup_hook(self):
-        """Set up the bot's components and cogs."""
+        """Set up bot hooks and initialize components."""
         try:
-            # Load cogs
-            for cog_file in Path("discord_bot/cogs").glob("*.py"):
-                if cog_file.stem != "__init__":
-                    try:
-                        await self.load_extension(f"discord_bot.cogs.{cog_file.stem}")
-                        self.logger.info(f"Loaded cog: {cog_file.stem}")
-                    except Exception as e:
-                        self.logger.error(f"Failed to load cog {cog_file.stem}: {e}")
+            # Initialize orchestrator
+            from dreamos.core.agent_control.system_orchestrator import SystemOrchestrator
+            self.orchestrator = SystemOrchestrator()
+            await self.orchestrator.initialize()
             
-            # Initialize components
-            runtime_dir = Path(self.config.get("runtime_dir", "runtime"))
-            channel_id = int(self.config.get("channels", {}).get("devlog", 0))
-            token = self.config.get("token", "")
-
-            self.orchestrator = SystemOrchestrator(
-                runtime_dir=runtime_dir,
-                discord_token=token,
-                channel_id=channel_id,
+            # Initialize log manager
+            from dreamos.core.log_manager import LogManager
+            self.log_manager = LogManager(
+                log_dir=Path(self.config['log_dir']),
+                max_size=1024 * 1024,  # 1MB
+                backup_count=5
             )
-            self.log_manager = self.orchestrator.log_manager
+            
+            # Initialize notifier
+            from .notifier import DiscordNotifier
+            self.notifier = DiscordNotifier(self)
+            
+            # Load cogs
+            await self.load_cogs()
+            
+            self.logger.info("Bot setup completed successfully")
             
         except Exception as e:
-            self.logger.error(f"Error in setup_hook: {e}")
+            self.logger.error(f"Error during bot setup: {e}")
+            raise
+    
+    async def load_cogs(self):
+        """Load bot cogs."""
+        try:
+            # Load core cogs
+            await self.load_extension("discord_bot.cogs.help_menu")
+            await self.load_extension("discord_bot.cogs.agent_commands")
+            await self.load_extension("discord_bot.cogs.system_commands")
+            await self.load_extension("discord_bot.cogs.channel_commands")
+            
+            self.logger.info("Cogs loaded successfully")
+            
+        except Exception as e:
+            self.logger.error(f"Error loading cogs: {e}")
+            raise
     
     async def on_ready(self):
         """Handle bot ready event."""
-        self.logger.info(f"Logged in as {self.user.name} (ID: {self.user.id})")
-        self.logger.info(f"Connected to {len(self.guilds)} guilds")
+        self.logger.info(f"Bot is ready! Logged in as {self.user}")
         
-        # Set bot status
+        # Set bot activity
         await self.change_presence(
             activity=Activity(
                 type=ActivityType.watching,
-                name="Dream.OS"
+                name="Dream.OS Swarm"
             )
         )
+        
+        # Initialize system status
+        if self.metrics_enabled:
+            self.system_status.labels('bot').set(1)
     
-    async def on_command_error(self, ctx: Any, error: Any):
+    async def on_command_error(self, ctx: commands.Context, error: Exception):
         """Handle command errors.
         
         Args:
             ctx: Command context
-            error: Command error
+            error: Exception that occurred
         """
         if isinstance(error, commands.CommandNotFound):
             await ctx.send("Command not found. Use !help to see available commands.")
@@ -129,6 +198,12 @@ class DreamOSBot(commands.Bot):
         else:
             self.logger.error(f"Command error: {error}")
             await ctx.send("An error occurred while processing the command.")
+            
+            if self.metrics_enabled:
+                self.command_counter.labels(
+                    command=ctx.command.name if ctx.command else 'unknown',
+                    status='error'
+                ).inc()
 
 async def main():
     """Main entry point for the bot."""

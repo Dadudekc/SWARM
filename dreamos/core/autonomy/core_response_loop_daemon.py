@@ -18,8 +18,7 @@ from .base.response_loop_daemon import BaseResponseLoopDaemon, ResponseProcessor
 from .handlers.bridge_outbox_handler import BridgeOutboxHandler
 from .validation.engine import ValidationEngine
 from .memory.response_memory_tracker import ResponseMemoryTracker
-from .processors.factory import ResponseProcessorFactory
-from .processors.mode import ProcessorMode
+from dreamos.core.handlers.response_processor_factory import ResponseProcessorFactory
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -59,7 +58,7 @@ class CoreResponseLoopDaemon(BaseResponseLoopDaemon):
         Returns:
             ResponseProcessor instance
         """
-        return ResponseProcessorFactory.create_processor(ProcessorMode.CORE)
+        return ResponseProcessorFactory.create_processor("core")
     
     def _get_response_files(self) -> List[Path]:
         """Get all response files to process.

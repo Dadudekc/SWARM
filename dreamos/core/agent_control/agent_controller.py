@@ -22,19 +22,36 @@ logger = logging.getLogger('agent_controller')
 class AgentController:
     """Controls agent lifecycle and coordination."""
     
-    def __init__(self, ui_automation: UIAutomation, discord_token: str, channel_id: int):
+    def __init__(self, agent_id: str, message_processor, agent_ops, agent_status, config: Optional[Dict[str, Any]] = None, ui_automation: Optional[UIAutomation] = None):
         """Initialize the agent controller.
         
         Args:
-            ui_automation: UI automation instance
-            discord_token: Discord bot token for devlogs
-            channel_id: Discord channel ID for devlogs
+            agent_id: ID of the agent to control
+            message_processor: Message processing interface
+            agent_ops: Agent operations interface
+            agent_status: Agent status tracker
+            config: Optional configuration dictionary
+            ui_automation: Optional UI automation instance
         """
-        self.ui_automation = ui_automation
+        self.agent_id = agent_id
+        self.message_processor = message_processor
+        self.agent_ops = agent_ops
+        self.agent_status = agent_status
+        self.config = config or {}
+        
+        # Initialize components
+        self.ui_automation = ui_automation or UIAutomation()
         self.task_manager = TaskManager()
-        self.devlog_manager = DevLogManager(discord_token, channel_id)
+        self.devlog_manager = DevLogManager(
+            self.config.get('discord_token', ''),
+            self.config.get('discord_channel_id', 0)
+        )
         self.captain_phone = CaptainPhone()
-        self.agent_manager = AgentManager(ui_automation, discord_token, channel_id)
+        self.agent_manager = AgentManager(
+            self.ui_automation,
+            self.config.get('discord_token', ''),
+            self.config.get('discord_channel_id', 0)
+        )
         
         # Agent state tracking
         self.active_agents: Dict[str, Dict[str, Any]] = {}

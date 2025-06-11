@@ -9,6 +9,11 @@ import logging
 from enum import Enum
 from pathlib import Path
 from typing import Dict, Any, Optional, Union
+from dreamos.core.utils.json_utils import load_json, save_json
+from dreamos.core.utils.file_ops import ensure_dir
+from dreamos.core.utils.logging_utils import get_logger
+from dreamos.core.utils.exceptions import FileOpsError
+from dreamos.core.utils.core_utils import get_timestamp
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -19,6 +24,170 @@ class BridgeMode(Enum):
     TEST = "test"
     LIVE = "live"
     DEBUG = "debug"
+
+def load_config(base_config_path: Union[str, Path], mode: BridgeMode = BridgeMode.LIVE, agent_id: Optional[str] = None) -> Dict[str, Any]:
+    """Load configuration for an agent or base config.
+    
+    Args:
+        base_config_path: Path to base config file
+        mode: Bridge operation mode
+        agent_id: Optional agent ID to load config for
+        
+    Returns:
+        Configuration dictionary
+        
+    Raises:
+        FileNotFoundError: If config file not found
+        ValueError: If config is invalid
+    """
+    loader = BridgeConfigLoader(base_config_path, mode)
+    return loader.load_config(agent_id)
+
+def _load_mode_config(config_dir: Path, mode: BridgeMode) -> Dict[str, Any]:
+    """Load mode-specific configuration.
+    
+    Args:
+        config_dir: Configuration directory
+        mode: Bridge operation mode
+        
+    Returns:
+        Mode configuration dictionary
+    """
+    mode_config_path = config_dir / f"config.{mode.value}.json"
+    
+    if not mode_config_path.exists():
+        return {}
+        
+    with open(mode_config_path) as f:
+        return json.load(f)
+
+def _load_agent_config(config_dir: Path, agent_id: str) -> Dict[str, Any]:
+    """Load agent-specific configuration.
+    
+    Args:
+        config_dir: Configuration directory
+        agent_id: Agent ID
+        
+    Returns:
+        Agent configuration dictionary
+    """
+    agent_config_path = config_dir / "agents" / f"{agent_id}.json"
+    
+    if not agent_config_path.exists():
+        return {}
+        
+    with open(agent_config_path) as f:
+        return json.load(f)
+
+def _merge_configs(
+    base: Dict[str, Any],
+    mode: Dict[str, Any],
+    agent: Dict[str, Any]
+) -> Dict[str, Any]:
+    """Merge configuration dictionaries.
+    
+    Args:
+        base: Base configuration
+        mode: Mode-specific configuration
+        agent: Agent-specific configuration
+        
+    Returns:
+        Merged configuration
+    """
+    # Deep merge dictionaries
+    def deep_merge(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
+        result = d1.copy()
+        
+        for key, value in d2.items():
+            if (
+                key in result and
+                isinstance(result[key], dict) and
+                isinstance(value, dict)
+            ):
+                result[key] = deep_merge(result[key], value)
+            else:
+                result[key] = value
+                
+        return result
+        
+    # Merge in order: base -> mode -> agent
+    config = deep_merge(base, mode)
+    config = deep_merge(config, agent)
+    
+    return config
+
+def _validate_config(config: Dict[str, Any]) -> None:
+    """Validate configuration.
+    
+    Args:
+        config: Configuration to validate
+        
+    Raises:
+        ValueError: If config is invalid
+    """
+    # Check required sections
+    required = ["paths", "bridge", "handlers", "processors", "monitoring", "logging"]
+    missing = [section for section in required if section not in config]
+    
+    if missing:
+        raise ValueError(f"Missing required config sections: {missing}")
+        
+    # Validate paths
+    paths = config["paths"]
+    required_paths = ["base", "archive", "failed"]
+    missing_paths = [path for path in required_paths if path not in paths]
+    
+    if missing_paths:
+        raise ValueError(f"Missing required paths: {missing_paths}")
+        
+    # Validate bridge config
+    bridge = config["bridge"]
+    required_bridge = ["api_key", "model"]
+    missing_bridge = [key for key in required_bridge if key not in bridge]
+    
+    if missing_bridge:
+        raise ValueError(f"Missing required bridge config: {missing_bridge}")
+
+def save_agent_config(config_dir: Path, agent_id: str, config: Dict[str, Any]) -> None:
+    """Save agent-specific configuration.
+    
+    Args:
+        config_dir: Configuration directory
+        agent_id: Agent ID
+        config: Configuration to save
+    """
+    # Create agents directory
+    agents_dir = config_dir / "agents"
+    agents_dir.mkdir(parents=True, exist_ok=True)
+    
+    # Save config
+    agent_config_path = agents_dir / f"{agent_id}.json"
+    with open(agent_config_path, 'w') as f:
+        json.dump(config, f, indent=2)
+
+def deep_merge(d1: Dict[str, Any], d2: Dict[str, Any]) -> Dict[str, Any]:
+    """Deep merge two dictionaries.
+    
+    Args:
+        d1: First dictionary
+        d2: Second dictionary
+        
+    Returns:
+        Merged dictionary
+    """
+    result = d1.copy()
+    
+    for key, value in d2.items():
+        if (
+            key in result and
+            isinstance(result[key], dict) and
+            isinstance(value, dict)
+        ):
+            result[key] = deep_merge(result[key], value)
+        else:
+            result[key] = value
+            
+    return result
 
 class BridgeConfigLoader:
     """Loads and validates bridge configurations."""
@@ -58,18 +227,18 @@ class BridgeConfigLoader:
                 base_config = json.load(f)
                 
             # Load mode-specific overrides
-            mode_config = self._load_mode_config()
+            mode_config = _load_mode_config(self.config_dir, self.mode)
             
             # Load agent-specific config if provided
             agent_config = {}
             if agent_id:
-                agent_config = self._load_agent_config(agent_id)
+                agent_config = _load_agent_config(self.config_dir, agent_id)
                 
             # Merge configs
-            config = self._merge_configs(base_config, mode_config, agent_config)
+            config = _merge_configs(base_config, mode_config, agent_config)
             
             # Validate config
-            self._validate_config(config)
+            _validate_config(config)
             
             return config
             

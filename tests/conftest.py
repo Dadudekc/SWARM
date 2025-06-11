@@ -15,8 +15,9 @@ from pathlib import Path
 from typing import Generator, Dict, Any
 import importlib
 from types import SimpleNamespace
+from tests.utils.test_environment import TestEnvironment
 
-# Add the project root to Python path
+# Add the project root directory to the Python path
 project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -32,14 +33,6 @@ VOICE_QUEUE_DIR = TEST_ROOT / "voice_queue"
 # Ensure test directories exist
 for dir_path in [TEST_DATA_DIR, TEST_OUTPUT_DIR, TEST_RUNTIME_DIR, TEST_TEMP_DIR, TEST_CONFIG_DIR, VOICE_QUEUE_DIR]:
     dir_path.mkdir(parents=True, exist_ok=True)
-
-# Now import test utilities
-from tests.utils.test_utils import (
-    ensure_test_dirs,
-    test_output_dir,
-    create_temp_outbox,
-    safe_remove
-)
 
 def safe_delete(path: Path, retries: int = 3, delay: float = 0.2) -> None:
     """Safely delete a file with retries and GC flush.
@@ -77,54 +70,58 @@ MOCK_AGENT_CONFIG = {
 MOCK_PROMPT = "Test prompt"
 MOCK_DEVLOG = "Test devlog entry"
 
+@pytest.fixture(scope="session")
+def test_env() -> TestEnvironment:
+    """Create a test environment for all tests."""
+    env = TestEnvironment()
+    env.setup()
+    yield env
+    env.cleanup()
+
 @pytest.fixture(autouse=True)
-def setup_test_environment():
-    """Set up test environment."""
-    # No legacy test directories needed
+def setup_test_environment(test_env: TestEnvironment):
+    """Set up test environment for each test."""
     yield
 
-@pytest.fixture
-def clean_test_dirs(tmp_path, monkeypatch):
-    """
-    Create a temporary directory for tests that need to write files.
-    Monkeypatch any global paths so that tests operate under tmp_path.
-    """
-    test_root = tmp_path / "test_data"
-    test_root.mkdir()
-
-    # Monkeypatch any hardcoded base directories
-    monkeypatch.setattr("dreamos.core.logging.log_config.get_log_path", lambda: str(test_root / "logs"))
-    monkeypatch.setattr("dreamos.core.logging.log_config.get_metrics_path", lambda: str(test_root / "metrics"))
-
-    yield test_root
-
-    # After test, cleanup (pytest will auto-remove tmp_path)
-    for child in test_root.iterdir():
-        if child.is_dir():
-            shutil.rmtree(child)
-        else:
-            safe_delete(child)
-
 @pytest.fixture(scope="session")
-def test_env() -> Dict[str, str]:
-    """Test environment variables."""
+def test_dirs(test_env: TestEnvironment) -> dict[str, Path]:
+    """Get all test directories."""
     return {
-        "DREAMOS_TEST_MODE": "1",
-        "DREAMOS_TEST_DATA_DIR": str(TEST_DATA_DIR.absolute()),
-        "DREAMOS_TEST_CACHE_DIR": str(Path("test_cache").absolute())
+        "temp": test_env.get_test_dir("temp"),
+        "runtime": test_env.get_test_dir("runtime"),
+        "config": test_env.get_test_dir("config"),
+        "data": test_env.get_test_dir("data"),
+        "logs": test_env.get_test_dir("logs"),
+        "output": test_env.get_test_dir("output"),
+        "archive": test_env.get_test_dir("archive"),
+        "failed": test_env.get_test_dir("failed"),
+        "voice_queue": test_env.get_test_dir("voice_queue"),
+        "report": test_env.get_test_dir("report"),
+        "quarantine": test_env.get_test_dir("quarantine")
     }
 
-@pytest.fixture
-def temp_dir():
-    """Create a temporary directory for test files."""
-    with tempfile.TemporaryDirectory() as tmp_dir:
-        yield Path(tmp_dir)
+@pytest.fixture(scope="session")
+def test_config(test_env: TestEnvironment) -> Path:
+    """Get test configuration file."""
+    config_path = test_env.get_test_dir("config") / "test_config.json"
+    config_path.parent.mkdir(exist_ok=True)
+    config_path.write_text('{"test": true}')
+    return config_path
 
 @pytest.fixture
-def test_config_dir(temp_dir):
+def clean_test_dirs(test_env: TestEnvironment):
+    """Create a clean test directory structure."""
+    return test_env
+
+@pytest.fixture
+def temp_dir(test_env: TestEnvironment) -> Generator[Path, None, None]:
+    """Create a temporary directory for test files."""
+    yield test_env.get_test_dir("temp")
+
+@pytest.fixture
+def test_config_dir(test_env: TestEnvironment) -> Generator[Path, None, None]:
     """Create a temporary directory with test configuration files."""
-    config_dir = temp_dir / "config"
-    config_dir.mkdir()
+    config_dir = test_env.get_test_dir("config")
     
     # Create test response_loop_config.json
     response_loop_config = {
@@ -133,9 +130,7 @@ def test_config_dir(temp_dir):
         "last_update": "2024-01-01T00:00:00Z",
         "config_version": "1.0"
     }
-    (config_dir / "response_loop_config.json").write_text(
-        str(response_loop_config)
-    )
+    test_env.create_test_config("response_loop_config.json", response_loop_config)
     
     # Create test agent_config.json
     agent_config = {
@@ -144,52 +139,48 @@ def test_config_dir(temp_dir):
         "type": "worker",
         "capabilities": ["task_processing", "status_reporting"]
     }
-    (config_dir / "agent_config.json").write_text(
-        str(agent_config)
-    )
+    test_env.create_test_config("agent_config.json", agent_config)
     
     return config_dir
 
 @pytest.fixture(scope="function")
-def test_file(temp_dir: Path) -> Generator[Path, None, None]:
+def test_file(test_env: TestEnvironment) -> Generator[Path, None, None]:
     """Test file in temporary directory."""
-    test_file = temp_dir / "test.txt"
+    test_file = test_env.create_test_file("test.txt")
     yield test_file
     if test_file.exists():
         safe_delete(test_file)
 
 @pytest.fixture(scope="function")
-def test_json(temp_dir: Path) -> Generator[Path, None, None]:
+def test_json(test_env: TestEnvironment) -> Generator[Path, None, None]:
     """Test JSON file in temporary directory."""
-    test_file = temp_dir / "test.json"
+    test_file = test_env.create_test_file("test.json")
     yield test_file
     if test_file.exists():
         safe_delete(test_file)
 
 @pytest.fixture(scope="function")
-def test_yaml(temp_dir: Path) -> Generator[Path, None, None]:
+def test_yaml(test_env: TestEnvironment) -> Generator[Path, None, None]:
     """Test YAML file in temporary directory."""
-    test_file = temp_dir / "test.yaml"
+    test_file = test_env.create_test_file("test.yaml")
     yield test_file
     if test_file.exists():
         safe_delete(test_file)
 
 @pytest.fixture(scope="function")
-def test_log_dir(temp_dir: Path) -> Generator[Path, None, None]:
+def test_log_dir(test_env: TestEnvironment) -> Generator[Path, None, None]:
     """Test log directory."""
-    log_dir = temp_dir / "logs"
-    log_dir.mkdir(exist_ok=True)
+    log_dir = test_env.get_test_dir("logs")
     yield log_dir
     if log_dir.exists():
         for file in log_dir.glob("*"):
             if file.is_file():
                 safe_delete(file)
-        log_dir.rmdir()
 
 @pytest.fixture(scope="function")
-def test_bridge_outbox(temp_dir: Path) -> Generator[Path, None, None]:
+def test_bridge_outbox(test_env: TestEnvironment) -> Generator[Path, None, None]:
     """Test bridge outbox directory."""
-    outbox = temp_dir / "bridge_outbox"
+    outbox = test_env.get_test_dir("output") / "bridge_outbox"
     outbox.mkdir(exist_ok=True)
     yield outbox
     if outbox.exists():
@@ -197,19 +188,6 @@ def test_bridge_outbox(temp_dir: Path) -> Generator[Path, None, None]:
             if file.is_file():
                 safe_delete(file)
         outbox.rmdir()
-
-@pytest.fixture(scope="function")
-def test_config() -> Dict[str, Any]:
-    """Test configuration."""
-    return {
-        "log_level": "DEBUG",
-        "max_retries": 3,
-        "timeout": 5,
-        "rate_limit": {
-            "requests": 10,
-            "period": 60
-        }
-    }
 
 @pytest.fixture(scope="function")
 def mock_message() -> Dict[str, Any]:
@@ -232,60 +210,23 @@ def mock_agent() -> Dict[str, Any]:
         "capabilities": ["test"]
     }
 
-@pytest.fixture(scope="function")
-def MOCK_AGENT_CONFIG() -> Dict[str, Any]:
-    """Mock agent configuration for testing."""
-    return {
-        "id": "agent-123",
-        "name": "Test Agent",
-        "type": "test",
-        "status": "active",
-        "capabilities": ["test"],
-        "config": {
-            "log_level": "DEBUG",
-            "max_retries": 3,
-            "timeout": 5,
-            "rate_limit": {
-                "requests": 10,
-                "period": 60
-            }
-        }
-    }
-
 def pytest_configure(config):
     """Configure pytest."""
-    # Add custom markers
     config.addinivalue_line(
         "markers",
-        "slow: marks tests as slow (deselect with '-m \"not slow\"')"
+        "integration: mark test as integration test"
     )
     config.addinivalue_line(
         "markers",
-        "integration: marks tests as integration tests"
-    )
-    config.addinivalue_line(
-        "markers",
-        "windows: marks tests as Windows-specific"
-    )
-    config.addinivalue_line(
-        "markers",
-        "pyqt5: marks tests that require PyQt5"
-    )
-    config.addinivalue_line(
-        "markers",
-        "swarm_core: marks tests that require swarm core functionality"
-    )
-    config.addinivalue_line(
-        "markers",
-        "bridge_integration: marks tests that require bridge integration"
-    )
-    config.addinivalue_line(
-        "markers",
-        "cellphone_pipeline: marks tests that require cellphone pipeline"
+        "slow: mark test as slow running"
     )
 
 def pytest_collection_modifyitems(items):
-    """Modify test items."""
+    """Modify test items during collection."""
+    for item in items:
+        if "integration" in item.keywords:
+            item.add_marker(pytest.mark.slow)
+
     # Skip Windows-specific tests on non-Windows platforms
     if os.name != 'nt':
         skip_windows = pytest.mark.skip(reason="Windows-specific test")

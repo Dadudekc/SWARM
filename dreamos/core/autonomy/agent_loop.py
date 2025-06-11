@@ -9,7 +9,6 @@ import sys
 import json
 import time
 import asyncio
-import discord
 from pathlib import Path
 from typing import Dict, List, Optional, Any, Union
 from datetime import datetime
@@ -18,10 +17,11 @@ from dreamos.core.utils.core_utils import (
     atomic_write,
     safe_read,
     safe_write,
-    load_json,
-    save_json,
-    ensure_dir
+    get_timestamp,
+    format_duration,
+    is_valid_uuid
 )
+from dreamos.core.utils import load_json
 from dreamos.core.logging.log_manager import LogManager, LogConfig
 from dreamos.core.logging.log_config import LogLevel
 from dreamos.core.agent_control.controller import AgentController
@@ -190,7 +190,7 @@ class AgentLoop:
             if not inbox_file.exists():
                 return []
                 
-            return load_json(inbox_file, default=[])
+            return load_json(str(inbox_file))
                 
         except Exception as e:
             logger.error(f"Error loading inbox for agent {agent_id}: {e}")

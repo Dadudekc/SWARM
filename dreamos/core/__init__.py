@@ -9,10 +9,17 @@ from . import cursor_controller
 from . import log_manager
 from . import menu
 from . import message
+from . import messaging
 from . import metrics
-from . import response_collector_new
 from . import system_init
+from . import shared
 from .config.config_manager import ConfigManager
+
+# Make response_collector_new import optional
+try:
+    from . import response_collector_new
+except ImportError:
+    pass  # Optional dependency
 
 __all__ = [
     'agent_interface',
@@ -23,9 +30,11 @@ __all__ = [
     'log_manager',
     'menu',
     'message',
+    'messaging',
     'metrics',
     'response_collector_new',
     'system_init',
+    'shared',
 ]
 
 """

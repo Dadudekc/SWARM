@@ -1,13 +1,9 @@
 """
-Response Processors Package
-
-This package contains response processor implementations for different modes.
+Autonomy Processors Package
+------------------------
+Processors for autonomy system.
 """
 
-from .factory import ResponseProcessorFactory
-from .mode import ProcessorMode
+from .response import AutonomyResponseProcessor
 
-__all__ = [
-    'ResponseProcessorFactory',
-    'ProcessorMode'
-] 
+__all__ = ['AutonomyResponseProcessor'] 

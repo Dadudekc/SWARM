@@ -1,8 +1,19 @@
 import pytest
+import asyncio
 from pathlib import Path
 import tempfile
+import os
+import json
+from datetime import datetime
 
-from agent_tools.scanner.analyzers.dependency_analyzer import DependencyAnalyzer
+from agent_tools.swarm_tools.analyzers.dependency_analyzer import DependencyAnalyzer
+from agent_tools.swarm_tools.analyzers.code_analyzer import CodeAnalyzer
+from agent_tools.swarm_tools.analyzers.test_analyzer import TestAnalyzer
+from agent_tools.swarm_tools.analyzers.architectural_analyzer import ArchitecturalAnalyzer
+from agent_tools.swarm_tools.analyzers.duplicate_analyzer import DuplicateAnalyzer
+from agent_tools.swarm_tools.analyzers.theme_analyzer import ThemeAnalyzer
+from agent_tools.swarm_tools.analyzers.agent_analyzer import AgentAnalyzer
+from agent_tools.swarm_tools.analyzers.structure_analyzer import StructureAnalyzer
 from agent_tools.scanner.analyzers.quality_analyzer import QualityAnalyzer
 from agent_tools.scanner.models.analysis import FileAnalysis
 

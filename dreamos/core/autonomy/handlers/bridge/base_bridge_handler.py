@@ -25,17 +25,19 @@ class BaseBridgeHandler(FileSystemEventHandler):
     def __init__(self, 
                  config: Optional[Dict[str, Any]] = None,
                  watch_dir: Optional[Path] = None,
-                 file_pattern: str = "*.json"):
+                 file_pattern: str = "*.json",
+                 agent_loop: Optional[AgentLoop] = None):
         """Initialize the base bridge handler.
         
         Args:
             config: Optional configuration dictionary
             watch_dir: Optional directory to watch
             file_pattern: File pattern to match
+            agent_loop: Optional agent loop instance
         """
         self.config = config or {}
         self.logger = LogManager()
-        self.agent_loop = AgentLoop()
+        self.agent_loop = agent_loop
         
         # File watching configuration
         self.watch_dir = watch_dir

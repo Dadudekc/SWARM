@@ -21,7 +21,8 @@ class AgentController(BaseController):
                  agent_status,
                  agent_ops: AgentOperations,
                  agent_id: str,
-                 config: Optional[Dict[str, Any]] = None):
+                 config: Optional[Dict[str, Any]] = None,
+                 ui_automation: Optional['UIAutomation'] = None):
         """Initialize the agent controller.
         
         Args:
@@ -30,12 +31,14 @@ class AgentController(BaseController):
             agent_ops: Agent operations interface
             agent_id: ID of the agent to control
             config: Optional configuration dictionary
+            ui_automation: Optional UI automation instance
         """
         super().__init__(message_processor, agent_status, config)
         self.agent_ops = agent_ops
         self.agent_id = agent_id
         self._command_queue = asyncio.Queue()
         self._command_processor = None
+        self.ui_automation = ui_automation
         
     async def initialize(self) -> bool:
         """Initialize the agent controller.

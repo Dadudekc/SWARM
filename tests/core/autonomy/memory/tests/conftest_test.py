@@ -4,7 +4,7 @@ Tests for conftest module.
 
 import pytest
 from unittest.mock import MagicMock, patch
-from dreamos\core\autonomy\memory\tests\conftest import test_data_dir, test_config
+from dreamos.core.autonomy.memory.tests.conftest import test_data_dir, test_config
 
 # Fixtures
 

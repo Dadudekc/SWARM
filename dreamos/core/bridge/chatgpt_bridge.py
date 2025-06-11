@@ -1,12 +1,12 @@
 """
-ChatGPT Bridge Module
-
-This module provides the bridge between the system and ChatGPT API.
+ChatGPT bridge implementation for Dream.OS.
 """
 
+from dreamos.core.bridge.base import BaseBridge, BridgeConfig, BridgeError
+from dreamos.core.utils.exceptions import BridgeError
+from dreamos.core.utils.logging_utils import get_logger
 from typing import Optional, Dict, Any, List, AsyncGenerator
 import asyncio
-from dreamos.core.utils.exceptions import BridgeError
 
 class ChatGPTBridge:
     """Bridge for interacting with ChatGPT API."""

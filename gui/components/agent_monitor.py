@@ -24,7 +24,7 @@ from dreamos.core.autonomy.agent_tools.agent_cellphone import AgentCellphone
 from dreamos.core.autonomy.agent_tools.agent_restarter import AgentRestarter
 from dreamos.core.autonomy.agent_tools.agent_onboarder import AgentOnboarder
 from dreamos.core.telemetry.ws_client import WSClient
-from dreamos.core.utils.core_utils import load_json
+from dreamos.core.utils.json_utils import load_json
 
 # ---------------------------------------------------------------------
 #  Dataclass Config

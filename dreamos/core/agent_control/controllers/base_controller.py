@@ -100,7 +100,7 @@ class BaseController(ABC):
             status: New status string
             details: Optional status details
         """
-        self.agent_status.update_status(
+        await self.agent_status.update_status(
             controller_id=self.__class__.__name__,
             status=status,
             details=details

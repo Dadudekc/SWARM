@@ -1,220 +1,333 @@
 """
-Bridge Outbox Handler
+Outbox Handler Module
 ------------------
-Processes agent responses and applies code changes.
+Handles outgoing messages for the bridge system using agent-local mailboxes.
 """
 
-import ast
-import asyncio
 import json
 import logging
-import time
-from datetime import datetime
+import os
 from pathlib import Path
-from typing import Dict, List, Any, Optional
+from typing import Dict, Any, Optional
+from datetime import datetime
 
 from .base import BaseBridgeHandler
-from ...utils.core_utils import (
-    load_json,
-    save_json,
-    atomic_write,
-    safe_read,
-    safe_write
-)
+from ..chatgpt.bridge import ChatGPTBridge
 
-# Configure logging
 logger = logging.getLogger(__name__)
 
 class BridgeOutboxHandler(BaseBridgeHandler):
-    """Processes agent responses and applies code changes."""
+    """Handles outgoing messages for the bridge system using agent-local mailboxes."""
     
-    def __init__(self, config: Optional[Dict[str, Any]] = None):
-        """Initialize the bridge outbox handler.
+    def __init__(
+        self,
+        bridge: ChatGPTBridge,
+        config: Optional[Dict[str, Any]] = None
+    ):
+        """Initialize the outbox handler.
         
         Args:
+            bridge: ChatGPT bridge instance
             config: Optional configuration dictionary
         """
-        super().__init__(
-            config=config,
-            watch_dir=Path(config.get("paths", {}).get("bridge_outbox", "data/bridge_outbox")),
-            file_pattern="*.json"
-        )
+        # Get directory from config or use default
+        directory = Path(config.get("paths", {}).get("outbox", "agent_tools/outbox")) if config else Path("agent_tools/outbox")
         
-        # Initialize components
-        self.archive_dir = Path(self.config.get("paths", {}).get("bridge_archive", "data/bridge_archive"))
-        self.archive_dir.mkdir(parents=True, exist_ok=True)
-    
-    async def _process_items(self):
-        """Process items in the handler."""
-        # Check for new responses
-        for file_path in self.watch_dir.glob(self.file_pattern):
-            if file_path.name not in self.processed_items:
-                await self._process_file(file_path)
-    
-    async def _process_file(self, file_path: Path):
-        """Process a file.
+        # Get mailbox root from config
+        mailbox_root = Path(config.get("paths", {}).get("mailbox", "agent_tools/mailbox")) if config else Path("agent_tools/mailbox")
+        
+        # Initialize base handler with paths
+        handler_config = {
+            **config,
+            "paths": {
+                "outbox": str(directory),
+                "mailbox": str(mailbox_root),
+                "archive": str(Path(config.get("paths", {}).get("archive", "archive"))),
+                "failed": str(Path(config.get("paths", {}).get("failed", "failed")))
+            }
+        }
+        super().__init__(bridge, directory, handler_config)
+        self.mailbox_root = mailbox_root
+        
+        # Initialize metrics
+        self.processed_messages = 0
+        self.errors = {}
+        self.last_error = None
+        self.last_processed = None
+        
+    def write_response(self, agent_id: str, message: Dict[str, Any]) -> bool:
+        """Write a response to an agent's mailbox.
         
         Args:
-            file_path: Path to file
+            agent_id: ID of the agent to write to
+            message: Message to write
+            
+        Returns:
+            bool: True if write was successful
         """
         try:
-            # Load response data
-            response = await self._load_json(str(file_path))
-            if not response:
-                return
+            # Ensure agent mailbox exists
+            agent_mailbox = self.mailbox_root / f"agent-{agent_id}"
+            agent_mailbox.mkdir(parents=True, exist_ok=True)
             
-            # Process response
-            await self._process_response(response)
-            
-            # Move to archive
-            archive_path = self.archive_dir / file_path.name
-            await self._move_to_archive(file_path, archive_path)
-            
-            # Mark as processed
-            self.processed_items.add(file_path.name)
+            # Write response
+            response_path = agent_mailbox / "response.json"
+            with open(response_path, "w") as f:
+                json.dump(message, f, indent=2)
+                
+            logger.info(f"Wrote response to {response_path}")
+            return True
             
         except Exception as e:
-            logger.error(f"Error processing file {file_path}: {e}")
-    
-    async def _process_response(self, response: Dict[str, Any]):
-        """Process a single response.
+            logger.error(f"Failed to write response for agent {agent_id}: {e}")
+            return False
+            
+    async def _process_message(self, message: Dict[str, Any]):
+        """Process an outgoing message.
         
         Args:
-            response: Response to process
+            message: Message to process
+        """
+        try:
+            # Extract message data
+            message_type = message.get("type")
+            content = message.get("content")
+            metadata = message.get("metadata", {})
+            
+            if not all([message_type, content]):
+                logger.error("Invalid message format")
+                return
+                
+            # Process based on type
+            if message_type == "request":
+                await self._handle_request(content, metadata)
+            elif message_type == "response":
+                await self._handle_response(content, metadata)
+            elif message_type == "error":
+                await self._handle_error(content, metadata)
+            elif message_type == "status":
+                await self._handle_status(content, metadata)
+            else:
+                logger.warning(f"Unknown message type: {message_type}")
+                
+            # Update metrics
+            self.processed_messages += 1
+            self.last_processed = datetime.now()
+            
+        except Exception as e:
+            logger.error(f"Error processing message: {e}")
+            
+    async def _handle_request(self, content: Dict[str, Any], metadata: Dict[str, Any]):
+        """Handle a request message.
+        
+        Args:
+            content: Request content
+            metadata: Request metadata
+        """
+        try:
+            # Extract request data
+            request_id = content.get("id")
+            agent_id = content.get("agent_id")
+            prompt = content.get("prompt")
+            
+            if not all([request_id, agent_id, prompt]):
+                logger.error("Invalid request format")
+                return
+                
+            # Send to ChatGPT
+            response = await self.bridge.send_message(prompt)
+            
+            # Write response to agent mailbox
+            self.write_response(
+                agent_id,
+                {
+                    "type": "response",
+                    "content": {
+                        "id": request_id,
+                        "data": response,
+                        "timestamp": metadata.get("timestamp")
+                    }
+                }
+            )
+            
+            logger.info(f"Processed request {request_id} from agent {agent_id}")
+            
+        except Exception as e:
+            logger.error(f"Error handling request: {e}")
+            
+    async def _handle_response(self, content: Dict[str, Any], metadata: Dict[str, Any]):
+        """Handle a response message.
+        
+        Args:
+            content: Response content
+            metadata: Response metadata
         """
         try:
             # Extract response data
-            test_id = response.get("test_id")
-            agent_id = response.get("agent_id")
-            patch_content = response.get("patch_content")
+            response_id = content.get("id")
+            agent_id = content.get("agent_id")
+            response_data = content.get("data")
             
-            if not all([test_id, agent_id, patch_content]):
+            if not all([response_id, agent_id, response_data]):
                 logger.error("Invalid response format")
                 return
+                
+            # Write response to agent mailbox
+            self.write_response(
+                agent_id,
+                {
+                    "type": "response",
+                    "content": {
+                        "id": response_id,
+                        "data": response_data,
+                        "timestamp": metadata.get("timestamp")
+                    }
+                }
+            )
             
-            # Generate patch ID
-            patch_id = f"{test_id}_{agent_id}_{int(time.time())}"
-            
-            # Apply patch
-            if not await self._apply_patch(patch_id, patch_content, test_id):
-                return
-            
-            # Run tests
-            if not await self._run_tests():
-                return
-            
-            # Commit changes
-            await self._commit_changes(patch_id, f"Fix for test {test_id}")
+            logger.info(f"Processed response {response_id} from agent {agent_id}")
             
         except Exception as e:
-            logger.error(f"Error processing response: {e}")
-    
-    async def create_fix_request(
-        self,
-        agent: str,
-        test_name: str,
-        error: str,
-        file_path: Optional[str] = None
-    ):
-        """Create a fix request for an agent.
+            logger.error(f"Error handling response: {e}")
+            
+    async def _handle_error(self, content: Dict[str, Any], metadata: Dict[str, Any]):
+        """Handle an error message.
         
         Args:
-            agent: Agent identifier
-            test_name: Name of failed test
-            error: Error message
-            file_path: Optional path to test file
+            content: Error content
+            metadata: Error metadata
         """
         try:
-            # Create request
-            request = {
-                "id": f"{test_name}_{int(time.time())}",
-                "agent": agent,
-                "test_name": test_name,
-                "error": error,
-                "file_path": file_path,
-                "timestamp": datetime.utcnow().isoformat()
+            # Extract error data
+            error_id = content.get("id")
+            agent_id = content.get("agent_id")
+            error_type = content.get("type")
+            error_message = content.get("message")
+            
+            if not all([error_id, agent_id, error_type, error_message]):
+                logger.error("Invalid error format")
+                return
+                
+            # Write error to agent mailbox
+            self.write_response(
+                agent_id,
+                {
+                    "type": "error",
+                    "content": {
+                        "id": error_id,
+                        "type": error_type,
+                        "message": error_message,
+                        "timestamp": metadata.get("timestamp")
+                    }
+                }
+            )
+            
+            logger.error(f"Processed error {error_id} for agent {agent_id}: {error_message}")
+            
+        except Exception as e:
+            logger.error(f"Error handling error: {e}")
+            
+    async def _handle_status(self, content: Dict[str, Any], metadata: Dict[str, Any]):
+        """Handle a status message.
+        
+        Args:
+            content: Status content
+            metadata: Status metadata
+        """
+        try:
+            # Extract status data
+            status_id = content.get("id")
+            agent_id = content.get("agent_id")
+            status_data = content.get("data")
+            
+            if not all([status_id, agent_id, status_data]):
+                logger.error("Invalid status format")
+                return
+                
+            # Write status to agent mailbox
+            self.write_response(
+                agent_id,
+                {
+                    "type": "status",
+                    "content": {
+                        "id": status_id,
+                        "data": status_data,
+                        "timestamp": metadata.get("timestamp")
+                    }
+                }
+            )
+            
+            logger.info(f"Processed status {status_id} from agent {agent_id}")
+            
+        except Exception as e:
+            logger.error(f"Error handling status: {e}")
+
+    async def start(self) -> bool:
+        """Start the handler.
+        
+        Returns:
+            bool: True if started successfully
+        """
+        try:
+            # Create directories
+            self.mailbox_root.mkdir(parents=True, exist_ok=True)
+            self.archive_dir.mkdir(parents=True, exist_ok=True)
+            self.failed_dir.mkdir(parents=True, exist_ok=True)
+            
+            # Start monitoring
+            self.observer.start()
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error starting handler: {e}")
+            return False
+
+    async def process(self, agent_id: str, message: Dict[str, Any]) -> bool:
+        """Process a message for an agent.
+        
+        Args:
+            agent_id: ID of the agent
+            message: Message to process
+            
+        Returns:
+            bool: True if processed successfully
+        """
+        try:
+            # Write message to outbox
+            outbox_path = self.mailbox_root / f"agent-{agent_id}" / "outbox.json"
+            outbox_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(outbox_path, 'w') as f:
+                json.dump(message, f, indent=2)
+                
+            # Process message
+            await self._process_message(message)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error processing message for agent {agent_id}: {e}")
+            return False
+
+    async def _handle_error(self, message: Dict[str, Any], error: Exception) -> None:
+        """Handle error messages."""
+        error_response = {
+            "type": "error",
+            "content": {
+                "error": str(error),
+                "message": message
+            },
+            "metadata": {
+                "timestamp": datetime.now().isoformat(),
+                "source": "bridge_outbox_handler"
             }
-            
-            # Save request
-            request_file = self.watch_dir / f"fix_request_{request['id']}.json"
-            await self._save_json(str(request_file), request)
-            
-            logger.info(f"Created fix request for test {test_name}")
-            
-        except Exception as e:
-            logger.error(f"Error creating fix request: {e}")
-    
-    async def _apply_patch(self, patch_id: str, patch_content: str, test_id: str) -> bool:
-        """Apply a code patch.
-        
-        Args:
-            patch_id: Unique patch ID
-            patch_content: Patch content
-            test_id: Test ID
-            
-        Returns:
-            True if patch was applied successfully
-        """
-        try:
-            # Parse patch content
-            patch_ast = ast.parse(patch_content)
-            
-            # Apply changes
-            # ... (patch application logic)
-            
-            logger.info(f"Applied patch {patch_id}")
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error applying patch: {e}")
-            return False
-    
-    async def _run_tests(self) -> bool:
-        """Run tests.
-        
-        Returns:
-            True if tests passed
-        """
-        try:
-            # Run tests
-            # ... (test execution logic)
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error running tests: {e}")
-            return False
-    
-    async def _commit_changes(self, patch_id: str, message: str):
-        """Commit changes to version control.
-        
-        Args:
-            patch_id: Unique patch ID
-            message: Commit message
-        """
-        try:
-            # Commit changes
-            # ... (commit logic)
-            
-            logger.info(f"Committed changes for patch {patch_id}")
-            
-        except Exception as e:
-            logger.error(f"Error committing changes: {e}")
-    
-    async def _move_to_archive(self, source: Path, target: Path):
-        """Move file to archive.
-        
-        Args:
-            source: Source file path
-            target: Target file path
-        """
-        try:
-            # Ensure target directory exists
-            target.parent.mkdir(parents=True, exist_ok=True)
-            
-            # Move file
-            await atomic_write(target, await safe_read(source))
-            await safe_write(source, b"")  # Clear source file
-            
-        except Exception as e:
-            logger.error(f"Error moving file to archive: {e}") 
+        }
+        await self.write_response(message["content"]["agent_id"], error_response)
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get metrics for this handler."""
+        return {
+            "processed_messages": self.processed_messages,
+            "errors": self.errors,
+            "last_error": str(self.last_error) if self.last_error else None,
+            "last_processed": self.last_processed.isoformat() if self.last_processed else None
+        } 

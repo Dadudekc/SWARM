@@ -57,6 +57,7 @@ test_recipient/
 MagicMock/
 *_test.png
 test_*.py
+!tests/**/test_*.py  # Allow test files in tests directory
 region_test.png
 tests/logs/
 tests/reports/
@@ -128,7 +129,6 @@ Trading_/basicbot/chrome_profile/Default/Network/Network Persistent State
 Trading_/basicbot/chrome_profile/Default/Network/Network Data
 Trading_/basicbot/chrome_profile/Default/QuotaManager*
 Trading_/basicbot/chrome_profile/Default/Visited Links
-Trading_/basicbot/chrome_profile/Default/History
 Trading_/basicbot/chrome_profile/Default/Favicons
 Trading_/basicbot/chrome_profile/Default/Top Sites
 Trading_/basicbot/chrome_profile/Default/Shortcuts
@@ -167,3 +167,75 @@ task_backlog.json
 
 # New virtual environment
 .venv_new/
+
+# Test directories
+tests/temp/
+tests/runtime/
+tests/config/
+tests/data/
+tests/failed/
+tests/archive/
+tests/output/
+tests/voice_queue/
+tests/report/
+tests/quarantine/
+
+# Test files
+test_*.json
+test_*.yaml
+test_*.yml
+test_*.log
+test_*.txt
+test_*.md
+test_*.rst
+test_*.pyc
+test_*.pyo
+test_*.pyd
+test_*.so
+test_*.dll
+test_*.dylib
+test_*.exe
+test_*.out
+test_*.err
+test_*.pid
+test_*.lock
+test_*.tmp
+test_*.temp
+test_*.bak
+test_*.swp
+test_*.swo
+test_*~
+
+# Test environment
+.env.test
+.env.testing
+.env.test.local
+.env.testing.local
+.env.test.development
+.env.testing.development
+.env.test.production
+.env.testing.production
+
+# Test coverage
+.coverage
+coverage.xml
+htmlcov/
+.tox/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+.nox/
+.hypothesis/
+.eggs/
+*.egg-info/
+.installed.cfg
+*.egg

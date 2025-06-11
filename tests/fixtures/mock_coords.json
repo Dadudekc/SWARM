@@ -1,0 +1,14 @@
+{
+    "test_agent": {
+        "input_box_x": 123,
+        "input_box_y": 456
+    },
+    "agent-1": {
+        "input_box_x": 100,
+        "input_box_y": 200
+    },
+    "agent-2": {
+        "input_box_x": 300,
+        "input_box_y": 400
+    }
+} 

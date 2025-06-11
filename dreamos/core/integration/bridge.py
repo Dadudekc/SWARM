@@ -5,11 +5,19 @@ High-level interface for bridge system integration.
 Provides a unified API for all bridge operations.
 """
 
-from typing import Dict, Any, Optional
+from typing import Dict, Any, Optional, Tuple
 from pathlib import Path
 import logging
+import json
+from datetime import datetime
+import uuid
 
-from ..bridge.base import BaseBridge, BridgeConfig
+from ..bridge.base.bridge import (
+    BaseBridge,
+    BridgeConfig,
+    BridgeError,
+    ErrorSeverity
+)
 from ..response.base import BaseResponse, BaseResponseProcessor
 
 logger = logging.getLogger(__name__)
@@ -26,28 +34,37 @@ class BridgeIntegration:
         self.config = BridgeConfig(config_path)
         self.bridge: Optional[BaseBridge] = None
         self.processor: Optional[BaseResponseProcessor] = None
+        self._correlation_id = str(uuid.uuid4())
     
-    async def initialize(self) -> bool:
+    async def initialize(self) -> Tuple[bool, Optional[BridgeError]]:
         """Initialize bridge integration.
         
         Returns:
-            True if initialization successful
+            Tuple of (success, error)
         """
         try:
             # Initialize bridge
             self.bridge = self._create_bridge()
-            if not await self.bridge.connect():
-                logger.error("Failed to connect bridge")
-                return False
+            result, error = await self.bridge._retry_operation(
+                "connect",
+                self.bridge.connect
+            )
+            if error:
+                return False, error
             
             # Initialize processor
             self.processor = self._create_processor()
             
-            return True
+            return True, None
             
         except Exception as e:
-            logger.error(f"Failed to initialize bridge integration: {e}")
-            return False
+            error = BridgeError(
+                f"Failed to initialize bridge integration: {str(e)}",
+                severity=ErrorSeverity.ERROR,
+                context={"config_path": str(config_path)},
+                correlation_id=self._correlation_id
+            )
+            return False, error
     
     def _create_bridge(self) -> BaseBridge:
         """Create bridge instance.
@@ -65,59 +82,107 @@ class BridgeIntegration:
         """
         pass
     
-    async def send_response(self, response: BaseResponse) -> bool:
+    async def send_response(
+        self,
+        response: BaseResponse
+    ) -> Tuple[bool, Optional[BridgeError]]:
         """Send response through bridge.
         
         Args:
             response: Response to send
             
         Returns:
-            True if response sent successfully
+            Tuple of (success, error)
         """
         if not self.bridge or not self.processor:
-            logger.error("Bridge integration not initialized")
-            return False
+            error = BridgeError(
+                "Bridge integration not initialized",
+                severity=ErrorSeverity.ERROR,
+                correlation_id=self._correlation_id
+            )
+            return False, error
         
         try:
             # Process response
-            if not await self.processor.process(response):
-                logger.error("Failed to process response")
-                return False
+            result, error = await self.bridge._retry_operation(
+                "process_response",
+                self.processor.process,
+                response
+            )
+            if error:
+                return False, error
             
             # Send through bridge
-            return await self.bridge.send(response.to_dict())
+            result, error = await self.bridge._retry_operation(
+                "send_response",
+                self.bridge.send,
+                response.to_dict()
+            )
+            return not bool(error), error
             
         except Exception as e:
-            logger.error(f"Failed to send response: {e}")
-            return False
+            error = BridgeError(
+                f"Failed to send response: {str(e)}",
+                severity=ErrorSeverity.ERROR,
+                context={"response_id": response.id},
+                correlation_id=self._correlation_id
+            )
+            return False, error
     
-    async def receive_response(self) -> Optional[BaseResponse]:
+    async def receive_response(
+        self
+    ) -> Tuple[Optional[BaseResponse], Optional[BridgeError]]:
         """Receive response from bridge.
         
         Returns:
-            Received response or None if no response
+            Tuple of (response, error)
         """
         if not self.bridge or not self.processor:
-            logger.error("Bridge integration not initialized")
-            return None
+            error = BridgeError(
+                "Bridge integration not initialized",
+                severity=ErrorSeverity.ERROR,
+                correlation_id=self._correlation_id
+            )
+            return None, error
         
         try:
             # Receive from bridge
-            data = await self.bridge.receive()
-            if not data:
-                return None
+            result, error = await self.bridge._retry_operation(
+                "receive_response",
+                self.bridge.receive
+            )
+            if error:
+                return None, error
+            if not result:
+                return None, None
             
             # Create and validate response
-            response = self._create_response(data)
-            if not await self.processor.validate(response):
-                logger.error("Invalid response received")
-                return None
+            response = self._create_response(result)
+            is_valid, error = await self.bridge._retry_operation(
+                "validate_response",
+                self.processor.validate,
+                response
+            )
+            if error:
+                return None, error
+            if not is_valid:
+                error = BridgeError(
+                    "Invalid response received",
+                    severity=ErrorSeverity.WARNING,
+                    context={"response_id": response.id},
+                    correlation_id=self._correlation_id
+                )
+                return None, error
             
-            return response
+            return response, None
             
         except Exception as e:
-            logger.error(f"Failed to receive response: {e}")
-            return None
+            error = BridgeError(
+                f"Failed to receive response: {str(e)}",
+                severity=ErrorSeverity.ERROR,
+                correlation_id=self._correlation_id
+            )
+            return None, error
     
     def _create_response(self, data: Dict[str, Any]) -> BaseResponse:
         """Create response from data.

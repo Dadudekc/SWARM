@@ -13,6 +13,7 @@ from pathlib import Path
 from datetime import datetime
 
 from ..bridge.chatgpt.bridge import ChatGPTBridge
+from ..bridge.base.processor import BridgeProcessor
 from .request_queue import RequestQueue
 from .response_tracker import AgentResponseTracker
 from ..monitoring.bridge_health import BridgeHealthMonitor
@@ -198,12 +199,12 @@ class BridgeIntegration:
         return status
         
     def get_agent_responses(self, agent_id: str) -> List[Dict[str, Any]]:
-        """Get tracked responses for an agent.
+        """Get all responses for an agent.
         
         Args:
             agent_id: ID of the agent
             
         Returns:
-            List of tracked responses
+            List of response dictionaries
         """
-        return self.tracker.get_agent_responses(agent_id) 
+        return self.tracker.get_responses(agent_id) 

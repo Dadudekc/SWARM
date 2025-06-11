@@ -1,9 +1,21 @@
 """
-Response Handlers
----------------
-Core handlers for processing responses and managing response processing logic.
+Handler Package
+-------------
+Core handler functionality for the system.
 """
 
-from .response_processor_factory import ResponseProcessorFactory
+from .unified_handler import UnifiedHandler
+from .handler_utils import (
+    safe_watch_file,
+    structured_log,
+    standard_result_wrapper,
+    safe_json_operation
+)
 
-__all__ = ["ResponseProcessorFactory"] 
+__all__ = [
+    'UnifiedHandler',
+    'safe_watch_file',
+    'structured_log',
+    'standard_result_wrapper',
+    'safe_json_operation'
+] 

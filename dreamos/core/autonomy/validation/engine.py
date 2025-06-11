@@ -6,6 +6,9 @@ Validates responses and ensures they meet required criteria.
 import logging
 from typing import Any, Dict, List, Optional, Union
 from dataclasses import dataclass
+import json
+from datetime import datetime
+from pathlib import Path
 
 logger = logging.getLogger(__name__)
 
@@ -114,4 +117,91 @@ class ValidationEngine:
             is_valid=True,
             errors=[],
             warnings=[]
-        ) 
+        )
+
+    async def validate_agent_state(self, agent_id: str) -> bool:
+        """Validate an agent's state for resumption.
+        
+        Args:
+            agent_id: Agent ID to validate
+            
+        Returns:
+            True if agent state is valid for resumption
+        """
+        try:
+            # Load agent state
+            state_path = Path(self.config.get("paths", {}).get("runtime", "data/runtime")) / "agents" / f"{agent_id}.json"
+            if not state_path.exists():
+                logger.error(f"Agent state file not found: {state_path}")
+                return False
+                
+            with open(state_path) as f:
+                state = json.load(f)
+                
+            # Validate required fields
+            result = self.validate_required_fields(state, ["status", "last_update", "context"])
+            if not result.is_valid:
+                logger.error(f"Invalid agent state: {result.errors}")
+                return False
+                
+            # Validate field types
+            type_validations = [
+                self.validate_field_type(state, "status", str),
+                self.validate_field_type(state, "last_update", str),
+                self.validate_field_type(state, "context", dict)
+            ]
+            
+            for validation in type_validations:
+                if not validation.is_valid:
+                    logger.error(f"Invalid agent state types: {validation.errors}")
+                    return False
+                    
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error validating agent state: {e}")
+            return False
+            
+    async def resume_agent(self, agent_id: str) -> bool:
+        """Resume an agent from its saved state.
+        
+        Args:
+            agent_id: Agent ID to resume
+            
+        Returns:
+            True if agent was successfully resumed
+        """
+        try:
+            # Load agent state
+            state_path = Path(self.config.get("paths", {}).get("runtime", "data/runtime")) / "agents" / f"{agent_id}.json"
+            if not state_path.exists():
+                logger.error(f"Agent state file not found: {state_path}")
+                return False
+                
+            with open(state_path) as f:
+                state = json.load(f)
+                
+            # Update state to resuming
+            state["status"] = "resuming"
+            state["last_update"] = datetime.utcnow().isoformat()
+            
+            # Save updated state
+            with open(state_path, "w") as f:
+                json.dump(state, f, indent=2)
+                
+            # Trigger agent resume
+            resume_path = Path(self.config.get("paths", {}).get("runtime", "data/runtime")) / "resume" / f"{agent_id}.json"
+            resume_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(resume_path, "w") as f:
+                json.dump({
+                    "agent_id": agent_id,
+                    "timestamp": datetime.utcnow().isoformat(),
+                    "context": state["context"]
+                }, f, indent=2)
+                
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error resuming agent: {e}")
+            return False 

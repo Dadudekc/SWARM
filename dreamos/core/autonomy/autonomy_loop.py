@@ -30,6 +30,8 @@ from dreamos.core.cursor.cursor_controller import CursorController
 from dreamos.core.ai.llm_agent import LLMAgent
 from dreamos.core.messaging.message_handler import MessageHandler
 from agent_tools.config.config_loader import ConfigLoader
+from dreamos.bridge_clients.cursor import CursorBridge
+from dreamos.core.bridge.cache.bridge_cache import BridgeCache
 
 # Constants & paths
 ROOT = Path(__file__).resolve().parent.parent.parent  # Go up to project root
@@ -72,6 +74,8 @@ class AutonomyLoop:
         })
         self.gpt_bridge = ChatGPTBridge(api_key=os.getenv("OPENAI_API_KEY"))
         self.cursor = CursorController()
+        self.cursor_bridge = CursorBridge()  # Initialize CursorBridge
+        self.bridge_cache = BridgeCache()  # Initialize bridge cache
         self.request_queue = RequestQueue(str(ROOT / "data" / "requests" / "queue.json"))
         self.health_monitor = BridgeHealthMonitor(str(ROOT / "data" / "health" / "status.json"))
         
@@ -134,11 +138,37 @@ class AutonomyLoop:
             # Apply the changes
             await self.cursor.apply_changes(response)
             
+            # Capture Cursor's response with timing
+            start_time = time.time()
+            cursor_response = self.cursor_bridge.capture_response()
+            latency_ms = (time.time() - start_time) * 1000  # Convert to milliseconds
+            
+            # Cache the interaction
+            self.bridge_cache.add_interaction(
+                agent_id=self.agent_id,
+                response=cursor_response,
+                latency_ms=latency_ms
+            )
+            
+            # Get performance metrics
+            avg_latency = self.bridge_cache.get_average_latency(self.agent_id)
+            recent_interactions = self.bridge_cache.get_interactions(self.agent_id)
+            
+            # Log response and metrics
+            logger.info(f"Cursor response: {cursor_response}")
+            logger.info(f"Response latency: {latency_ms:.2f}ms")
+            if avg_latency:
+                logger.info(f"Average latency: {avg_latency:.2f}ms")
+            
             # Update task status
             self.request_queue.update_task_status(task["id"], "completed")
             
-            # Log completion
+            # Log completion with metrics
             self.save_devlog(f"Task {task['id']} completed")
+            self.save_devlog(f"Cursor response: {cursor_response}")
+            self.save_devlog(f"Response latency: {latency_ms:.2f}ms")
+            if avg_latency:
+                self.save_devlog(f"Average latency: {avg_latency:.2f}ms")
             
         except Exception as e:
             logger.error(f"Error processing task: {e}")

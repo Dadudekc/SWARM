@@ -1,7 +1,7 @@
 """
 ChatGPT Bridge Implementation
---------------------------
-Unified implementation of the ChatGPT bridge with enhanced features.
+---------------------------
+Bridge implementation for ChatGPT integration.
 """
 
 import asyncio
@@ -13,11 +13,10 @@ from pathlib import Path
 from typing import Dict, Any, Optional, List
 import aiohttp
 
-from ..base.bridge import BaseBridge
+from ..base.bridge import BaseBridge, BridgeConfig
 from ..base.processor import BaseProcessor
 from .prompt import PromptManager
-from ..monitoring.metrics import BridgeMetrics
-from ..monitoring.health import BridgeHealth
+from ..monitoring.metrics import BridgeMetrics, BridgeHealth
 
 # Configure logging
 logging.basicConfig(level=logging.INFO)
@@ -83,10 +82,8 @@ class ChatGPTBridge(BaseBridge):
         self._task = asyncio.create_task(self._run())
         
         logger.info(
-            platform="chatgpt_bridge",
-            status="started",
-            message="ChatGPT bridge started",
-            tags=["init", "bridge"]
+            "ChatGPT bridge started | platform=chatgpt_bridge | status=started | tags=%s",
+            ["init", "bridge"]
         )
         
     async def stop(self) -> None:
@@ -101,15 +98,14 @@ class ChatGPTBridge(BaseBridge):
                 await self._task
             except asyncio.CancelledError:
                 pass
+            self._task = None
                 
         if self._session:
             await self._session.close()
                 
         logger.info(
-            platform="chatgpt_bridge",
-            status="stopped",
-            message="ChatGPT bridge stopped",
-            tags=["shutdown", "bridge"]
+            "ChatGPT bridge stopped | platform=chatgpt_bridge | status=stopped | tags=%s",
+            ["shutdown", "bridge"]
         )
         
     async def chat(
@@ -198,17 +194,23 @@ class ChatGPTBridge(BaseBridge):
             # Send to ChatGPT
             response = await self.chat(messages)
             
-            # Validate response
-            if not await self.validate_response(response):
-                raise ValueError("Invalid response from ChatGPT")
-                
             # Update metrics
-            self.metrics.record_success()
+            self.metrics.update_metrics(
+                success=True,
+                response_time=0.0  # TODO: Add response time tracking
+            )
             
             return response
             
         except Exception as e:
-            self.metrics.record_error(str(e))
+            logger.error(f"Error sending message: {e}")
+            
+            # Update metrics
+            self.metrics.update_metrics(
+                success=False,
+                error=str(e)
+            )
+            
             raise
             
     async def receive_message(

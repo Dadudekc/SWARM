@@ -4,9 +4,10 @@ from __future__ import annotations
 
 import logging
 from pathlib import Path
-from typing import Any, Union
+from typing import Any, Union, Dict
 
 import yaml
+from cerberus import Validator
 
 logger = logging.getLogger(__name__)
 
@@ -15,6 +16,7 @@ __all__ = [
     "save_yaml",
     "read_yaml",
     "write_yaml",
+    "validate_yaml",
     "YamlError",
 ]
 
@@ -52,4 +54,23 @@ def write_yaml(file_path: Union[str, Path], data: Any) -> bool:
 
 def save_yaml(file_path: Union[str, Path], data: Any) -> bool:
     """Save data to YAML file."""
-    return write_yaml(file_path, data) 
+    return write_yaml(file_path, data)
+
+
+def validate_yaml(data: Dict, schema: Dict) -> tuple[bool, Dict]:
+    """Validate YAML data against a schema.
+    
+    Args:
+        data: YAML data to validate
+        schema: Cerberus validation schema
+        
+    Returns:
+        Tuple of (is_valid, errors)
+    """
+    try:
+        validator = Validator(schema)
+        is_valid = validator.validate(data)
+        return is_valid, validator.errors
+    except Exception as e:
+        logger.error(f"Error validating YAML: {e}")
+        return False, {"validation_error": str(e)} 

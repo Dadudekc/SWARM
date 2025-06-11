@@ -22,9 +22,9 @@ from queue import PriorityQueue
 import re
 from uuid import uuid4
 
-from .base import BaseMessagingComponent
-from .enums import MessageMode, MessagePriority
-from .common import Message
+from dreamos.core.messaging.base import BaseMessagingComponent
+from dreamos.core.messaging.enums import MessageMode, MessagePriority
+from dreamos.core.messaging.common import Message
 
 logger = logging.getLogger('dreamos.messaging')
 

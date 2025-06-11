@@ -1,0 +1,15 @@
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\bin\Debug\net8.0-windows\CursorBridge.exe
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\bin\Debug\net8.0-windows\CursorBridge.deps.json
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\bin\Debug\net8.0-windows\CursorBridge.runtimeconfig.json
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\bin\Debug\net8.0-windows\CursorBridge.dll
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\bin\Debug\net8.0-windows\CursorBridge.pdb
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.GeneratedMSBuildEditorConfig.editorconfig
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.AssemblyInfoInputs.cache
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.AssemblyInfo.cs
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.csproj.CoreCompileInputs.cache
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.sourcelink.json
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.dll
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\refint\CursorBridge.dll
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.pdb
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\CursorBridge.genruntimeconfig.cache
+D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0-windows\ref\CursorBridge.dll

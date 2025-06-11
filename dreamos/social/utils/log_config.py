@@ -1,34 +1,31 @@
 """
-Log configuration for managing log files and settings.
+Log configuration module for managing log files and settings.
 """
 
-import os
 from dataclasses import dataclass, field
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, Optional, Union
-
+from typing import Dict, List, Optional
 from .log_level import LogLevel
 
 @dataclass
 class LogConfig:
     """Configuration for log files and settings."""
-    log_dir: Union[str, Path]
+    
+    log_dir: str = "logs"
     max_size_mb: int = 10
     max_files: int = 5
-    backup_count: int = 5  # Alias for max_files for backward compatibility
     compress_after_days: int = 7
-    data_dir: Union[str, Path] = Path("runtime/logs/data")
-    batch_size: int = 100
-    batch_timeout: float = 5.0
     level: LogLevel = LogLevel.INFO
-    platforms: Dict[str, Path] = field(default_factory=dict)
-    format: str = "%(asctime)s [%(levelname)-8s] %(message)s"
-    config_dir: Union[str, Path] = Path("runtime/logs/config")
-    log_file: Optional[Union[str, Path]] = None
-
+    platforms: List[str] = field(default_factory=lambda: ["twitter", "facebook", "instagram", "linkedin"])
+    data_dir: str = "runtime/logs/data"
+    config_dir: str = "runtime/logs/config"
+    log_file: Optional[Path] = None
+    batch_size: int = 100  # Default batch size for log entries
+    batch_timeout: float = 5.0  # Default batch timeout in seconds
+    format: str = "%(asctime)s [%(levelname)-8s] %(message)s"  # Default log format
+    
     def __post_init__(self):
-        """Initialize paths and create necessary directories."""
+        """Initialize paths and create directories."""
         # Convert string paths to Path objects
         self.log_dir = Path(self.log_dir)
         self.data_dir = Path(self.data_dir)
@@ -42,49 +39,39 @@ class LogConfig:
         # Set default log file if not specified
         if self.log_file is None:
             self.log_file = self.log_dir / "social.log"
-        else:
-            self.log_file = Path(self.log_file)
             
-        # Set platform log files if not specified
-        if not self.platforms:
-            self.platforms = {
-                "twitter": self.log_dir / "twitter.log",
-                "facebook": self.log_dir / "facebook.log",
-                "instagram": self.log_dir / "instagram.log",
-                "linkedin": self.log_dir / "linkedin.log"
-            }
-        else:
-            self.platforms = {k: Path(v) for k, v in self.platforms.items()}
-
+        # Create default log files for each platform
+        for platform in self.platforms:
+            platform_log = self.log_dir / f"{platform}.log"
+            if not platform_log.exists():
+                platform_log.touch()
+                
+        # Create main social log if it doesn't exist
+        if not self.log_file.exists():
+            self.log_file.touch()
+    
     @property
     def max_bytes(self) -> int:
         """Get maximum file size in bytes."""
         return self.max_size_mb * 1024 * 1024
-
+    
     @property
     def file_path(self) -> Path:
-        """Legacy property for backward compatibility."""
+        """Get the main log file path (for backward compatibility)."""
         return self.log_file
-
-    def __str__(self) -> str:
-        """Get string representation."""
-        return str(self.log_dir)
     
     def __eq__(self, other):
         """Compare two LogConfig instances."""
         if not isinstance(other, LogConfig):
             return False
         return (
-            self.log_dir == other.log_dir
-            and self.max_size_mb == other.max_size_mb
-            and self.max_files == other.max_files
-            and self.compress_after_days == other.compress_after_days
-            and self.data_dir == other.data_dir
-            and self.batch_size == other.batch_size
-            and self.batch_timeout == other.batch_timeout
-            and self.level == other.level
-            and self.platforms == other.platforms
-            and self.format == other.format
-            and self.config_dir == other.config_dir
-            and self.log_file == other.log_file
+            self.log_dir == other.log_dir and
+            self.max_size_mb == other.max_size_mb and
+            self.max_files == other.max_files and
+            self.compress_after_days == other.compress_after_days and
+            self.level == other.level and
+            self.platforms == other.platforms and
+            self.batch_size == other.batch_size and
+            self.batch_timeout == other.batch_timeout and
+            self.format == other.format
         )

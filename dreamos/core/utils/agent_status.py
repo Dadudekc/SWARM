@@ -100,4 +100,40 @@ class AgentStatus:
             
         except Exception as e:
             logger.error(f"Error updating agent status: {e}")
+            return False
+
+    async def update_status(self,
+                          controller_id: str,
+                          status: str,
+                          details: Optional[Dict] = None) -> bool:
+        """Update status for a controller.
+        
+        Args:
+            controller_id: Controller ID to update
+            status: New status
+            details: Additional status details
+            
+        Returns:
+            True if update successful
+        """
+        try:
+            # Read current statuses
+            with open(self.status_file, 'r') as f:
+                statuses = json.load(f)
+                
+            # Update status
+            statuses[controller_id] = {
+                "status": status,
+                "last_update": datetime.now().isoformat(),
+                **(details or {})
+            }
+            
+            # Write back
+            with open(self.status_file, 'w') as f:
+                json.dump(statuses, f, indent=2)
+                
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error updating controller status: {e}")
             return False 

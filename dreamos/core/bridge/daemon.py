@@ -1,191 +1,94 @@
 """
-Bridge Response Loop Daemon
+Response Loop Daemon Module
 ------------------------
-Unified implementation of the bridge response loop daemon.
+Monitors agent mailboxes and processes incoming messages.
 """
 
 import asyncio
+import glob
 import json
 import logging
-import signal
-import sys
-from datetime import datetime
 from pathlib import Path
-from typing import Dict, Any, Optional, List
+from typing import Dict, Any, List, Optional
 
-from .chatgpt.bridge import ChatGPTBridge
 from .handlers.outbox import BridgeOutboxHandler
-from .handlers.inbox import BridgeInboxHandler
-from .processors.message import BridgeMessageProcessor
-from .processors.response import BridgeResponseProcessor
-from .monitoring.metrics import BridgeMetrics
-from .monitoring.health import BridgeHealth
+from .chatgpt.bridge import ChatGPTBridge
 
-# Configure logging
-logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class BridgeResponseLoopDaemon:
-    """Unified bridge response loop daemon."""
+class ResponseLoopDaemon:
+    """Daemon that monitors agent mailboxes and processes messages."""
     
     def __init__(
         self,
-        config_path: Optional[Path] = None,
+        bridge: ChatGPTBridge,
+        poll_interval: float = 1.0,
         config: Optional[Dict[str, Any]] = None
     ):
-        """Initialize the daemon.
+        """Initialize the response loop daemon.
         
         Args:
-            config_path: Path to config file
-            config: Optional config dictionary
+            bridge: ChatGPT bridge instance
+            poll_interval: Time between mailbox checks in seconds
+            config: Optional configuration dictionary
         """
-        # Load config
-        if config_path:
-            with open(config_path) as f:
-                self.config = json.load(f)
-        else:
-            self.config = config or {}
-            
-        # Set up paths
-        self.base_dir = Path(self.config.get("paths", {}).get("base", "data"))
-        self.outbox_dir = self.base_dir / "outbox"
-        self.inbox_dir = self.base_dir / "inbox"
-        self.archive_dir = self.base_dir / "archive"
-        self.failed_dir = self.base_dir / "failed"
+        self.poll_interval = poll_interval
+        self.handler = BridgeOutboxHandler(bridge, config)
+        self.mailbox_root = Path("agent_tools/mailbox")
         
-        # Create directories
-        for directory in [self.base_dir, self.outbox_dir, self.inbox_dir, self.archive_dir, self.failed_dir]:
-            directory.mkdir(parents=True, exist_ok=True)
-            
-        # Initialize components
-        self.bridge = ChatGPTBridge(self.config.get("bridge", {}))
-        self.outbox_handler = BridgeOutboxHandler(self.bridge, self.outbox_dir)
-        self.inbox_handler = BridgeInboxHandler(self.bridge, self.inbox_dir)
-        self.message_processor = BridgeMessageProcessor(self.bridge)
-        self.response_processor = BridgeResponseProcessor(self.bridge)
-        self.metrics = BridgeMetrics()
-        self.health = BridgeHealth()
+    async def run(self):
+        """Run the daemon loop."""
+        logger.info("Starting response loop daemon")
         
-        # Set up signal handlers
-        signal.signal(signal.SIGINT, self._handle_signal)
-        signal.signal(signal.SIGTERM, self._handle_signal)
-        
-        # Set up state
-        self.running = False
-        self.tasks = []
-        
-    async def start(self) -> None:
-        """Start the daemon."""
-        try:
-            logger.info("Starting bridge response loop daemon...")
-            
-            # Start components
-            self.running = True
-            self.tasks = [
-                asyncio.create_task(self._run_outbox_loop()),
-                asyncio.create_task(self._run_inbox_loop()),
-                asyncio.create_task(self._run_health_loop())
-            ]
-            
-            # Wait for tasks
-            await asyncio.gather(*self.tasks)
-            
-        except Exception as e:
-            logger.error(f"Error starting daemon: {e}")
-            await self.stop()
-            raise
-            
-    async def stop(self) -> None:
-        """Stop the daemon."""
-        try:
-            logger.info("Stopping bridge response loop daemon...")
-            
-            # Stop components
-            self.running = False
-            
-            # Cancel tasks
-            for task in self.tasks:
-                task.cancel()
+        while True:
+            try:
+                # Find all agent inboxes
+                inbox_files = glob.glob(str(self.mailbox_root / "agent-*/inbox.json"))
                 
-            # Wait for tasks
-            await asyncio.gather(*self.tasks, return_exceptions=True)
-            
-            # Clean up
-            await self.outbox_handler.cleanup()
-            await self.inbox_handler.cleanup()
-            
-        except Exception as e:
-            logger.error(f"Error stopping daemon: {e}")
-            raise
-            
-    def _handle_signal(self, signum: int, frame: Any) -> None:
-        """Handle signals.
+                for inbox_path in inbox_files:
+                    agent_id = Path(inbox_path).parts[-2]
+                    try:
+                        # Read messages
+                        with open(inbox_path, "r") as f:
+                            messages = json.load(f)
+                            
+                        if not messages:
+                            continue
+                            
+                        # Process each message
+                        for msg in messages:
+                            await self.handler._process_message(msg)
+                            
+                        # Clear inbox after processing
+                        with open(inbox_path, "w") as f:
+                            json.dump([], f)
+                            
+                        logger.info(f"Processed {len(messages)} messages for agent {agent_id}")
+                        
+                    except Exception as e:
+                        logger.error(f"Failed to process {inbox_path}: {e}")
+                        
+                # Wait before next check
+                await asyncio.sleep(self.poll_interval)
+                
+            except Exception as e:
+                logger.error(f"Error in daemon loop: {e}")
+                await asyncio.sleep(self.poll_interval)
+                
+    async def process_messages(self, messages: List[Dict[str, Any]]) -> bool:
+        """Process a list of messages.
         
         Args:
-            signum: Signal number
-            frame: Frame object
+            messages: List of messages to process
+            
+        Returns:
+            bool: True if all messages were processed successfully
         """
-        logger.info(f"Received signal {signum}")
-        asyncio.create_task(self.stop())
-        
-    async def _run_outbox_loop(self) -> None:
-        """Run outbox processing loop."""
-        while self.running:
-            try:
-                # Process outbox
-                await self.outbox_handler.process()
-                
-                # Sleep
-                await asyncio.sleep(1)
-                
-            except Exception as e:
-                logger.error(f"Error in outbox loop: {e}")
-                await asyncio.sleep(5)
-                
-    async def _run_inbox_loop(self) -> None:
-        """Run inbox processing loop."""
-        while self.running:
-            try:
-                # Process inbox
-                await self.inbox_handler.process()
-                
-                # Sleep
-                await asyncio.sleep(1)
-                
-            except Exception as e:
-                logger.error(f"Error in inbox loop: {e}")
-                await asyncio.sleep(5)
-                
-    async def _run_health_loop(self) -> None:
-        """Run health check loop."""
-        while self.running:
-            try:
-                # Update health
-                await self.health.update()
-                
-                # Sleep
-                await asyncio.sleep(60)
-                
-            except Exception as e:
-                logger.error(f"Error in health loop: {e}")
-                await asyncio.sleep(5)
-                
-def main() -> None:
-    """Main entry point."""
-    try:
-        # Create daemon
-        daemon = BridgeResponseLoopDaemon()
-        
-        # Run daemon
-        asyncio.run(daemon.start())
-        
-    except KeyboardInterrupt:
-        logger.info("Received keyboard interrupt")
-        sys.exit(0)
-        
-    except Exception as e:
-        logger.error(f"Error in main: {e}")
-        sys.exit(1)
-        
-if __name__ == "__main__":
-    main() 
+        try:
+            for msg in messages:
+                await self.handler._process_message(msg)
+            return True
+            
+        except Exception as e:
+            logger.error(f"Error processing messages: {e}")
+            return False 

@@ -8,24 +8,16 @@ import asyncio
 from dataclasses import dataclass
 from datetime import datetime
 from pathlib import Path
-from typing import Dict, List, Optional, Any, Callable, Awaitable
+from typing import Dict, List, Optional, Any, Callable, Awaitable, TypedDict, cast
 import logging
 import json
 import aiofiles
 import uuid
 from dreamos.core.messaging.enums import TaskStatus
+from pydantic import BaseModel, Field, ValidationError
+from .schemas import TaskData, AgentState, create_default_state
 
 logger = logging.getLogger(__name__)
-
-@dataclass
-class TaskState:
-    """Represents a task in the system."""
-    id: str
-    type: str
-    status: str
-    created_at: datetime
-    updated_at: datetime
-    data: Dict[str, Any]
 
 class TaskStatusEncoder(json.JSONEncoder):
     """Custom JSON encoder for TaskStatus enum."""
@@ -37,13 +29,15 @@ class TaskStatusEncoder(json.JSONEncoder):
 class AgentStateManager:
     """Manages agent state with event hooks and validation."""
     
-    def __init__(self, base_dir: str):
+    def __init__(self, base_dir: str, agent_id: str = "default"):
         """Initialize the state manager.
         
         Args:
             base_dir: Base directory for state files
+            agent_id: ID of the agent
         """
         self.base_dir = Path(base_dir)
+        self.agent_id = agent_id
         self.state_file = self.base_dir / "state.json"
         self.tasks_file = self.base_dir / "tasks.json"
         self.debug_log = self.base_dir / "debug.log"
@@ -52,48 +46,42 @@ class AgentStateManager:
         self._init_state()
         
         # Event handlers
-        self.event_handlers: Dict[str, List[Callable[[Any], Awaitable[None]]]] = {}
+        self._event_handlers: Dict[str, List[Callable[[Any], Awaitable[None]]]] = {}
         
     def _init_state(self):
         """Initialize state files with default values."""
+        default_state = create_default_state(self.agent_id)
         if not self.state_file.exists():
-            self._write_state_file({
-                "cycle_count": 0,
-                "debug_mode": False,
-                "last_updated": datetime.now().isoformat()
-            })
-        
+            self._write_state_file(default_state.model_dump())
         if not self.tasks_file.exists():
             self._write_tasks_file({})
-            
-        # Load current state
         self._load_state()
-        self._load_tasks()
         
-    async def register_event_handler(self, event_type: str, handler: Callable[[Any], Awaitable[None]]):
+    async def register_handler(self, event_type: str, handler: Callable[[Any], Awaitable[None]]) -> None:
         """Register an event handler.
         
         Args:
             event_type: Type of event to handle
-            handler: Async function to handle the event
+            handler: Async handler function
         """
-        if event_type not in self.event_handlers:
-            self.event_handlers[event_type] = []
-        self.event_handlers[event_type].append(handler)
-        
-    async def _dispatch_event(self, event_type: str, data: Any):
-        """Dispatch an event to registered handlers.
+        if event_type not in self._event_handlers:
+            self._event_handlers[event_type] = []
+        self._event_handlers[event_type].append(handler)
+        logger.debug(f"Registered handler for event type: {event_type}")
+
+    async def _emit_event(self, event_type: str, data: Any) -> None:
+        """Emit an event to registered handlers.
         
         Args:
             event_type: Type of event
             data: Event data
         """
-        if event_type in self.event_handlers:
-            for handler in self.event_handlers[event_type]:
+        if event_type in self._event_handlers:
+            for handler in self._event_handlers[event_type]:
                 try:
                     await handler(data)
                 except Exception as e:
-                    logger.error(f"Event handler failed: {str(e)}")
+                    logger.error(f"Error in event handler for {event_type}: {e}")
                     
     async def update_state(self, state: Dict[str, Any]) -> bool:
         """Update agent state.
@@ -106,38 +94,37 @@ class AgentStateManager:
         """
         success = await self._write_state_file_async(state)
         if success:
-            await self._dispatch_event("state_updated", state)
+            await self._emit_event("state_updated", state)
         return success
         
     async def add_task(self, task: Dict[str, Any]) -> bool:
         """Add a new task.
         
         Args:
-            task: Task dictionary
+            task: Task data to add
             
         Returns:
             bool: True if task was added successfully
-        """
-        tasks = await self._load_tasks_async()
-        if tasks is None:
-            tasks = {}
             
-        task_type = task["type"]
+        Raises:
+            ValidationError: If task data is invalid
+        """
+        # Validate task schema - let ValidationError propagate directly
+        validated_task = TaskData(**task)
+        
+        # Get current tasks
+        tasks = await self.get_tasks()
+        task_type = validated_task.type
+        
+        # Add task to appropriate type list
         if task_type not in tasks:
             tasks[task_type] = []
-            
-        tasks[task_type].append({
-            "id": task["id"],
-            "type": task["type"],
-            "status": task["status"],
-            "created_at": task["created_at"],
-            "updated_at": task["updated_at"],
-            "data": task["data"]
-        })
+        tasks[task_type].append(validated_task.model_dump())
         
+        # Write tasks and emit event
         success = await self._write_tasks_file_async(tasks)
         if success:
-            await self._dispatch_event("task_added", task)
+            await self._emit_event("task_added", validated_task.model_dump())
         return success
         
     async def update_task(self, task_id: str, status: str, data: Optional[Dict[str, Any]] = None) -> bool:
@@ -165,7 +152,7 @@ class AgentStateManager:
                         
                     success = await self._write_tasks_file_async(tasks)
                     if success:
-                        await self._dispatch_event("task_updated", task)
+                        await self._emit_event("task_updated", task)
                     return success
                     
         return False
@@ -332,12 +319,47 @@ class AgentStateManager:
             return {}
             
     async def get_state(self) -> Dict[str, Any]:
-        """Get current state."""
-        return await self._load_state_async()
+        """Get current state.
+        
+        Returns:
+            Dict[str, Any]: Current state
+            
+        Raises:
+            ValidationError: If state data is invalid
+        """
+        try:
+            with open(self.state_file, "r") as f:
+                state = json.load(f)
+                # Let ValidationError propagate
+                validated_state = AgentState(**state)
+                return validated_state.model_dump()
+        except FileNotFoundError:
+            return create_default_state(self.agent_id).model_dump()
+        except json.JSONDecodeError:
+            return create_default_state(self.agent_id).model_dump()
+        # Let ValidationError propagate
 
     async def get_tasks(self) -> Dict[str, List[Dict[str, Any]]]:
-        """Get current tasks."""
-        return await self._load_tasks_async()
+        """Get current tasks.
+        
+        Returns:
+            Dict[str, List[Dict[str, Any]]]: Current tasks
+            
+        Raises:
+            ValidationError: If task data is invalid
+        """
+        try:
+            with open(self.tasks_file, "r") as f:
+                tasks = json.load(f)
+                for task_type, task_list in tasks.items():
+                    for task in task_list:
+                        TaskData(**task)  # Let ValidationError propagate
+                return tasks
+        except FileNotFoundError:
+            return {}
+        except json.JSONDecodeError:
+            return {}
+        # Let ValidationError propagate
 
     def validate_state(self, state: Dict[str, Any]) -> bool:
         """Validate state structure."""

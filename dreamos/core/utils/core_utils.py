@@ -1,44 +1,58 @@
 """
 Core Utilities
-------------
-Core utility functions for Dream.OS system.
+-------------
+Core utility functions for the Dream.OS system.
 """
 
-import os
-import tempfile
 import json
-import shutil
 import logging
-import time
+import os
+import shutil
+import uuid
+import functools
 import asyncio
 import yaml
-from typing import Any, Optional, Dict, Tuple, Union, Callable, TypeVar, List
-from pathlib import Path
 from datetime import datetime
-from functools import wraps
-import functools
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Set, TypeVar, Union
+import time
 
-from .yaml_utils import write_yaml as _write_yaml
+from .file_ops import (
+    backup_file,
+    ensure_dir,
+    safe_rmdir,
+    FileOpsError
+)
+from .safe_io import (
+    atomic_write,
+    safe_read,
+    safe_write,
+    SafeIOError
+)
 
 logger = logging.getLogger(__name__)
 
+# Type variable for generic functions
 T = TypeVar('T')
 
-_errors = []
+# Track errors
+_errors: List[str] = []
 
 def add_error(error: str) -> None:
-    """
-    Stub for error tracking.
-    TODO: implement full error tracking logic.
-    """
+    """Add an error to the tracked errors list."""
     _errors.append(error)
 
 class ErrorTracker:
-    """Track and manage operation errors."""
+    """Track errors with context."""
     
     def __init__(self, max_errors: int = 100):
-        self.errors: List[Dict[str, Any]] = []
+        """Initialize error tracker.
+        
+        Args:
+            max_errors: Maximum number of errors to track
+        """
         self.max_errors = max_errors
+        self.errors: List[Dict[str, Any]] = []
     
     def add_error(
         self,
@@ -46,26 +60,23 @@ class ErrorTracker:
         operation: str,
         context: Optional[Dict[str, Any]] = None
     ) -> None:
-        """Add an error to the tracker.
+        """Add an error with context.
         
         Args:
             error: Exception that occurred
             operation: Operation that failed
-            context: Optional context data
+            context: Additional context about the error
         """
-        error_data = {
-            'timestamp': datetime.now().isoformat(),
-            'operation': operation,
-            'error_type': type(error).__name__,
-            'error_message': str(error),
-            'context': context or {}
+        error_info = {
+            "error": str(error),
+            "operation": operation,
+            "timestamp": datetime.now().isoformat(),
+            "context": context or {}
         }
         
-        self.errors.append(error_data)
-        
-        # Trim old errors if over limit
+        self.errors.append(error_info)
         if len(self.errors) > self.max_errors:
-            self.errors = self.errors[-self.max_errors:]
+            self.errors.pop(0)
     
     def get_errors(
         self,
@@ -73,28 +84,28 @@ class ErrorTracker:
         error_type: Optional[str] = None,
         limit: Optional[int] = None
     ) -> List[Dict[str, Any]]:
-        """Get filtered errors.
+        """Get tracked errors with optional filtering.
         
         Args:
-            operation: Filter by operation
+            operation: Filter by operation name
             error_type: Filter by error type
             limit: Maximum number of errors to return
             
         Returns:
-            List of matching errors
+            List of error dictionaries
         """
-        filtered = self.errors
+        errors = self.errors
         
         if operation:
-            filtered = [e for e in filtered if e['operation'] == operation]
+            errors = [e for e in errors if e["operation"] == operation]
             
         if error_type:
-            filtered = [e for e in filtered if e['error_type'] == error_type]
+            errors = [e for e in errors if error_type in str(e["error"])]
             
         if limit:
-            filtered = filtered[-limit:]
+            errors = errors[-limit:]
             
-        return filtered
+        return errors
     
     def clear_errors(self) -> None:
         """Clear all tracked errors."""
@@ -107,323 +118,6 @@ def async_retry(
     exceptions: tuple = (Exception,),
     logger: Optional[logging.Logger] = None
 ) -> Callable:
-    """Decorator for async retry logic.
-    
-    Args:
-        max_retries: Maximum number of retries
-        delay: Initial delay between retries
-        backoff: Multiplier for delay after each retry
-        exceptions: Tuple of exceptions to catch
-        logger: Optional logger instance
-        
-    Returns:
-        Decorated function
-    """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        @wraps(func)
-        async def wrapper(*args, **kwargs) -> T:
-            current_delay = delay
-            last_exception = None
-            
-            for attempt in range(max_retries + 1):
-                try:
-                    return await func(*args, **kwargs)
-                except exceptions as e:
-                    last_exception = e
-                    if attempt < max_retries:
-                        if logger:
-                            logger.warning(
-                                platform="retry",
-                                status="retrying",
-                                message=f"Attempt {attempt + 1} failed, retrying in {current_delay}s",
-                                tags=["retry", "warning"]
-                            )
-                        await asyncio.sleep(current_delay)
-                        current_delay *= backoff
-                    else:
-                        if logger:
-                            logger.error(
-                                platform="retry",
-                                status="failed",
-                                message=f"All {max_retries} attempts failed",
-                                tags=["retry", "error"]
-                            )
-                        raise last_exception
-            
-            raise last_exception  # This should never be reached
-            
-        return wrapper
-    return decorator
-
-def track_operation(
-    operation: str,
-    logger: Optional[logging.Logger] = None,
-    error_tracker: Optional[ErrorTracker] = None
-) -> Callable:
-    """Decorator to track operation execution.
-    
-    Args:
-        operation: Operation name
-        logger: Optional logger instance
-        error_tracker: Optional error tracker
-        
-    Returns:
-        Decorated function
-    """
-    def decorator(func: Callable[..., T]) -> Callable[..., T]:
-        @wraps(func)
-        async def wrapper(*args, **kwargs) -> T:
-            start_time = time.time()
-            
-            if logger:
-                logger.info(
-                    platform="operation",
-                    status="started",
-                    message=f"Starting {operation}",
-                    tags=["operation", "start"]
-                )
-            
-            try:
-                result = await func(*args, **kwargs)
-                
-                duration = time.time() - start_time
-                if logger:
-                    logger.info(
-                        platform="operation",
-                        status="completed",
-                        message=f"Completed {operation} in {duration:.2f}s",
-                        tags=["operation", "success"]
-                    )
-                
-                return result
-                
-            except Exception as e:
-                duration = time.time() - start_time
-                
-                if error_tracker:
-                    error_tracker.add_error(e, operation)
-                
-                if logger:
-                    logger.error(
-                        platform="operation",
-                        status="failed",
-                        message=f"{operation} failed after {duration:.2f}s: {str(e)}",
-                        tags=["operation", "error"]
-                    )
-                
-                raise
-        
-        return wrapper
-    return decorator
-
-def ensure_dir(path: Union[str, Path]) -> None:
-    """Ensure a directory exists, creating it if necessary.
-    
-    Args:
-        path: Path to the directory
-    """
-    os.makedirs(path, exist_ok=True)
-
-def atomic_write(filepath: str, content: str, mode: str = 'w') -> None:
-    """
-    Write content to file atomically.
-    
-    Args:
-        filepath: Path to write to
-        content: Content to write
-        mode: File open mode
-    """
-    path = Path(filepath)
-    temp = tempfile.NamedTemporaryFile(mode=mode, delete=False, dir=path.parent)
-    try:
-        temp.write(content)
-        temp.close()
-        os.replace(temp.name, path)
-    except Exception:
-        os.unlink(temp.name)
-        raise
-
-def safe_read(path: str | Path, mode: str = "r", encoding: str = "utf-8") -> str:
-    """Safely read a file's contents.
-    
-    Args:
-        path: Path to file
-        mode: File open mode
-        encoding: File encoding
-        
-    Returns:
-        File contents or empty string if file doesn't exist
-    """
-    path = Path(path)
-    if not path.exists():
-        return ""
-    with open(path, mode=mode, encoding=encoding) as f:
-        return f.read()
-
-def safe_write(path: str | Path, content: str, mode: str = "w", encoding: str = "utf-8") -> None:
-    """Safely write content to a file.
-    
-    Args:
-        path: Path to write to
-        content: Content to write
-        mode: File open mode
-        encoding: File encoding
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with open(path, mode=mode, encoding=encoding) as f:
-        f.write(content)
-
-def load_json(file_path: str) -> dict:
-    """Load JSON data from a file.
-    
-    Args:
-        file_path: Path to the JSON file
-        
-    Returns:
-        dict: The loaded JSON data
-        
-    Raises:
-        FileNotFoundError: If the file doesn't exist
-        json.JSONDecodeError: If the file contains invalid JSON
-    """
-    try:
-        with open(file_path, 'r', encoding='utf-8') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        raise
-    except json.JSONDecodeError as e:
-        raise json.JSONDecodeError(f"Invalid JSON in {file_path}: {str(e)}", e.doc, e.pos)
-
-def save_json(file_path: str, data: dict, indent: int = 4) -> None:
-    """Save data to a JSON file.
-    
-    Args:
-        file_path: Path to save the JSON file
-        data: Data to save
-        indent: Number of spaces for indentation
-        
-    Raises:
-        OSError: If the file cannot be written
-        TypeError: If the data cannot be serialized to JSON
-    """
-    try:
-        with open(file_path, 'w', encoding='utf-8') as f:
-            json.dump(data, f, indent=indent)
-    except (OSError, TypeError) as e:
-        raise type(e)(f"Failed to save JSON to {file_path}: {str(e)}")
-
-def read_json(file_path: str) -> dict:
-    """Alias for load_json for backward compatibility."""
-    return load_json(file_path)
-
-def backup_file(file_path: str, backup_dir: str = None) -> str:
-    """Create a backup of a file.
-    
-    Args:
-        file_path: Path to the file to backup
-        backup_dir: Optional directory to store the backup. If None, creates
-                   a backup in the same directory as the original file.
-                   
-    Returns:
-        str: Path to the backup file
-        
-    Raises:
-        FileNotFoundError: If the source file doesn't exist
-        OSError: If the backup operation fails
-    """
-    if not os.path.exists(file_path):
-        raise FileNotFoundError(f"Source file not found: {file_path}")
-        
-    if backup_dir is None:
-        backup_dir = os.path.dirname(file_path)
-        
-    os.makedirs(backup_dir, exist_ok=True)
-    
-    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    filename = os.path.basename(file_path)
-    backup_path = os.path.join(backup_dir, f"{filename}.{timestamp}.bak")
-    
-    shutil.copy2(file_path, backup_path)
-    return backup_path
-
-def transform_coordinates(x: int, y: int, scale: float = 1.0) -> Tuple[int, int]:
-    """Transform screen coordinates.
-    
-    Args:
-        x: X coordinate
-        y: Y coordinate
-        scale: Scale factor
-        
-    Returns:
-        Transformed (x, y) coordinates
-    """
-    return (int(x * scale), int(y * scale))
-
-def ensure_dir(directory: Union[str, Path]) -> None:
-    """Ensure a directory exists.
-    
-    Args:
-        directory: Directory path
-    """
-    Path(directory).mkdir(parents=True, exist_ok=True)
-
-# Alias for ensure_dir
-ensure_directory_exists = ensure_dir
-
-def write_json(data: Dict[str, Any], path: Union[str, Path], indent: int = 2) -> None:
-    """Write data to a JSON file.
-    
-    Args:
-        data: The data to write
-        path: Path to write to
-        indent: JSON indentation level
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    with path.open("w", encoding="utf-8") as f:
-        json.dump(data, f, indent=indent)
-
-def read_yaml(path: Union[str, Path]) -> Dict[str, Any]:
-    """Read YAML file.
-    
-    Args:
-        path: Path to YAML file
-        
-    Returns:
-        Parsed YAML data
-    """
-    with open(path, 'r') as f:
-        return yaml.safe_load(f)
-
-def write_yaml(data: Dict[str, Any], path: Union[str, Path], indent: int = 2) -> None:
-    """Write data to YAML file.
-    
-    Args:
-        data: Data to write
-        path: Path to write to
-        indent: Indentation level (ignored, kept for backward compatibility)
-    """
-    _write_yaml(path, data)
-
-def load_yaml(path: str | Path) -> Dict[str, Any]:
-    """Load data from a YAML file.
-    
-    Args:
-        path: Path to read from
-        
-    Returns:
-        The loaded data
-    """
-    with open(path, "r", encoding="utf-8") as f:
-        return yaml.safe_load(f)
-
-def with_retry(
-    max_retries: int = 3,
-    delay: float = 1.0,
-    backoff: float = 2.0,
-    exceptions: tuple = (Exception,)
-) -> Callable:
     """Decorator for retrying async functions.
     
     Args:
@@ -431,6 +125,7 @@ def with_retry(
         delay: Initial delay between retries
         backoff: Multiplier for delay after each retry
         exceptions: Tuple of exceptions to catch
+        logger: Optional logger instance
         
     Returns:
         Decorated function
@@ -447,20 +142,127 @@ def with_retry(
                 except exceptions as e:
                     last_exception = e
                     if attempt < max_retries - 1:
-                        logger.warning(
-                            f"Retry {attempt + 1}/{max_retries} for {func.__name__} "
-                            f"after {current_delay}s: {str(e)}"
-                        )
+                        if logger:
+                            logger.warning(
+                                f"Retry {attempt + 1}/{max_retries} for {func.__name__} "
+                                f"after {current_delay}s: {str(e)}"
+                            )
                         await asyncio.sleep(current_delay)
                         current_delay *= backoff
                     else:
-                        logger.error(
-                            f"All {max_retries} retries failed for {func.__name__}: {str(e)}"
-                        )
+                        if logger:
+                            logger.error(
+                                f"All {max_retries} retries failed for {func.__name__}: {str(e)}"
+                            )
                         raise last_exception
                         
             raise last_exception
             
+        return wrapper
+    return decorator
+
+def with_retry(
+    max_retries: int = 3,
+    delay: float = 1.0,
+    backoff: float = 2.0,
+    exceptions: tuple = (Exception,),
+    logger: Optional[logging.Logger] = None
+) -> Callable:
+    """Decorator for retrying synchronous functions.
+    
+    Args:
+        max_retries: Maximum number of retries
+        delay: Initial delay between retries
+        backoff: Multiplier for delay after each retry
+        exceptions: Tuple of exceptions to catch
+        logger: Optional logger instance
+        
+    Returns:
+        Decorated function
+    """
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @functools.wraps(func)
+        def wrapper(*args: Any, **kwargs: Any) -> T:
+            current_delay = delay
+            last_exception = None
+            
+            for attempt in range(max_retries):
+                try:
+                    return func(*args, **kwargs)
+                except exceptions as e:
+                    last_exception = e
+                    if attempt < max_retries - 1:
+                        if logger:
+                            logger.warning(
+                                f"Retry {attempt + 1}/{max_retries} for {func.__name__} "
+                                f"after {current_delay}s: {str(e)}"
+                            )
+                        time.sleep(current_delay)
+                        current_delay *= backoff
+                    else:
+                        if logger:
+                            logger.error(
+                                f"All {max_retries} retries failed for {func.__name__}: {str(e)}"
+                            )
+                        raise last_exception
+                        
+            raise last_exception
+            
+        return wrapper
+    return decorator
+
+def track_operation(
+    operation: str,
+    logger: Optional[logging.Logger] = None,
+    error_tracker: Optional[ErrorTracker] = None
+) -> Callable:
+    """Decorator for tracking operations.
+    
+    Args:
+        operation: Name of the operation
+        logger: Optional logger instance
+        error_tracker: Optional error tracker instance
+        
+    Returns:
+        Decorated function
+    """
+    def decorator(func: Callable[..., T]) -> Callable[..., T]:
+        @functools.wraps(func)
+        async def wrapper(*args: Any, **kwargs: Any) -> T:
+            start_time = datetime.now()
+            
+            try:
+                result = await func(*args, **kwargs)
+                
+                if logger:
+                    duration = (datetime.now() - start_time).total_seconds()
+                    logger.info(
+                        f"Operation {operation} completed in {duration:.2f}s",
+                        extra={
+                            "operation": operation,
+                            "duration": duration,
+                            "status": "success"
+                        }
+                    )
+                    
+                return result
+                
+            except Exception as e:
+                if logger:
+                    logger.error(
+                        f"Operation {operation} failed: {str(e)}",
+                        extra={
+                            "operation": operation,
+                            "error": str(e),
+                            "status": "error"
+                        }
+                    )
+                    
+                if error_tracker:
+                    error_tracker.add_error(e, operation)
+                    
+                raise
+                
         return wrapper
     return decorator
 
@@ -498,120 +300,351 @@ def parse_message(message: str) -> Dict[str, Any]:
     except json.JSONDecodeError as e:
         raise ValueError(f"Invalid message format: {str(e)}")
 
-def get_timestamp():
-    """Stub for get_timestamp. Returns current ISO timestamp as string."""
-    return datetime.now().isoformat()
+def get_timestamp() -> float:
+    """Get current timestamp in seconds."""
+    return time.time()
 
-def format_duration(seconds):
-    """Stub for format_duration. Returns a formatted string for seconds."""
+def format_duration(seconds: float) -> str:
+    """Format duration in seconds to a string."""
     return f"{seconds:.2f}s"
 
-def is_valid_uuid(val):
-    """Stub for is_valid_uuid. Returns True if val is a valid UUID string."""
-    import uuid
+def is_valid_uuid(val: Any) -> bool:
+    """Check if value is a valid UUID string."""
     try:
         uuid.UUID(str(val))
         return True
     except Exception:
         return False
 
-def get_errors():
+def get_errors() -> List[str]:
     """Get list of tracked errors."""
     return _errors.copy()
 
-def clear_errors():
+def clear_errors() -> None:
     """Clear all tracked errors."""
     _errors.clear()
 
-def decorator(func):
+def decorator(func: Callable[..., T]) -> Callable[..., T]:
     """Decorator function for core utilities."""
-    def wrapped(*args, **kwargs):
+    def wrapped(*args: Any, **kwargs: Any) -> T:
         return func(*args, **kwargs)
     return wrapped
 
-def restore_backup(backup_path: str, target_path: str) -> bool:
-    """Restore a file from its backup.
-    
-    Args:
-        backup_path: Path to the backup file
-        target_path: Path where the file should be restored
-        
-    Returns:
-        bool: True if restore was successful, False otherwise
-        
-    Raises:
-        FileNotFoundError: If the backup file doesn't exist
-        OSError: If the restore operation fails
-    """
-    if not os.path.exists(backup_path):
-        raise FileNotFoundError(f"Backup file not found: {backup_path}")
-        
-    try:
-        # Ensure target directory exists
-        os.makedirs(os.path.dirname(target_path), exist_ok=True)
-        
-        # Use atomic write for safety
-        atomic_write(target_path, safe_read(backup_path))
-        return True
-        
-    except Exception as e:
-        logger.error(f"Error restoring backup {backup_path} to {target_path}: {e}")
-        return False
-
-def safe_move(src_path: str, dst_path: str, backup: bool = True) -> bool:
+def safe_move(src_path: str, dst_path: str, backup: bool = True, atomic: bool = True) -> bool:
     """Safely move a file with optional backup.
     
     Args:
         src_path: Source file path
         dst_path: Destination file path
         backup: Whether to create a backup before moving
+        atomic: Whether to use atomic operations for the move
         
     Returns:
         bool: True if move was successful, False otherwise
         
     Raises:
         FileNotFoundError: If the source file doesn't exist
-        OSError: If the move operation fails
+        FileOpsError: If the move operation fails
     """
-    if not os.path.exists(src_path):
-        raise FileNotFoundError(f"Source file not found: {src_path}")
-        
     try:
-        # Create backup if requested
         if backup:
-            backup_path = f"{src_path}.bak"
-            shutil.copy2(src_path, backup_path)
+            # Use enhanced backup_file with move capability
+            return backup_file(
+                file_path=src_path,
+                move_to=dst_path,
+                logger=logger,
+                atomic=atomic
+            )
+        else:
+            # Just move without backup
+            if atomic:
+                with open(src_path, 'rb') as f:
+                    content = f.read()
+                success = atomic_write(dst_path, content, mode='wb', encoding=None)
+                if success:
+                    os.remove(src_path)  # Remove original after successful atomic write
+                    return True
+                else:
+                    raise FileOpsError(f"Failed to move file atomically to {dst_path}")
+            else:
+                os.makedirs(os.path.dirname(dst_path), exist_ok=True)
+                shutil.move(src_path, dst_path)
+                return True
             
-        # Ensure destination directory exists
-        os.makedirs(os.path.dirname(dst_path), exist_ok=True)
-        
-        # Move file
-        shutil.move(src_path, dst_path)
-        return True
-        
     except Exception as e:
         logger.error(f"Error moving {src_path} to {dst_path}: {e}")
+        raise FileOpsError(f"Move operation failed: {str(e)}") from e
+
+def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
+    """Load JSON data from a file.
+    
+    Args:
+        file_path: Path to JSON file
+        default: Default value to return if file doesn't exist
         
-        # Restore from backup if it exists
-        if backup and os.path.exists(f"{src_path}.bak"):
+    Returns:
+        Loaded JSON data or default value
+    """
+    try:
+        with open(file_path, 'r') as f:
+            return json.load(f)
+    except FileNotFoundError:
+        if default is not None:
+            return default
+        raise
+    except json.JSONDecodeError as e:
+        logger.error(f"Error decoding JSON from {file_path}: {e}")
+        raise
+
+def save_json(data: Any, file_path: Union[str, Path], pretty: bool = True) -> None:
+    """Save data to a JSON file.
+    
+    Args:
+        data: Data to save
+        file_path: Path to save file
+        pretty: Whether to format JSON with indentation
+    """
+    try:
+        with open(file_path, 'w') as f:
+            if pretty:
+                json.dump(data, f, indent=2)
+            else:
+                json.dump(data, f)
+    except Exception as e:
+        logger.error(f"Error saving JSON to {file_path}: {e}")
+        raise
+
+read_json = load_json
+write_json = save_json
+
+def format_timestamp(timestamp: Optional[Union[str, float, datetime]] = None) -> str:
+    """Format a timestamp consistently.
+    Args:
+        timestamp: Optional timestamp to format. If None, uses current time.
+        Accepts float (epoch), str (iso), or datetime.
+    Returns:
+        Formatted timestamp string in ISO format
+    """
+    if timestamp is None:
+        timestamp = datetime.now()
+    elif isinstance(timestamp, float):
+        timestamp = datetime.fromtimestamp(timestamp)
+    elif isinstance(timestamp, str):
+        try:
+            timestamp = datetime.fromisoformat(timestamp)
+        except ValueError:
             try:
-                shutil.copy2(f"{src_path}.bak", src_path)
-            except Exception as restore_error:
-                logger.error(f"Error restoring from backup: {restore_error}")
-                
-        return False
+                timestamp = datetime.fromtimestamp(float(timestamp))
+            except Exception:
+                timestamp = datetime.now()
+    return timestamp.isoformat()
+
+def generate_id() -> str:
+    """Generate a unique identifier."""
+    return str(uuid.uuid4())
+
+def read_yaml(path: Union[str, Path]) -> Dict[str, Any]:
+    """Reads a YAML file and returns the contents as a dictionary.
+    
+    Args:
+        path: Path to the YAML file
+        
+    Returns:
+        Dict containing the YAML contents
+        
+    Raises:
+        FileNotFoundError: If the file doesn't exist
+        yaml.YAMLError: If the YAML is invalid
+    """
+    path = Path(path)
+    if not path.exists():
+        raise FileNotFoundError(f"YAML file not found: {path}")
+        
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            return yaml.safe_load(f)
+    except yaml.YAMLError as e:
+        logger.error(f"Error parsing YAML file {path}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error reading YAML file {path}: {e}")
+        raise
+
+def write_yaml(data: Dict[str, Any], path: Union[str, Path]) -> None:
+    """Write data to a YAML file.
+    
+    Args:
+        data: Dictionary to write
+        path: Path to write to
+        
+    Raises:
+        FileNotFoundError: If parent directory doesn't exist
+        yaml.YAMLError: If data can't be serialized to YAML
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        with path.open("w", encoding="utf-8") as f:
+            yaml.safe_dump(data, f, default_flow_style=False)
+    except yaml.YAMLError as e:
+        logger.error(f"Error writing YAML to {path}: {e}")
+        raise
+    except Exception as e:
+        logger.error(f"Error writing to {path}: {e}")
+        raise
+
+def atomic_write(data: Any, path: Union[str, Path]) -> None:
+    """Write data to file atomically.
+    
+    Args:
+        data: Data to write
+        path: Path to write to
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    temp_path = path.with_suffix('.tmp')
+    try:
+        with temp_path.open('w', encoding='utf-8') as f:
+            json.dump(data, f, indent=2)
+        os.replace(temp_path, path)
+    except Exception as e:
+        logger.error(f"Error writing to {path}: {e}")
+        if temp_path.exists():
+            temp_path.unlink()
+        raise
+
+def safe_read(path: Union[str, Path]) -> str:
+    """Read file contents safely.
+    
+    Args:
+        path: Path to read from
+        
+    Returns:
+        File contents as string
+    """
+    path = Path(path)
+    try:
+        with path.open('r', encoding='utf-8') as f:
+            return f.read()
+    except Exception as e:
+        logger.error(f"Error reading from {path}: {e}")
+        raise
+
+def safe_write(data: str, path: Union[str, Path]) -> None:
+    """Write string data safely.
+    
+    Args:
+        data: String to write
+        path: Path to write to
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        with path.open('w', encoding='utf-8') as f:
+            f.write(data)
+    except Exception as e:
+        logger.error(f"Error writing to {path}: {e}")
+        raise
+
+def load_json(path: Union[str, Path], default: Any = None) -> Any:
+    """Load JSON data from file.
+    
+    Args:
+        path: Path to read from
+        default: Default value if file doesn't exist
+        
+    Returns:
+        Loaded JSON data or default
+    """
+    path = Path(path)
+    if not path.exists():
+        return default
+        
+    try:
+        with path.open('r', encoding='utf-8') as f:
+            return json.load(f)
+    except Exception as e:
+        logger.error(f"Error loading JSON from {path}: {e}")
+        return default
+
+def save_json(data: Any, path: Union[str, Path], pretty: bool = True) -> None:
+    """Save data as JSON.
+    
+    Args:
+        data: Data to save
+        path: Path to save to
+        pretty: Whether to pretty-print
+    """
+    path = Path(path)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    
+    try:
+        with path.open('w', encoding='utf-8') as f:
+            if pretty:
+                json.dump(data, f, indent=2)
+            else:
+                json.dump(data, f)
+    except Exception as e:
+        logger.error(f"Error saving JSON to {path}: {e}")
+        raise
+
+def read_json(path: Union[str, Path], default: Any = None) -> Any:
+    """Alias for load_json."""
+    return load_json(path, default)
+
+def write_json(data: Any, path: Union[str, Path], pretty: bool = True) -> None:
+    """Alias for save_json."""
+    return save_json(data, path, pretty)
+
+def ensure_directory_exists(path: Union[str, Path]) -> None:
+    """Alias for ensure_dir."""
+    return ensure_dir(path)
+
+def load_yaml(path: Union[str, Path], default: Any = None) -> Any:
+    """Alias for read_yaml."""
+    return read_yaml(path)
+
+def transform_coordinates(x: int, y: int, scale: float = 1.0, offset_x: int = 0, offset_y: int = 0) -> tuple[int, int]:
+    """Transform coordinates with scaling and offset.
+    
+    Args:
+        x: X coordinate
+        y: Y coordinate
+        scale: Scale factor
+        offset_x: X offset
+        offset_y: Y offset
+        
+    Returns:
+        Tuple of (transformed_x, transformed_y)
+    """
+    return (
+        int(x * scale + offset_x),
+        int(y * scale + offset_y)
+    )
 
 __all__ = [
     "ErrorTracker",
+    "add_error",
     "async_retry",
+    "with_retry",
     "track_operation",
-    "ensure_dir",
-    "atomic_write",
-    "safe_read",
-    "safe_write",
+    "format_message",
+    "parse_message",
+    "get_timestamp",
+    "format_duration",
+    "is_valid_uuid",
+    "get_errors",
+    "clear_errors",
+    "safe_move",
     "load_json",
     "save_json",
     "read_json",
+    "write_json",
+    "format_timestamp",
+    "generate_id",
     "backup_file",
     "transform_coordinates",
     "write_json",
@@ -622,5 +655,9 @@ __all__ = [
     "format_message",
     "parse_message",
     "restore_backup",
-    "safe_move"
+    "safe_move",
+    "atomic_write",
+    "safe_read",
+    "safe_write",
+    "ensure_directory_exists"
 ] 

@@ -14,13 +14,7 @@ from typing import Dict, List, Any, Optional
 from .base import BaseBridgeHandler
 from .inbox import BridgeInboxHandler
 from .outbox import BridgeOutboxHandler
-from ...utils.core_utils import (
-    load_json,
-    save_json,
-    atomic_write,
-    safe_read,
-    safe_write
-)
+from ...utils.core_utils import atomic_write, safe_read, safe_write
 
 # Configure logging
 logger = logging.getLogger(__name__)

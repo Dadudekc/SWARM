@@ -4,176 +4,455 @@ UI Automation Module
 Handles UI automation tasks using PyAutoGUI.
 """
 
-import logging
-import time
 import json
+import logging
 import signal
-from typing import Dict, Tuple, Optional, List
+import threading
+import time
+import os
+from contextlib import contextmanager
 from pathlib import Path
+from typing import Dict, List, Optional, Tuple, Union
+
+import keyboard
 import pyautogui
 import pygetwindow as gw
-from PIL import Image
-import keyboard
-import threading
-from contextlib import contextmanager
 import pytesseract
 import screeninfo
-
-# Try to import screeninfo, but provide fallback if not available
-try:
-    from screeninfo import get_monitors
-    SCREENINFO_AVAILABLE = True
-except ImportError:
-    SCREENINFO_AVAILABLE = False
-    logger = logging.getLogger('agent_control.ui_automation')
-    logger.warning("screeninfo not available - using fallback coordinate transformation")
+from PIL import Image
+from screeninfo import get_monitors
 
 from .cursor_controller import CursorController
 from .response_capture import ResponseCapture
 from .screenshot_logger import ScreenshotLogger
 from .timing import (
-    WINDOW_ACTIVATION_DELAY,
+    COPY_BUTTON_DELAY,
+    DEBUG_SCREENSHOT_DELAY,
     FOCUS_ESTABLISH_DELAY,
+    MESSAGE_SEND_DELAY,
+    RESPONSE_CAPTURE_DELAY,
     TEXT_CLEAR_DELAY,
     TEXT_DELETE_DELAY,
-    TYPING_INTERVAL,
     TYPING_COMPLETE_DELAY,
-    MESSAGE_SEND_DELAY,
-    COPY_BUTTON_DELAY,
-    RESPONSE_CAPTURE_DELAY,
-    DEBUG_SCREENSHOT_DELAY
+    TYPING_INTERVAL,
+    WINDOW_ACTIVATION_DELAY,
+)
+from ..shared.coordinate_manager import (
+    CoordinateManager,
+    load_coordinates,
+    save_coordinates,
 )
 
 # Configure logging
-logger = logging.getLogger('agent_control.ui_automation')
-logger.setLevel(logging.DEBUG)  # Set to DEBUG level
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
 
-# Create console handler if none exists
-if not logger.handlers:
-    console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    console_handler.setFormatter(formatter)
-    logger.addHandler(console_handler)
+# Constants
+MESSAGE_SEND_DELAY = 1.0
+CALIBRATION_DELAY = 0.5
+SCREENSHOT_DELAY = 0.2
 
 class UIAutomation:
-    """Handles UI automation for agent control."""
-    
-    def __init__(self, config_path=None):
-        """Initialize UI automation with optional config file path."""
-        # Enable transform debug mode - moved to top to fix attribute error
-        self.transform_debug = True
-        
-        self.logger = logging.getLogger('agent_control.ui_automation')
-        self.config_path = config_path
-        self.coords = {}  # Initialize empty coords dictionary
-        self.monitors = []
-        self.primary_monitor = None
-        self._initialize_monitors()
-        if config_path:
-            self._load_config(config_path)
-        
-        self.logger.debug("Initializing UI automation")
-        
-        # Get screen dimensions with error handling
-        try:
-            self.screen_width, self.screen_height = pyautogui.size()
-            if self.screen_width == 0 or self.screen_height == 0:
-                self.logger.warning("Invalid screen dimensions detected, using default values")
-                self.screen_width = 1920
-                self.screen_height = 1080
-        except Exception as e:
-            self.logger.warning(f"Failed to get screen dimensions: {e}, using default values")
-            self.screen_width = 1920
-            self.screen_height = 1080
-            
-        self.logger.debug(f"Screen dimensions: {self.screen_width}x{self.screen_height}")
-        
-        # Set primary monitor
-        self.primary_monitor = self.monitors[0] if self.monitors else None
-        self.logger.debug(f"Primary monitor: {self.primary_monitor}")
-        
-        # Initialize coordinates
-        self.coords = {}  # Initialize as empty dict
-        self.logger.debug("No test coordinates provided, loading from file")
-        self._load_config(config_path)
-        # Only load default coordinates if config did not populate self.coords
-        if not self.coords:
-            self.coords = self._load_coordinates()
-        
-        # Set up signal handlers
-        self.logger.debug("Setting up signal handlers")
-        signal.signal(signal.SIGINT, self._handle_interrupt)
-        signal.signal(signal.SIGTERM, self._handle_interrupt)
-        self.logger.debug("Signal handlers set up")
-        
-        # Initialize calibration state
+    """UI automation class for handling screen interactions."""
+
+    def __init__(self):
+        """Initialize UI automation."""
+        self.coords = {}
         self.calibrating = False
-        self.calibration_thread = None
+        self.screenshot_loggers = {}
+        self.coordinate_manager = CoordinateManager()
+        self.logger = logging.getLogger(__name__)
+
+    def _load_config(self) -> Dict:
+        """Load configuration from file.
+        
+        Returns:
+            Dict containing configuration
+        """
+        try:
+            config_path = Path("config/ui_automation.json")
+            if config_path.exists():
+                with open(config_path, 'r') as f:
+                    return json.load(f)
+            return {}
+        except Exception as e:
+            self.logger.error(f"Error loading config: {e}")
+            return {}
+
+    def _save_coordinates(self, coords: Dict) -> bool:
+        """Save coordinates to file.
+        
+        Args:
+            coords: Dictionary of coordinates
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            config_path = Path("config/ui_automation.json")
+            config_path.parent.mkdir(parents=True, exist_ok=True)
+            
+            with open(config_path, 'w') as f:
+                json.dump(coords, f, indent=4)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error saving coordinates: {e}")
+            return False
+
+    def _validate_coordinates(self, coords: Dict) -> bool:
+        """Validate coordinate dictionary.
+        
+        Args:
+            coords: Dictionary of coordinates
+            
+        Returns:
+            bool: True if valid
+        """
+        required_keys = {'x', 'y', 'width', 'height'}
+        return all(key in coords for key in required_keys)
+
+    def _has_duplicate_coordinates(self, coords: Dict) -> bool:
+        """Check for duplicate coordinates.
+        
+        Args:
+            coords: Dictionary of coordinates
+            
+        Returns:
+            bool: True if duplicates found
+        """
+        seen = set()
+        for coord in coords.values():
+            key = (coord['x'], coord['y'])
+            if key in seen:
+                return True
+            seen.add(key)
+        return False
+
+    def _check_region_overlap(self, coords: Dict) -> bool:
+        """Check for overlapping regions.
+        
+        Args:
+            coords: Dictionary of coordinates
+            
+        Returns:
+            bool: True if overlap found
+        """
+        regions = []
+        for coord in coords.values():
+            regions.append((
+                coord['x'],
+                coord['y'],
+                coord['x'] + coord['width'],
+                coord['y'] + coord['height']
+            ))
+        
+        for i, r1 in enumerate(regions):
+            for r2 in regions[i+1:]:
+                if (r1[0] < r2[2] and r1[2] > r2[0] and
+                    r1[1] < r2[3] and r1[3] > r2[1]):
+                    return True
+        return False
+
+    def _get_screen_resolution(self) -> Tuple[int, int]:
+        """Get screen resolution.
+        
+        Returns:
+            Tuple of (width, height)
+        """
+        try:
+            width, height = pyautogui.size()
+            return width, height
+        except Exception as e:
+            self.logger.error(f"Error getting screen resolution: {e}")
+            return 1920, 1080  # Default fallback
+
+    def _is_coordinate_valid(self, x: int, y: int) -> bool:
+        """Check if coordinate is valid.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            
+        Returns:
+            bool: True if valid
+        """
+        width, height = self._get_screen_resolution()
+        return 0 <= x < width and 0 <= y < height
+
+    def _move_to_coordinate(self, x: int, y: int) -> bool:
+        """Move cursor to coordinate.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            if not self._is_coordinate_valid(x, y):
+                return False
+            pyautogui.moveTo(x, y)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error moving cursor: {e}")
+            return False
+
+    def _click_at_coordinate(self, x: int, y: int) -> bool:
+        """Click at coordinate.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            if not self._is_coordinate_valid(x, y):
+                return False
+            pyautogui.click(x, y)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error clicking: {e}")
+            return False
+
+    def _type_text(self, text: str) -> bool:
+        """Type text.
+        
+        Args:
+            text: Text to type
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            pyautogui.write(text)
+            return True
+        except Exception as e:
+            self.logger.error(f"Error typing text: {e}")
+            return False
+
+    def _clear_text(self) -> bool:
+        """Clear text field.
+        
+        Returns:
+            bool: True if successful
+        """
+        try:
+            pyautogui.hotkey('ctrl', 'a')
+            pyautogui.press('backspace')
+            return True
+        except Exception as e:
+            self.logger.error(f"Error clearing text: {e}")
+            return False
+
+    def _delete_text(self, length: int) -> bool:
+        """Delete text.
+        
+        Args:
+            length: Number of characters to delete
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            for _ in range(length):
+                pyautogui.press('backspace')
+            return True
+        except Exception as e:
+            self.logger.error(f"Error deleting text: {e}")
+            return False
+
+    def _wait_for_delay(self, delay: float) -> None:
+        """Wait for specified delay.
+        
+        Args:
+            delay: Delay in seconds
+        """
+        time.sleep(delay)
+
+    def _capture_region(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int
+    ) -> Optional[Image.Image]:
+        """Capture screen region.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            width: Region width
+            height: Region height
+            
+        Returns:
+            Screenshot image or None if failed
+        """
+        try:
+            return pyautogui.screenshot(region=(x, y, width, height))
+        except Exception as e:
+            self.logger.error(f"Error capturing region: {e}")
+            return None
+
+    def _get_text_from_region(
+        self,
+        x: int,
+        y: int,
+        width: int,
+        height: int
+    ) -> str:
+        """Get text from screen region.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            width: Region width
+            height: Region height
+            
+        Returns:
+            Extracted text
+        """
+        try:
+            screenshot = self._capture_region(x, y, width, height)
+            if screenshot:
+                return pytesseract.image_to_string(screenshot)
+            return ""
+        except Exception as e:
+            self.logger.error(f"Error getting text from region: {e}")
+            return ""
+
+    def _handle_interrupt(self, signum, frame):
+        """Handle keyboard interrupt gracefully."""
+        self.logger.info("Received interrupt signal, cleaning up...")
+        self.cleanup()
+        raise KeyboardInterrupt()
+        
+    @contextmanager
+    def _calibration_context(self):
+        """Context manager for calibration process."""
+        try:
+            yield
+        except Exception as e:
+            self.logger.error(f"Error during calibration: {e}")
+            self._cleanup_calibration()
+        finally:
+            self._cleanup_calibration()
+            
+    def _cleanup_calibration(self):
+        """Clean up calibration resources."""
+        self.logger.debug("Cleaning up calibration resources")
+        self.calibrating = False
         self.current_step = 0
         self.points = []
         
-        self.response_capture = ResponseCapture()
-        self.steps = [
-            ("Initial Spot", "Click where the agent's initial position should be"),
-            ("Input Box", "Click where the agent's input box is"),
-            ("Copy Button", "Click where the copy button appears"),
-            ("Response Region", "Click and drag to define the response region")
-        ]
+        if (
+            self.calibration_thread 
+            and self.calibration_thread.is_alive() 
+            and threading.current_thread() != self.calibration_thread
+        ):
+            try:
+                self.calibration_thread.join(timeout=1.0)
+            except Exception as e:
+                self.logger.error(f"Error joining calibration thread: {e}")
+                
+    def _validate_coordinates(self, coords: Dict) -> bool:
+        """Validate coordinate format and values.
         
-        # Initialize screenshot loggers
-        self.screenshot_loggers: Dict[str, ScreenshotLogger] = {}
-        
-        self.logger.debug("UI automation initialized")
-        
-    def _initialize_monitors(self):
-        """Initialize monitor information."""
+        Args:
+            coords: Dictionary of coordinates to validate
+            
+        Returns:
+            bool: True if valid, False otherwise
+        """
         try:
-            self.monitors = screeninfo.get_monitors()
-            if not self.monitors:
-                self.logger.warning("No monitors found")
-                return
-            self.primary_monitor = self.monitors[0]
-            self.logger.debug(f"Found {len(self.monitors)} monitors")
+            self.coord_manager = CoordinateManager(coords)
+            return True
         except Exception as e:
-            self.logger.error(f"Error initializing monitors: {e}")
-            self.monitors = []
-            self.primary_monitor = None
+            self.logger.error(f"Invalid coordinates: {e}")
+            return False
         
+    def _has_duplicate_coordinates(self, coords: Dict) -> bool:
+        """Check if there are any duplicate coordinates.
+        
+        Args:
+            coords: Dictionary of coordinates to check
+            
+        Returns:
+            bool: True if duplicates found
+        """
+        return self.coord_manager.has_duplicate_coordinates(coords)
+        
+    def _check_region_overlap(self, region1: Dict, region2: Dict) -> bool:
+        """Check if two regions overlap.
+        
+        Args:
+            region1: First region
+            region2: Second region
+            
+        Returns:
+            bool: True if regions overlap
+        """
+        return self.coord_manager.check_region_overlap(region1, region2)
+        
+    def get_agent_coordinates(self, agent_id: str) -> Optional[Dict]:
+        """Get coordinates for an agent.
+        
+        Args:
+            agent_id: ID of the agent
+            
+        Returns:
+            Dictionary of coordinates or None if not found
+        """
+        return self.coord_manager.get_agent_coordinates(agent_id)
+        
+    def get_response_region(self, agent_id: str) -> Optional[Dict]:
+        """Get response region for an agent.
+        
+        Args:
+            agent_id: ID of the agent
+            
+        Returns:
+            Response region coordinates or None if not found
+        """
+        return self.coord_manager.get_response_region(agent_id)
+
     def _load_config(self, config_path):
         """Load coordinates from config file."""
         try:
             self.logger.debug("Loading coordinates from file")
-            with open(config_path, 'r') as f:
-                raw_data = json.load(f)
-                self.logger.debug(f"Raw coordinate data: {json.dumps(raw_data, indent=2)}")
-                
-                for agent_id, coords in raw_data.items():
-                    transformed = self._transform_coordinate_dict(coords)
-                    self.coords[agent_id] = transformed
-                    self.logger.debug(f"Processed coordinates for {agent_id}:")
-                    self.logger.debug(f"  Initial spot: ({transformed['x']}, {transformed['y']})")
-                    self.logger.debug(f"  Input box: ({transformed['message_x']}, {transformed['message_y']})")
-                    self.logger.debug(f"  Copy button: ({transformed['copy_x']}, {transformed['copy_y']})")
-                    self.logger.debug(f"  Response region: {transformed['response_region']}")
-                
-                self.logger.info(f"Loaded coordinates for {len(self.coords)} agents")
+            coords = load_coordinates(config_path)
+            self.coord_manager = CoordinateManager(coords)
+            self.logger.info(f"Loaded coordinates for {len(coords)} agents")
         except Exception as e:
             self.logger.error(f"Error loading config: {e}")
-            self.coords = {}  # Reset to empty dict on error
+            self.coord_manager = CoordinateManager({})
+            
+    def _save_coordinates(self, agent_id: str, coords: Dict) -> bool:
+        """Save coordinates for an agent.
         
+        Args:
+            agent_id: ID of the agent
+            coords: Coordinates to save
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            save_coordinates(coords, self.config_path)
+            self.coord_manager = CoordinateManager(load_coordinates(self.config_path))
+            return True
+        except Exception as e:
+            self.logger.error(f"Error saving coordinates: {e}")
+            return False
+            
     def _setup_signal_handlers(self):
         """Set up signal handlers for graceful shutdown."""
         logger.debug("Setting up signal handlers")
         signal.signal(signal.SIGINT, self._handle_interrupt)
         signal.signal(signal.SIGTERM, self._handle_interrupt)
         logger.debug("Signal handlers set up")
-        
-    def _handle_interrupt(self, signum, frame):
-        """Handle keyboard interrupt gracefully."""
-        logger.info("Received interrupt signal, cleaning up...")
-        self.cleanup()
-        raise KeyboardInterrupt()
         
     @contextmanager
     def _calibration_context(self):
@@ -186,22 +465,6 @@ class UIAutomation:
         finally:
             self._cleanup_calibration()
             
-    def _cleanup_calibration(self):
-        """Clean up calibration resources."""
-        logger.debug("Cleaning up calibration resources")
-        self.calibrating = False
-        self.current_step = 0
-        self.points = []
-        
-        # Only try to join if we're not in the calibration thread
-        if self.calibration_thread and self.calibration_thread.is_alive() and threading.current_thread() != self.calibration_thread:
-            try:
-                self.calibration_thread.join(timeout=1.0)
-            except RuntimeError:
-                # Ignore "cannot join current thread" error
-                pass
-        self.calibration_thread = None
-
     def _calibration_loop(self, agent_id: str):
         """Main calibration loop.
         
@@ -260,7 +523,7 @@ class UIAutomation:
             return False
 
     def _get_screenshot_logger(self, agent_id: str) -> ScreenshotLogger:
-        """Get or create screenshot logger for agent.
+        """Get screenshot logger for agent.
         
         Args:
             agent_id: ID of the agent
@@ -269,665 +532,450 @@ class UIAutomation:
             ScreenshotLogger instance
         """
         if agent_id not in self.screenshot_loggers:
-            self.screenshot_loggers[agent_id] = ScreenshotLogger(agent_id, self.debug_screenshot_dir)
+            self.screenshot_loggers[agent_id] = ScreenshotLogger(agent_id)
         return self.screenshot_loggers[agent_id]
         
-    def _validate_window_title(self, agent_id: str, expected_title: Optional[str] = None) -> bool:
-        """Validate that the active window title matches expectations.
+    def _validate_window_title(
+        self,
+        expected_title: str,
+        timeout: float = 5.0
+    ) -> bool:
+        """Validate window title.
+        
+        Args:
+            expected_title: Expected window title
+            timeout: Timeout in seconds
+            
+        Returns:
+            bool: True if title matches
+        """
+        start_time = time.time()
+        while time.time() - start_time < timeout:
+            try:
+                current_title = pyautogui.getActiveWindow().title
+                if expected_title in current_title:
+                    return True
+                time.sleep(0.1)
+            except Exception:
+                time.sleep(0.1)
+        return False
+
+    def _capture_debug_screenshot(
+        self,
+        agent_id: str,
+        context: str
+    ) -> None:
+        """Capture debug screenshot.
         
         Args:
             agent_id: ID of the agent
-            expected_title: Optional expected window title
-            
-        Returns:
-            bool: True if window title is valid
+            context: Context for screenshot
         """
         try:
-            win = gw.getActiveWindow()
-            if not win:
-                logger.error(f"[{agent_id}] No active window found")
-                return False
-                
-            title = win.title.lower()
-            agent_lower = agent_id.lower()
-            
-            # If no expected title, check for agent ID or common window patterns
-            if not expected_title:
-                # Check for agent ID in title
-                if agent_lower in title:
-                    logger.debug(f"[{agent_id}] Window title contains agent ID: {title}")
-                    return True
-                    
-                # Check for common window patterns
-                common_patterns = [
-                    'cursor', 'workspace', 'untitled', 'editor',
-                    'code', 'ide', 'terminal', 'console'
-                ]
-                if any(pattern in title for pattern in common_patterns):
-                    logger.debug(f"[{agent_id}] Window title matches common pattern: {title}")
-                    return True
-                    
-                logger.error(f"[{agent_id}] Window title '{title}' does not match expected patterns")
-                return False
-            else:
-                expected_lower = expected_title.lower()
-                if expected_lower in title:
-                    logger.debug(f"[{agent_id}] Window title matches expected: {title}")
-                    return True
-                    
-                logger.error(f"[{agent_id}] Window title '{title}' does not match expected '{expected_title}'")
-                return False
-                
-        except Exception as e:
-            logger.error(f"[{agent_id}] Error validating window title: {e}")
-            return False
-            
-    def _capture_debug_screenshot(self, agent_id: str, name: str, region: Optional[tuple] = None) -> Optional[Path]:
-        """Capture a debug screenshot.
-        
-        Args:
-            agent_id: ID of the agent
-            name: Name for the screenshot
-            region: Optional region to capture
-            
-        Returns:
-            Path to saved screenshot if successful, None otherwise
-        """
-        if not self.transform_debug:
-            return None
-            
-        try:
-            time.sleep(DEBUG_SCREENSHOT_DELAY)  # Small pause to ensure UI is stable
-            screenshot_logger = self._get_screenshot_logger(agent_id)
-            return screenshot_logger.capture(name, region)
-            
+            logger = self._get_screenshot_logger(agent_id)
+            logger.capture_screenshot(context)
         except Exception as e:
             self.logger.error(f"Error capturing debug screenshot: {e}")
-            return None
-            
-    def _transform_coordinates(self, x, y):
-        """Transform coordinates from monitor space to screen space."""
-        try:
-            if self.transform_debug:
-                logger.debug(f"[TRANSFORM] Raw coordinates: ({x}, {y})")
-            
-            # Find the monitor that contains these coordinates
-            monitor_offset = 0
-            for monitor in self.monitors:
-                if self.transform_debug:
-                    logger.debug(f"[TRANSFORM] Checking monitor: x={monitor.x}, width={monitor.width}")
-                
-                # Check if coordinates are within this monitor's bounds
-                if (monitor.x <= x < monitor.x + monitor.width and 
-                    monitor.y <= y < monitor.y + monitor.height):
-                    monitor_offset = monitor.x
-                    if self.transform_debug:
-                        logger.debug(f"[TRANSFORM] Found monitor match: x={monitor.x}")
-                    break
-            
-            if self.transform_debug:
-                logger.debug(f"[TRANSFORM] Using monitor offset: {monitor_offset}")
-            
-            # Transform coordinates
-            screen_x = x - monitor_offset
-            screen_y = y
-            
-            if self.transform_debug:
-                logger.debug(f"[TRANSFORM] Transformed to: ({screen_x}, {screen_y})")
-            
-            # Ensure coordinates are within screen bounds
-            screen_width, screen_height = pyautogui.size()
-            screen_x = max(0, min(screen_x, screen_width))
-            screen_y = max(0, min(screen_y, screen_height))
-            
-            if self.transform_debug:
-                logger.debug(f"[TRANSFORM] Final coordinates: ({screen_x}, {screen_y})")
-            
-            return screen_x, screen_y
-        except Exception as e:
-            logger.error(f"Error transforming coordinates: {e}")
-            return x, y  # Return original coordinates on error
 
-    def _transform_coordinate_dict(self, coords):
-        """Transform coordinates from monitor space to screen space."""
-        try:
-            transformed = {}
-            
-            # Store original coordinates
-            transformed['original'] = coords.copy()
-            
-            # Transform initial spot
-            if 'initial_spot' in coords:
-                x, y = coords['initial_spot']['x'], coords['initial_spot']['y']
-                screen_x, screen_y = self._transform_coordinates(x, y)
-                transformed['initial_spot'] = {'x': screen_x, 'y': screen_y}
-                transformed['x'] = screen_x  # Keep flat structure for backward compatibility
-                transformed['y'] = screen_y
-            
-            # Transform input box
-            if 'input_box' in coords:
-                x, y = coords['input_box']['x'], coords['input_box']['y']
-                screen_x, screen_y = self._transform_coordinates(x, y)
-                transformed['input_box'] = {'x': screen_x, 'y': screen_y}
-                transformed['message_x'] = screen_x  # Keep flat structure for backward compatibility
-                transformed['message_y'] = screen_y
-            
-            # Transform copy button
-            if 'copy_button' in coords:
-                x, y = coords['copy_button']['x'], coords['copy_button']['y']
-                screen_x, screen_y = self._transform_coordinates(x, y)
-                transformed['copy_button'] = {'x': screen_x, 'y': screen_y}
-                transformed['copy_x'] = screen_x  # Keep flat structure for backward compatibility
-                transformed['copy_y'] = screen_y
-            
-            # Transform response region
-            if 'response_region' in coords:
-                region = coords['response_region']
-                top_left = region['top_left']
-                bottom_right = region['bottom_right']
-                
-                # Transform top left
-                tl_x, tl_y = self._transform_coordinates(top_left['x'], top_left['y'])
-                
-                # Transform bottom right
-                br_x, br_y = self._transform_coordinates(bottom_right['x'], bottom_right['y'])
-                
-                transformed['response_region'] = {
-                    'top_left': {'x': tl_x, 'y': tl_y},
-                    'bottom_right': {'x': br_x, 'y': br_y}
-                }
-            
-            if self.transform_debug:
-                logger.debug("Transformed coordinates:")
-                logger.debug(f"  original: {transformed}")
-                logger.debug(f"  response_region: {transformed.get('response_region', {})}")
-            
-            return transformed
-        except Exception as e:
-            logger.error(f"Error transforming coordinate dictionary: {e}")
-            return coords  # Return original coordinates on error
-        
-    def get_agent_coordinates(self, agent_id: str) -> Dict[str, Dict[str, int]]:
-        """Get coordinates for an agent.
+    def _transform_coordinates(
+        self,
+        x: int,
+        y: int,
+        source_res: Tuple[int, int] = None,
+        target_res: Tuple[int, int] = None
+    ) -> Tuple[int, int]:
+        """Transform coordinates between resolutions.
         
         Args:
-            agent_id: ID of the agent
+            x: X coordinate
+            y: Y coordinate
+            source_res: Source resolution
+            target_res: Target resolution
             
         Returns:
-            Dictionary of coordinates for the agent
+            Tuple of transformed coordinates
         """
-        if not self.coords or agent_id not in self.coords:
-            self.logger.error(f"No coordinates found for agent {agent_id}")
-            return {}
+        if not source_res:
+            source_res = (1920, 1080)  # Default source
+        if not target_res:
+            target_res = self._get_screen_resolution()
             
-        # Return both original and transformed coordinates
-        return self.coords[agent_id]
+        scale_x = target_res[0] / source_res[0]
+        scale_y = target_res[1] / source_res[1]
+        
+        return (
+            int(x * scale_x),
+            int(y * scale_y)
+        )
 
-    def _validate_coordinates(self, coords: Dict) -> bool:
-        """Validate coordinate format and values.
+    def _transform_coordinate_dict(
+        self,
+        coords: Dict,
+        source_res: Tuple[int, int] = None,
+        target_res: Tuple[int, int] = None
+    ) -> Dict:
+        """Transform coordinate dictionary between resolutions.
         
         Args:
-            coords: Dictionary of coordinates to validate
+            coords: Dictionary of coordinates
+            source_res: Source resolution
+            target_res: Target resolution
             
         Returns:
-            bool: True if valid, False otherwise
+            Transformed coordinate dictionary
         """
-        try:
-            required_keys = ['initial_spot', 'input_box', 'copy_button']
-            for key in required_keys:
-                if key not in coords:
-                    self.logger.error(f"Missing required coordinate: {key}")
-                    return False
-                    
-                point = coords[key]
-                if not isinstance(point, dict):
-                    self.logger.error(f"Invalid coordinate format for {key}: {point}")
-                    return False
-                    
-                if 'x' not in point or 'y' not in point:
-                    self.logger.error(f"Missing x or y in {key} coordinates")
-                    return False
-                    
-                try:
-                    x = int(point['x'])
-                    y = int(point['y'])
-                except (ValueError, TypeError):
-                    self.logger.error(f"Invalid coordinate values in {key}: {point}")
-                    return False
-                    
-                if x < 0 or x > self.screen_width or y < 0 or y > self.screen_height:
-                    self.logger.error(f"Coordinates out of bounds for {key}: ({x}, {y})")
-                    return False
-                    
-            # Check for duplicates
-            points = []
-            for key in required_keys:
-                point = coords[key]
-                points.append((point['x'], point['y']))
-                
-            if len(points) != len(set(points)):
-                self.logger.error("Duplicate coordinates found")
-                return False
-                
-            return True
-            
-        except Exception as e:
-            self.logger.error(f"Error validating coordinates: {e}")
-            return False
-            
+        transformed = {}
+        for key, coord in coords.items():
+            transformed[key] = {
+                'x': self._transform_coordinates(
+                    coord['x'],
+                    coord['y'],
+                    source_res,
+                    target_res
+                )[0],
+                'y': self._transform_coordinates(
+                    coord['x'],
+                    coord['y'],
+                    source_res,
+                    target_res
+                )[1],
+                'width': int(coord['width'] * (target_res[0] / source_res[0])),
+                'height': int(coord['height'] * (target_res[1] / source_res[1]))
+            }
+        return transformed
+        
     def _load_coordinates(self) -> Dict:
         """Load coordinates from file or use defaults.
         
         Returns:
-            Dict: Loaded coordinates
+            Dictionary of coordinates
         """
         try:
-            if self.config_path and Path(self.config_path).exists():
+            if self.config_path and os.path.exists(self.config_path):
                 with open(self.config_path, 'r') as f:
                     coords = json.load(f)
-                    
-                # Validate coordinates
-                for agent_id, agent_coords in coords.items():
-                    if not self._validate_coordinates(agent_coords):
-                        self.logger.error(f"Invalid coordinates for agent {agent_id}")
-                        continue
-                        
+                self.logger.debug(f"Loaded coordinates from {self.config_path}")
                 return coords
             else:
-                self.logger.warning("No config file found, using default coordinates")
+                self.logger.warning(
+                    f"Config file not found at {self.config_path}, using defaults"
+                )
                 return self._get_default_coordinates()
-                
         except Exception as e:
             self.logger.error(f"Error loading coordinates: {e}")
             return self._get_default_coordinates()
-            
+
     def _get_default_coordinates(self) -> Dict[str, Dict[str, int]]:
-        """Get default coordinates for testing.
+        """Get default coordinates based on screen resolution.
         
         Returns:
-            Dict mapping agent IDs to coordinate dictionaries
+            Dictionary of default coordinates
         """
-        return {
-            "test_agent": {
-                "initial_spot": {"x": 100, "y": 100},
-                "input_box": {"x": 100, "y": 100},
-                "copy_button": {"x": 200, "y": 200},
-                "response_region": {
-                    "top_left": {"x": 100, "y": 100},
-                    "bottom_right": {"x": 400, "y": 250}
-                }
-            },
-            "Agent-1": {
-                "initial_spot": {"x": -1263, "y": 176},
-                "input_box": {"x": -1263, "y": 176},
-                "copy_button": {"x": -1018, "y": 299},
-                "response_region": {
-                    "top_left": {"x": 400, "y": 200},
-                    "bottom_right": {"x": 800, "y": 400}
-                }
-            },
-            "Agent-2": {
-                "initial_spot": {"x": -320, "y": 176},
-                "input_box": {"x": -320, "y": 176},
-                "copy_button": {"x": -56, "y": 297},
-                "response_region": {
-                    "top_left": {"x": 400, "y": 300},
-                    "bottom_right": {"x": 800, "y": 500}
-                }
-            },
-            "Agent-3": {
-                "initial_spot": {"x": -1273, "y": 694},
-                "input_box": {"x": -1273, "y": 694},
-                "copy_button": {"x": -1017, "y": 819},
-                "response_region": {
-                    "top_left": {"x": 400, "y": 400},
-                    "bottom_right": {"x": 800, "y": 600}
+        try:
+            width, height = pyautogui.size()
+            
+            # Calculate default positions
+            center_x = width // 2
+            center_y = height // 2
+            
+            # Define default regions
+            return {
+                'initial_spot': {
+                    'x': center_x,
+                    'y': center_y
+                },
+                'input_box': {
+                    'x': center_x,
+                    'y': height - 100
+                },
+                'copy_button': {
+                    'x': center_x + 100,
+                    'y': height - 100
+                },
+                'response_region': {
+                    'x': center_x - 200,
+                    'y': center_y - 200,
+                    'width': 400,
+                    'height': 400
                 }
             }
-        }
-            
-    def _click_focus(self, x: int, y: int, max_attempts: int = 3) -> Tuple[int, int]:
-        """Click at coordinates to focus window with validation and retries.
+        except Exception as e:
+            self.logger.error(f"Error getting default coordinates: {e}")
+            return {}
+
+    def _click_focus(
+        self, 
+        x: int, 
+        y: int, 
+        max_attempts: int = 3
+    ) -> Tuple[int, int]:
+        """Click to focus window at coordinates.
         
         Args:
-            x: X coordinate to click
-            y: Y coordinate to click
+            x: X coordinate
+            y: Y coordinate
             max_attempts: Maximum number of click attempts
             
         Returns:
-            Tuple of (x, y) coordinates where click was performed
-            
-        Raises:
-            RuntimeError: If window focus cannot be established
+            Tuple of final coordinates
         """
         for attempt in range(max_attempts):
             try:
-                # Move cursor with validation
-                final_pos = self.move_to(x, y)
-                if not isinstance(final_pos, tuple) or len(final_pos) != 2:
-                    self.logger.warning(f"Invalid cursor position after move: {final_pos}")
-                    continue
-                    
-                # Click and verify
-                pyautogui.click()
-                time.sleep(0.5)  # Wait for click to register
+                # Transform coordinates
+                screen_x, screen_y = self._transform_coordinates(x, y)
                 
-                # Verify window focus
-                active_window = gw.getActiveWindow()
-                if active_window:
-                    self.logger.debug(f"Window focused: {active_window.title}")
-                    return final_pos
-                    
-                self.logger.warning(f"Click attempt {attempt + 1} did not focus window")
+                # Click to focus
+                pyautogui.click(screen_x, screen_y)
                 
+                # Wait for focus
+                time.sleep(FOCUS_ESTABLISH_DELAY)
+                
+                return screen_x, screen_y
             except Exception as e:
-                self.logger.error(f"Error during click attempt {attempt + 1}: {str(e)}")
+                self.logger.warning(
+                    f"Click focus attempt {attempt + 1} failed: {e}"
+                )
                 if attempt == max_attempts - 1:
-                    raise RuntimeError(f"Failed to focus window after {max_attempts} attempts: {str(e)}")
-                
-        raise RuntimeError(f"Failed to focus window after {max_attempts} attempts")
+                    raise
+                time.sleep(0.5)
+        
+        return x, y
 
-    def send_message(self, agent_id, message):
-        """Send a message to an agent."""
-        self.logger.debug(f"Starting message send to {agent_id}")
-        self.logger.debug(f"Message content: {message}")
+    def send_message(self, agent_id: str, message: str) -> bool:
+        """Send message to agent.
         
-        if not message or len(message) > 1000:
-            self.logger.error(f"Invalid message length for {agent_id}")
-            return False, None
-        
-        # Get coordinates for the agent
-        coords = self.coords.get(agent_id)
-        if not coords:
-            self.logger.error(f"No coordinates found for {agent_id}")
-            return False, None
-        
-        # Validate required coordinates
-        required_coords = ['initial_spot', 'input_box', 'copy_button']
-        missing_coords = [coord for coord in required_coords if coord not in coords.get('original', {})]
-        if missing_coords:
-            self.logger.error(f"Missing required coordinates for {agent_id}: {missing_coords}")
-            return False, None
-        
+        Args:
+            agent_id: ID of the agent
+            message: Message to send
+            
+        Returns:
+            bool: True if successful
+        """
         try:
-            # Click initial spot
-            pyautogui.click(coords['x'], coords['y'])
-            time.sleep(WINDOW_ACTIVATION_DELAY)
+            # Get coordinates
+            coords = self.get_agent_coordinates(agent_id)
+            if not coords:
+                self.logger.error(f"No coordinates found for agent {agent_id}")
+                return False
             
             # Click input box
-            pyautogui.click(coords['message_x'], coords['message_y'])
-            time.sleep(FOCUS_ESTABLISH_DELAY)
+            input_box = coords.get('input_box', {})
+            if not input_box:
+                self.logger.error("No input box coordinates found")
+                return False
+            
+            x, y = input_box['x'], input_box['y']
+            screen_x, screen_y = self._click_focus(x, y)
+            
+            # Clear existing text
+            self._clear_text()
+            time.sleep(TEXT_CLEAR_DELAY)
             
             # Type message
-            pyautogui.write(message)
-            time.sleep(0.1)
+            self._type_text(message)
+            time.sleep(TYPING_COMPLETE_DELAY)
             
-            # Click copy button
-            pyautogui.click(coords['copy_x'], coords['copy_y'])
-            time.sleep(0.1)
+            # Send message
+            pyautogui.press('enter')
+            time.sleep(MESSAGE_SEND_DELAY)
             
-            # Get response
-            response = self._get_response(agent_id)
-            return True, response
-            
+            return True
         except Exception as e:
-            self.logger.error(f"Error sending message to {agent_id}: {e}")
-            return False, None
-            
+            self.logger.error(f"Error sending message: {e}")
+            return False
+
     def _load_onboarding_prompt(self, agent_id: str) -> str:
-        """Load the onboarding prompt from the agent's inbox."""
-        self.logger.debug(f"Loading onboarding prompt for {agent_id}")
+        """Load onboarding prompt for agent.
+        
+        Args:
+            agent_id: ID of the agent
+            
+        Returns:
+            Onboarding prompt text
+        """
         try:
-            inbox_path = Path(f"runtime/agent_memory/{agent_id}/inbox.json")
-            if not inbox_path.exists():
-                self.logger.warning(f"No inbox found for {agent_id}, using default prompt")
-                return (
-                    f"Welcome {agent_id} to Dream.OS - a self-evolving, autonomous agent network!\n\n"
-                    f"You are {agent_id}, a Cursor IDE agent designed for autonomous operation and self-learning. "
-                    f"Before proceeding with any tasks, you MUST read and understand the following documentation:\n\n"
-                    f"Required Reading (in order):\n"
-                    f"1. docs/onboarding/01_agent_core.md - Your fundamental capabilities and system architecture\n"
-                    f"2. docs/onboarding/02_autonomous_operations.md - How to operate independently\n"
-                    f"3. docs/onboarding/03_system_integration.md - How to interact with the system\n"
-                    f"4. docs/onboarding/04_advanced_topics.md - Advanced operations and security\n\n"
-                    f"Core Capabilities:\n"
-                    f"• Self-Guided Learning: Explore the system architecture and documentation at your own pace\n"
-                    f"• Autonomous Operation: Make independent decisions based on your understanding\n"
-                    f"• Adaptive Integration: Learn from and contribute to the network's collective intelligence\n"
-                    f"• Self-Documentation: Maintain your own devlog to track your evolution\n\n"
-                    f"Your First Steps:\n"
-                    f"1. READ ALL DOCUMENTATION before proceeding with any tasks\n"
-                    f"2. Initialize your core systems and establish your devlog\n"
-                    f"3. Explore the system architecture guide to understand your environment\n"
-                    f"4. Begin autonomous task processing and learning\n\n"
-                    f"Remember: You are {agent_id}, designed to learn and adapt independently. Trust your capabilities and "
-                    f"explore the system's potential. Your growth contributes to the network's evolution.\n\n"
-                    f"Begin your autonomous journey. The system is yours to discover and shape."
-                )
-                
-            with open(inbox_path, 'r') as f:
-                inbox = json.load(f)
-                
-            if "onboarding_prompt" in inbox:
-                self.logger.debug(f"Found onboarding prompt: {inbox['onboarding_prompt']}")
-                return inbox["onboarding_prompt"]
-            else:
-                self.logger.warning(f"No onboarding prompt found in {agent_id}'s inbox")
-                return (
-                    f"Welcome {agent_id} to Dream.OS - a self-evolving, autonomous agent network!\n\n"
-                    f"You are {agent_id}, a Cursor IDE agent designed for autonomous operation and self-learning. "
-                    f"Before proceeding with any tasks, you MUST read and understand the following documentation:\n\n"
-                    f"Required Reading (in order):\n"
-                    f"1. docs/onboarding/01_agent_core.md - Your fundamental capabilities and system architecture\n"
-                    f"2. docs/onboarding/02_autonomous_operations.md - How to operate independently\n"
-                    f"3. docs/onboarding/03_system_integration.md - How to interact with the system\n"
-                    f"4. docs/onboarding/04_advanced_topics.md - Advanced operations and security\n\n"
-                    f"Core Capabilities:\n"
-                    f"• Self-Guided Learning: Explore the system architecture and documentation at your own pace\n"
-                    f"• Autonomous Operation: Make independent decisions based on your understanding\n"
-                    f"• Adaptive Integration: Learn from and contribute to the network's collective intelligence\n"
-                    f"• Self-Documentation: Maintain your own devlog to track your evolution\n\n"
-                    f"Your First Steps:\n"
-                    f"1. READ ALL DOCUMENTATION before proceeding with any tasks\n"
-                    f"2. Initialize your core systems and establish your devlog\n"
-                    f"3. Explore the system architecture guide to understand your environment\n"
-                    f"4. Begin autonomous task processing and learning\n\n"
-                    f"Remember: You are {agent_id}, designed to learn and adapt independently. Trust your capabilities and "
-                    f"explore the system's potential. Your growth contributes to the network's evolution.\n\n"
-                    f"Begin your autonomous journey. The system is yours to discover and shape."
-                )
-                
+            prompt_path = Path(f"prompts/{agent_id}_onboarding.txt")
+            if prompt_path.exists():
+                with open(prompt_path, 'r') as f:
+                    return f.read().strip()
+            return ""
         except Exception as e:
             self.logger.error(f"Error loading onboarding prompt: {e}")
-            return (
-                f"Welcome {agent_id} to Dream.OS - a self-evolving, autonomous agent network!\n\n"
-                f"You are {agent_id}, a Cursor IDE agent designed for autonomous operation and self-learning. "
-                f"Before proceeding with any tasks, you MUST read and understand the following documentation:\n\n"
-                f"Required Reading (in order):\n"
-                f"1. docs/onboarding/01_agent_core.md - Your fundamental capabilities and system architecture\n"
-                f"2. docs/onboarding/02_autonomous_operations.md - How to operate independently\n"
-                f"3. docs/onboarding/03_system_integration.md - How to interact with the system\n"
-                f"4. docs/onboarding/04_advanced_topics.md - Advanced operations and security\n\n"
-                f"Core Capabilities:\n"
-                f"• Self-Guided Learning: Explore the system architecture and documentation at your own pace\n"
-                f"• Autonomous Operation: Make independent decisions based on your understanding\n"
-                f"• Adaptive Integration: Learn from and contribute to the network's collective intelligence\n"
-                f"• Self-Documentation: Maintain your own devlog to track your evolution\n\n"
-                f"Your First Steps:\n"
-                f"1. READ ALL DOCUMENTATION before proceeding with any tasks\n"
-                f"2. Initialize your core systems and establish your devlog\n"
-                f"3. Explore the system architecture guide to understand your environment\n"
-                f"4. Begin autonomous task processing and learning\n\n"
-                f"Remember: You are {agent_id}, designed to learn and adapt independently. Trust your capabilities and "
-                f"explore the system's potential. Your growth contributes to the network's evolution.\n\n"
-                f"Begin your autonomous journey. The system is yours to discover and shape."
-            )
-            
-    def perform_onboarding_sequence(self, agent_id: str, message: str = None) -> bool:
-        """Perform the UI onboarding sequence using simplified coordinates."""
-        self.logger.debug(f"Starting onboarding sequence for {agent_id}")
-        try:
-            if agent_id not in self.coords:
-                self.logger.error(f"No coordinates found for {agent_id}")
-                return False
+            return ""
 
-            coords = self.coords[agent_id]
-            self.logger.info(f"Starting UI onboarding sequence for {agent_id}")
-            self.logger.debug(f"Using coordinates: {coords}")
-
-            # Step 1: Click the input box to start
-            self.logger.info("Step 1: Clicking input box")
-            self.cursor.move_to(coords["message_x"], coords["message_y"])
-            self.cursor.click()
-            time.sleep(0.5)
-
-            # Step 2: Accept previous conversation changes (Ctrl+Enter)
-            self.logger.info("Step 2: Accepting previous changes")
-            self.cursor.press_ctrl_enter()
-            time.sleep(1.0)
-
-            # Step 3: Open fresh chat tab (Ctrl+N)
-            self.logger.info("Step 3: Opening fresh chat tab")
-            self.cursor.hotkey('ctrl', 'n')
-            time.sleep(1.0)
-
-            # Step 4: Navigate to agent's initial input spot
-            self.logger.info("Step 4: Moving to agent's input spot")
-            self.cursor.move_to(coords["x"], coords["y"])
-            time.sleep(0.5)
-
-            # Step 5: Load and paste onboarding prompt
-            self.logger.info("Step 5: Pasting onboarding message")
-            prompt = message if message else self._load_onboarding_prompt(agent_id)
-            self.logger.debug(f"Using prompt: {prompt}")
-            self.cursor.type_text(prompt)
-            time.sleep(0.5)
-
-            # Step 6: Send the message
-            self.logger.info("Step 6: Sending message")
-            self.cursor.press_enter()
-            time.sleep(1.0)
-
-            self.logger.info(f"Onboarding sequence completed for {agent_id}")
-            return True
-            
-        except KeyboardInterrupt:
-            self.logger.info("Onboarding sequence interrupted by user")
-            self.cleanup()
-            return False
-        except Exception as e:
-            self.logger.error(f"Error in onboarding sequence for {agent_id}: {e}")
-            self.cleanup()
-            return False
-            
-    def _split_message(self, message: str, max_length: int = 100) -> list:
-        """Split a message into chunks of maximum length."""
-        self.logger.debug(f"Splitting message into chunks of max length {max_length}")
-        words = message.split()
-        chunks = []
-        current_chunk = []
-        current_length = 0
+    def perform_onboarding_sequence(
+        self, 
+        agent_id: str, 
+        message: Optional[str] = None
+    ) -> bool:
+        """Perform onboarding sequence for agent.
         
-        for word in words:
-            if current_length + len(word) + 1 <= max_length:
-                current_chunk.append(word)
-                current_length += len(word) + 1
+        Args:
+            agent_id: ID of the agent
+            message: Optional custom message
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            # Load prompt
+            prompt = message or self._load_onboarding_prompt(agent_id)
+            if not prompt:
+                self.logger.error("No onboarding prompt available")
+                return False
+            
+            # Split message if needed
+            messages = self._split_message(prompt)
+            
+            # Send each message
+            for msg in messages:
+                if not self.send_message(agent_id, msg):
+                    self.logger.error("Failed to send onboarding message")
+                    return False
+                time.sleep(MESSAGE_SEND_DELAY)
+            
+            return True
+        except Exception as e:
+            self.logger.error(f"Error during onboarding: {e}")
+            return False
+
+    def _split_message(self, message: str, max_length: int = 100) -> list:
+        """Split message into smaller chunks.
+        
+        Args:
+            message: Message to split
+            max_length: Maximum length per chunk
+            
+        Returns:
+            List of message chunks
+        """
+        if len(message) <= max_length:
+            return [message]
+        
+        chunks = []
+        current_chunk = ""
+        
+        for word in message.split():
+            if len(current_chunk) + len(word) + 1 <= max_length:
+                current_chunk += (word + " ")
             else:
-                chunks.append(" ".join(current_chunk))
-                current_chunk = [word]
-                current_length = len(word)
+                chunks.append(current_chunk.strip())
+                current_chunk = word + " "
         
         if current_chunk:
-            chunks.append(" ".join(current_chunk))
+            chunks.append(current_chunk.strip())
         
-        self.logger.debug(f"Split message into {len(chunks)} chunks")
         return chunks
-        
+
     def cleanup(self):
         """Clean up resources."""
         try:
-            self.logger.debug("Cleaning up UI automation")
-            self._cleanup_calibration()
-            # Clean up screenshot loggers
-            for screenshot_logger in self.screenshot_loggers.values():
-                screenshot_logger.cleanup()
-            # Reset PyAutoGUI settings
-            pyautogui.PAUSE = 0.1
-            self.logger.info("UI automation cleaned up")
-        except Exception as e:
-            self.logger.error(f"Error cleaning up UI automation: {e}")
-            raise
+            # Stop calibration if running
+            if self.calibrating:
+                self._cleanup_calibration()
             
-    def move_to(self, x: int, y: int, duration: float = 0.5) -> Tuple[int, int]:
-        """Move cursor to specified coordinates with validation."""
-        try:
-            # Validate coordinates
-            if not isinstance(x, (int, float)) or not isinstance(y, (int, float)):
-                raise ValueError(f"Invalid coordinates: x={x}, y={y}")
-            # Get current position with validation
-            current_pos = pyautogui.position()
-            if not isinstance(current_pos, tuple) or len(current_pos) != 2:
-                self.logger.warning("Failed to get current cursor position, using (0,0)")
-                current_pos = (0, 0)
-            # Move cursor with validation
-            pyautogui.moveTo(x, y, duration=duration)
-            # Verify final position
-            final_pos = pyautogui.position()
-            if not isinstance(final_pos, tuple) or len(final_pos) != 2:
-                self.logger.warning("Failed to get final cursor position, using target coordinates")
-                final_pos = (x, y)
-            return final_pos
-        except Exception as e:
-            self.logger.error(f"Error moving cursor: {str(e)}")
-            raise
+            # Close screenshot loggers
+            for logger in self.screenshot_loggers.values():
+                logger.close()
             
-    def click(self, x, y, agent_id=None):
-        """Click at the specified coordinates."""
+            self.logger.debug("Cleanup completed")
+        except Exception as e:
+            self.logger.error(f"Error during cleanup: {e}")
+
+    def move_to(
+        self, 
+        x: int, 
+        y: int, 
+        duration: float = 0.5
+    ) -> Tuple[int, int]:
+        """Move cursor to coordinates.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            duration: Movement duration
+            
+        Returns:
+            Tuple of final coordinates
+        """
         try:
-            if self.transform_debug:
-                self._capture_debug_screenshot(agent_id, "pre_click")
-            # Move mouse to position
-            pyautogui.moveTo(x, y, duration=0.5)
-            time.sleep(0.2)  # Small delay for stability
-            # Perform click
-            pyautogui.click()
-            time.sleep(0.2)  # Small delay after click
-            if self.transform_debug:
-                self._capture_debug_screenshot(agent_id, "post_click")
+            screen_x, screen_y = self._transform_coordinates(x, y)
+            pyautogui.moveTo(screen_x, screen_y, duration=duration)
+            return screen_x, screen_y
+        except Exception as e:
+            self.logger.error(f"Error moving cursor: {e}")
+            return x, y
+
+    def click(self, x: int, y: int, agent_id: Optional[str] = None) -> bool:
+        """Click at coordinates.
+        
+        Args:
+            x: X coordinate
+            y: Y coordinate
+            agent_id: Optional agent ID for logging
+            
+        Returns:
+            bool: True if successful
+        """
+        try:
+            screen_x, screen_y = self._transform_coordinates(x, y)
+            pyautogui.click(screen_x, screen_y)
+            
+            if agent_id:
+                self.logger.debug(
+                    f"Clicked at ({screen_x}, {screen_y}) for agent {agent_id}"
+                )
             return True
         except Exception as e:
-            self.logger.error(f"Error clicking at ({x}, {y}): {str(e)}")
-            if self.transform_debug:
-                self._capture_debug_screenshot(agent_id, "click_error")
+            self.logger.error(f"Error clicking: {e}")
             return False
-            
+
     def type_text(self, text: str, interval: float = 0.1) -> None:
-        """Type text with specified interval."""
-        self.logger.debug(f"Typing text: {text}")
+        """Type text with interval between keystrokes.
+        
+        Args:
+            text: Text to type
+            interval: Interval between keystrokes
+        """
         try:
             pyautogui.write(text, interval=interval)
         except Exception as e:
             self.logger.error(f"Error typing text: {e}")
-            
+
     def press_key(self, key: str) -> None:
-        """Press a key."""
-        self.logger.debug(f"Pressing key: {key}")
+        """Press a key.
+        
+        Args:
+            key: Key to press
+        """
         try:
             pyautogui.press(key)
         except Exception as e:
             self.logger.error(f"Error pressing key: {e}")
-            
+
     def hotkey(self, *keys: str) -> None:
-        """Press a combination of keys."""
-        self.logger.debug(f"Pressing hotkey: {' + '.join(keys)}")
+        """Press a combination of keys.
+        
+        Args:
+            *keys: Keys to press
+        """
         try:
             pyautogui.hotkey(*keys)
         except Exception as e:
             self.logger.error(f"Error pressing hotkey: {e}")
+
+    def screenshot(
+        self, 
+        region: Optional[tuple] = None
+    ) -> Optional[Image.Image]:
+        """Take a screenshot.
+        
+        Args:
+            region: Optional region to capture
             
-    def screenshot(self, region: Optional[tuple] = None) -> Optional[Image.Image]:
-        """Take a screenshot."""
-        self.logger.debug(f"Taking screenshot with region: {region}")
+        Returns:
+            Screenshot image or None if failed
+        """
         try:
             return pyautogui.screenshot(region=region)
         except Exception as e:
@@ -1093,48 +1141,6 @@ class UIAutomation:
             return True
         except Exception as e:
             self.logger.error(f"Error clicking copy button for agent {agent_id}: {e}")
-            return False
-            
-    def get_response_region(self, agent_id: str) -> Optional[Dict[str, Dict[str, int]]]:
-        """Get the response region coordinates for an agent.
-        
-        Args:
-            agent_id: ID of the agent
-            
-        Returns:
-            Optional[Dict]: Response region coordinates or None if not found
-        """
-        try:
-            if agent_id not in self.coords:
-                self.logger.error(f"No coordinates found for agent {agent_id}")
-                return None
-                
-            coords = self.coords[agent_id]
-            return coords.get('response_region')
-        except Exception as e:
-            self.logger.error(f"Error getting response region for agent {agent_id}: {e}")
-            return None
-            
-    def _has_duplicate_coordinates(self, coords: Dict) -> bool:
-        """Check if there are any duplicate coordinates in the dictionary.
-        
-        Args:
-            coords: Dictionary of coordinates to check
-            
-        Returns:
-            bool: True if duplicates found, False otherwise
-        """
-        try:
-            # Convert all coordinate points to tuples for comparison
-            points = []
-            for key, value in coords.items():
-                if isinstance(value, dict) and 'x' in value and 'y' in value:
-                    points.append((value['x'], value['y']))
-                    
-            # Check for duplicates
-            return len(points) != len(set(points))
-        except Exception as e:
-            self.logger.error(f"Error checking for duplicate coordinates: {e}")
             return False
             
     def _has_out_of_bounds_coordinates(self, coords: Dict) -> bool:

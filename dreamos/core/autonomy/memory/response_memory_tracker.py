@@ -11,11 +11,13 @@ from typing import Set, Dict, Any
 from pathlib import Path
 from datetime import datetime
 
+from ..base_tracker import BaseTracker
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class ResponseMemoryTracker:
+class ResponseMemoryTracker(BaseTracker):
     """Tracks processed messages to prevent duplicate processing."""
     
     def __init__(self, memory_path: str):
@@ -24,6 +26,11 @@ class ResponseMemoryTracker:
         Args:
             memory_path: Path to store memory data
         """
+        super().__init__(
+            log_dir=os.path.dirname(memory_path),
+            platform="memory",
+            tracker_type="response_tracker"
+        )
         self.memory_path = Path(memory_path)
         self.memory_path.parent.mkdir(parents=True, exist_ok=True)
         self.processed_hashes: Set[str] = set()
@@ -98,4 +105,30 @@ class ResponseMemoryTracker:
             "processed_count": len(self.processed_hashes),
             "memory_path": str(self.memory_path),
             "last_updated": datetime.now().isoformat()
-        } 
+        }
+
+    def mark_processed(self, message_hash: str) -> None:
+        """Mark a message as processed.
+        
+        Args:
+            message_hash: Hash of the message to mark
+        """
+        try:
+            self.processed_hashes.add(message_hash)
+            
+            # Save to memory file
+            with open(self.memory_path, 'w') as f:
+                json.dump({"hashes": list(self.processed_hashes)}, f)
+                
+            self._log_success(
+                message_hash,
+                {"hash": message_hash},
+                "processed"
+            )
+        except Exception as e:
+            logger.error(f"Error marking message as processed: {e}")
+            self._log_failure(
+                message_hash,
+                {"hash": message_hash, "error": str(e)},
+                "mark_processed_failed"
+            ) 

@@ -28,8 +28,12 @@ from .utils.core_utils import (
     read_yaml,
     write_yaml,
     ensure_directory_exists,
-    load_yaml
+    load_yaml,
+    get_timestamp,
+    format_duration,
+    is_valid_uuid
 )
+from dreamos.core.utils import load_json
 from dreamos.core.log_manager import LogManager, LogConfig, LogLevel
 from .config.config_manager import ConfigManager
 from dreamos.core.messaging.message_processor import MessageProcessor

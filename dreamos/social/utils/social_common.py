@@ -7,7 +7,7 @@ Common utilities for social media operations.
 import os
 import time
 import logging
-from typing import List, Optional, Union
+from typing import List, Optional, Union, Dict, Any
 from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
@@ -21,6 +21,69 @@ from .base import BaseUtils
 
 # Configure basic logger
 logger = logging.getLogger(__name__)
+
+class SocialConfig:
+    """Configuration for social media operations."""
+    
+    def __init__(self, config: Dict[str, Any]):
+        """Initialize social media configuration.
+        
+        Args:
+            config: Configuration dictionary
+        """
+        self.platform = config.get("platform", "")
+        self.username = config.get("username", "")
+        self.password = config.get("password", "")
+        self.api_key = config.get("api_key", "")
+        self.api_secret = config.get("api_secret", "")
+        self.access_token = config.get("access_token", "")
+        self.refresh_token = config.get("refresh_token", "")
+        self.rate_limit = config.get("rate_limit", 60)  # requests per minute
+        self.timeout = config.get("timeout", 30)  # seconds
+        self.retry_attempts = config.get("retry_attempts", 3)
+        self.retry_delay = config.get("retry_delay", 1.0)
+        self.log_level = config.get("log_level", "INFO")
+        self.proxy = config.get("proxy", None)
+        self.user_agent = config.get("user_agent", None)
+        self.verify_ssl = config.get("verify_ssl", True)
+        self.debug = config.get("debug", False)
+        
+    def to_dict(self) -> Dict[str, Any]:
+        """Convert configuration to dictionary.
+        
+        Returns:
+            Configuration dictionary
+        """
+        return {
+            "platform": self.platform,
+            "username": self.username,
+            "password": self.password,
+            "api_key": self.api_key,
+            "api_secret": self.api_secret,
+            "access_token": self.access_token,
+            "refresh_token": self.refresh_token,
+            "rate_limit": self.rate_limit,
+            "timeout": self.timeout,
+            "retry_attempts": self.retry_attempts,
+            "retry_delay": self.retry_delay,
+            "log_level": self.log_level,
+            "proxy": self.proxy,
+            "user_agent": self.user_agent,
+            "verify_ssl": self.verify_ssl,
+            "debug": self.debug
+        }
+        
+    @classmethod
+    def from_dict(cls, config: Dict[str, Any]) -> 'SocialConfig':
+        """Create configuration from dictionary.
+        
+        Args:
+            config: Configuration dictionary
+            
+        Returns:
+            SocialConfig instance
+        """
+        return cls(config)
 
 class SocialMediaUtils(BaseUtils):
     """Common utilities for social media operations."""

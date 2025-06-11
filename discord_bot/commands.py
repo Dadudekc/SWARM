@@ -60,38 +60,117 @@ class AgentCommands:
         self.bot.add_command(commands.Command(self.show_logs, name="logs"))
 
     def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from ``config/discord_bot.json`` if present."""
+        """Load configuration from config files.
+        
+        Supports both JSON and YAML formats. Looks for config in:
+        1. config/discord_bot.json
+        2. config/discord_bot.yaml
+        3. Environment variables (DISCORD_BOT_*)
+        
+        Returns:
+            Dict containing merged configuration
+        """
+        config = {
+            'log_dir': 'logs',
+            'channel_assignments': {},
+            'command_prefix': '!',
+            'webhook_urls': {},
+            'retry_attempts': 3,
+            'retry_delay': 1.0,
+            'metrics_enabled': True
+        }
+        
+        # Load from JSON
         config_path_json = Path("config/discord_bot.json")
-        config_path_yaml = Path("config/discord_bot.yaml")
-
-        try:
-            if config_path_json.exists():
+        if config_path_json.exists():
+            try:
                 with open(config_path_json, "r", encoding="utf-8") as f:
-                    return json.load(f)
-            if config_path_yaml.exists():
+                    json_config = json.load(f)
+                    config.update(json_config)
+            except Exception as e:
+                logger.error(f"Failed to load JSON config: {e}")
+        
+        # Load from YAML
+        config_path_yaml = Path("config/discord_bot.yaml")
+        if config_path_yaml.exists():
+            try:
                 with open(config_path_yaml, "r", encoding="utf-8") as f:
-                    return yaml.safe_load(f) or {}
-        except Exception as e:
-            logger.error(f"Failed to load config: {e}")
-
-        return {}
+                    yaml_config = yaml.safe_load(f) or {}
+                    config.update(yaml_config)
+            except Exception as e:
+                logger.error(f"Failed to load YAML config: {e}")
+        
+        # Load from environment variables
+        for key in os.environ:
+            if key.startswith('DISCORD_BOT_'):
+                config_key = key[12:].lower()
+                config[config_key] = os.environ[key]
+        
+        # Validate required fields
+        required_fields = ['log_dir', 'command_prefix']
+        missing_fields = [field for field in required_fields if field not in config]
+        if missing_fields:
+            logger.warning(f"Missing required config fields: {missing_fields}")
+        
+        return config
     
     async def send_command(self, mode: MessageMode, agent_id: str, content: str) -> bool:
-        """Send a command to an agent."""
-        try:
-            message = Message(
-                from_agent="Discord",
-                to_agent=agent_id,
-                content=content,
-                mode=mode.value if hasattr(mode, 'value') else mode,
-                priority=0,
-                timestamp=datetime.now(),
-                status="queued"
-            )
-            return await self.message_processor.process_message(message)
-        except Exception as e:
-            logger.error(f"Failed to send command: {e}")
-            return False
+        """Send a command to an agent.
+        
+        Args:
+            mode: Message mode (e.g. COMMAND, BROADCAST)
+            agent_id: Target agent ID
+            content: Command content
+            
+        Returns:
+            bool: True if command was sent successfully
+            
+        Raises:
+            ValueError: If agent_id is invalid
+            ConnectionError: If message system is unavailable
+        """
+        if not agent_id or not isinstance(agent_id, str):
+            raise ValueError("Invalid agent_id")
+        
+        if not content or not isinstance(content, str):
+            raise ValueError("Invalid command content")
+        
+        retry_attempts = self.config.get('retry_attempts', 3)
+        retry_delay = self.config.get('retry_delay', 1.0)
+        
+        for attempt in range(retry_attempts):
+            try:
+                message = Message(
+                    from_agent="Discord",
+                    to_agent=agent_id,
+                    content=content,
+                    mode=mode.value if hasattr(mode, 'value') else mode,
+                    priority=0,
+                    timestamp=datetime.now(),
+                    status="queued"
+                )
+                
+                success = await self.message_processor.process_message(message)
+                if success:
+                    logger.info(f"Command sent to agent {agent_id}: {content}")
+                    return True
+                
+                logger.warning(f"Failed to send command to agent {agent_id} (attempt {attempt + 1}/{retry_attempts})")
+                
+            except ConnectionError as e:
+                logger.error(f"Connection error sending command to agent {agent_id}: {e}")
+                if attempt == retry_attempts - 1:
+                    raise
+                
+            except Exception as e:
+                logger.error(f"Error sending command to agent {agent_id}: {e}")
+                if attempt == retry_attempts - 1:
+                    return False
+                
+            if attempt < retry_attempts - 1:
+                await asyncio.sleep(retry_delay)
+        
+        return False
     
     async def show_help(self, ctx):
         """Show the help menu."""

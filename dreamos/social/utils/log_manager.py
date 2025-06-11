@@ -8,7 +8,7 @@ import logging
 import json
 import os
 from pathlib import Path
-from typing import Optional, Dict, Any, List
+from typing import Optional, Dict, Any, List, Union
 from datetime import datetime, timedelta
 import threading
 from logging.handlers import RotatingFileHandler
@@ -63,203 +63,141 @@ class LogManager:
                     cls._instance._initialized = False
         return cls._instance
     
-    def __init__(self, config: Optional[BaseLogConfig] = None):
-        """Initialize log manager.
+    def __init__(self, log_dir: Union[str, Path, BaseLogConfig]):
+        """Initialize the log manager.
         
         Args:
-            config: Optional log configuration
+            log_dir: Either a LogConfig object or path to log directory
         """
         if self._initialized:
             return
             
-        self.config = config or BaseLogConfig()
-        self.logger = logging.getLogger("social")
-        self.logger.setLevel(self.config.level.value)
-        
-        # Add console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(logging.Formatter(self.config.format))
-        self.logger.addHandler(console_handler)
-        
-        # Add file handler if specified
-        if self.config.file_path:
-            file_handler = RotatingFileHandler(
-                self.config.file_path,
-                maxBytes=self.config.max_bytes,
-                backupCount=self.config.backup_count
-            )
-            file_handler.setFormatter(logging.Formatter(self.config.format))
-            self.logger.addHandler(file_handler)
-        
+        if isinstance(log_dir, (str, Path)):
+            self.config = BaseLogConfig(log_dir=str(log_dir))
+            self.log_dir = str(log_dir)  # Legacy compatibility
+        else:
+            self.config = log_dir
+            self.log_dir = log_dir.log_dir  # Legacy compatibility
+            
+        self._pipeline = LogPipeline(self.config)
+        self._logger = logging.getLogger(__name__)
         self._metrics = {
-            'total_entries': 0,
-            'entries_by_level': {},
-            'entries_by_platform': {},
-            'errors': 0
+            "total_entries": 0,
+            "entries_by_level": {},
+            "entries_by_platform": {},
+            "last_update": datetime.now()
         }
         
-        rotation_config = RotationConfig(
-            max_size_mb=self.config.max_size_mb,
-            max_files=self.config.max_files,
-            max_age_days=self.config.compress_after_days,
-            backup_dir=self.config.log_dir,
-            max_bytes=self.config.max_bytes
-        )
-        self._rotator = LogRotator(rotation_config)
-        self.pipeline = LogPipeline(self.config)
         self._setup_logging()
         self._initialized = True
 
-    def set_level(self, level: LogLevel) -> None:
-        """Dynamically update the log level for all handlers."""
-        self.config.level = level
-        self.logger.setLevel(level.value)
-        for handler in self.logger.handlers:
-            handler.setLevel(level.value)
-    
     def _setup_logging(self):
         """Set up logging configuration."""
-        self.logger.setLevel(self.config.level.value)
-
-        self._handlers: Dict[str, RotatingFileHandler] = {}
+        formatter = logging.Formatter(self.config.format)
         
-        # Remove existing handlers
-        for handler in self.logger.handlers[:]:
-            self.logger.removeHandler(handler)
-        
-        # Create formatter
-        formatter = logging.Formatter(
-            self.config.format,
-        )
-        
-        # Add console handler
+        # Console handler
         console_handler = logging.StreamHandler()
         console_handler.setFormatter(formatter)
-        self.logger.addHandler(console_handler)
+        self._logger.addHandler(console_handler)
         
-        # Add file handlers for each platform
-        log_dir = Path(self.config.log_dir)
-        log_dir.mkdir(exist_ok=True)
-        
-        for platform, log_file in self.config.platforms.items():
-            file_handler = RotatingFileHandler(
-                log_dir / log_file,
-                maxBytes=self.config.max_bytes,
-                backupCount=self.config.backup_count
-            )
-            file_handler.setFormatter(formatter)
-            self.logger.addHandler(file_handler)
-            self._handlers[platform] = file_handler
-    
-    def write_log(self, platform: str, message: str, level: LogLevel = LogLevel.INFO, **kwargs) -> None:
-        """Write a log entry."""
-        try:
-            # Update metrics
-            self._metrics['total_entries'] += 1
-            self._metrics['entries_by_level'][level] = self._metrics['entries_by_level'].get(level, 0) + 1
-            self._metrics['entries_by_platform'][platform] = self._metrics['entries_by_platform'].get(platform, 0) + 1
-            
-            # Log message
-            logger = logging.getLogger(f"dreamos.social.{platform}")
-            log_entry = {
-                "timestamp": datetime.now().isoformat(),
-                "level": level.value,
-                "message": message,
-                "platform": platform,
-                **kwargs
-            }
-            
-            # Add to pipeline
-            self.pipeline.add_entry(log_entry)
-            
-            # Log to file
-            log_method = getattr(logger, level.value.lower())
-            log_method(message)
-            
-        except Exception as e:
-            self._metrics['errors'] += 1
-            logging.error(f"Error writing log: {e}")
-    
-    def get_metrics(self) -> Dict[str, Any]:
-        """Get current metrics."""
-        metrics = {
-            "total_entries": self._metrics['total_entries'],
-            "platforms": {}
-        }
-        
-        for platform, log_file in self.config.platforms.items():
-            if log_file.exists():
-                size = log_file.stat().st_size
-                entries = len(self.read_logs(platform))
-                metrics["platforms"][platform] = {
-                    "size_bytes": size,
-                    "entries": entries
-                }
-        
-        return metrics
-    
-    def read_logs(self, platform: str, level: Optional[LogLevel] = None) -> List[Dict[str, Any]]:
-        """Read logs for a platform.
+        # File handler
+        file_handler = logging.FileHandler(os.path.join(self.config.log_dir, "app.log"))
+        file_handler.setFormatter(formatter)
+        self._logger.addHandler(file_handler)
+
+    @property
+    def logger(self) -> logging.Logger:
+        """Get the logger instance."""
+        return self._logger
+
+    def write_log(self, message: str, level: Union[str, LogLevel] = LogLevel.INFO, platform: str = "default", **kwargs) -> None:
+        """Write a log entry.
         
         Args:
+            message: Message to log
+            level: Log level (string or LogLevel)
             platform: Platform name
-            level: Optional log level filter
-            
-        Returns:
-            List of log entries
+            **kwargs: Additional log data
         """
-        log_file = self.config.get_platform_log(platform)
-        if not log_file or not log_file.exists():
-            return []
-            
-        entries = []
-        with open(log_file, 'r') as f:
-            for line in f:
-                try:
-                    entry = json.loads(line)
-                    if level is None or entry.get("level") == level.value:
-                        entries.append(entry)
-                except json.JSONDecodeError:
-                    continue
-        return entries
-    
-    def cleanup(self) -> None:
-        """Clean up old log files."""
         try:
-            log_dir = Path(self.config.log_dir)
-            max_age_days = self.config.max_age_days
-            cutoff = None
-            if max_age_days > 0:
-                cutoff = datetime.now() - timedelta(days=max_age_days)
-
-            for pattern in self.config.platforms.values():
-                stem = Path(pattern).stem
-                suffix = Path(pattern).suffix
-                backups = sorted(
-                    list(log_dir.glob(f"{stem}_*{suffix}")) +
-                    list(log_dir.glob(f"{stem}{suffix}.*")),
-                    key=lambda p: p.stat().st_mtime,
-                    reverse=True,
-                )
-
-                # Determine which files to keep
-                keep = set(backups[: max(0, self.config.backup_count - 1)])
-
-                for file_path in backups[max(0, self.config.backup_count - 1):]:
-                    try:
-                        file_path.unlink()
-                    except Exception:
-                        pass
-
-                if cutoff:
-                    for file_path in keep:
-                        try:
-                            if file_path.stat().st_mtime < cutoff.timestamp():
-                                file_path.unlink()
-                        except Exception:
-                            pass
+            # Convert string level to LogLevel if needed
+            if isinstance(level, str):
+                level = LogLevel.from_str(level)
+                
+            entry = LogEntry(
+                message=message,
+                level=level,
+                platform=platform,
+                metadata=kwargs
+            )
+            self._pipeline.add_entry(entry)
+            self._update_metrics(entry)
         except Exception as e:
-            logging.error(f"Error during cleanup: {e}")
+            self._logger.error(f"Error writing log: {e}")
+
+    def _update_metrics(self, entry: LogEntry) -> None:
+        """Update metrics with a new entry."""
+        try:
+            self._metrics["total_entries"] += 1
+            
+            # Update entries by level
+            level_name = entry.level.name
+            if level_name not in self._metrics["entries_by_level"]:
+                self._metrics["entries_by_level"][level_name] = 0
+            self._metrics["entries_by_level"][level_name] += 1
+            
+            # Update entries by platform
+            if entry.platform not in self._metrics["entries_by_platform"]:
+                self._metrics["entries_by_platform"][entry.platform] = 0
+            self._metrics["entries_by_platform"][entry.platform] += 1
+            
+            self._metrics["last_update"] = datetime.now()
+        except Exception as e:
+            self._logger.error(f"Error updating metrics: {e}")
+
+    def get_metrics(self) -> Dict[str, Any]:
+        """Get current metrics.
+        
+        Returns:
+            Dictionary with metrics
+        """
+        return self._metrics.copy()
+
+    def read_logs(self, platform: Optional[str] = None, level: Optional[LogLevel] = None, limit: Optional[int] = None) -> List[LogEntry]:
+        """Read logs from the specified platform."""
+        return self._pipeline.read_logs(platform, level, limit)
+
+    def cleanup(self) -> None:
+        """Clean up resources."""
+        self._pipeline.stop()
+
+    def __del__(self):
+        """Cleanup on deletion."""
+        self.cleanup()
+
+    def set_level(self, level: LogLevel) -> None:
+        """Set the logging level."""
+        self._logger.setLevel(level.value)
+
+    def debug(self, platform: str, message: str, **kwargs) -> None:
+        """Log a debug message."""
+        self.write_log(message, LogLevel.DEBUG, platform, **kwargs)
+
+    def info(self, platform: str, message: str, **kwargs) -> None:
+        """Log an info message."""
+        self.write_log(message, LogLevel.INFO, platform, **kwargs)
+
+    def warning(self, platform: str, message: str, **kwargs) -> None:
+        """Log a warning message."""
+        self.write_log(message, LogLevel.WARNING, platform, **kwargs)
+
+    def error(self, platform: str, message: str, **kwargs) -> None:
+        """Log an error message."""
+        self.write_log(message, LogLevel.ERROR, platform, **kwargs)
+
+    def critical(self, platform: str, message: str, **kwargs) -> None:
+        """Log a critical message."""
+        self.write_log(message, LogLevel.CRITICAL, platform, **kwargs)
 
     def rotate(self, platform: str) -> Optional[str]:
         """Rotate the log file for a given platform."""
@@ -273,7 +211,7 @@ class LogManager:
         # Ensure handler is flushed and closed before rotation
         handler.flush()
         handler.close()
-        self.logger.removeHandler(handler)
+        self._logger.removeHandler(handler)
 
         log_file = Path(handler.baseFilename)
 
@@ -283,33 +221,13 @@ class LogManager:
         new_handler = RotatingFileHandler(
             log_file,
             maxBytes=self.config.max_bytes,
-            backupCount=self.config.backup_count,
+            backupCount=self.config.max_files,
         )
         formatter = logging.Formatter(
             self.config.format,
         )
         new_handler.setFormatter(formatter)
-        self.logger.addHandler(new_handler)
+        self._logger.addHandler(new_handler)
         self._handlers[platform] = new_handler
 
         return rotated_path
-    
-    def debug(self, platform: str, message: str, **kwargs) -> None:
-        """Write debug log entry."""
-        self.write_log(platform=platform, message=message, level="DEBUG", **kwargs)
-    
-    def info(self, platform: str, message: str, **kwargs) -> None:
-        """Write info log entry."""
-        self.write_log(platform=platform, message=message, level="INFO", **kwargs)
-    
-    def warning(self, platform: str, message: str, **kwargs) -> None:
-        """Write warning log entry."""
-        self.write_log(platform=platform, message=message, level="WARNING", **kwargs)
-    
-    def error(self, platform: str, message: str, **kwargs) -> None:
-        """Write error log entry."""
-        self.write_log(platform=platform, message=message, level="ERROR", **kwargs)
-    
-    def critical(self, platform: str, message: str, **kwargs) -> None:
-        """Write critical log entry."""
-        self.write_log(platform=platform, message=message, level="CRITICAL", **kwargs)
