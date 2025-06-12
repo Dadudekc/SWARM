@@ -375,47 +375,6 @@ def safe_move(src_path: str, dst_path: str, backup: bool = True, atomic: bool = 
         logger.error(f"Error moving {src_path} to {dst_path}: {e}")
         raise FileOpsError(f"Move operation failed: {str(e)}") from e
 
-def load_json(file_path: Union[str, Path], default: Any = None) -> Any:
-    """Load JSON data from a file.
-    
-    Args:
-        file_path: Path to JSON file
-        default: Default value to return if file doesn't exist
-        
-    Returns:
-        Loaded JSON data or default value
-    """
-    try:
-        with open(file_path, 'r') as f:
-            return json.load(f)
-    except FileNotFoundError:
-        if default is not None:
-            return default
-        raise
-    except json.JSONDecodeError as e:
-        logger.error(f"Error decoding JSON from {file_path}: {e}")
-        raise
-
-def save_json(data: Any, file_path: Union[str, Path], pretty: bool = True) -> None:
-    """Save data to a JSON file.
-    
-    Args:
-        data: Data to save
-        file_path: Path to save file
-        pretty: Whether to format JSON with indentation
-    """
-    try:
-        with open(file_path, 'w') as f:
-            if pretty:
-                json.dump(data, f, indent=2)
-            else:
-                json.dump(data, f)
-    except Exception as e:
-        logger.error(f"Error saving JSON to {file_path}: {e}")
-        raise
-
-read_json = load_json
-write_json = save_json
 
 def format_timestamp(timestamp: Optional[Union[str, float, datetime]] = None) -> str:
     """Format a timestamp consistently.
@@ -515,39 +474,6 @@ def atomic_write(data: Any, path: Union[str, Path]) -> None:
             temp_path.unlink()
         raise
 
-def safe_read(path: Union[str, Path]) -> str:
-    """Read file contents safely.
-    
-    Args:
-        path: Path to read from
-        
-    Returns:
-        File contents as string
-    """
-    path = Path(path)
-    try:
-        with path.open('r', encoding='utf-8') as f:
-            return f.read()
-    except Exception as e:
-        logger.error(f"Error reading from {path}: {e}")
-        raise
-
-def safe_write(data: str, path: Union[str, Path]) -> None:
-    """Write string data safely.
-    
-    Args:
-        data: String to write
-        path: Path to write to
-    """
-    path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    
-    try:
-        with path.open('w', encoding='utf-8') as f:
-            f.write(data)
-    except Exception as e:
-        logger.error(f"Error writing to {path}: {e}")
-        raise
 
 def load_json(path: Union[str, Path], default: Any = None) -> Any:
     """Load JSON data from file.
@@ -647,17 +573,11 @@ __all__ = [
     "generate_id",
     "backup_file",
     "transform_coordinates",
-    "write_json",
     "read_yaml",
     "write_yaml",
     "load_yaml",
-    "with_retry",
-    "format_message",
-    "parse_message",
-    "restore_backup",
-    "safe_move",
     "atomic_write",
     "safe_read",
     "safe_write",
-    "ensure_directory_exists"
-] 
+    "ensure_directory_exists",
+]
