@@ -27,7 +27,7 @@ from dreamos.core.utils.logging_utils import get_logger
 from dreamos.core.utils.file_ops import ensure_dir
 from dreamos.social.utils.log_manager import LogManager
 from dreamos.social.utils.social_common import SocialConfig
-from dreamos.core.session.session_manager import SessionManager
+from dreamos.core.security.session_manager import SessionManager
 
 logger = get_logger(__name__)
 
