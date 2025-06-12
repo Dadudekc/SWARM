@@ -9,8 +9,14 @@ from . import fix_test_imports
 from . import move_tests
 from . import pyautogui
 from . import pygetwindow
-from . import run_overnight
-from . import run_scanner
+try:
+    from . import run_overnight  # type: ignore
+except ImportError:  # pragma: no cover - optional fallback
+    run_overnight = None  # type: ignore
+try:
+    from . import run_scanner  # type: ignore
+except ImportError:  # pragma: no cover - optional fallback
+    run_scanner = None  # type: ignore
 from . import scan_missing_imports
 from . import setup
 
