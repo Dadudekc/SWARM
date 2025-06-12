@@ -24,6 +24,7 @@ from . import region_finder
 from . import retry
 from . import safe_io
 from . import serialization
+from . import testing_utils
 from . import system_ops
 from . import yaml_utils
 
@@ -49,6 +50,7 @@ __all__ = [
     'retry',
     'safe_io',
     'serialization',
+    'testing_utils',
     'system_ops',
     'yaml_utils',
 ]

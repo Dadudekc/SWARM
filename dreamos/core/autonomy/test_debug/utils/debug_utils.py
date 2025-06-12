@@ -28,35 +28,9 @@ logger = logging.getLogger(__name__)
 
 class TestDebugUtils:
     """Shared utilities for test debugging."""
-    
-    @staticmethod
-    def parse_test_failures(test_output: str) -> Dict[str, str]:
-        """Parse test failures from test output.
-        
-        Args:
-            test_output: Raw test output string
-            
-        Returns:
-            Dictionary mapping test names to error messages
-        """
-        failures = {}
-        current_test = None
-        error_lines = []
-        
-        for line in test_output.splitlines():
-            if line.startswith("FAILED "):
-                # Extract test name
-                test_name = line.split("FAILED ")[1].strip()
-                current_test = test_name
-                error_lines = []
-            elif current_test and line.strip():
-                error_lines.append(line)
-                if line.startswith("AssertionError") or line.startswith("Error"):
-                    failures[current_test] = "\n".join(error_lines)
-                    current_test = None
-                    error_lines = []
-        
-        return failures
+
+    from dreamos.core.utils.testing_utils import parse_test_failures as _parse_failures
+    parse_test_failures = staticmethod(_parse_failures)
     
     @staticmethod
     def create_fix_request(
