@@ -1,21 +1,24 @@
 """Configuration manager for tests."""
 
 from typing import Dict, Any, Optional
+from dreamos.core.config.unified_config import UnifiedConfigManager, ConfigSection
 
-class ConfigManager:
+class TestConfigManager:
     """Manages test configuration."""
     
     def __init__(self):
-        self.config: Dict[str, Any] = {}
+        self._config_manager = UnifiedConfigManager("tests/config")
+        self._section = self._config_manager.get_section("test")
     
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value."""
-        return self.config.get(key, default)
+        return self._section.get(key, default)
     
     def set(self, key: str, value: Any) -> None:
         """Set configuration value."""
-        self.config[key] = value
+        self._section.set(key, value)
     
     def load(self, config: Dict[str, Any]) -> None:
         """Load configuration from dict."""
-        self.config.update(config) 
+        for key, value in config.items():
+            self._section.set(key, value) 

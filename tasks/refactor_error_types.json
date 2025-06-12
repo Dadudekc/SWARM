@@ -1,0 +1,139 @@
+{
+    "file": "dreamos/core/autonomy/error/types.py",
+    "duplicates": 56,
+    "complexity": 32,
+    "analysis": {
+        "duplicate_patterns": [
+            {
+                "pattern": "Error code definitions",
+                "count": 24,
+                "files": [
+                    "dreamos/core/autonomy/error/codes.py",
+                    "dreamos/core/messaging/error/codes.py"
+                ]
+            },
+            {
+                "pattern": "Error type classes",
+                "count": 18,
+                "files": [
+                    "dreamos/core/autonomy/error/base.py",
+                    "dreamos/core/messaging/error/base.py"
+                ]
+            },
+            {
+                "pattern": "Error handlers",
+                "count": 14,
+                "files": [
+                    "dreamos/core/autonomy/error/handlers.py",
+                    "dreamos/core/messaging/error/handlers.py"
+                ]
+            }
+        ],
+        "complexity_hotspots": [
+            {
+                "name": "ErrorType",
+                "complexity": 12,
+                "lines": 85,
+                "calls": 62
+            },
+            {
+                "name": "ErrorHandler",
+                "complexity": 10,
+                "lines": 72,
+                "calls": 48
+            },
+            {
+                "name": "ErrorCode",
+                "complexity": 8,
+                "lines": 65,
+                "calls": 45
+            }
+        ]
+    },
+    "refactor_plan": {
+        "new_classes": [
+            {
+                "name": "ErrorCodeRegistry",
+                "responsibility": "Central error code management",
+                "methods": [
+                    "register_code",
+                    "get_code",
+                    "validate_code",
+                    "list_codes"
+                ]
+            },
+            {
+                "name": "ErrorTypeFactory",
+                "responsibility": "Create error type instances",
+                "methods": [
+                    "create_system_error",
+                    "create_agent_error",
+                    "create_network_error",
+                    "create_validation_error"
+                ]
+            },
+            {
+                "name": "ErrorHandlerManager",
+                "responsibility": "Manage error handlers",
+                "methods": [
+                    "register_handler",
+                    "get_handler",
+                    "handle_error",
+                    "log_error"
+                ]
+            }
+        ],
+        "migration_steps": [
+            {
+                "step": 1,
+                "description": "Create centralized error system",
+                "files": [
+                    "dreamos/core/error/registry.py",
+                    "dreamos/core/error/factory.py",
+                    "dreamos/core/error/handler.py"
+                ]
+            },
+            {
+                "step": 2,
+                "description": "Migrate error codes",
+                "files": [
+                    "dreamos/core/error/codes/system.py",
+                    "dreamos/core/error/codes/agent.py",
+                    "dreamos/core/error/codes/network.py"
+                ],
+                "changes": [
+                    "Move error codes to registry",
+                    "Update code references"
+                ]
+            },
+            {
+                "step": 3,
+                "description": "Update error handling",
+                "files": [
+                    "dreamos/core/autonomy/error/handlers.py",
+                    "dreamos/core/messaging/error/handlers.py"
+                ],
+                "changes": [
+                    "Use new error handler manager",
+                    "Update error handling logic"
+                ]
+            },
+            {
+                "step": 4,
+                "description": "Update documentation",
+                "files": [
+                    "docs/errors/codes.md",
+                    "docs/errors/handling.md",
+                    "docs/errors/types.md"
+                ]
+            }
+        ],
+        "expected_benefits": [
+            "Centralized error management",
+            "Consistent error handling",
+            "Better error tracking",
+            "Easier error debugging",
+            "Type-safe error creation"
+        ]
+    }
+} 

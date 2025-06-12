@@ -12,63 +12,22 @@ from datetime import datetime
 from dataclasses import dataclass, asdict
 from abc import ABC, abstractmethod
 
-from .common import MessageMode
+from .common import Message, MessageMode
 from ..shared.persistent_queue import PersistentQueue as SharedPersistentQueue
 
 logger = logging.getLogger('dreamos.messaging')
-
-@dataclass
-class MessageRecord:
-    """Standardized message record format."""
-    sender_id: str
-    recipient_id: str
-    content: str
-    timestamp: datetime
-    message_id: Optional[str] = None
-    mode: MessageMode = MessageMode.NORMAL
-    priority: int = 0
-    status: str = "queued"
-    tags: List[str] = None
-    metadata: Dict[str, Any] = None
-    
-    def __post_init__(self):
-        """Initialize default values."""
-        if self.tags is None:
-            self.tags = []
-        if self.metadata is None:
-            self.metadata = {}
-        if self.message_id is None:
-            self.message_id = f"{self.timestamp.isoformat()}-{self.sender_id}-{self.recipient_id}"
-    
-    def format_content(self) -> str:
-        """Format message content with mode prefix."""
-        return f"{self.mode.value} {self.content}"
-    
-    def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary for storage."""
-        data = asdict(self)
-        data['timestamp'] = self.timestamp.isoformat()
-        data['mode'] = self.mode.name
-        return data
-    
-    @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'MessageRecord':
-        """Create from dictionary."""
-        data['timestamp'] = datetime.fromisoformat(data['timestamp'])
-        data['mode'] = MessageMode[data['mode']]
-        return cls(**data)
 
 class MessageQueue(ABC):
     """Abstract base class for message queue implementations."""
     
     @abstractmethod
-    def enqueue(self, message: MessageRecord) -> bool:
+    def enqueue(self, message: Message) -> bool:
         """Add message to queue."""
         pass
     
     @abstractmethod
-    def get_messages(self, agent_id: str) -> List[MessageRecord]:
-        """Get all pending messages for an agent."""
+    def get_messages(self) -> List[Message]:
+        """Get all pending messages."""
         pass
     
     @abstractmethod
@@ -96,44 +55,38 @@ class PersistentQueue(MessageQueue):
             with open(self.pending_file, 'r') as f:
                 self.queue = json.load(f)
         else:
-            self.queue = {}
+            self.queue = []
     
     def _save_queue(self):
         """Save queue to disk."""
         with open(self.pending_file, 'w') as f:
             json.dump(self.queue, f, indent=2)
     
-    def enqueue(self, message: MessageRecord) -> bool:
+    def enqueue(self, message: Message) -> bool:
         """Add message to queue."""
         try:
-            agent_id = message.recipient_id
-            if agent_id not in self.queue:
-                self.queue[agent_id] = []
-            
-            self.queue[agent_id].append(message.to_dict())
+            self.queue.append(message.to_dict())
             self._save_queue()
             return True
         except Exception as e:
             logger.error(f"Failed to enqueue message: {e}")
             return False
     
-    def get_messages(self, agent_id: str) -> List[MessageRecord]:
-        """Get all pending messages for an agent."""
+    def get_messages(self) -> List[Message]:
+        """Get all pending messages."""
         try:
-            messages = self.queue.get(agent_id, [])
-            return [MessageRecord.from_dict(msg) for msg in messages]
+            return [Message.from_dict(msg) for msg in self.queue]
         except Exception as e:
-            logger.error(f"Failed to get messages for {agent_id}: {e}")
+            logger.error(f"Failed to get messages: {e}")
             return []
     
     def acknowledge(self, message_id: str) -> bool:
         """Mark message as processed."""
         try:
-            for agent_id in self.queue:
-                self.queue[agent_id] = [
-                    msg for msg in self.queue[agent_id]
-                    if msg['message_id'] != message_id
-                ]
+            self.queue = [
+                msg for msg in self.queue
+                if msg['message_id'] != message_id
+            ]
             self._save_queue()
             return True
         except Exception as e:
@@ -144,13 +97,13 @@ class MessageHistory(ABC):
     """Abstract base class for message history implementations."""
     
     @abstractmethod
-    def record(self, message: MessageRecord) -> bool:
+    def record(self, message: Message) -> bool:
         """Record a message in history."""
         pass
     
     @abstractmethod
-    def get_history(self, agent_id: Optional[str] = None) -> List[MessageRecord]:
-        """Get message history, optionally filtered by agent."""
+    def get_history(self, type: Optional[MessageMode] = None) -> List[Message]:
+        """Get message history, optionally filtered by type."""
         pass
 
 class JsonMessageHistory(MessageHistory):
@@ -179,7 +132,7 @@ class JsonMessageHistory(MessageHistory):
         with open(self.history_file, 'w') as f:
             json.dump(self.history, f, indent=2)
     
-    def record(self, message: MessageRecord) -> bool:
+    def record(self, message: Message) -> bool:
         """Record a message in history."""
         try:
             self.history.append(message.to_dict())
@@ -189,56 +142,31 @@ class JsonMessageHistory(MessageHistory):
             logger.error(f"Failed to record message: {e}")
             return False
     
-    def get_history(self, agent_id: Optional[str] = None) -> List[MessageRecord]:
-        """Get message history, optionally filtered by agent."""
+    def get_history(self, type: Optional[MessageMode] = None) -> List[Message]:
+        """Get message history, optionally filtered by type."""
         try:
-            if agent_id:
+            if type:
                 messages = [
                     msg for msg in self.history
-                    if msg['recipient_id'] == agent_id or msg['sender_id'] == agent_id
+                    if msg['type'] == type.name
                 ]
             else:
                 messages = self.history
-            return [MessageRecord.from_dict(msg) for msg in messages]
+            return [Message.from_dict(msg) for msg in messages]
         except Exception as e:
-            logger.error(f"Failed to get history for {agent_id}: {e}")
+            logger.error(f"Failed to get history: {e}")
             return []
-
 
 class MessageRouter(ABC):
     """Abstract base class for message routing implementations."""
     
     @abstractmethod
-    def route(self, message: MessageRecord) -> bool:
+    def route(self, message: Message) -> bool:
         """Route a message to its destination."""
         pass
 
-class AgentMessageRouter(MessageRouter):
-    """Message router implementation for agent communication."""
-    
-    def __init__(self, message_system: 'MessageSystem'):
-        """Initialize router.
-        
-        Args:
-            message_system: Reference to parent MessageSystem for callbacks.
-        """
-        self.message_system = message_system
-    
-    def route(self, message: MessageRecord) -> bool:
-        """Route a message to its destination."""
-        try:
-            # For now, just log the routing
-            logger.info(
-                f"Routing message {message.message_id} from {message.sender_id} "
-                f"to {message.recipient_id}"
-            )
-            return True
-        except Exception as e:
-            logger.error(f"Failed to route message: {e}")
-            return False
-
 class MessageSystem:
-    """Unified message handling system."""
+    """Unified message system for Dream.OS."""
     
     def __init__(
         self,
@@ -249,86 +177,84 @@ class MessageSystem:
         """Initialize message system.
         
         Args:
-            queue: Message queue implementation. Defaults to SharedPersistentQueue.
-            history: Message history implementation. Defaults to JsonMessageHistory.
-            router: Message router implementation. Defaults to AgentMessageRouter.
+            queue: Message queue implementation
+            history: Message history implementation
+            router: Message router implementation
         """
-        self.queue = queue or SharedPersistentQueue()
+        self.queue = queue or PersistentQueue()
         self.history = history or JsonMessageHistory()
-        self.router = router or AgentMessageRouter(self)
+        self.router = router
     
-    def send(self, message: MessageRecord) -> bool:
-        """Send a message through the system.
+    def send(self, message: Message) -> bool:
+        """Send a message.
         
         Args:
-            message: Message to send.
+            message: Message to send
             
         Returns:
-            bool: True if message was successfully processed.
+            bool: True if message was sent successfully
         """
         try:
-            # Route the message
-            if not self.router.route(message):
-                return False
+            # Record in history
+            self.history.record(message)
             
             # Add to queue
-            if not self.queue.enqueue(message):
+            success = self.queue.enqueue(message)
+            if not success:
+                logger.error("Failed to enqueue message")
                 return False
             
-            # Record in history
-            if not self.history.record(message):
-                return False
+            # Route if router available
+            if self.router:
+                success = self.router.route(message)
+                if not success:
+                    logger.error("Failed to route message")
+                    return False
             
-            logger.info(f"Message {message.message_id} sent successfully")
             return True
             
         except Exception as e:
             logger.error(f"Failed to send message: {e}")
             return False
     
-    def receive(self, agent_id: str) -> List[MessageRecord]:
-        """Get pending messages for an agent.
+    def receive(self) -> List[Message]:
+        """Receive pending messages.
         
-        Args:
-            agent_id: ID of agent to get messages for.
-            
         Returns:
-            List[MessageRecord]: List of pending messages.
+            List of pending messages
         """
         try:
-            messages = self.queue.get_messages(agent_id)
-            logger.info(f"Retrieved {len(messages)} messages for {agent_id}")
-            return messages
+            return self.queue.get_messages()
         except Exception as e:
-            logger.error(f"Failed to receive messages for {agent_id}: {e}")
+            logger.error(f"Failed to receive messages: {e}")
             return []
     
     def acknowledge(self, message_id: str) -> bool:
-        """Mark a message as processed.
+        """Acknowledge a message as processed.
         
         Args:
-            message_id: ID of message to acknowledge.
+            message_id: ID of message to acknowledge
             
         Returns:
-            bool: True if message was successfully acknowledged.
+            bool: True if message was acknowledged successfully
         """
         try:
             return self.queue.acknowledge(message_id)
         except Exception as e:
-            logger.error(f"Failed to acknowledge message {message_id}: {e}")
+            logger.error(f"Failed to acknowledge message: {e}")
             return False
     
-    def get_history(self, agent_id: Optional[str] = None) -> List[MessageRecord]:
+    def get_history(self, type: Optional[MessageMode] = None) -> List[Message]:
         """Get message history.
         
         Args:
-            agent_id: Optional agent ID to filter history.
+            type: Optional message type to filter by
             
         Returns:
-            List[MessageRecord]: List of historical messages.
+            List of historical messages
         """
         try:
-            return self.history.get_history(agent_id)
+            return self.history.get_history(type)
         except Exception as e:
-            logger.error(f"Failed to get history for {agent_id}: {e}")
+            logger.error(f"Failed to get history: {e}")
             return [] 

@@ -1,5 +1,5 @@
 """
-Message processing pipeline for handling message flow through the system.
+Message processing pipeline for Dream.OS.
 
 This module provides a unified pipeline for processing messages, including:
 - Message validation
@@ -8,208 +8,189 @@ This module provides a unified pipeline for processing messages, including:
 - Response handling
 """
 
+from __future__ import annotations
+
 import asyncio
-import logging
 from datetime import datetime
-from typing import List, Dict, Any, Optional, Union
+from typing import List, Dict, Any, Optional, TypeVar, Generic
 from pathlib import Path
 
-from .message import Message
-from .enums import MessageMode, MessageStatus
-from ..agent_control.ui_automation import UIAutomation
-from ..shared.persistent_queue import PersistentQueue
+from .unified_message_system import Message, MessageQueue, MessageProcessor
+from ..utils.metrics import metrics, logger, log_operation
+from ..utils.exceptions import handle_error
 
-logger = logging.getLogger(__name__)
+T = TypeVar('T')
 
-class MessagePipeline:
+class MessagePipeline(Generic[T]):
     """Handles the processing of messages through the system."""
     
     def __init__(
         self,
-        ui_automation: UIAutomation,
-        queue: Optional[PersistentQueue] = None,
+        queue: MessageQueue[T],
         batch_size: int = 10,
         batch_timeout: float = 1.0
     ):
         """Initialize the message pipeline.
         
         Args:
-            ui_automation: The UI automation instance for agent interaction
-            queue: Optional persistent queue for message storage
+            queue: Message queue to process
             batch_size: Maximum number of messages to process in a batch
             batch_timeout: Maximum time to wait for batch completion
         """
-        self.ui_automation = ui_automation
-        self.queue = queue or PersistentQueue()
+        self.queue = queue
         self.batch_size = batch_size
         self.batch_timeout = batch_timeout
         self._processing = False
         self._batch_lock = asyncio.Lock()
-        self._current_batch: List[Message] = []
-        
-    async def process_message(self, message: Message) -> bool:
+        self._current_batch: List[Message[T]] = []
+        self._metrics = {
+            'batch': metrics.counter(
+                'message_pipeline_batch_total',
+                'Total message batches processed',
+                ['result']
+            ),
+            'error': metrics.counter(
+                'message_pipeline_error_total',
+                'Total pipeline errors',
+                ['operation']
+            ),
+            'duration': metrics.histogram(
+                'message_pipeline_duration_seconds',
+                'Pipeline operation duration',
+                ['operation']
+            )
+        }
+    
+    @log_operation('pipeline_process', metrics='batch', duration='duration')
+    async def process_message(self, message: Message[T]) -> bool:
         """Process a single message.
         
         Args:
-            message: The message to process
+            message: Message to process
             
         Returns:
-            bool: True if processing was successful
+            True if processing was successful
         """
         try:
-            # Validate message
-            if not self._validate_message(message):
-                logger.error(f"Invalid message: {message}")
-                return False
+            # Add to current batch
+            async with self._batch_lock:
+                self._current_batch.append(message)
                 
-            # Add to queue
-            self.queue.enqueue(message)
-            
-            # Process message
-            success = await self._process_single(message)
-            if not success:
-                logger.error(f"Failed to process message: {message}")
-                return False
+                # Process batch if full
+                if len(self._current_batch) >= self.batch_size:
+                    return await self._process_batch()
                 
-            return True
-            
-        except Exception as e:
-            logger.exception(f"Error processing message: {e}")
-            return False
-            
-    async def process_batch(self, messages: List[Message]) -> bool:
-        """Process a batch of messages.
-        
-        Args:
-            messages: List of messages to process
-            
-        Returns:
-            bool: True if all messages were processed successfully
-        """
-        async with self._batch_lock:
-            try:
-                # Validate messages
-                if not all(self._validate_message(msg) for msg in messages):
-                    logger.error("Invalid messages in batch")
-                    return False
-                    
-                # Add to queue
-                for message in messages:
-                    self.queue.enqueue(message)
-                    
-                # Process batch
-                success = await self._process_batch(messages)
-                if not success:
-                    logger.error("Failed to process message batch")
-                    return False
-                    
                 return True
                 
-            except Exception as e:
-                logger.exception(f"Error processing message batch: {e}")
-                return False
-                
-    def _validate_message(self, message: Message) -> bool:
-        """Validate a message.
+        except Exception as e:
+            error = handle_error(e, {
+                "message": message.message_id,
+                "operation": "process_message"
+            })
+            logger.error(f"Error processing message: {str(error)}")
+            self._metrics['error'].labels(
+                operation="process_message"
+            ).inc()
+            return False
+    
+    async def _process_batch(self) -> bool:
+        """Process current batch of messages.
         
-        Args:
-            message: The message to validate
-            
         Returns:
-            bool: True if message is valid
+            True if batch processing was successful
         """
-        if not message.content:
-            logger.error("Message has no content")
-            return False
+        try:
+            # Get current batch
+            async with self._batch_lock:
+                batch = self._current_batch
+                self._current_batch = []
             
-        if not message.sender:
-            logger.error("Message has no sender")
-            return False
+            if not batch:
+                return True
             
-        if not message.timestamp:
-            logger.error("Message has no timestamp")
-            return False
+            # Process messages in parallel
+            tasks = []
+            for message in batch:
+                task = asyncio.create_task(self._process_single(message))
+                tasks.append(task)
             
-        return True
-        
-    async def _process_single(self, message: Message) -> bool:
+            # Wait for completion with timeout
+            try:
+                await asyncio.wait_for(
+                    asyncio.gather(*tasks),
+                    timeout=self.batch_timeout
+                )
+                success = True
+            except asyncio.TimeoutError:
+                logger.warning("Batch processing timed out")
+                success = False
+            
+            # Record metrics
+            self._metrics['batch'].labels(
+                result="success" if success else "timeout"
+            ).inc()
+            
+            return success
+            
+        except Exception as e:
+            error = handle_error(e, {
+                "operation": "process_batch",
+                "batch_size": len(batch)
+            })
+            logger.error(f"Error processing batch: {str(error)}")
+            self._metrics['error'].labels(
+                operation="process_batch"
+            ).inc()
+            return False
+    
+    async def _process_single(self, message: Message[T]) -> bool:
         """Process a single message.
         
         Args:
-            message: The message to process
+            message: Message to process
             
         Returns:
-            bool: True if processing was successful
+            True if processing was successful
         """
         try:
-            # Move to agent
-            if not self.ui_automation.move_to_agent(message.to_agent):
-                logger.error(f"Failed to move to agent: {message.to_agent}")
+            # Enqueue message
+            success = await self.queue.enqueue(message)
+            if not success:
+                logger.error(f"Failed to enqueue message: {message.message_id}")
                 return False
-                
-            # Click input box
-            if not self.ui_automation.click_input_box(message.to_agent):
-                logger.error(f"Failed to click input box for agent: {message.to_agent}")
-                return False
-                
-            # Send message
-            if not self.ui_automation.send_message(message.to_agent, message.content):
-                logger.error(f"Failed to send message to agent: {message.to_agent}")
-                return False
-                
-            # Click copy button
-            if not self.ui_automation.click_copy_button(message.to_agent):
-                logger.error(f"Failed to click copy button for agent: {message.to_agent}")
-                return False
-                
+            
             return True
             
         except Exception as e:
-            logger.exception(f"Error in message processing: {e}")
+            error = handle_error(e, {
+                "message": message.message_id,
+                "operation": "process_single"
+            })
+            logger.error(f"Error processing message: {str(error)}")
+            self._metrics['error'].labels(
+                operation="process_single"
+            ).inc()
             return False
-            
-    async def _process_batch(self, messages: List[Message]) -> bool:
-        """Process a batch of messages.
+    
+    async def start(self):
+        """Start the message pipeline."""
+        if self._processing:
+            logger.warning("Pipeline already running")
+            return
         
-        Args:
-            messages: List of messages to process
-            
-        Returns:
-            bool: True if all messages were processed successfully
-        """
-        try:
-            # Group messages by agent
-            agent_messages: Dict[str, List[Message]] = {}
-            for message in messages:
-                if message.to_agent not in agent_messages:
-                    agent_messages[message.to_agent] = []
-                agent_messages[message.to_agent].append(message)
-                
-            # Process each agent's messages
-            for agent_id, agent_msgs in agent_messages.items():
-                # Move to agent
-                if not self.ui_automation.move_to_agent(agent_id):
-                    logger.error(f"Failed to move to agent: {agent_id}")
-                    return False
-                    
-                # Click input box
-                if not self.ui_automation.click_input_box(agent_id):
-                    logger.error(f"Failed to click input box for agent: {agent_id}")
-                    return False
-                    
-                # Send messages
-                for message in agent_msgs:
-                    if not self.ui_automation.send_message(agent_id, message.content):
-                        logger.error(f"Failed to send message to agent: {agent_id}")
-                        return False
-                        
-                # Click copy button
-                if not self.ui_automation.click_copy_button(agent_id):
-                    logger.error(f"Failed to click copy button for agent: {agent_id}")
-                    return False
-                    
-            return True
-            
-        except Exception as e:
-            logger.exception(f"Error in batch processing: {e}")
-            return False 
+        self._processing = True
+        logger.info("Message pipeline started")
+    
+    async def stop(self):
+        """Stop the message pipeline."""
+        if not self._processing:
+            logger.warning("Pipeline not running")
+            return
+        
+        self._processing = False
+        
+        # Process any remaining messages
+        if self._current_batch:
+            await self._process_batch()
+        
+        logger.info("Message pipeline stopped") 

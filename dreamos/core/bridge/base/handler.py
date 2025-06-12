@@ -1,96 +1,94 @@
 """
-Base Handler Interface
--------------------
-Defines the interface that all bridge handlers must follow.
+Base Bridge Handler
+----------------
+Base class for bridge handlers with unified file system event handling.
 """
 
-from abc import ABC, abstractmethod
-from typing import Dict, Any, Optional, List
-from pathlib import Path
-from watchdog.events import FileSystemEventHandler
-import json
 import logging
-from datetime import datetime
+from pathlib import Path
+from typing import Optional, Set
+from dreamos.core.autonomy.base.file_handler import BaseFileHandler
 
-class BaseHandler(FileSystemEventHandler, ABC):
-    """Base class for all bridge handlers."""
+logger = logging.getLogger(__name__)
+
+class BaseHandler(BaseFileHandler):
+    """Base class for bridge handlers with unified file system event handling."""
     
     def __init__(
         self,
         watch_dir: Path,
-        file_pattern: str = "*.json",
-        config: Optional[Dict[str, Any]] = None
+        file_pattern: str,
+        process_callback: Callable[[Path], Awaitable[None]],
+        error_callback: Optional[Callable[[Exception, Path], Awaitable[None]]] = None,
+        max_retries: int = 3,
+        retry_delay: float = 1.0,
+        logger: Optional[logging.Logger] = None
     ):
         """Initialize the handler.
         
         Args:
             watch_dir: Directory to watch
-            file_pattern: File pattern to match
-            config: Optional configuration dictionary
+            file_pattern: File pattern to match (e.g. "*.json")
+            process_callback: Async callback to process matched files
+            error_callback: Optional callback for error handling
+            max_retries: Maximum number of retry attempts
+            retry_delay: Delay between retries in seconds
+            logger: Optional logger instance
         """
-        super().__init__()
-        self.watch_dir = watch_dir
-        self.file_pattern = file_pattern
-        self.config = config or {}
-        self.processed_items: set[str] = set()
-        
-    @abstractmethod
+        super().__init__(
+            watch_dir=watch_dir,
+            file_pattern=file_pattern,
+            process_callback=process_callback,
+            error_callback=error_callback,
+            max_retries=max_retries,
+            retry_delay=retry_delay,
+            logger=logger
+        )
+        self.processed_items: Set[str] = set()
+    
     async def process_file(self, file_path: Path) -> None:
         """Process a file.
         
         Args:
-            file_path: Path to file
+            file_path: Path to process
         """
-        pass
-        
-    @abstractmethod
-    async def handle_error(self, error: Exception, file_path: Path) -> None:
-        """Handle an error.
-        
-        Args:
-            error: Error that occurred
-            file_path: Path to file that caused error
-        """
-        pass
-        
-    @abstractmethod
-    async def cleanup(self) -> None:
+        if file_path.name in self.processed_items:
+            return
+            
+        try:
+            # Get file manager for atomic operations
+            manager = self.get_file_manager(file_path)
+            
+            # Process file
+            await self.process_callback(file_path)
+            
+            # Mark as processed
+            self.processed_items.add(file_path.name)
+            
+            # Log success
+            self.logger.info(
+                "file_processed",
+                extra={
+                    "path": str(file_path),
+                    "pattern": self.file_pattern
+                }
+            )
+            
+        except Exception as e:
+            if self.error_callback:
+                await self.error_callback(e, file_path)
+            self.logger.error(
+                "file_processing_error",
+                extra={
+                    "path": str(file_path),
+                    "error": str(e)
+                }
+            )
+    
+    async def cleanup(self):
         """Clean up resources."""
-        pass
-        
-    def on_created(self, event):
-        """Handle file creation event.
-        
-        Args:
-            event: File system event
-        """
-        if event.is_directory or not event.src_path.endswith(self.file_pattern):
-            return
-            
-        file_path = Path(event.src_path)
-        if file_path.name in self.processed_items:
-            return
-            
-        # Schedule file processing
-        import asyncio
-        asyncio.create_task(self.process_file(file_path))
-        
-    def on_modified(self, event):
-        """Handle file modification event.
-        
-        Args:
-            event: File system event
-        """
-        if event.is_directory or not event.src_path.endswith(self.file_pattern):
-            return
-            
-        file_path = Path(event.src_path)
-        if file_path.name in self.processed_items:
-            return
-            
-        # Schedule file processing
-        import asyncio
-        asyncio.create_task(self.process_file(file_path))
+        await super().cleanup()
+        self.processed_items.clear()
 
 class BridgeHandler(BaseHandler):
     """Bridge-specific handler implementation."""
@@ -108,8 +106,8 @@ class BridgeHandler(BaseHandler):
             file_pattern: File pattern to match
             config: Optional configuration dictionary
         """
-        super().__init__(watch_dir, file_pattern, config)
-        self.logger = logging.getLogger(__name__)
+        super().__init__(watch_dir, file_pattern, self.process_file, self.handle_error, max_retries=3, retry_delay=1.0, logger=logger)
+        self.config = config or {}
         
     async def process_file(self, file_path: Path) -> None:
         """Process a bridge file.
@@ -156,10 +154,6 @@ class BridgeHandler(BaseHandler):
             error_path = Path(error_dir) / file_path.name
             file_path.rename(error_path)
             
-    async def cleanup(self) -> None:
-        """Clean up bridge handler resources."""
-        self.processed_items.clear()
-        
     def _validate_data(self, data: Dict[str, Any]) -> bool:
         """Validate bridge data.
         

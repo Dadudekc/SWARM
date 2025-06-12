@@ -8,12 +8,16 @@ from enum import Enum, auto
 class MessageMode(Enum):
     """Modes for message delivery."""
     NORMAL = auto()  # Default mode
-    TEXT = auto()
-    VOICE = auto()
-    IMAGE = auto()
-    VIDEO = auto()
-    FILE = auto()
-    EMBED = auto()
+    TASK = auto()    # Task-related message
+    SYSTEM = auto()  # System message
+    SYNC = auto()    # Synchronization message
+    VERIFY = auto()  # Verification message
+    REPAIR = auto()  # Repair message
+    BACKUP = auto()  # Backup message
+    RESTORE = auto() # Restore message
+    CLEANUP = auto() # Cleanup message
+    CAPTAIN = auto() # Captain message
+    INTEGRATE = auto() # Integration message
 
 class MessagePriority(Enum):
     """Priority levels for messages."""
@@ -24,14 +28,14 @@ class MessagePriority(Enum):
 
 class MessageType(Enum):
     """Types of messages in the system."""
-    COMMAND = auto()     # System command
-    RESPONSE = auto()    # Response to a command
-    NOTIFICATION = auto() # System notification
-    ERROR = auto()       # Error message
-    DEBUG = auto()       # Debug information
-    STATUS = auto()      # Status update
-    DATA = auto()        # Data transfer
-    HEARTBEAT = auto()   # Health check
+    SUCCESS = "success"  # Success message
+    ERROR = "error"      # Error message
+    INFO = "info"        # Information message
+    WARNING = "warning"  # Warning message
+    PROGRESS = "progress" # Progress update
+    STATUS = "status"    # Status update
+    COMMAND = "command"  # Command message
+    SYSTEM = "system"    # System message
 
 class MessageStatus(Enum):
     """Message delivery and processing status."""

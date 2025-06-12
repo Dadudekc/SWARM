@@ -7,7 +7,7 @@ import pytest
 from unittest.mock import MagicMock, AsyncMock
 from dreamos.core.messaging.ui import MessageUI
 from dreamos.core.messaging.common import Message
-from dreamos.core.messaging.enums import MessageMode
+from dreamos.core.messaging.enums import MessageMode, MessageType
 from datetime import datetime
 
 @pytest.fixture
@@ -48,10 +48,9 @@ def ui(mock_processor):
 def sample_message():
     return Message(
         content="Test message",
-        sender="test-sender",
-        to_agent="test-agent",
-        timestamp=datetime.now(),
-        mode=MessageMode.NORMAL
+        type=MessageMode.NORMAL,
+        data={"task_name": "test-task"},
+        timestamp=datetime.now()
     )
 
 def test_initialize(ui, mock_cursor_controller, mock_coordinate_manager):

@@ -8,11 +8,12 @@ from datetime import datetime
 from pathlib import Path
 from dreamos.core.messaging.message_system import (
     MessageSystem,
-    MessageRecord,
     PersistentQueue,
     JsonMessageHistory,
     MessageMode
 )
+from dreamos.core.messaging.common import Message
+from dreamos.core.messaging.enums import MessageType
 
 @pytest.fixture
 def runtime_dir(tmp_path):
@@ -37,40 +38,26 @@ def message_system(queue, history):
 @pytest.fixture
 def sample_message():
     """Create a sample message."""
-    return MessageRecord(
-        sender_id="test-agent",
-        recipient_id="target-agent",
+    return Message(
         content="Test message",
-        timestamp=datetime.now(),
-        mode=MessageMode.NORMAL,
-        priority=0,
-        tags=["test"],
-        metadata={"type": "test"}
+        type=MessageMode.NORMAL,
+        data={"task_name": "test-task"},
+        timestamp=datetime.now()
     )
 
-def test_message_record_formatting(sample_message):
-    """Test message record formatting."""
-    # Test content formatting
-    formatted = sample_message.format_content()
-    assert formatted == f"{MessageMode.NORMAL.value} Test message"
-    
+def test_message_formatting(sample_message):
+    """Test message formatting."""
     # Test dictionary conversion
     data = sample_message.to_dict()
-    assert data["sender_id"] == "test-agent"
-    assert data["recipient_id"] == "target-agent"
     assert data["content"] == "Test message"
-    assert data["mode"] == "NORMAL"
-    assert data["tags"] == ["test"]
-    assert data["metadata"] == {"type": "test"}
+    assert data["type"] == "NORMAL"
+    assert data["data"] == {"task_name": "test-task"}
     
     # Test reconstruction from dict
-    reconstructed = MessageRecord.from_dict(data)
-    assert reconstructed.sender_id == sample_message.sender_id
-    assert reconstructed.recipient_id == sample_message.recipient_id
+    reconstructed = Message.from_dict(data)
     assert reconstructed.content == sample_message.content
-    assert reconstructed.mode == sample_message.mode
-    assert reconstructed.tags == sample_message.tags
-    assert reconstructed.metadata == sample_message.metadata
+    assert reconstructed.type == sample_message.type
+    assert reconstructed.data == sample_message.data
 
 def test_message_system_send_receive(message_system, sample_message):
     """Test sending and receiving messages."""
@@ -79,10 +66,10 @@ def test_message_system_send_receive(message_system, sample_message):
     assert success is True
     
     # Receive messages
-    messages = message_system.receive("target-agent")
+    messages = message_system.receive()
     assert len(messages) == 1
     assert messages[0].content == "Test message"
-    assert messages[0].sender_id == "test-agent"
+    assert messages[0].type == MessageMode.NORMAL
     
     # Verify message is in history
     history = message_system.get_history()
@@ -95,7 +82,7 @@ def test_message_system_acknowledge(message_system, sample_message):
     message_system.send(sample_message)
     
     # Get message ID
-    messages = message_system.receive("target-agent")
+    messages = message_system.receive()
     message_id = messages[0].message_id
     
     # Acknowledge message
@@ -103,7 +90,7 @@ def test_message_system_acknowledge(message_system, sample_message):
     assert success is True
     
     # Verify message is no longer in queue
-    messages = message_system.receive("target-agent")
+    messages = message_system.receive()
     assert len(messages) == 0
     
     # Verify message is still in history
@@ -115,14 +102,10 @@ def test_message_system_history_filtering(message_system, sample_message):
     # Send message
     message_system.send(sample_message)
     
-    # Get history for sender
-    sender_history = message_system.get_history(agent_id="test-agent")
-    assert len(sender_history) == 1
+    # Get history
+    history = message_system.get_history()
+    assert len(history) == 1
     
-    # Get history for recipient
-    recipient_history = message_system.get_history(agent_id="target-agent")
-    assert len(recipient_history) == 1
-    
-    # Get history for non-existent agent
-    empty_history = message_system.get_history(agent_id="non-existent")
+    # Get history for non-existent type
+    empty_history = message_system.get_history(type=MessageMode.SYSTEM)
     assert len(empty_history) == 0

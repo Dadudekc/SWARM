@@ -4,6 +4,8 @@ Cursor Bridge Handler
 Handles communication between agents and the Cursor IDE.
 """
 
+from __future__ import annotations
+
 import asyncio
 import json
 import logging
@@ -17,11 +19,13 @@ from dreamos.core.bridge.monitoring import BridgeMonitor
 from dreamos.core.bridge.validation import BridgeValidator
 from dreamos.core.utils.logging_utils import get_logger
 from dreamos.core.utils.json_utils import load_json, save_json
+from ...utils.metrics import metrics, logger, log_operation
+from ...utils.exceptions import handle_error
 
 logger = logging.getLogger(__name__)
 
-class CursorBridgeHandler(BaseHandler):
-    """Handles communication between agents and the Cursor IDE."""
+class CursorBridgeHandler(BridgeHandler):
+    """Cursor bridge handler with unified logging and metrics."""
     
     def __init__(
         self,
@@ -42,6 +46,11 @@ class CursorBridgeHandler(BaseHandler):
         self.validator = BridgeValidator(config)
         self.monitor = BridgeMonitor(config)
         self.processed_items: set[str] = set()
+        self._metrics = {
+            'processed': metrics.counter('cursor_processed_total', 'Total files processed'),
+            'errors': metrics.counter('cursor_errors_total', 'Total errors', ['error_type']),
+            'duration': metrics.histogram('cursor_operation_duration_seconds', 'Operation duration', ['operation'])
+        }
         
     async def start(self):
         """Start the bridge handler.
@@ -69,49 +78,40 @@ class CursorBridgeHandler(BaseHandler):
         self.monitor.stop()
         self.logger.info("Cursor bridge handler stopped")
         
-    async def process_file(self, file_path: Path) -> None:
-        """Process a message file.
+    @log_operation('cursor_process', metrics='processed', duration='duration')
+    async def process_file(self, file_path: Path) -> bool:
+        """Process a file.
         
         Args:
-            file_path: Path to message file
+            file_path: Path to the file to process
+            
+        Returns:
+            bool: True if processing was successful
         """
         try:
-            # Read message
-            with open(file_path, "r") as f:
-                message = json.load(f)
+            if file_path.name in self.processed_items:
+                logger.debug(f"Skipping already processed file: {file_path}")
+                return True
                 
-            # Validate message
-            if not await self.validator.validate(message):
-                logger.error(f"Invalid message format in {file_path}")
-                return
+            if self.process_callback:
+                await self.process_callback(file_path)
                 
-            # Process message
-            response = await self.bridge.send_message(
-                message.get("content", ""),
-                metadata=message.get("metadata", {})
+            self.processed_items.add(file_path.name)
+            logger.info(
+                "file_processed",
+                extra={
+                    "path": str(file_path),
+                    "name": file_path.name
+                }
             )
-            
-            # Write response
-            response_file = file_path.parent / f"{file_path.stem}_response.json"
-            with open(response_file, "w") as f:
-                json.dump({
-                    "type": "response",
-                    "content": response,
-                    "timestamp": datetime.now().isoformat(),
-                    "metadata": {
-                        "source": "cursor_bridge",
-                        "original_file": str(file_path)
-                    }
-                }, f, indent=2)
-                
-            # Update metrics
-            self.monitor.record_metric("messages_processed", 1)
-            self.processed_items.add(str(file_path))
+            return True
             
         except Exception as e:
-            logger.error(f"Error processing {file_path}: {e}")
-            self.monitor.record_metric("processing_errors", 1)
-            
+            error = handle_error(e, {"path": str(file_path), "operation": "process"})
+            await self.handle_error(error, file_path)
+            return False
+    
+    @log_operation('cursor_error', metrics='errors')
     async def handle_error(self, error: Exception, file_path: Path) -> None:
         """Handle an error.
         
@@ -119,10 +119,34 @@ class CursorBridgeHandler(BaseHandler):
             error: Error that occurred
             file_path: Path to file that caused error
         """
-        logger.error(f"Error processing {file_path}: {error}")
-        self.monitor.record_metric("errors", 1)
+        logger.error(
+            "file_processing_error",
+            extra={
+                "path": str(file_path),
+                "error": str(error),
+                "error_type": error.__class__.__name__
+            }
+        )
+        self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
         
+        if self.error_callback:
+            await self.error_callback(error, file_path)
+    
+    @log_operation('cursor_cleanup')
     async def cleanup(self) -> None:
         """Clean up resources."""
-        await self.stop()
-        self.processed_items.clear() 
+        try:
+            await self.stop()
+            self.processed_items.clear()
+            logger.info("cursor_cleanup_complete")
+        except Exception as e:
+            error = handle_error(e, {"operation": "cleanup"})
+            logger.error(
+                "cursor_cleanup_error",
+                extra={
+                    "error": str(error),
+                    "error_type": error.__class__.__name__
+                }
+            )
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise 

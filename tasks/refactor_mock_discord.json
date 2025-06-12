@@ -1,0 +1,134 @@
+{
+    "file": "tests/utils/mock_discord.py",
+    "duplicates": 112,
+    "complexity": 45,
+    "analysis": {
+        "duplicate_patterns": [
+            {
+                "pattern": "Mock interaction response builders",
+                "count": 38,
+                "files": [
+                    "tests/core/messaging/discord_test.py",
+                    "tests/core/social/discord_test.py",
+                    "tests/core/autonomy/discord_test.py"
+                ]
+            },
+            {
+                "pattern": "Mock message builders",
+                "count": 42,
+                "files": [
+                    "tests/core/messaging/message_test.py",
+                    "tests/core/social/message_test.py"
+                ]
+            },
+            {
+                "pattern": "Mock channel/thread builders",
+                "count": 32,
+                "files": [
+                    "tests/core/messaging/channel_test.py",
+                    "tests/core/social/channel_test.py"
+                ]
+            }
+        ],
+        "complexity_hotspots": [
+            {
+                "name": "create_mock_interaction",
+                "complexity": 15,
+                "lines": 120,
+                "calls": 89
+            },
+            {
+                "name": "create_mock_message",
+                "complexity": 12,
+                "lines": 95,
+                "calls": 76
+            },
+            {
+                "name": "create_mock_channel",
+                "complexity": 10,
+                "lines": 82,
+                "calls": 64
+            }
+        ]
+    },
+    "refactor_plan": {
+        "new_classes": [
+            {
+                "name": "MockInteractionFactory",
+                "responsibility": "Build mock Discord interactions",
+                "methods": [
+                    "create_basic_interaction",
+                    "create_command_interaction",
+                    "create_button_interaction",
+                    "create_modal_interaction"
+                ]
+            },
+            {
+                "name": "MockMessageFactory",
+                "responsibility": "Build mock Discord messages",
+                "methods": [
+                    "create_basic_message",
+                    "create_embed_message",
+                    "create_reaction_message",
+                    "create_thread_message"
+                ]
+            },
+            {
+                "name": "MockChannelFactory",
+                "responsibility": "Build mock Discord channels",
+                "methods": [
+                    "create_text_channel",
+                    "create_thread",
+                    "create_forum_channel",
+                    "create_voice_channel"
+                ]
+            }
+        ],
+        "migration_steps": [
+            {
+                "step": 1,
+                "description": "Create new factory classes",
+                "files": [
+                    "tests/utils/mock_factories/interaction_factory.py",
+                    "tests/utils/mock_factories/message_factory.py",
+                    "tests/utils/mock_factories/channel_factory.py"
+                ]
+            },
+            {
+                "step": 2,
+                "description": "Update test imports",
+                "files": [
+                    "tests/core/messaging/discord_test.py",
+                    "tests/core/social/discord_test.py",
+                    "tests/core/autonomy/discord_test.py"
+                ],
+                "changes": [
+                    "Replace mock_discord imports with factory imports",
+                    "Update test setup to use factories"
+                ]
+            },
+            {
+                "step": 3,
+                "description": "Deprecate old mock_discord.py",
+                "changes": [
+                    "Add deprecation warning",
+                    "Redirect to new factories"
+                ]
+            },
+            {
+                "step": 4,
+                "description": "Update documentation",
+                "files": [
+                    "docs/testing/mocks.md",
+                    "docs/testing/discord.md"
+                ]
+            }
+        ],
+        "expected_benefits": [
+            "Reduced code duplication",
+            "Easier mock creation",
+            "Better test maintainability",
+            "Type-safe mock generation"
+        ]
+    }
+} 

@@ -54,31 +54,21 @@ class MessageContext:
 class Message:
     """Base message structure."""
     content: str
-    to_agent: str
-    from_agent: str = "system"
-    mode: MessageMode = MessageMode.NORMAL
+    type: MessageMode = MessageMode.NORMAL
+    data: Dict[str, Any] = field(default_factory=dict)
     priority: MessagePriority = MessagePriority.NORMAL
-    type: MessageType = MessageType.COMMAND
     timestamp: datetime = field(default_factory=datetime.now)
     message_id: str = field(default_factory=lambda: str(uuid4()))
     metadata: Dict[str, Any] = field(default_factory=dict)
     response_to: Optional[str] = None
 
-    # Backwards compatibility property
-    @property
-    def sender_id(self) -> str:
-        """Alias for ``from_agent`` used in older code."""
-        return self.from_agent
-    
     def to_dict(self) -> Dict[str, Any]:
         """Convert message to dictionary."""
         return {
             "content": self.content,
-            "to_agent": self.to_agent,
-            "from_agent": self.from_agent,
-            "mode": self.mode.name,
-            "priority": self.priority.name,
             "type": self.type.name,
+            "data": self.data,
+            "priority": self.priority.name,
             "timestamp": self.timestamp.isoformat(),
             "message_id": self.message_id,
             "metadata": self.metadata,
@@ -90,11 +80,9 @@ class Message:
         """Create message from dictionary."""
         return cls(
             content=data["content"],
-            to_agent=data["to_agent"],
-            from_agent=data.get("from_agent", "system"),
-            mode=MessageMode[data.get("mode", "NORMAL")],
+            type=MessageMode[data.get("type", "NORMAL")],
+            data=data.get("data", {}),
             priority=MessagePriority[data.get("priority", "NORMAL")],
-            type=MessageType[data.get("type", "COMMAND")],
             timestamp=datetime.fromisoformat(data["timestamp"]),
             message_id=data["message_id"],
             metadata=data.get("metadata", {}),
@@ -103,13 +91,11 @@ class Message:
     
     def validate(self) -> bool:
         """Validate message fields."""
-        if not self.content or not self.to_agent:
+        if not self.content:
             return False
-        if not isinstance(self.mode, MessageMode):
+        if not isinstance(self.type, MessageMode):
             return False
         if not isinstance(self.priority, MessagePriority):
-            return False
-        if not isinstance(self.type, MessageType):
             return False
         return True
 

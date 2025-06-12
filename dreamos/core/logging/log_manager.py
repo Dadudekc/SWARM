@@ -1,119 +1,120 @@
-"""Log Manager
------------
-Manages logging for the Dream.OS system.
-"""
+"""Unified logging manager for Dream.OS."""
+
+from __future__ import annotations
 
 import logging
-import os
-from dataclasses import dataclass
-from enum import Enum
-from typing import Optional, Dict, Any
+from typing import Dict, Any, Optional
+from pathlib import Path
+from datetime import datetime
 
-class LogLevel(Enum):
-    """Log levels."""
-    DEBUG = logging.DEBUG
-    INFO = logging.INFO
-    WARNING = logging.WARNING
-    ERROR = logging.ERROR
-    CRITICAL = logging.CRITICAL
+from ..utils.metrics import metrics, logger, log_operation
+from ..utils.exceptions import handle_error
 
-@dataclass
-class LogConfig:
-    """Log configuration."""
-    level: LogLevel = LogLevel.INFO
-    format: str = '%(asctime)s - %(name)s - %(levelname)s - %(message)s'
-    file_path: Optional[str] = None
+class LogLevel:
+    """Log levels with numeric values."""
+    DEBUG = 10
+    INFO = 20
+    WARNING = 30
+    ERROR = 40
+    CRITICAL = 50
 
 class LogManager:
-    """Manages logging for the Dream.OS system."""
+    """Unified logging manager with metrics integration."""
     
-    _loggers: Dict[str, logging.Logger] = {}
-    _config: Optional[LogConfig] = None
-    
-    def __init__(self, config: Optional[LogConfig] = None):
-        """Initialize log manager.
+    def __init__(self, name: str):
+        """Initialize the log manager.
         
         Args:
-            config: Optional log configuration
+            name: Name of the logger
         """
-        self._config = config or LogConfig()
-        self._setup_logging()
+        self.name = name
+        self._logger = logging.getLogger(name)
+        self._metrics = {
+            'entries': metrics.counter('log_entries_total', 'Total log entries', ['level']),
+            'errors': metrics.counter('log_errors_total', 'Total log errors', ['error_type']),
+            'duration': metrics.histogram('log_operation_duration_seconds', 'Log operation duration', ['operation'])
+        }
     
-    @classmethod
-    def configure(cls, config: Optional[LogConfig] = None):
-        """Configure the log manager.
-        
-        Args:
-            config: Optional log configuration
-        """
-        cls._config = config or LogConfig()
-        
-    def _setup_logging(self):
-        """Set up logging configuration."""
-        # Create logger
-        logger = logging.getLogger(self.__class__.__name__)
-        logger.setLevel(self._config.level.value)
-        
-        # Create formatter
-        formatter = logging.Formatter(self._config.format)
-        
-        # Add console handler
-        console_handler = logging.StreamHandler()
-        console_handler.setFormatter(formatter)
-        logger.addHandler(console_handler)
-        
-        # Add file handler if path specified
-        if self._config.file_path:
-            os.makedirs(os.path.dirname(self._config.file_path), exist_ok=True)
-            file_handler = logging.FileHandler(self._config.file_path)
-            file_handler.setFormatter(formatter)
-            logger.addHandler(file_handler)
-            
-    def debug(self, message: str, **kwargs):
+    @log_operation('log_debug', metrics='entries', duration='duration')
+    def debug(self, message: str, **kwargs) -> None:
         """Log a debug message.
         
         Args:
             message: The message to log
             **kwargs: Additional context
         """
-        logging.getLogger(self.__class__.__name__).debug(message, extra=kwargs)
-        
-    def info(self, message: str, **kwargs):
+        try:
+            self._logger.debug(message, extra=kwargs)
+            self._metrics['entries'].labels(level='debug').inc()
+        except Exception as e:
+            error = handle_error(e, {"operation": "debug", "message": message})
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise
+    
+    @log_operation('log_info', metrics='entries', duration='duration')
+    def info(self, message: str, **kwargs) -> None:
         """Log an info message.
         
         Args:
             message: The message to log
             **kwargs: Additional context
         """
-        logging.getLogger(self.__class__.__name__).info(message, extra=kwargs)
-        
-    def warning(self, message: str, **kwargs):
+        try:
+            self._logger.info(message, extra=kwargs)
+            self._metrics['entries'].labels(level='info').inc()
+        except Exception as e:
+            error = handle_error(e, {"operation": "info", "message": message})
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise
+    
+    @log_operation('log_warning', metrics='entries', duration='duration')
+    def warning(self, message: str, **kwargs) -> None:
         """Log a warning message.
         
         Args:
             message: The message to log
             **kwargs: Additional context
         """
-        logging.getLogger(self.__class__.__name__).warning(message, extra=kwargs)
-        
-    def error(self, message: str, **kwargs):
+        try:
+            self._logger.warning(message, extra=kwargs)
+            self._metrics['entries'].labels(level='warning').inc()
+        except Exception as e:
+            error = handle_error(e, {"operation": "warning", "message": message})
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise
+    
+    @log_operation('log_error', metrics='entries', duration='duration')
+    def error(self, message: str, **kwargs) -> None:
         """Log an error message.
         
         Args:
             message: The message to log
             **kwargs: Additional context
         """
-        logging.getLogger(self.__class__.__name__).error(message, extra=kwargs)
-        
-    def critical(self, message: str, **kwargs):
+        try:
+            self._logger.error(message, extra=kwargs)
+            self._metrics['entries'].labels(level='error').inc()
+        except Exception as e:
+            error = handle_error(e, {"operation": "error", "message": message})
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise
+    
+    @log_operation('log_critical', metrics='entries', duration='duration')
+    def critical(self, message: str, **kwargs) -> None:
         """Log a critical message.
         
         Args:
             message: The message to log
             **kwargs: Additional context
         """
-        logging.getLogger(self.__class__.__name__).critical(message, extra=kwargs)
-        
+        try:
+            self._logger.critical(message, extra=kwargs)
+            self._metrics['entries'].labels(level='critical').inc()
+        except Exception as e:
+            error = handle_error(e, {"operation": "critical", "message": message})
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise
+    
     def get_metrics(self) -> Dict[str, Any]:
         """Get logging metrics.
         
@@ -121,17 +122,19 @@ class LogManager:
             Dictionary of metrics
         """
         return {
-            'total_entries': len(self._loggers),
-            'entries_by_level': {
-                level.name: sum(1 for logger in self._loggers.values() 
-                              if logger.level == level.value)
-                for level in LogLevel
-            }
+            'total_entries': self._metrics['entries']._value.get(),
+            'errors': self._metrics['errors']._value.get(),
+            'duration': self._metrics['duration']._value.get()
         }
-        
-    def shutdown(self):
+    
+    @log_operation('log_shutdown')
+    def shutdown(self) -> None:
         """Shutdown the log manager."""
-        for logger in self._loggers.values():
-            for handler in logger.handlers[:]:
+        try:
+            for handler in self._logger.handlers[:]:
                 handler.close()
-                logger.removeHandler(handler) 
+                self._logger.removeHandler(handler)
+        except Exception as e:
+            error = handle_error(e, {"operation": "shutdown"})
+            self._metrics['errors'].labels(error_type=error.__class__.__name__).inc()
+            raise 

@@ -7,7 +7,16 @@ from . import core_utils
 from . import exceptions
 from . import file_ops
 from . import file_utils
-from . import json_utils
+from .json_utils import (
+    load_json,
+    save_json,
+    read_json,
+    write_json,
+    async_save_json,
+    async_load_json,
+    validate_json,
+    JsonValidationError
+)
 from . import logging_utils
 from . import message_processor
 from . import metrics_utils
@@ -25,7 +34,14 @@ __all__ = [
     'exceptions',
     'file_ops',
     'file_utils',
-    'json_utils',
+    'load_json',
+    'save_json',
+    'read_json',
+    'write_json',
+    'async_save_json',
+    'async_load_json',
+    'validate_json',
+    'JsonValidationError',
     'logging_utils',
     'message_processor',
     'metrics_utils',

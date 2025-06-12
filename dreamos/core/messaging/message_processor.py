@@ -1,172 +1,165 @@
 """
-Message Processor Module
------------------------
-Handles message processing and routing.
+Message processor for Dream.OS.
 """
 
 import asyncio
-import json
 import logging
 import os
-from pathlib import Path
-from typing import Any, Dict, List, Optional, Callable
 from datetime import datetime
+from typing import Dict, Any, Optional, Callable, Awaitable
+from .common import Message, MessageContext
+from .enums import MessageMode, MessagePriority, MessageType
 
-from dreamos.core.logging.log_config import LogConfig, LogLevel
-from dreamos.core.logging.log_manager import LogManager
-from dreamos.core.messaging.message import Message
+logger = logging.getLogger(__name__)
 
 class MessageProcessor:
-    """Processes and routes messages between components."""
+    """Handles message processing and routing."""
     
-    def __init__(self, runtime_dir: str):
+    def __init__(self, runtime_dir: str = "runtime"):
         """Initialize message processor.
         
         Args:
             runtime_dir: Directory for runtime files
         """
-        self.runtime_dir = Path(runtime_dir)
-        self.runtime_dir.mkdir(parents=True, exist_ok=True)
+        self.runtime_dir = runtime_dir
+        self.message_dir = os.path.join(runtime_dir, "messages")
+        self.handlers: Dict[MessageMode, Callable[[Message], Awaitable[None]]] = {}
+        self._running = False
+        self._queue = asyncio.Queue()
         
-        # Set up message storage
-        self.inbox_path = self.runtime_dir / "inbox.json"
-        self.outbox_path = self.runtime_dir / "outbox.json"
+        # Create directories
+        os.makedirs(self.message_dir, exist_ok=True)
         
-        # Initialize message queues
-        self.inbox = asyncio.Queue()
-        self.outbox = asyncio.Queue()
-        
-        # Initialize message handlers
-        self.handlers: Dict[str, List[Callable]] = {}
-        
-        # Set up logging
-        log_dir = self.runtime_dir / "logs"
-        log_dir.mkdir(parents=True, exist_ok=True)
-        log_config = LogConfig(
-            level=LogLevel.INFO,
-            log_dir=str(log_dir),
-            file_path=str(log_dir / "message_processor.log"),
-            format="%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+        # Setup logging
+        logging.basicConfig(
+            level=logging.INFO,
+            format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
         )
-        self.logger = LogManager(config=log_config)
-        
-        # Load existing messages
-        self._load_messages()
-        
-    def _load_messages(self):
-        """Load existing messages from storage."""
-        try:
-            if self.inbox_path.exists():
-                with open(self.inbox_path) as f:
-                    messages = json.load(f)
-                    for msg in messages:
-                        self.inbox.put_nowait(Message.from_dict(msg))
-                        
-            if self.outbox_path.exists():
-                with open(self.outbox_path) as f:
-                    messages = json.load(f)
-                    for msg in messages:
-                        self.outbox.put_nowait(Message.from_dict(msg))
-        except Exception as e:
-            self.logger.error(f"Error loading messages: {e}")
-            
-    def _save_messages(self):
-        """Save messages to storage."""
-        try:
-            # Save inbox
-            inbox_messages = []
-            while not self.inbox.empty():
-                msg = self.inbox.get_nowait()
-                inbox_messages.append(msg.to_dict())
-                self.inbox.put_nowait(msg)
-                
-            with open(self.inbox_path, 'w') as f:
-                json.dump(inbox_messages, f, indent=2)
-                
-            # Save outbox
-            outbox_messages = []
-            while not self.outbox.empty():
-                msg = self.outbox.get_nowait()
-                outbox_messages.append(msg.to_dict())
-                self.outbox.put_nowait(msg)
-                
-            with open(self.outbox_path, 'w') as f:
-                json.dump(outbox_messages, f, indent=2)
-        except Exception as e:
-            self.logger.error(f"Error saving messages: {e}")
-            
+    
     async def start(self):
         """Start message processing."""
-        self.logger.info("Starting message processor")
-        asyncio.create_task(self._process_messages())
+        if self._running:
+            return
+            
+        self._running = True
+        logger.info("Starting message processor")
         
+        # Start message processing loop
+        asyncio.create_task(self._process_messages())
+    
     async def stop(self):
         """Stop message processing."""
-        self.logger.info("Stopping message processor")
-        self._save_messages()
+        if not self._running:
+            return
+            
+        self._running = False
+        logger.info("Stopping message processor")
         
-    def register_handler(self, message_type: str, handler: Callable):
+        # Wait for queue to empty
+        if not self._queue.empty():
+            logger.info("Waiting for message queue to empty...")
+            await self._queue.join()
+    
+    def register_handler(self, mode: MessageMode, handler: Callable[[Message], Awaitable[None]]):
         """Register a message handler.
         
         Args:
-            message_type: Type of message to handle
-            handler: Handler function
+            mode: Message mode to handle
+            handler: Async handler function
         """
-        if message_type not in self.handlers:
-            self.handlers[message_type] = []
-        self.handlers[message_type].append(handler)
-        
-    def unregister_handler(self, message_type: str, handler: Callable):
+        self.handlers[mode] = handler
+        logger.info(f"Registered handler for {mode.name} messages")
+    
+    def unregister_handler(self, mode: MessageMode):
         """Unregister a message handler.
         
         Args:
-            message_type: Type of message
-            handler: Handler function to remove
+            mode: Message mode to unregister
         """
-        if message_type in self.handlers:
-            self.handlers[message_type].remove(handler)
-            
+        if mode in self.handlers:
+            del self.handlers[mode]
+            logger.info(f"Unregistered handler for {mode.name} messages")
+    
     async def send_message(self, message: Message):
-        """Send a message.
+        """Send a message for processing.
         
         Args:
             message: Message to send
         """
-        await self.outbox.put(message)
-        self.logger.info(f"Queued message: {message}")
+        if not message.validate():
+            logger.error("Invalid message")
+            return
+            
+        # Save message
+        self._save_message(message)
         
+        # Add to queue
+        await self._queue.put(message)
+        logger.info(f"Queued message {message.message_id}")
+    
     async def _process_messages(self):
-        """Process messages from queues."""
-        while True:
+        """Process messages from queue."""
+        while self._running:
             try:
-                # Process outbox
-                if not self.outbox.empty():
-                    message = await self.outbox.get()
-                    if message.type in self.handlers:
-                        for handler in self.handlers[message.type]:
-                            try:
-                                await handler(message)
-                            except Exception as e:
-                                self.logger.error(f"Error in message handler: {e}")
-                    self.outbox.task_done()
-                    
-                # Process inbox
-                if not self.inbox.empty():
-                    message = await self.inbox.get()
-                    if message.type in self.handlers:
-                        for handler in self.handlers[message.type]:
-                            try:
-                                await handler(message)
-                            except Exception as e:
-                                self.logger.error(f"Error in message handler: {e}")
-                    self.inbox.task_done()
-                    
-                # Save messages periodically
-                self._save_messages()
+                # Get message from queue
+                message = await self._queue.get()
                 
-                # Sleep briefly to prevent CPU spinning
-                await asyncio.sleep(0.1)
-                
+                try:
+                    # Get handler for message mode
+                    handler = self.handlers.get(message.type)
+                    if handler:
+                        # Process message
+                        await handler(message)
+                        logger.info(f"Processed message {message.message_id}")
+                    else:
+                        logger.warning(f"No handler for {message.type.name} messages")
+                finally:
+                    # Mark message as done
+                    self._queue.task_done()
+                    
             except Exception as e:
-                self.logger.error(f"Error processing messages: {e}")
-                await asyncio.sleep(1)  # Back off on error 
+                logger.error(f"Error processing message: {e}")
+                await asyncio.sleep(1)  # Prevent tight loop on error
+    
+    def _save_message(self, message: Message):
+        """Save message to disk.
+        
+        Args:
+            message: Message to save
+        """
+        try:
+            # Create message file
+            message_file = os.path.join(self.message_dir, f"{message.message_id}.json")
+            
+            # Save message data
+            with open(message_file, "w") as f:
+                f.write(message.to_dict())
+                
+        except Exception as e:
+            logger.error(f"Error saving message: {e}")
+    
+    def _load_message(self, message_id: str) -> Optional[Message]:
+        """Load message from disk.
+        
+        Args:
+            message_id: Message ID to load
+            
+        Returns:
+            Loaded message or None if not found
+        """
+        try:
+            # Get message file
+            message_file = os.path.join(self.message_dir, f"{message_id}.json")
+            
+            # Check if exists
+            if not os.path.exists(message_file):
+                return None
+                
+            # Load message data
+            with open(message_file, "r") as f:
+                data = f.read()
+                return Message.from_dict(data)
+                
+        except Exception as e:
+            logger.error(f"Error loading message: {e}")
+            return None 

@@ -13,6 +13,7 @@ from pathlib import Path
 
 from .common import Message, MessageMode
 from .message_processor import MessageProcessor
+from .message_builder import message_builder, MessageType
 
 logger = logging.getLogger(__name__)
 
@@ -114,10 +115,25 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "task_complete",
+                {"task_name": "Resume"}
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling resume message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "task_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_sync(self, message: Message) -> bool:
@@ -126,6 +142,13 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "sync_started"
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to sync position
             self._cursor_controller.move_to_sync()
             time.sleep(self.message_delay)
@@ -134,10 +157,24 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "sync_complete"
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling sync message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "sync_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_verify(self, message: Message) -> bool:
@@ -146,6 +183,13 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "verify_started"
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to verify position
             self._cursor_controller.move_to_verify()
             time.sleep(self.message_delay)
@@ -154,10 +198,24 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "verify_complete"
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling verify message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "verify_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_repair(self, message: Message) -> bool:
@@ -166,6 +224,13 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "repair_started"
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to repair position
             self._cursor_controller.move_to_repair()
             time.sleep(self.message_delay)
@@ -174,10 +239,24 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "repair_complete"
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling repair message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "repair_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_backup(self, message: Message) -> bool:
@@ -186,6 +265,14 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "backup_started",
+                {"backup_path": str(self.runtime_dir / "backups")}
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to backup position
             self._cursor_controller.move_to_backup()
             time.sleep(self.message_delay)
@@ -194,10 +281,25 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "backup_complete",
+                {"backup_path": str(self.runtime_dir / "backups")}
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling backup message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "backup_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_restore(self, message: Message) -> bool:
@@ -206,6 +308,14 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "restore_started",
+                {"restore_path": str(self.runtime_dir / "backups")}
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to restore position
             self._cursor_controller.move_to_restore()
             time.sleep(self.message_delay)
@@ -214,10 +324,25 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "restore_complete",
+                {"restore_path": str(self.runtime_dir / "backups")}
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling restore message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "restore_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_cleanup(self, message: Message) -> bool:
@@ -226,6 +351,13 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "cleanup_started"
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to cleanup position
             self._cursor_controller.move_to_cleanup()
             time.sleep(self.message_delay)
@@ -234,10 +366,24 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "cleanup_complete"
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling cleanup message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "cleanup_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_captain(self, message: Message) -> bool:
@@ -266,6 +412,14 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "task_started",
+                {"task_name": message.data.get("task_name", "Unknown task")}
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to task position
             self._cursor_controller.move_to_task()
             time.sleep(self.message_delay)
@@ -274,10 +428,25 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "task_complete",
+                {"task_name": message.data.get("task_name", "Unknown task")}
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling task message: {e}")
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "task_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
             return False
             
     def _handle_integrate(self, message: Message) -> bool:
@@ -286,6 +455,14 @@ class MessageUI:
             if not self._cursor_controller:
                 return False
                 
+            # Send start message
+            start_msg = message_builder.create_message(
+                MessageType.INFO,
+                "integrate_started",
+                {"component": message.data.get("component", "Unknown component")}
+            )
+            self.send_message(start_msg)
+            
             # Move cursor to integrate position
             self._cursor_controller.move_to_integrate()
             time.sleep(self.message_delay)
@@ -294,8 +471,79 @@ class MessageUI:
             self._cursor_controller.click()
             time.sleep(self.verification_delay)
             
+            # Send success message
+            success_msg = message_builder.create_message(
+                MessageType.SUCCESS,
+                "integrate_complete",
+                {"component": message.data.get("component", "Unknown component")}
+            )
+            self.send_message(success_msg)
+            
             return True
             
         except Exception as e:
             logger.error(f"Error handling integrate message: {e}")
-            return False 
+            # Send error message
+            error_msg = message_builder.create_message(
+                MessageType.ERROR,
+                "integrate_failed",
+                {"error": str(e)}
+            )
+            self.send_message(error_msg)
+            return False
+
+    async def _send_success_message(self, template: str, data: Optional[Dict[str, Any]] = None) -> None:
+        """Send a success message.
+        
+        Args:
+            template: Template name to use
+            data: Optional data for the template
+        """
+        message = message_builder.create_message(
+            MessageType.SUCCESS,
+            template,
+            data
+        )
+        await self.processor.process_message(message)
+        
+    async def _send_error_message(self, template: str, data: Optional[Dict[str, Any]] = None) -> None:
+        """Send an error message.
+        
+        Args:
+            template: Template name to use
+            data: Optional data for the template
+        """
+        message = message_builder.create_message(
+            MessageType.ERROR,
+            template,
+            data
+        )
+        await self.processor.process_message(message)
+        
+    async def _send_info_message(self, template: str, data: Optional[Dict[str, Any]] = None) -> None:
+        """Send an info message.
+        
+        Args:
+            template: Template name to use
+            data: Optional data for the template
+        """
+        message = message_builder.create_message(
+            MessageType.INFO,
+            template,
+            data
+        )
+        await self.processor.process_message(message)
+        
+    async def _send_progress_message(self, template: str, data: Optional[Dict[str, Any]] = None) -> None:
+        """Send a progress message.
+        
+        Args:
+            template: Template name to use
+            data: Optional data for the template
+        """
+        message = message_builder.create_message(
+            MessageType.PROGRESS,
+            template,
+            data
+        )
+        await self.processor.process_message(message) 

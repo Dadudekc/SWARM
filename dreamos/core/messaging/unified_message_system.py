@@ -9,12 +9,14 @@ Consolidates functionality from and supersedes:
 - MessageProcessor
 """
 
+from __future__ import annotations
+
 import json
 import logging
 import asyncio
 import threading
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Set, Callable, Pattern
+from typing import List, Dict, Any, Optional, Set, Callable, Pattern, TypeVar, Generic
 from datetime import datetime
 from dataclasses import dataclass
 from abc import ABC, abstractmethod
@@ -25,26 +27,389 @@ from uuid import uuid4
 from dreamos.core.messaging.base import BaseMessagingComponent
 from dreamos.core.messaging.enums import MessageMode, MessagePriority
 from dreamos.core.messaging.common import Message
+from ..utils.metrics import metrics, logger, log_operation
+from ..utils.exceptions import handle_error
+from ..utils.file_ops import FileManager
 
 logger = logging.getLogger('dreamos.messaging')
 
-class MessageQueue(ABC):
+T = TypeVar('T')
+
+@dataclass
+class Message(Generic[T]):
+    """Message data class."""
+    message_id: str
+    type: str
+    content: T
+    from_agent: str
+    to_agent: str
+    priority: int = 0
+    timestamp: datetime = datetime.now()
+    metadata: Optional[Dict[str, Any]] = None
+
+class MessageQueue(ABC, Generic[T]):
     """Abstract base class for message queue implementations."""
     
+    def __init__(self, name: str):
+        """Initialize message queue.
+        
+        Args:
+            name: Name of the queue
+        """
+        self.name = name
+        self._metrics = {
+            'enqueue': metrics.counter(
+                'message_queue_enqueue_total',
+                'Total messages enqueued',
+                ['queue', 'type']
+            ),
+            'dequeue': metrics.counter(
+                'message_queue_dequeue_total',
+                'Total messages dequeued',
+                ['queue', 'type']
+            ),
+            'ack': metrics.counter(
+                'message_queue_ack_total',
+                'Total messages acknowledged',
+                ['queue', 'type']
+            ),
+            'error': metrics.counter(
+                'message_queue_error_total',
+                'Total queue errors',
+                ['queue', 'operation']
+            ),
+            'duration': metrics.histogram(
+                'message_queue_duration_seconds',
+                'Queue operation duration',
+                ['queue', 'operation']
+            )
+        }
+    
     @abstractmethod
-    async def enqueue(self, message: Message) -> bool:
+    async def enqueue(self, message: Message[T]) -> bool:
         """Add message to queue."""
         pass
     
     @abstractmethod
-    async def get_messages(self, agent_id: str) -> List[Message]:
-        """Get all pending messages for an agent."""
+    async def dequeue(self, agent_id: str) -> Optional[Message[T]]:
+        """Get next message for agent."""
         pass
     
     @abstractmethod
     async def acknowledge(self, message_id: str) -> bool:
         """Mark message as processed."""
         pass
+
+class PersistentMessageQueue(MessageQueue[T]):
+    """Message queue with persistent storage."""
+    
+    def __init__(
+        self,
+        name: str,
+        storage_dir: Path,
+        max_size: int = 1000
+    ):
+        """Initialize persistent queue.
+        
+        Args:
+            name: Queue name
+            storage_dir: Directory for message storage
+            max_size: Maximum queue size
+        """
+        super().__init__(name)
+        self.storage_dir = Path(storage_dir)
+        self.max_size = max_size
+        self._queue: PriorityQueue[Message[T]] = PriorityQueue(maxsize=max_size)
+        self._lock = threading.Lock()
+        self._file_manager = FileManager(
+            self.storage_dir / "queue.json",
+            max_retries=3,
+            backup_enabled=True
+        )
+        
+        # Load existing messages
+        self._load_messages()
+    
+    def _load_messages(self):
+        """Load messages from storage."""
+        try:
+            data = self._file_manager.read()
+            if data:
+                for msg_data in data:
+                    message = Message[T](
+                        message_id=msg_data['message_id'],
+                        type=msg_data['type'],
+                        content=msg_data['content'],
+                        from_agent=msg_data['from_agent'],
+                        to_agent=msg_data['to_agent'],
+                        priority=msg_data.get('priority', 0),
+                        timestamp=datetime.fromisoformat(msg_data['timestamp']),
+                        metadata=msg_data.get('metadata')
+                    )
+                    self._queue.put((message.priority, message))
+        except Exception as e:
+            error = handle_error(e, {
+                "queue": self.name,
+                "operation": "load_messages"
+            })
+            logger.error(f"Failed to load messages: {str(error)}")
+            self._metrics['error'].labels(
+                queue=self.name,
+                operation="load_messages"
+            ).inc()
+    
+    def _save_messages(self):
+        """Save messages to storage."""
+        try:
+            messages = []
+            with self._lock:
+                while not self._queue.empty():
+                    _, message = self._queue.get()
+                    messages.append({
+                        'message_id': message.message_id,
+                        'type': message.type,
+                        'content': message.content,
+                        'from_agent': message.from_agent,
+                        'to_agent': message.to_agent,
+                        'priority': message.priority,
+                        'timestamp': message.timestamp.isoformat(),
+                        'metadata': message.metadata
+                    })
+            
+            self._file_manager.write(messages)
+            
+        except Exception as e:
+            error = handle_error(e, {
+                "queue": self.name,
+                "operation": "save_messages"
+            })
+            logger.error(f"Failed to save messages: {str(error)}")
+            self._metrics['error'].labels(
+                queue=self.name,
+                operation="save_messages"
+            ).inc()
+    
+    @log_operation('message_enqueue', metrics='enqueue', duration='duration')
+    async def enqueue(self, message: Message[T]) -> bool:
+        """Add message to queue."""
+        try:
+            with self._lock:
+                if self._queue.full():
+                    logger.warning(f"Queue {self.name} is full")
+                    return False
+                
+                self._queue.put((message.priority, message))
+                self._save_messages()
+                
+                self._metrics['enqueue'].labels(
+                    queue=self.name,
+                    type=message.type
+                ).inc()
+                
+                return True
+                
+        except Exception as e:
+            error = handle_error(e, {
+                "queue": self.name,
+                "operation": "enqueue",
+                "message": message.message_id
+            })
+            logger.error(f"Failed to enqueue message: {str(error)}")
+            self._metrics['error'].labels(
+                queue=self.name,
+                operation="enqueue"
+            ).inc()
+            return False
+    
+    @log_operation('message_dequeue', metrics='dequeue', duration='duration')
+    async def dequeue(self, agent_id: str) -> Optional[Message[T]]:
+        """Get next message for agent."""
+        try:
+            with self._lock:
+                # Find next message for agent
+                messages = []
+                found = None
+                
+                while not self._queue.empty():
+                    _, message = self._queue.get()
+                    if message.to_agent == agent_id:
+                        found = message
+                        break
+                    messages.append((message.priority, message))
+                
+                # Put other messages back
+                for priority, message in messages:
+                    self._queue.put((priority, message))
+                
+                if found:
+                    self._metrics['dequeue'].labels(
+                        queue=self.name,
+                        type=found.type
+                    ).inc()
+                
+                return found
+                
+        except Exception as e:
+            error = handle_error(e, {
+                "queue": self.name,
+                "operation": "dequeue",
+                "agent": agent_id
+            })
+            logger.error(f"Failed to dequeue message: {str(error)}")
+            self._metrics['error'].labels(
+                queue=self.name,
+                operation="dequeue"
+            ).inc()
+            return None
+    
+    @log_operation('message_ack', metrics='ack', duration='duration')
+    async def acknowledge(self, message_id: str) -> bool:
+        """Mark message as processed."""
+        try:
+            with self._lock:
+                # Find and remove message
+                messages = []
+                found = False
+                
+                while not self._queue.empty():
+                    _, message = self._queue.get()
+                    if message.message_id == message_id:
+                        found = True
+                        self._metrics['ack'].labels(
+                            queue=self.name,
+                            type=message.type
+                        ).inc()
+                        break
+                    messages.append((message.priority, message))
+                
+                # Put other messages back
+                for priority, message in messages:
+                    self._queue.put((priority, message))
+                
+                if found:
+                    self._save_messages()
+                
+                return found
+                
+        except Exception as e:
+            error = handle_error(e, {
+                "queue": self.name,
+                "operation": "acknowledge",
+                "message": message_id
+            })
+            logger.error(f"Failed to acknowledge message: {str(error)}")
+            self._metrics['error'].labels(
+                queue=self.name,
+                operation="acknowledge"
+            ).inc()
+            return False
+
+class MessageProcessor(Generic[T]):
+    """Processes messages from a queue."""
+    
+    def __init__(
+        self,
+        queue: MessageQueue[T],
+        handlers: Dict[str, Callable[[Message[T]], Awaitable[bool]]]
+    ):
+        """Initialize message processor.
+        
+        Args:
+            queue: Message queue to process
+            handlers: Message type to handler mapping
+        """
+        self.queue = queue
+        self.handlers = handlers
+        self._metrics = {
+            'process': metrics.counter(
+                'message_processor_total',
+                'Total messages processed',
+                ['type', 'result']
+            ),
+            'error': metrics.counter(
+                'message_processor_error_total',
+                'Total processing errors',
+                ['type']
+            ),
+            'duration': metrics.histogram(
+                'message_processor_duration_seconds',
+                'Processing duration',
+                ['type']
+            )
+        }
+    
+    @log_operation('message_process', metrics='process', duration='duration')
+    async def process_message(self, message: Message[T]) -> bool:
+        """Process a single message.
+        
+        Args:
+            message: Message to process
+            
+        Returns:
+            True if processing was successful
+        """
+        try:
+            # Get handler for message type
+            handler = self.handlers.get(message.type)
+            if not handler:
+                logger.warning(f"No handler for message type: {message.type}")
+                self._metrics['process'].labels(
+                    type=message.type,
+                    result="no_handler"
+                ).inc()
+                return False
+            
+            # Process message
+            success = await handler(message)
+            
+            # Record metrics
+            self._metrics['process'].labels(
+                type=message.type,
+                result="success" if success else "failure"
+            ).inc()
+            
+            return success
+            
+        except Exception as e:
+            error = handle_error(e, {
+                "message": message.message_id,
+                "type": message.type,
+                "operation": "process"
+            })
+            logger.error(f"Error processing message: {str(error)}")
+            self._metrics['error'].labels(
+                type=message.type
+            ).inc()
+            return False
+    
+    async def process_queue(self, agent_id: str):
+        """Process messages from queue for an agent.
+        
+        Args:
+            agent_id: ID of agent to process messages for
+        """
+        while True:
+            try:
+                # Get next message
+                message = await self.queue.dequeue(agent_id)
+                if not message:
+                    await asyncio.sleep(0.1)
+                    continue
+                
+                # Process message
+                success = await self.process_message(message)
+                
+                # Acknowledge if successful
+                if success:
+                    await self.queue.acknowledge(message.message_id)
+                
+            except Exception as e:
+                error = handle_error(e, {
+                    "agent": agent_id,
+                    "operation": "process_queue"
+                })
+                logger.error(f"Error processing queue: {str(error)}")
+                await asyncio.sleep(1)  # Prevent tight loop on error
 
 class MessageHistory(ABC):
     """Abstract base class for message history implementations."""

@@ -18,7 +18,7 @@ __all__ = [
     'VoiceSend', 'VoiceUtils', 'VoiceWebSocket', 'VoiceWebSocketClient',
     'VoiceWebSocketServer', 'VoiceWebSocketUtils', 'VoiceWebSocketVoice',
     'VoiceWebSocketVoiceClient', 'VoiceWebSocketVoiceServer',
-    'VoiceWebSocketVoiceUtils', 'VoiceWebSocketVoiceWebSocket',
+    'VoiceWebSocketVoiceWebSocketUtils', 'VoiceWebSocketVoiceWebSocket',
     'VoiceWebSocketVoiceWebSocketClient', 'VoiceWebSocketVoiceWebSocketServer',
     'VoiceWebSocketVoiceWebSocketUtils', 'Intents'
 ]
@@ -610,43 +610,34 @@ discord.VoiceWebSocketVoiceWebSocketUtils = VoiceWebSocketVoiceWebSocketUtils
 class Intents:
     """Mock Discord Intents."""
     def __init__(self):
-        self.guilds = False
-        self.members = False
-        self.bans = False
-        self.emojis = False
-        self.integrations = False
-        self.webhooks = False
-        self.invites = False
-        self.voice_states = False
-        self.presences = False
-        self.messages = False
-        self.guild_messages = False
-        self.dm_messages = False
-        self.reactions = False
-        self.guild_reactions = False
-        self.dm_reactions = False
-        self.typing = False
-        self.guild_typing = False
-        self.dm_typing = False
-        self.message_content = False
+        self.guilds = True
+        self.members = True
+        self.bans = True
+        self.emojis = True
+        self.integrations = True
+        self.webhooks = True
+        self.invites = True
+        self.voice_states = True
+        self.presences = True
+        self.messages = True
+        self.guild_messages = True
+        self.dm_messages = True
+        self.reactions = True
+        self.guild_reactions = True
+        self.dm_reactions = True
+        self.typing = True
+        self.guild_typing = True
+        self.dm_typing = True
 
     @classmethod
     def default(cls):
-        """Create default intents."""
-        intents = cls()
-        intents.guilds = True
-        intents.messages = True
-        intents.message_content = True
-        return intents
+        """Get default intents."""
+        return cls()
 
     @classmethod
     def all(cls):
-        """Create all intents."""
-        intents = cls()
-        for attr in dir(intents):
-            if not attr.startswith('_') and isinstance(getattr(intents, attr), bool):
-                setattr(intents, attr, True)
-        return intents
+        """Get all intents."""
+        return cls()
 
 # Update discord module with Intents
 discord.Intents = Intents 

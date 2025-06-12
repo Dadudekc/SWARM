@@ -1,14 +1,14 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import base
-from . import bridge_metrics
-from . import file_metrics
-from . import log_metrics
+from .base import BaseMetrics
+from .log_metrics import LogMetrics
+from .file_metrics import FileMetrics
+from .bridge_metrics import BridgeMetrics
 
 __all__ = [
-    'base',
-    'bridge_metrics',
-    'file_metrics',
-    'log_metrics',
+    'BaseMetrics',
+    'LogMetrics',
+    'FileMetrics',
+    'BridgeMetrics',
 ]

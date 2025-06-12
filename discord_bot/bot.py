@@ -18,6 +18,10 @@ from pathlib import Path
 from dreamos.core.agent_control.system_orchestrator import SystemOrchestrator
 from dreamos.core.log_manager import LogManager, LogLevel
 from dreamos.utils.discord_client import Client, Command
+from discord.ext import commands
+from discord import Activity, ActivityType, Color, Embed
+from .commands.base import CommandRegistry, CommandContext, CommandResult
+from .commands.system import SystemStatusCommand, RestartCommand, MetricsCommand
 
 # Configure logging
 logging.basicConfig(
@@ -29,17 +33,25 @@ logger = logging.getLogger(__name__)
 class DreamOSBot(commands.Bot):
     """Dream.OS Discord bot implementation."""
     
-    def __init__(self, *args: Any, **kwargs: Any):
-        """Initialize the bot.
+    def __init__(
+        self,
+        command_prefix: str = "!",
+        metrics_enabled: bool = True,
+        **kwargs
+    ):
+        """Initialize bot.
         
-        Sets up intents, loads configuration, and initializes core components.
+        Args:
+            command_prefix: Command prefix
+            metrics_enabled: Whether to enable metrics
+            **kwargs: Additional bot options
         """
         intents = Intents.default()
         intents.message_content = True
         intents.members = True
         
         super().__init__(
-            command_prefix='!',
+            command_prefix=command_prefix,
             intents=intents,
             help_command=None  # Disable default help command
         )
@@ -56,9 +68,20 @@ class DreamOSBot(commands.Bot):
         self.notifier = None
         
         # Set up metrics
-        self.metrics_enabled = self.config.get('metrics_enabled', True)
+        self.metrics_enabled = metrics_enabled
         if self.metrics_enabled:
             self.setup_metrics()
+        
+        self.command_registry = CommandRegistry()
+        
+        # Register system commands
+        self.command_registry.register(SystemStatusCommand())
+        self.command_registry.register(RestartCommand())
+        self.command_registry.register(MetricsCommand())
+        
+        # Set up event handlers
+        self.add_listener(self.on_ready, "on_ready")
+        self.add_listener(self.on_message, "on_message")
     
     def _load_config(self) -> Dict[str, Any]:
         """Load bot configuration.
@@ -182,28 +205,113 @@ class DreamOSBot(commands.Bot):
         if self.metrics_enabled:
             self.system_status.labels('bot').set(1)
     
-    async def on_command_error(self, ctx: commands.Context, error: Exception):
-        """Handle command errors.
+    async def on_message(self, message):
+        """Handle incoming messages.
         
         Args:
-            ctx: Command context
-            error: Exception that occurred
+            message: Discord message
         """
-        if isinstance(error, commands.CommandNotFound):
-            await ctx.send("Command not found. Use !help to see available commands.")
-        elif isinstance(error, commands.MissingPermissions):
-            await ctx.send("You don't have permission to use this command.")
-        elif isinstance(error, commands.MissingRequiredArgument):
-            await ctx.send(f"Missing required argument: {error.param.name}")
-        else:
-            self.logger.error(f"Command error: {error}")
-            await ctx.send("An error occurred while processing the command.")
+        # Ignore messages from self
+        if message.author == self.user:
+            return
             
-            if self.metrics_enabled:
-                self.command_counter.labels(
-                    command=ctx.command.name if ctx.command else 'unknown',
-                    status='error'
-                ).inc()
+        # Check if message is a command
+        if not message.content.startswith(self.command_prefix):
+            return
+            
+        # Parse command
+        content = message.content[len(self.command_prefix):].strip()
+        command_name = content.split()[0]
+        args = content.split()[1:]
+        
+        # Get command
+        command = self.command_registry.get_command(command_name)
+        if not command:
+            await message.channel.send(f"Unknown command: {command_name}")
+            return
+            
+        # Check cooldown
+        if not command.check_cooldown(message.author.id):
+            await message.channel.send("Command is on cooldown")
+            return
+            
+        # Check admin permission
+        if command.admin_only and not message.author.guild_permissions.administrator:
+            await message.channel.send("This command requires administrator permissions")
+            return
+            
+        # Create command context
+        ctx = CommandContext(
+            guild_id=message.guild.id if message.guild else 0,
+            channel_id=message.channel.id,
+            author_id=message.author.id,
+            author_name=str(message.author),
+            is_admin=message.author.guild_permissions.administrator if message.guild else False,
+            raw_args=args
+        )
+        
+        try:
+            # Execute command
+            result = await command.execute(ctx)
+            
+            # Send response
+            if result.success:
+                await message.channel.send(result.message)
+            else:
+                await message.channel.send(f"Error: {result.message}")
+                
+            # Log error if any
+            if result.error:
+                self.logger.error(
+                    f"Command error: {result.error}",
+                    exc_info=True,
+                    extra={
+                        "command": command_name,
+                        "user": message.author.id,
+                        "guild": message.guild.id if message.guild else 0
+                    }
+                )
+                
+        except Exception as e:
+            self.logger.error(
+                f"Unexpected error in command {command_name}: {e}",
+                exc_info=True,
+                extra={
+                    "command": command_name,
+                    "user": message.author.id,
+                    "guild": message.guild.id if message.guild else 0
+                }
+            )
+            await message.channel.send("An unexpected error occurred")
+    
+    def get_help_embed(self) -> Embed:
+        """Get help embed.
+        
+        Returns:
+            Embed: Help embed
+        """
+        embed = Embed(
+            title="Dream.OS Bot Help",
+            description="Available commands:",
+            color=Color.blue()
+        )
+        
+        # Group commands by category
+        for category, commands in self.command_registry.get_commands_by_category().items():
+            if not commands:
+                continue
+                
+            commands_list = []
+            for cmd in commands:
+                commands_list.append(cmd.get_help_text())
+                
+            embed.add_field(
+                name=category.name.title(),
+                value="\n".join(commands_list),
+                inline=False
+            )
+            
+        return embed
 
 async def main():
     """Main entry point for the bot."""

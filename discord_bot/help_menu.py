@@ -1,9 +1,10 @@
-"""Help menu and search modal for Discord commands."""
+"""
+Help menu for Discord bot commands.
+"""
+
 from tests.utils.mock_discord import ui, Embed, Color, ButtonStyle, Interaction
 import logging
-from datetime import datetime
-import discord
-from typing import Optional, Dict, Any
+from typing import Dict, List, Optional
 
 logger = logging.getLogger('discord_bot')
 
@@ -12,7 +13,7 @@ class HelpMenu(ui.View):
     
     def __init__(self):
         """Initialize help menu."""
-        super().__init__(timeout=180)
+        super().__init__(timeout=180)  # 3 minute timeout
         self.current_page = 0
         self.pages = []
         self.command_cache = {}  # Cache for command search
@@ -108,171 +109,132 @@ class HelpMenu(ui.View):
     
     def setup_buttons(self):
         """Set up navigation buttons."""
-        # Category buttons
+        # Previous button
         self.add_item(ui.Button(
-            label="Agents",
             style=ButtonStyle.primary,
-            custom_id="agents",
-            row=0
-        ))
-        self.add_item(ui.Button(
-            label="DevLogs",
-            style=ButtonStyle.success,
-            custom_id="devlogs",
-            row=0
-        ))
-        self.add_item(ui.Button(
-            label="System",
-            style=ButtonStyle.danger,
-            custom_id="system",
-            row=0
-        ))
-        self.add_item(ui.Button(
-            label="Channels",
-            style=ButtonStyle.secondary,
-            custom_id="channels",
+            label="Previous",
+            custom_id="prev",
             row=0
         ))
         
-        # Navigation buttons
+        # Next button
         self.add_item(ui.Button(
-            label="Previous",
-            style=ButtonStyle.secondary,
-            custom_id="prev",
-            row=1
-        ))
-        self.add_item(ui.Button(
-            label="Search",
             style=ButtonStyle.primary,
-            custom_id="search",
-            row=1
-        ))
-        self.add_item(ui.Button(
             label="Next",
-            style=ButtonStyle.secondary,
             custom_id="next",
-            row=1
+            row=0
+        ))
+        
+        # Search button
+        self.add_item(ui.Button(
+            style=ButtonStyle.secondary,
+            label="Search",
+            custom_id="search",
+            row=0
         ))
     
-    async def search_commands(self, query: str) -> Optional[Dict[str, Any]]:
-        """Search for commands matching query.
-        
-        Args:
-            query: Search query string
-            
-        Returns:
-            Dict containing command info if found, None otherwise
-        """
-        query = query.lower()
-        for cmd_name, cmd_info in self.command_cache.items():
-            if query in cmd_name.lower() or query in cmd_info['value'].lower():
-                return cmd_info
-        return None
+    async def update_page(self, interaction: Interaction):
+        """Update the current page."""
+        await interaction.response.edit_message(
+            embed=self.pages[self.current_page],
+            view=self
+        )
     
     async def show_page(self, page: int, interaction: Interaction):
-        """Show specific page.
-        
-        Args:
-            page: Page number to show
-            interaction: Discord interaction object
-        """
-        if not 0 <= page < len(self.pages):
-            await interaction.response.send_message(
-                "Invalid page number",
-                ephemeral=True
-            )
-            return
-            
+        """Show specific page."""
         self.current_page = page
         await self.update_page(interaction)
     
-    async def update_page(self, interaction: Interaction):
-        """Update current page.
+    async def previous_page(self, interaction: Interaction):
+        """Navigate to previous page."""
+        self.current_page = (self.current_page - 1) % len(self.pages)
+        await self.update_page(interaction)
+    
+    async def next_page(self, interaction: Interaction):
+        """Navigate to next page."""
+        self.current_page = (self.current_page + 1) % len(self.pages)
+        await self.update_page(interaction)
+    
+    async def search_commands(self, interaction: Interaction):
+        """Open command search modal."""
+        modal = CommandSearchModal(self)
+        await interaction.response.send_modal(modal)
+    
+    async def search(self, query: str, interaction: Interaction):
+        """Search for commands matching the query."""
+        query = query.lower()
+        results = []
         
-        Args:
-            interaction: Discord interaction object
-        """
-        try:
-            await interaction.response.edit_message(
-                embed=self.pages[self.current_page],
-                view=self
+        for page in self.pages:
+            for field in page.fields:
+                if query in field.name.lower() or query in field.value.lower():
+                    results.append(field)
+        
+        if results:
+            embed = Embed(
+                title="🔍 Command Search Results",
+                description=f"Found {len(results)} matching commands",
+                color=Color.blue()
             )
-        except Exception as e:
-            logger.error(f"Error updating help menu page: {e}")
+            
+            for field in results:
+                embed.add_field(
+                    name=field.name,
+                    value=field.value,
+                    inline=False
+                )
+            
+            await interaction.response.send_message(embed=embed, ephemeral=True)
+        else:
             await interaction.response.send_message(
-                "Error updating help menu",
+                "No commands found matching your search.",
+                ephemeral=True
+            )
+    
+    async def select_category(self, category: str, interaction: Interaction):
+        """Show commands for a specific category."""
+        category = category.lower()
+        category_pages = {
+            "agent": 0,    # Agent management commands
+            "devlog": 1,   # Devlog commands
+            "system": 2,   # System commands
+            "channel": 3   # Channel commands
+        }
+        
+        if category in category_pages:
+            await self.show_page(category_pages[category], interaction)
+        else:
+            await interaction.response.send_message(
+                f"Invalid category. Available categories: {', '.join(category_pages.keys())}",
                 ephemeral=True
             )
 
-class CommandSearchModal(discord.ui.Modal, title="🔍 Search Commands"):
-    """Modal for searching commands with enhanced UI."""
+class CommandSearchModal(ui.Modal):
+    """Modal for searching commands."""
     
     def __init__(self, help_menu: HelpMenu):
-        super().__init__()
+        """Initialize search modal.
+        
+        Args:
+            help_menu: Parent help menu
+        """
+        super().__init__(title="Search Commands")
         self.help_menu = help_menu
-        self.search_input = discord.ui.TextInput(
-            label="Enter command or keyword",
-            placeholder="e.g., status, task, gui",
-            required=True,
-            min_length=1,
-            max_length=50,
-            style=discord.TextStyle.paragraph
-        )
-        self.add_item(self.search_input)
         
-    async def on_submit(self, interaction: discord.Interaction):
-        """Handle search submission with enhanced results display."""
-        query = self.search_input.value.lower()
-        results = []
+        # Add search input
+        self.add_item(ui.TextInput(
+            label="Search Query",
+            placeholder="Enter command name or description...",
+            required=True
+        ))
+    
+    async def on_submit(self, interaction: Interaction):
+        """Handle modal submission.
         
-        # Search through all pages with fuzzy matching
-        for page in self.help_menu.pages:
-            for name, value in page["fields"]:
-                if query in name.lower() or query in value.lower():
-                    results.append((name, value, page["title"], page["icon"]))
-        
-        if results:
-            # Create results embed with enhanced styling
-            embed = discord.Embed(
-                title="🔍 Command Search Results",
-                description=f"Found {len(results)} matches for '{query}'",
-                color=discord.Color.blue()
-            )
-            
-            # Group results by category
-            categories = {}
-            for name, value, category, icon in results[:10]:
-                if category not in categories:
-                    categories[category] = []
-                categories[category].append((name, value))
-            
-            # Add grouped results to embed
-            for category, commands in categories.items():
-                category_text = ""
-                for name, value in commands:
-                    category_text += f"**{name}**\n{value}\n\n"
-                embed.add_field(
-                    name=f"{icon} {category}",
-                    value=category_text,
-                    inline=False
-                )
-                
-            if len(results) > 10:
-                embed.set_footer(text=f"Showing 10 of {len(results)} results • Refine your search for more specific results")
-                
-            await interaction.response.send_message(embed=embed, ephemeral=True)
-        else:
-            # Enhanced no results message
-            embed = discord.Embed(
-                title="❌ No Results Found",
-                description=f"No commands found matching '{query}'",
-                color=discord.Color.red()
-            )
-            embed.add_field(
-                name="💡 Suggestions",
-                value="• Check your spelling\n• Try a more general term\n• Browse categories using the buttons below",
-                inline=False
-            )
-            await interaction.response.send_message(embed=embed, ephemeral=True)
+        Args:
+            interaction: Discord interaction
+        """
+        query = self.children[0].value
+        await self.help_menu.search(query, interaction)
 
 

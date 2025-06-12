@@ -1,18 +1,21 @@
+#!/usr/bin/env python3
 """
-Dream.OS Code Scanner
-
-Analyzes code for duplicates, similar patterns, and provides detailed reports.
+Standalone code scanner for Dream.OS.
+Analyzes code for duplicates and generates reports.
 """
 
 import ast
 import json
 import logging
+import sys
+import argparse
 from dataclasses import dataclass, field
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Any, Optional
-import asyncio
-from datetime import datetime
 
+# Configure logging
+logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 @dataclass
@@ -26,44 +29,8 @@ class ScanResults:
     scan_time: float = 0.0
     project_analysis: Dict[str, Any] = field(default_factory=dict)
     
-    def summary(self) -> Dict[str, Any]:
-        """Generate a summary of scan results."""
-        return {
-            "type": "scan_summary",
-            "total_files": self.total_files,
-            "total_duplicates": self.total_duplicates,
-            "scan_time": self.scan_time,
-            "top_violators": self.top_violators
-        }
-    
-    def format_full_report(self) -> str:
-        """Format a human-readable report."""
-        report = [
-            "Scan Summary",
-            "===========",
-            f"Total Files: {self.total_files}",
-            f"Total Duplicates: {self.total_duplicates}",
-            f"Scan Time: {self.scan_time:.2f}s",
-            "\nTop Violators:",
-        ]
-        
-        for violator in self.top_violators:
-            report.append(f"- {violator['file']}: {violator['count']} duplicates")
-            
-        report.append("\nDetailed Findings:")
-        report.append(self.narrative)
-        
-        return "\n".join(report)
-    
     def save_reports(self, output_dir: Optional[str] = None) -> bool:
-        """Save scan results to files.
-        
-        Args:
-            output_dir: Optional output directory
-            
-        Returns:
-            bool: True if reports were saved successfully
-        """
+        """Save scan results to files."""
         try:
             if output_dir:
                 output_path = Path(output_dir)
@@ -105,17 +72,12 @@ class Scanner:
     """Code scanner for detecting duplicates and similar patterns."""
     
     def __init__(self, project_dir: str, similarity_threshold: float = 0.8):
-        """Initialize scanner.
-        
-        Args:
-            project_dir: Path to project directory
-            similarity_threshold: Threshold for considering code similar (0-1)
-        """
+        """Initialize scanner."""
         self.project_dir = Path(project_dir)
         self.similarity_threshold = similarity_threshold
         self.logger = logging.getLogger(__name__)
         
-    async def scan_project(self) -> ScanResults:
+    def scan_project(self) -> ScanResults:
         """Scan the project for duplicates and similar patterns."""
         start_time = datetime.now()
         results = ScanResults()
@@ -125,11 +87,12 @@ class Scanner:
             python_files = list(self.project_dir.rglob("*.py"))
             results.total_files = len(python_files)
             
-            # Skip test files and __init__.py
+            # Skip test files, __init__.py, and virtual environment
             python_files = [
                 f for f in python_files 
                 if not f.name.startswith("test_") 
                 and f.name != "__init__.py"
+                and ".venv" not in str(f)
             ]
             
             # Analyze each file
@@ -278,4 +241,73 @@ class Scanner:
                 key=lambda x: x[1],
                 reverse=True
             )
-        ] 
+        ]
+
+def main():
+    """Run the scanner on the project."""
+    parser = argparse.ArgumentParser(description="Dream.OS Code Scanner")
+    parser.add_argument("project_dir", nargs="?", default=".", help="Project directory to scan")
+    parser.add_argument("--fail-on", choices=["duplicates", "complexity", "docs"], help="Exit with error if condition met")
+    args = parser.parse_args()
+    
+    try:
+        # Create scanner instance
+        scanner = Scanner(args.project_dir)
+        
+        # Run scan
+        results = scanner.scan_project()
+        
+        # Print summary
+        print("\nScan Summary:")
+        print(f"Total Files: {results.total_files}")
+        print(f"Total Duplicates: {results.total_duplicates}")
+        print(f"Scan Time: {results.scan_time:.2f}s")
+        
+        if results.top_violators:
+            print("\nTop Violators:")
+            for violator in results.top_violators:
+                print(f"- {violator['file']}: {violator['count']} duplicates")
+        
+        print("\nDetailed findings saved to reports/")
+        
+        # Check fail conditions
+        if args.fail_on == "duplicates" and results.total_duplicates > 0:
+            print("\n❌ Duplicates detected - failing")
+            sys.exit(1)
+            
+        if args.fail_on == "complexity":
+            high_complex = {
+                k: v for k, v in results.project_analysis.items() 
+                if v.get('complexity', 0) > 15
+            }
+            if high_complex:
+                print("\n❌ High complexity files detected:")
+                for file, info in high_complex.items():
+                    print(f"- {file}: {info['complexity']} complexity")
+                sys.exit(1)
+                
+        if args.fail_on == "docs":
+            # Check for duplicate docstrings
+            docstrings = {}
+            for file, info in results.project_analysis.items():
+                for class_name, class_info in info.get('classes', {}).items():
+                    if class_info.get('docstring'):
+                        if class_info['docstring'] not in docstrings:
+                            docstrings[class_info['docstring']] = []
+                        docstrings[class_info['docstring']].append(f"{file}:{class_name}")
+            
+            duplicates = {doc: files for doc, files in docstrings.items() if len(files) > 1}
+            if duplicates:
+                print("\n❌ Duplicate docstrings detected:")
+                for doc, files in duplicates.items():
+                    print(f"\nDocstring: {doc[:100]}...")
+                    for file in files:
+                        print(f"- {file}")
+                sys.exit(1)
+        
+    except Exception as e:
+        print(f"Error running scanner: {str(e)}", file=sys.stderr)
+        sys.exit(1)
+
+if __name__ == "__main__":
+    main() 

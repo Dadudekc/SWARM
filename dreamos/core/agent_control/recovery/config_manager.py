@@ -5,14 +5,17 @@ Handles loading and managing recovery configuration settings.
 Provides default values and configuration validation.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
-from typing import Dict, Optional
+from typing import Dict, Any, Optional
 
-logger = logging.getLogger(__name__)
+from ...config.unified_config import UnifiedConfigManager, ConfigSection
+from ...utils.metrics import logger
 
-class ConfigManager:
+class RecoveryConfigManager:
     """Manages recovery configuration settings."""
     
     DEFAULT_CONFIG = {
@@ -28,118 +31,75 @@ class ConfigManager:
         "enable_heartbeat_monitoring": True
     }
     
+    VALIDATION_RULES = {
+        "heartbeat_timeout": {"type": int, "min": 60, "max": 3600},
+        "max_retries": {"type": int, "min": 1, "max": 10},
+        "retry_cooldown": {"type": int, "min": 30, "max": 300},
+        "restart_cooldown": {"type": int, "min": 60, "max": 600},
+        "window_check_interval": {"type": int, "min": 10, "max": 300},
+        "recovery_queue_timeout": {"type": int, "min": 60, "max": 3600},
+        "max_concurrent_recoveries": {"type": int, "min": 1, "max": 10},
+        "log_level": {"type": str, "enum": ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]},
+        "enable_auto_recovery": {"type": bool},
+        "enable_heartbeat_monitoring": {"type": bool}
+    }
+    
     def __init__(self, config_path: Optional[str] = None):
-        """Initialize the configuration manager.
+        """Initialize the recovery configuration manager.
         
         Args:
             config_path: Optional path to configuration file
         """
         self.config_path = config_path or "config/recovery_config.json"
-        self.config: Dict = self.DEFAULT_CONFIG.copy()
+        self._config_manager = UnifiedConfigManager(Path(self.config_path).parent)
+        self._section = self._config_manager.get_section("recovery")
         
+        # Initialize with defaults
+        for key, value in self.DEFAULT_CONFIG.items():
+            self._section.set(
+                key,
+                value,
+                description=f"Recovery setting: {key}",
+                validation_rules=self.VALIDATION_RULES.get(key)
+            )
+    
     def load_config(self) -> bool:
         """Load configuration from file.
         
         Returns:
-            bool: True if configuration loaded successfully
+            True if configuration loaded successfully
         """
-        try:
-            config_file = Path(self.config_path)
-            if not config_file.exists():
-                logger.warning(f"Configuration file not found: {self.config_path}")
-                return False
-                
-            with open(config_file, "r") as f:
-                loaded_config = json.load(f)
-                
-            # Update config with loaded values
-            self.config.update(loaded_config)
-            
-            # Validate configuration
-            self._validate_config()
-            
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error loading configuration: {e}")
-            return False
-            
+        return self._config_manager.load_config(
+            Path(self.config_path).stem,
+            format=Path(self.config_path).suffix[1:]
+        )
+    
     def save_config(self) -> bool:
         """Save current configuration to file.
         
         Returns:
-            bool: True if configuration saved successfully
+            True if configuration saved successfully
         """
-        try:
-            config_file = Path(self.config_path)
-            config_file.parent.mkdir(parents=True, exist_ok=True)
-            
-            with open(config_file, "w") as f:
-                json.dump(self.config, f, indent=4)
-                
-            return True
-            
-        except Exception as e:
-            logger.error(f"Error saving configuration: {e}")
-            return False
-            
-    def get_config(self) -> Dict:
+        return self._config_manager.save_config(
+            Path(self.config_path).stem,
+            format=Path(self.config_path).suffix[1:]
+        )
+    
+    def get_config(self) -> Dict[str, Any]:
         """Get current configuration.
         
         Returns:
-            Dict: Current configuration dictionary
+            Current configuration dictionary
         """
-        return self.config.copy()
+        return {
+            key: self._section.get(key)
+            for key in self.DEFAULT_CONFIG.keys()
+        }
+    
+    def validate(self) -> bool:
+        """Validate current configuration.
         
-    def update_config(self, updates: Dict) -> bool:
-        """Update configuration with new values.
-        
-        Args:
-            updates: Dictionary of configuration updates
-            
         Returns:
-            bool: True if configuration updated successfully
+            True if configuration is valid
         """
-        try:
-            # Update config
-            self.config.update(updates)
-            
-            # Validate configuration
-            self._validate_config()
-            
-            # Save to file
-            return self.save_config()
-            
-        except Exception as e:
-            logger.error(f"Error updating configuration: {e}")
-            return False
-            
-    def _validate_config(self) -> None:
-        """Validate configuration values.
-        
-        Raises:
-            ValueError: If configuration is invalid
-        """
-        # Validate numeric values
-        for key, value in self.config.items():
-            if key.endswith("_timeout") or key.endswith("_cooldown") or key.endswith("_interval"):
-                if not isinstance(value, (int, float)) or value <= 0:
-                    raise ValueError(f"Invalid {key}: must be positive number")
-                    
-        # Validate max_retries
-        if not isinstance(self.config["max_retries"], int) or self.config["max_retries"] < 0:
-            raise ValueError("max_retries must be non-negative integer")
-            
-        # Validate max_concurrent_recoveries
-        if not isinstance(self.config["max_concurrent_recoveries"], int) or self.config["max_concurrent_recoveries"] < 1:
-            raise ValueError("max_concurrent_recoveries must be positive integer")
-            
-        # Validate boolean values
-        for key in ["enable_auto_recovery", "enable_heartbeat_monitoring"]:
-            if not isinstance(self.config[key], bool):
-                raise ValueError(f"{key} must be boolean")
-                
-        # Validate log level
-        valid_log_levels = ["DEBUG", "INFO", "WARNING", "ERROR", "CRITICAL"]
-        if self.config["log_level"] not in valid_log_levels:
-            raise ValueError(f"log_level must be one of {valid_log_levels}") 
+        return self._section.validate() 
