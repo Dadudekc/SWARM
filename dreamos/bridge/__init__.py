@@ -5,13 +5,13 @@ This package provides a bridge service for interacting with ChatGPT through a we
 """
 
 from .core import ChatGPTBridge
-from .models import BridgeRequest, BridgeHealth
+from .models import health, request
 from .utils import HybridResponseHandler, parse_hybrid_response
 
 __all__ = [
     'ChatGPTBridge',
-    'BridgeRequest',
-    'BridgeHealth',
     'HybridResponseHandler',
-    'parse_hybrid_response'
+    'parse_hybrid_response',
+    'health',
+    'request',
 ] 

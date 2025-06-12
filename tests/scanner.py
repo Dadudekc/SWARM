@@ -1,186 +1,159 @@
-"""Tests for the scanner module."""
+"""Tests for the Dream.OS Beta Verification System."""
 
 import pytest
-import asyncio
+import json
 from pathlib import Path
-from agent_tools.swarm_tools.scanner.scanner import Scanner, ScanResults
-from tests.utils.test_environment import TestEnvironment
+from datetime import datetime
+from dreamos.core.verification.verify_beta import BetaVerifier, CheckResult
 
 @pytest.fixture(scope="session")
-def test_env() -> TestEnvironment:
-    """Create a test environment for scanner tests."""
-    env = TestEnvironment()
-    env.setup()
-    yield env
-    env.cleanup()
-
-@pytest.fixture(autouse=True)
-def setup_test_environment(test_env: TestEnvironment):
-    """Set up test environment for each test."""
-    yield
+def test_env() -> Path:
+    """Create a test environment for verification tests."""
+    test_dir = Path("tests/temp/verification_test")
+    test_dir.mkdir(parents=True, exist_ok=True)
+    yield test_dir
+    # Cleanup handled by test environment
 
 @pytest.fixture
-def project_dir(test_env: TestEnvironment) -> Path:
-    """Get test project directory."""
-    project_dir = test_env.get_test_dir("temp") / "scanner_project"
-    project_dir.mkdir(exist_ok=True)
-    return project_dir
+def verifier(test_env: Path) -> BetaVerifier:
+    """Create a verifier instance for testing."""
+    return BetaVerifier(base_path=test_env)
 
-@pytest.fixture
-def scanner(project_dir):
-    """Create a scanner instance for testing."""
-    return Scanner(str(project_dir))
+def test_verifier_initialization(test_env: Path, verifier: BetaVerifier):
+    """Test verifier initialization."""
+    assert verifier.base_path == test_env
+    assert isinstance(verifier.results, list)
+    assert isinstance(verifier.start_time, datetime)
 
-def test_scanner_initialization(test_env: TestEnvironment, project_dir: Path):
-    """Test scanner initialization."""
-    # Test implementation
-    assert project_dir.exists()
-    assert project_dir.is_dir()
-
-def test_detects_duplicate_functions(project_dir, scanner):
-    """Test detection of duplicate functions."""
-    # Create two files with identical functions
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text("def foo():\n    return 1\n")
-    f2.write_text("def foo():\n    return 1\n")
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.total_duplicates >= 1
-    assert "functions" in results.duplicates
-
-def test_ignores_docstrings_and_comments(project_dir, scanner):
-    """Test that docstrings and comments don't affect similarity detection."""
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text('''def foo():
-    """This is a docstring."""
-    # This is a comment
-    return 1
-''')
-    f2.write_text('''def foo():
-    """Different docstring."""
-    # Different comment
-    return 1
-''')
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.total_duplicates >= 1
-
-def test_detects_similar_functions(project_dir, scanner):
-    """Test detection of similar but not identical functions."""
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text('''def process_data(data):
-    result = []
-    for item in data:
-        result.append(item * 2)
-    return result
-''')
-    f2.write_text('''def transform_data(data):
-    result = []
-    for item in data:
-        result.append(item * 2)
-    return result
-''')
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.total_duplicates >= 1
-
-def test_handles_nested_functions(project_dir, scanner):
-    """Test detection of duplicate nested functions."""
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text('''def outer():
-    def inner():
-        return 1
-    return inner()
-''')
-    f2.write_text('''def outer():
-    def inner():
-        return 1
-    return inner()
-''')
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.total_duplicates >= 2  # Both outer and inner functions
-
-def test_generates_narrative(project_dir, scanner):
-    """Test narrative generation in scan results."""
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text("def foo():\n    return 1\n")
-    f2.write_text("def foo():\n    return 1\n")
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.narrative
-    assert "Code duplication analysis" in results.narrative
-    assert "mod1.py" in results.narrative or "mod2.py" in results.narrative
-
-def test_identifies_top_violators(project_dir, scanner):
-    """Test identification of files with most duplicates."""
-    # Create multiple files with duplicates
-    for i in range(3):
-        f = project_dir / f"mod{i}.py"
-        f.write_text("def foo():\n    return 1\n")
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.top_violators
-    assert len(results.top_violators) > 0
-    assert "count" in results.top_violators[0]
-
-def test_handles_empty_project(project_dir, scanner):
-    """Test scanning an empty project."""
-    results = asyncio.run(scanner.scan_project())
-    assert results.total_files == 0
-    assert results.total_duplicates == 0
-    assert not results.duplicates
-
-def test_handles_malformed_python(project_dir, scanner):
-    """Test handling of malformed Python files."""
-    f = project_dir / "bad.py"
-    f.write_text("def foo():\n    return 1\n    # Missing closing brace")
-
-    results = asyncio.run(scanner.scan_project())
-    assert results.total_files == 0  # Should skip malformed file
-
-def test_respects_similarity_threshold(project_dir, scanner):
-    """Test that similarity threshold affects detection."""
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text('''def process(data):
-    return [x * 2 for x in data]
-''')
-    f2.write_text('''def transform(data):
-    return [x * 2 for x in data]
-''')
-
-    # Test with high threshold
-    scanner.similarity_threshold = 0.95
-    results_high = asyncio.run(scanner.scan_project())
+def test_check_result_creation():
+    """Test CheckResult dataclass creation and conversion."""
+    result = CheckResult(
+        name="Test Check",
+        status=True,
+        details="Test details",
+        category="test",
+        severity="low"
+    )
     
-    # Test with low threshold
-    scanner.similarity_threshold = 0.5
-    results_low = asyncio.run(scanner.scan_project())
+    assert result.name == "Test Check"
+    assert result.status is True
+    assert result.details == "Test details"
+    assert result.category == "test"
+    assert result.severity == "low"
+    assert isinstance(result.timestamp, str)
+    assert isinstance(result.recommendations, list)
     
-    assert results_high.total_duplicates <= results_low.total_duplicates
+    # Test dictionary conversion
+    result_dict = result.to_dict()
+    assert isinstance(result_dict, dict)
+    assert result_dict["name"] == "Test Check"
+    assert result_dict["status"] is True
 
-def test_output_formats(project_dir, scanner):
-    """Test different output formats."""
-    f1 = project_dir / "mod1.py"
-    f2 = project_dir / "mod2.py"
-    f1.write_text("def foo():\n    return 1\n")
-    f2.write_text("def foo():\n    return 1\n")
+def test_check_mailboxes(verifier: BetaVerifier):
+    """Test mailbox verification."""
+    # Create test mailbox structure
+    mailboxes = verifier.base_path / "runtime/agent_memory"
+    mailboxes.mkdir(parents=True, exist_ok=True)
+    
+    # Test with missing mailboxes
+    result = verifier.check_mailboxes()
+    assert result.status is False
+    assert "Missing or empty mailboxes" in result.details
+    
+    # Create valid mailbox
+    agent_dir = mailboxes / "agent-1"
+    agent_dir.mkdir(exist_ok=True)
+    (agent_dir / "inbox.json").write_text("{}")
+    
+    # Test with valid mailbox
+    result = verifier.check_mailboxes()
+    assert result.status is True
+    assert "All" in result.details
 
-    results = asyncio.run(scanner.scan_project())
+def test_check_required_docs(verifier: BetaVerifier):
+    """Test documentation verification."""
+    # Test with missing docs
+    result = verifier.check_required_docs()
+    assert result.status is False
+    assert "Missing docs" in result.details
     
-    # Test JSON format
-    json_output = results.summary()
-    assert isinstance(json_output, dict)
-    assert "type" in json_output
-    assert "total_duplicates" in json_output
+    # Create required docs
+    docs_dir = verifier.base_path / "docs/onboarding"
+    docs_dir.mkdir(parents=True, exist_ok=True)
+    for doc in ["CORE_AGENT_IDENTITY_PROTOCOL.md", 
+                "AGENT_OPERATIONAL_LOOP_PROTOCOL.md",
+                "AGENT_ONBOARDING_CHECKLIST.md"]:
+        (docs_dir / doc).write_text("# Test Doc")
     
-    # Test text format
-    text_output = results.format_full_report()
-    assert isinstance(text_output, str)
-    assert "Scan Summary" in text_output 
+    # Test with all docs present
+    result = verifier.check_required_docs()
+    assert result.status is True
+    assert "All" in result.details
+
+def test_check_unit_tests(verifier: BetaVerifier):
+    """Test unit test verification."""
+    # Create a simple test file
+    test_file = verifier.base_path / "tests/test_verify.py"
+    test_file.parent.mkdir(parents=True, exist_ok=True)
+    test_file.write_text("""
+def test_simple():
+    assert True
+""")
+    
+    result = verifier.check_unit_tests()
+    assert result.status is True
+    assert "All tests passed" in result.details
+
+def test_check_orphans_and_dupes(verifier: BetaVerifier):
+    """Test orphaned files verification."""
+    # Test with no report
+    result = verifier.check_orphans_and_dupes()
+    assert result.status is True
+    assert "No orphaned files report found" in result.details
+    
+    # Create orphaned files report
+    reports_dir = verifier.base_path / "reports"
+    reports_dir.mkdir(parents=True, exist_ok=True)
+    (reports_dir / "orphaned_files.json").write_text('{"orphaned": ["test.py"]}')
+    
+    result = verifier.check_orphans_and_dupes()
+    assert result.status is False
+    assert "orphaned files found" in result.details
+
+def test_verification_report_generation(verifier: BetaVerifier):
+    """Test verification report generation."""
+    # Run some checks
+    verifier.check_mailboxes()
+    verifier.check_required_docs()
+    
+    # Generate report
+    report = verifier.generate_report()
+    assert isinstance(report, str)
+    assert "Verification Report" in report
+    
+    # Test JSON output
+    report_dict = json.loads(report)
+    assert isinstance(report_dict, dict)
+    assert "checks" in report_dict
+    assert "summary" in report_dict
+
+def test_verification_categories_and_severity(verifier: BetaVerifier):
+    """Test check categorization and severity determination."""
+    # Test category determination
+    assert verifier._categorize_check("check_mailboxes") == "system"
+    assert verifier._categorize_check("check_unit_tests") == "testing"
+    
+    # Test severity determination
+    assert verifier._determine_severity("check_mailboxes", False) == "high"
+    assert verifier._determine_severity("check_unit_tests", True) == "medium"
+
+def test_recommendation_generation(verifier: BetaVerifier):
+    """Test recommendation generation for failed checks."""
+    recommendations = verifier._generate_recommendations(
+        "check_mailboxes",
+        False,
+        "Missing mailboxes"
+    )
+    assert isinstance(recommendations, list)
+    assert len(recommendations) > 0
+    assert any("mailbox" in rec.lower() for rec in recommendations) 

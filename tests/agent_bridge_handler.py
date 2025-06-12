@@ -1,6 +1,3 @@
-import pytest
-pytest.skip("Skipping due to missing core import", allow_module_level=True)
-
 """Tests for agent_bridge_handler module."""
 
 import pytest

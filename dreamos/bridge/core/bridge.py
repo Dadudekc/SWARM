@@ -30,7 +30,8 @@ from selenium.webdriver.support.ui import WebDriverWait
 from webdriver_manager.chrome import ChromeDriverManager
 import yaml
 
-from ..models import BridgeRequest, BridgeHealth
+from dreamos.bridge.models.request import BridgeRequest
+from dreamos.bridge.models.health import BridgeHealth
 from ..utils import HybridResponseHandler
 from .constants import (
     CHATGPT_URL,

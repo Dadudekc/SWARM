@@ -1,10 +1,10 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import bridge
+from .bridge import ChatGPTBridge
 from . import constants
 
 __all__ = [
-    'bridge',
+    'ChatGPTBridge',
     'constants',
 ]
