@@ -28,10 +28,10 @@ tests/
 2. Run tests:
    ```bash
    # Run all tests
-   python tools/run_tests.py
+   python scripts/run_tests.py
 
    # Run specific test
-   python tools/run_tests.py tests/some_module/test_example.py::test_case
+   python scripts/run_tests.py tests/some_module/test_example.py::test_case
 
    # Run overnight tests
    python tools/run_overnight_tests.py
