@@ -1,17 +1,10 @@
-"""
-Dream.OS - A distributed operating system for AI agents.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
 from . import bridge
-from . import core
-from . import utils
-from . import social
-from . import apps
+from . import start_dreamos
 
 __all__ = [
     'bridge',
-    'core',
-    'utils',
-    'social',
-    'apps'
+    'start_dreamos',
 ]

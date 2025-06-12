@@ -232,4 +232,13 @@ def pytest_collection_modifyitems(items):
         skip_windows = pytest.mark.skip(reason="Windows-specific test")
         for item in items:
             if "windows" in item.keywords:
-                item.add_marker(skip_windows) 
+                item.add_marker(skip_windows)
+
+def pytest_sessionstart(session):
+    """Validate no runtime modules import test_*.py files."""
+    print("🔍 Validating no runtime modules import test_*.py files...")
+
+    import dreamos.core.autonomy
+    assert not hasattr(dreamos.core.autonomy, "test_loop"), "❌ test_loop leaked into runtime"
+    assert not hasattr(dreamos.core.autonomy, "test_state"), "❌ test_state leaked into runtime"
+    assert not hasattr(dreamos.core.autonomy, "test_devlog_bridge"), "❌ test_devlog_bridge leaked into runtime" 

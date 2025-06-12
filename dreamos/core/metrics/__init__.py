@@ -1,22 +1,14 @@
-"""
-Metrics Package
--------------
-Unified metrics collection and reporting.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .base import BaseMetrics
-from .log_metrics import LogMetrics
-from .file_metrics import FileMetrics
-from .bridge_metrics import BridgeMetrics
+from . import base
+from . import bridge_metrics
+from . import file_metrics
+from . import log_metrics
 
 __all__ = [
-    'BaseMetrics',
-    'LogMetrics',
-    'FileMetrics',
-    'BridgeMetrics'
+    'base',
+    'bridge_metrics',
+    'file_metrics',
+    'log_metrics',
 ]
-
-# Create singleton instances
-log_metrics = LogMetrics()
-file_metrics = FileMetrics()
-bridge_metrics = BridgeMetrics() 

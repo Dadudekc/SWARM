@@ -1,22 +1,22 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
+from . import __main__
+from . import agent_dashboard
+from . import agent_monitor
 from . import agent_status_panel
 from . import log_console
-from . import theme_manager
-from . import agent_monitor
 from . import log_monitor
 from . import main_window
-from . import test_gui
-from .main_window import MainWindow
+from . import theme_manager
 
 __all__ = [
+    '__main__',
+    'agent_dashboard',
+    'agent_monitor',
     'agent_status_panel',
     'log_console',
-    'theme_manager',
-    'agent_monitor',
     'log_monitor',
     'main_window',
-    'test_gui',
-    'MainWindow',
+    'theme_manager',
 ]

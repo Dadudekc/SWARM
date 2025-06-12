@@ -1,9 +1,8 @@
-"""
-Social Media Platform Strategies
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-This package contains implementations of platform-specific strategies for social media platforms.
-"""
+from . import platform_strategy_base
 
-from .platform_strategy_base import PlatformStrategy
-
-__all__ = ['PlatformStrategy'] 
+__all__ = [
+    'platform_strategy_base',
+]

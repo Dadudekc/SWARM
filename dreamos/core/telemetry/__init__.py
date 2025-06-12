@@ -1,3 +1,10 @@
-"""Package telemetry."""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-__version__ = "0.1.0"
+from . import ws_client
+from . import ws_server
+
+__all__ = [
+    'ws_client',
+    'ws_server',
+]

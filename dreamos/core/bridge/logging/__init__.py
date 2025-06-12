@@ -1,3 +1,8 @@
-"""Package logging."""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-__version__ = "0.1.0"
+from . import logger
+
+__all__ = [
+    'logger',
+]

@@ -34,7 +34,6 @@ from dreamos.core.autonomy.base.response_loop import BaseResponseLoop
 from dreamos.core.autonomy.base.state_manager import BaseStateManager
 from dreamos.core.autonomy.base.file_handler import BaseFileHandler
 from dreamos.core.autonomy.base.runner_lifecycle import RunnerLifecycleMixin
-from .bridge.test_devlog_bridge_isolated import TestDevLogBridge
 from .error import ErrorTracker, ErrorHandler, ErrorSeverity
 
 # Configure logging
@@ -81,11 +80,17 @@ class AutonomyLoopRunner(RunnerCore[str]):
         
         # Initialize devlog components
         self.devlog_manager = DevLogManager()
-        self.test_bridge = TestDevLogBridge(
-            devlog_manager=self.devlog_manager,
-            autonomy_runner=self,
-            config_path="config/test_devlog_config.json"
-        )
+        
+        # Only import TestDevLogBridge in test environment
+        if os.environ.get('PYTEST_CURRENT_TEST'):
+            from .bridge.test_devlog_bridge_isolated import TestDevLogBridge
+            self.test_bridge = TestDevLogBridge(
+                devlog_manager=self.devlog_manager,
+                autonomy_runner=self,
+                config_path="config/test_devlog_config.json"
+            )
+        else:
+            self.test_bridge = None
         
         self.logger = LogManager()
         self.bridge = ChatGPTBridge(self.config)

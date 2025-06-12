@@ -1,29 +1,10 @@
-"""
-Bridge core module containing the main bridge service.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .bridge import ChatGPTBridge
-from .constants import (
-    CHATGPT_URL,
-    GPT_URL,
-    CURRENT_DIR,
-    PROFILE_DIR,
-    COOKIE_FILE,
-    CONTENT_LOG_DIR,
-    CHAT_INPUT_SELECTORS,
-    SEND_BUTTON_SELECTORS,
-    LOGIN_BUTTON_SELECTORS
-)
+from . import bridge
+from . import constants
 
 __all__ = [
-    'ChatGPTBridge',
-    'CHATGPT_URL',
-    'GPT_URL',
-    'CURRENT_DIR',
-    'PROFILE_DIR',
-    'COOKIE_FILE',
-    'CONTENT_LOG_DIR',
-    'CHAT_INPUT_SELECTORS',
-    'SEND_BUTTON_SELECTORS',
-    'LOGIN_BUTTON_SELECTORS'
-] 
+    'bridge',
+    'constants',
+]

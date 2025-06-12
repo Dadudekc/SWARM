@@ -1,11 +1,12 @@
-"""
-GPT Router Package
------------------
-Core routing system for GPT interactions in Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .router import Router
-from .engine import Engine
-from .validator import CodexValidator
+from . import engine
+from . import router
+from . import validator
 
-__all__ = ["Router", "Engine", "CodexValidator"] 
+__all__ = [
+    'engine',
+    'router',
+    'validator',
+]

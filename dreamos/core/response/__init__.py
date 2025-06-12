@@ -1,9 +1,8 @@
-"""
-Response Package
---------------
-Core response functionality for Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .base import BaseResponse, BaseResponseProcessor, ResponseMemory
+from . import base
 
-__all__ = ['BaseResponse', 'BaseResponseProcessor', 'ResponseMemory'] 
+__all__ = [
+    'base',
+]

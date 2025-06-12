@@ -1,9 +1,18 @@
-"""
-Bridge package for Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .base import BaseBridge
-from .daemon import ResponseLoopDaemon
-from .chatgpt.bridge import ChatGPTBridge
+from . import base
+from . import chatgpt_bridge
+from . import daemon
+from . import inbox_handler
+from . import response_loop_daemon
+from . import run_response_loop
 
-__all__ = ['BaseBridge', 'ResponseLoopDaemon', 'ChatGPTBridge'] 
+__all__ = [
+    'base',
+    'chatgpt_bridge',
+    'daemon',
+    'inbox_handler',
+    'response_loop_daemon',
+    'run_response_loop',
+]

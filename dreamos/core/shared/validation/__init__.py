@@ -1,7 +1,8 @@
-"""
-Validation package for Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .base import BaseValidator, ValidationError
+from . import base
 
-__all__ = ['BaseValidator', 'ValidationError'] 
+__all__ = [
+    'base',
+]

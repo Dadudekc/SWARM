@@ -1,86 +1,38 @@
-"""
-Utility functions and classes used throughout Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from dreamos.core.utils.file_ops import (
-    safe_mkdir,
-    ensure_dir,
-    clear_dir,
-    archive_file,
-    extract_agent_id,
-    backup_file,
-    safe_rmdir
-)
-
-from dreamos.core.utils.json_utils import (
-    load_json,
-    save_json,
-    validate_json
-)
-
-from dreamos.core.utils.yaml_utils import (
-    load_yaml,
-    save_yaml,
-    validate_yaml
-)
-
-from dreamos.core.utils.safe_io import (
-    atomic_write,
-    safe_read
-)
-
-from dreamos.core.utils.logging_utils import (
-    get_logger,
-    setup_logging
-)
-
-from dreamos.core.utils.core_utils import (
-    get_timestamp,
-    format_timestamp,
-    generate_id
-)
-
-from dreamos.core.utils.exceptions import (
-    FileOpsError,
-    FileOpsPermissionError,
-    FileOpsIOError
-)
+from . import agent_helpers
+from . import agent_status
+from . import core_utils
+from . import exceptions
+from . import file_ops
+from . import file_utils
+from . import json_utils
+from . import logging_utils
+from . import message_processor
+from . import metrics_utils
+from . import region_finder
+from . import retry
+from . import safe_io
+from . import serialization
+from . import system_ops
+from . import yaml_utils
 
 __all__ = [
-    # File Operations
-    'safe_mkdir',
-    'ensure_dir',
-    'clear_dir',
-    'archive_file',
-    'extract_agent_id',
-    'backup_file',
-    'safe_rmdir',
-    
-    # JSON Operations
-    'load_json',
-    'save_json',
-    'validate_json',
-    
-    # YAML Operations
-    'load_yaml',
-    'save_yaml',
-    'validate_yaml',
-    
-    # Safe I/O
-    'atomic_write',
-    'safe_read',
-    
-    # Logging
-    'get_logger',
-    'setup_logging',
-    
-    # Core Utilities
-    'get_timestamp',
-    'format_timestamp',
-    'generate_id',
-    
-    # Exceptions
-    'FileOpsError',
-    'FileOpsPermissionError',
-    'FileOpsIOError'
+    'agent_helpers',
+    'agent_status',
+    'core_utils',
+    'exceptions',
+    'file_ops',
+    'file_utils',
+    'json_utils',
+    'logging_utils',
+    'message_processor',
+    'metrics_utils',
+    'region_finder',
+    'retry',
+    'safe_io',
+    'serialization',
+    'system_ops',
+    'yaml_utils',
 ]

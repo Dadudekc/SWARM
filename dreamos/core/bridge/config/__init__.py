@@ -1,19 +1,8 @@
-"""
-Bridge Config Package
-------------------
-Configuration management for bridge functionality.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .loader import BridgeConfigLoader, BridgeMode, load_config, _load_mode_config, _load_agent_config, _merge_configs, _validate_config, save_agent_config, deep_merge
+from . import loader
 
 __all__ = [
-    'BridgeConfigLoader',
-    'BridgeMode',
-    'load_config',
-    '_load_mode_config',
-    '_load_agent_config',
-    '_merge_configs',
-    '_validate_config',
-    'save_agent_config',
-    'deep_merge'
+    'loader',
 ]

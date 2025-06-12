@@ -8,9 +8,3 @@ __all__ = [
     'atomic',
     'json_ops',
 ]
-
-"""
-Dream.OS I/O Package
-
-Input/Output operations for the Dream.OS system.
-"""

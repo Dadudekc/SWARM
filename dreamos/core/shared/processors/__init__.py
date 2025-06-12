@@ -1,15 +1,16 @@
-"""
-Processors for handling messages and responses in Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from dreamos.core.shared.processors.message import MessageProcessor
-from dreamos.core.shared.processors.response import ResponseProcessor
-from dreamos.core.shared.processors.factory import ProcessorFactory
-from dreamos.core.shared.processors.mode import ProcessorMode
+from . import base
+from . import factory
+from . import message
+from . import mode
+from . import response
 
 __all__ = [
-    'MessageProcessor',
-    'ResponseProcessor',
-    'ProcessorFactory',
-    'ProcessorMode'
-] 
+    'base',
+    'factory',
+    'message',
+    'mode',
+    'response',
+]

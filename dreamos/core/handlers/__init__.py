@@ -1,21 +1,12 @@
-"""
-Handler Package
--------------
-Core handler functionality for the system.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .unified_handler import UnifiedHandler
-from .handler_utils import (
-    safe_watch_file,
-    structured_log,
-    standard_result_wrapper,
-    safe_json_operation
-)
+from . import handler_utils
+from . import response_processor_factory
+from . import unified_handler
 
 __all__ = [
-    'UnifiedHandler',
-    'safe_watch_file',
-    'structured_log',
-    'standard_result_wrapper',
-    'safe_json_operation'
-] 
+    'handler_utils',
+    'response_processor_factory',
+    'unified_handler',
+]

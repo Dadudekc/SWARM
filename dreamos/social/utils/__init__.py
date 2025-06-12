@@ -4,12 +4,15 @@
 from . import base
 from . import base_log_manager
 from . import cleanup
+from . import file_locks
 from . import json_settings
 from . import log_batcher
+from . import log_cleanup
 from . import log_config
 from . import log_entry
 from . import log_level
 from . import log_manager
+from . import log_metrics
 from . import log_pipeline
 from . import log_rotator
 from . import log_types
@@ -22,12 +25,15 @@ __all__ = [
     'base',
     'base_log_manager',
     'cleanup',
+    'file_locks',
     'json_settings',
     'log_batcher',
+    'log_cleanup',
     'log_config',
     'log_entry',
     'log_level',
     'log_manager',
+    'log_metrics',
     'log_pipeline',
     'log_rotator',
     'log_types',

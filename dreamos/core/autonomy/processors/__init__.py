@@ -1,9 +1,10 @@
-"""
-Autonomy Processors Package
-------------------------
-Processors for autonomy system.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .response import AutonomyResponseProcessor
+from . import factory
+from . import response
 
-__all__ = ['AutonomyResponseProcessor'] 
+__all__ = [
+    'factory',
+    'response',
+]

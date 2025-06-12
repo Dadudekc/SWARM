@@ -1,19 +1,16 @@
-"""
-Bridge Base Package
------------------
-Base classes and interfaces for bridge functionality.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .bridge import BaseBridge, BridgeConfig, BridgeError, ErrorSeverity
-from .processor import BridgeProcessor
-from .handler import BaseHandler, BridgeHandler
+from . import bridge
+from . import handler
+from . import monitor
+from . import processor
+from . import validator
 
 __all__ = [
-    'BaseBridge',
-    'BridgeConfig',
-    'BridgeProcessor',
-    'BridgeError',
-    'ErrorSeverity',
-    'BaseHandler',
-    'BridgeHandler'
-] 
+    'bridge',
+    'handler',
+    'monitor',
+    'processor',
+    'validator',
+]

@@ -1,9 +1,8 @@
-"""
-Integration Package
-----------------
-Core integration functionality for Dream.OS.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .bridge import BridgeIntegration
+from . import bridge
 
-__all__ = ['BridgeIntegration'] 
+__all__ = [
+    'bridge',
+]

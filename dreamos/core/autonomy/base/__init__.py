@@ -9,6 +9,7 @@ from . import response_loop_daemon
 from . import runner_core
 from . import runner_lifecycle
 from . import state_manager
+from . import test_imports
 
 __all__ = [
     'autonomy_loop_runner',
@@ -19,4 +20,5 @@ __all__ = [
     'runner_core',
     'runner_lifecycle',
     'state_manager',
+    'test_imports',
 ]

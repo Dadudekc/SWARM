@@ -1,3 +1,10 @@
-"""Package ws."""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-__version__ = "0.1.0"
+from . import client
+from . import server
+
+__all__ = [
+    'client',
+    'server',
+]

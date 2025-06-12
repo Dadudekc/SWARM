@@ -1,8 +1,10 @@
-"""
-Bridge models module containing data classes and types.
-"""
+# AUTO-GENERATED __init__.py
+# DO NOT EDIT MANUALLY - changes may be overwritten
 
-from .request import BridgeRequest
-from .health import BridgeHealth
+from . import health
+from . import request
 
-__all__ = ['BridgeRequest', 'BridgeHealth'] 
+__all__ = [
+    'health',
+    'request',
+]
