@@ -4,16 +4,21 @@ Configuration Management
 Manages configuration loading and validation for the test debug system.
 """
 
+from __future__ import annotations
+
 import json
 import logging
 from pathlib import Path
 from typing import Dict, Any, Optional
 
+from ....config.unified_config import UnifiedConfigManager, ConfigSection
+from ....utils.metrics import logger
+
 # Configure logging
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-class ConfigManager:
+class TestDebugConfigManager:
     """Manages configuration loading and validation."""
     
     DEFAULT_CONFIG = {
@@ -34,6 +39,24 @@ class ConfigManager:
         }
     }
     
+    VALIDATION_RULES = {
+        "paths": {
+            "runtime": {"type": str},
+            "archive": {"type": str},
+            "debug_logs": {"type": str}
+        },
+        "test": {
+            "timeout": {"type": int, "min": 1, "max": 3600},
+            "retry_count": {"type": int, "min": 1, "max": 10},
+            "parallel": {"type": bool}
+        },
+        "fix": {
+            "max_attempts": {"type": int, "min": 1, "max": 10},
+            "timeout": {"type": int, "min": 1, "max": 3600},
+            "backoff_factor": {"type": float, "min": 1.0, "max": 5.0}
+        }
+    }
+    
     def __init__(self, config_path: str):
         """Initialize the config manager.
         
@@ -41,46 +64,23 @@ class ConfigManager:
             config_path: Path to configuration file
         """
         self.config_path = Path(config_path)
-        self.config = self._load_config()
-    
-    def _load_config(self) -> Dict[str, Any]:
-        """Load configuration from file.
+        self._config_manager = UnifiedConfigManager(self.config_path.parent)
+        self._sections = {}
         
-        Returns:
-            Configuration dictionary
-        """
-        try:
-            if self.config_path.exists():
-                with open(self.config_path, 'r') as f:
-                    config = json.load(f)
-                    return self._validate_config(config)
-            else:
-                logger.warning(f"Config file not found: {self.config_path}")
-                return self.DEFAULT_CONFIG
-        except Exception as e:
-            logger.error(f"Error loading config: {e}")
-            return self.DEFAULT_CONFIG
-    
-    def _validate_config(self, config: Dict[str, Any]) -> Dict[str, Any]:
-        """Validate configuration structure.
-        
-        Args:
-            config: Configuration to validate
+        # Initialize sections with defaults
+        for section_name, section_data in self.DEFAULT_CONFIG.items():
+            section = self._config_manager.get_section(section_name)
+            for key, value in section_data.items():
+                section.set(
+                    key,
+                    value,
+                    description=f"Test debug setting: {key}",
+                    validation_rules=self.VALIDATION_RULES.get(section_name, {}).get(key)
+                )
+            self._sections[section_name] = section
             
-        Returns:
-            Validated configuration
-        """
-        # Ensure all required sections exist
-        for section in self.DEFAULT_CONFIG:
-            if section not in config:
-                config[section] = self.DEFAULT_CONFIG[section]
-            elif isinstance(self.DEFAULT_CONFIG[section], dict):
-                # Ensure all required subsections exist
-                for key, value in self.DEFAULT_CONFIG[section].items():
-                    if key not in config[section]:
-                        config[section][key] = value
-        
-        return config
+        # Load configuration
+        self._config_manager.load_config(self.config_path.stem)
     
     def get_path(self, path_type: str) -> Path:
         """Get a configured path.
@@ -91,7 +91,7 @@ class ConfigManager:
         Returns:
             Configured path
         """
-        path = self.config["paths"].get(path_type)
+        path = self._sections["paths"].get(path_type)
         if not path:
             raise ValueError(f"Unknown path type: {path_type}")
         return Path(path)
@@ -102,7 +102,10 @@ class ConfigManager:
         Returns:
             Test configuration
         """
-        return self.config["test"]
+        return {
+            key: self._sections["test"].get(key)
+            for key in self.DEFAULT_CONFIG["test"].keys()
+        }
     
     def get_fix_config(self) -> Dict[str, Any]:
         """Get fix configuration.
@@ -110,7 +113,10 @@ class ConfigManager:
         Returns:
             Fix configuration
         """
-        return self.config["fix"]
+        return {
+            key: self._sections["fix"].get(key)
+            for key in self.DEFAULT_CONFIG["fix"].keys()
+        }
     
     def update_config(self, updates: Dict[str, Any]):
         """Update configuration.
@@ -119,25 +125,15 @@ class ConfigManager:
             updates: Configuration updates
         """
         try:
-            # Deep merge updates
-            self._deep_merge(self.config, updates)
+            # Update sections
+            for section_name, section_updates in updates.items():
+                if section_name in self._sections:
+                    section = self._sections[section_name]
+                    for key, value in section_updates.items():
+                        section.set(key, value)
             
-            # Save updated config
-            with open(self.config_path, 'w') as f:
-                json.dump(self.config, f, indent=2)
-                
+            # Save configuration
+            self._config_manager.save_config(self.config_path.stem)
+            
         except Exception as e:
             logger.error(f"Error updating config: {e}")
-    
-    def _deep_merge(self, target: Dict[str, Any], source: Dict[str, Any]):
-        """Deep merge two dictionaries.
-        
-        Args:
-            target: Target dictionary
-            source: Source dictionary
-        """
-        for key, value in source.items():
-            if key in target and isinstance(target[key], dict) and isinstance(value, dict):
-                self._deep_merge(target[key], value)
-            else:
-                target[key] = value 
