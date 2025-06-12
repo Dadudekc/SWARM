@@ -6,7 +6,6 @@ from . import conftest
 from . import find_duplicates
 from . import fix_imports
 from . import fix_test_imports
-from . import move_tests
 from . import pyautogui
 from . import pygetwindow
 try:
@@ -26,7 +25,6 @@ __all__ = [
     'find_duplicates',
     'fix_imports',
     'fix_test_imports',
-    'move_tests',
     'pyautogui',
     'pygetwindow',
     'run_overnight',
