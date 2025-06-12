@@ -1,248 +1,149 @@
 """
-Message Router Implementation
----------------------------
-Provides message routing functionality for the unified message system.
+Message router implementation for Dream.OS agent communication.
 """
 
 import logging
-import re
-from typing import Dict, Set, Callable, Pattern, Optional
-from .common import Message, MessageMode
-from .unified_message_system import MessageRouter
+from typing import Dict, List, Optional, Set, Callable
+from .base import Message, MessageRouter, MessageType
 
-logger = logging.getLogger('dreamos.messaging.router')
+logger = logging.getLogger("dreamos.messaging")
 
-class MessageRouter(MessageRouter):
-    """Message router implementation."""
+class AgentMessageRouter(MessageRouter):
+    """Router for handling message routing between agents."""
     
     def __init__(self):
         """Initialize router."""
-        # Direct routing rules
-        self._routes: Dict[str, Set[str]] = {}
+        self._routes: Dict[str, Set[str]] = {}  # agent_id -> set of allowed recipients
+        self._handlers: Dict[MessageType, List[Callable]] = {}  # message type -> list of handlers
+        self._default_handler: Optional[Callable] = None
+    
+    def add_route(self, agent_id: str, allowed_recipients: Set[str]) -> None:
+        """Add routing rules for an agent.
         
-        # Pattern-based routing rules
-        self._pattern_routes: Dict[Pattern, Set[str]] = {}
+        Args:
+            agent_id: ID of agent to add routes for
+            allowed_recipients: Set of agent IDs this agent can send to
+        """
+        self._routes[agent_id] = allowed_recipients
+        logger.debug(f"Added routes for agent {agent_id}: {allowed_recipients}")
+    
+    def remove_route(self, agent_id: str) -> None:
+        """Remove routing rules for an agent.
         
-        # Mode-specific handlers
-        self._mode_handlers: Dict[MessageMode, Set[Callable]] = {}
+        Args:
+            agent_id: ID of agent to remove routes for
+        """
+        self._routes.pop(agent_id, None)
+        logger.debug(f"Removed routes for agent {agent_id}")
+    
+    def add_handler(self, message_type: MessageType, handler: Callable) -> None:
+        """Add a handler for a message type.
         
-        # Default handlers
-        self._default_handlers: Set[Callable] = set()
+        Args:
+            message_type: Type of message to handle
+            handler: Function to handle messages of this type
+        """
+        if message_type not in self._handlers:
+            self._handlers[message_type] = []
+        self._handlers[message_type].append(handler)
+        logger.debug(f"Added handler for message type {message_type}")
+    
+    def remove_handler(self, message_type: MessageType, handler: Callable) -> None:
+        """Remove a handler for a message type.
+        
+        Args:
+            message_type: Type of message to remove handler for
+            handler: Handler function to remove
+        """
+        if message_type in self._handlers:
+            self._handlers[message_type].remove(handler)
+            if not self._handlers[message_type]:
+                del self._handlers[message_type]
+            logger.debug(f"Removed handler for message type {message_type}")
+    
+    def set_default_handler(self, handler: Optional[Callable]) -> None:
+        """Set the default message handler.
+        
+        Args:
+            handler: Function to handle unhandled message types
+        """
+        self._default_handler = handler
+        logger.debug("Set default message handler")
     
     async def route(self, message: Message) -> bool:
-        """Route a message to its destination.
+        """Route a message to appropriate handlers.
         
         Args:
             message: Message to route
             
         Returns:
-            bool: True if message was successfully routed
+            bool: True if message was routed successfully
         """
         try:
-            # Get target agents
-            targets = self._get_targets(message)
-            if not targets:
-                logger.warning(f"No targets found for message {message.message_id}")
+            # Check routing rules
+            if message.sender in self._routes:
+                allowed = self._routes[message.sender]
+                if message.recipient not in allowed:
+                    logger.warning(
+                        f"Message {message.id} blocked: {message.sender} not allowed to send to {message.recipient}"
+                    )
+                    return False
+            
+            # Get handlers for message type
+            handlers = self._handlers.get(message.type, [])
+            if not handlers and self._default_handler:
+                handlers = [self._default_handler]
+            
+            if not handlers:
+                logger.warning(f"No handlers found for message type {message.type}")
                 return False
             
-            # Process message for each target
-            success = True
-            for target in targets:
-                if not await self._process_for_target(message, target):
-                    success = False
-            
-            return success
-            
-        except Exception as e:
-            logger.error(f"Error routing message {message.message_id}: {e}")
-            return False
-    
-    def _get_targets(self, message: Message) -> Set[str]:
-        """Get target agents for a message.
-        
-        Args:
-            message: Message to get targets for
-            
-        Returns:
-            Set[str]: Set of target agent IDs
-        """
-        targets = set()
-        
-        # Check direct routes
-        if message.to_agent in self._routes:
-            targets.update(self._routes[message.to_agent])
-        
-        # Check pattern routes
-        for pattern, route_targets in self._pattern_routes.items():
-            if pattern.match(message.to_agent):
-                targets.update(route_targets)
-        
-        # If no routes found, use recipient directly
-        if not targets:
-            targets.add(message.to_agent)
-        
-        return targets
-    
-    async def _process_for_target(self, message: Message, target: str) -> bool:
-        """Process a message for a specific target.
-        
-        Args:
-            message: Message to process
-            target: Target agent ID
-            
-        Returns:
-            bool: True if message was successfully processed
-        """
-        try:
-            # Get handlers for message mode
-            handlers = self._mode_handlers.get(message.mode, set())
-            
-            # Add default handlers if no mode-specific handlers
-            if not handlers:
-                handlers = self._default_handlers
-            
-            # Process with each handler
-            success = True
+            # Call all handlers
             for handler in handlers:
                 try:
-                    if not await handler(message, target):
-                        success = False
+                    await handler(message)
                 except Exception as e:
-                    logger.error(f"Error in handler for message {message.message_id}: {e}")
-                    success = False
+                    logger.error(f"Error in handler for message {message.id}: {e}")
             
-            return success
+            logger.debug(f"Routed message {message.id} to {len(handlers)} handlers")
+            return True
             
         except Exception as e:
-            logger.error(f"Error processing message {message.message_id} for {target}: {e}")
+            logger.error(f"Error routing message {message.id}: {e}")
             return False
     
-    def add_route(self, source: str, target: str) -> None:
-        """Add a direct routing rule.
+    async def broadcast(self, message: Message, exclude: Optional[Set[str]] = None) -> int:
+        """Broadcast a message to all agents except excluded ones.
         
         Args:
-            source: Source agent ID
-            target: Target agent ID
-        """
-        if source not in self._routes:
-            self._routes[source] = set()
-        self._routes[source].add(target)
-        logger.info(f"Added route from {source} to {target}")
-    
-    def add_pattern_route(self, pattern: str, target: str) -> None:
-        """Add a pattern-based routing rule.
-        
-        Args:
-            pattern: Regex pattern to match
-            target: Target agent ID
-        """
-        compiled_pattern = re.compile(pattern)
-        if compiled_pattern not in self._pattern_routes:
-            self._pattern_routes[compiled_pattern] = set()
-        self._pattern_routes[compiled_pattern].add(target)
-        logger.info(f"Added pattern route {pattern} to {target}")
-    
-    def add_mode_handler(self, mode: MessageMode, handler: Callable) -> None:
-        """Add a handler for a specific message mode.
-        
-        Args:
-            mode: Message mode to handle
-            handler: Handler function
-        """
-        if mode not in self._mode_handlers:
-            self._mode_handlers[mode] = set()
-        self._mode_handlers[mode].add(handler)
-        logger.info(f"Added handler for mode {mode}")
-    
-    def add_default_handler(self, handler: Callable) -> None:
-        """Add a default message handler.
-        
-        Args:
-            handler: Handler function
-        """
-        self._default_handlers.add(handler)
-        logger.info("Added default handler")
-    
-    def remove_route(self, source: str, target: str) -> None:
-        """Remove a direct routing rule.
-        
-        Args:
-            source: Source agent ID
-            target: Target agent ID
-        """
-        if source in self._routes:
-            self._routes[source].discard(target)
-            if not self._routes[source]:
-                del self._routes[source]
-            logger.info(f"Removed route from {source} to {target}")
-    
-    def remove_pattern_route(self, pattern: str, target: str) -> None:
-        """Remove a pattern-based routing rule.
-        
-        Args:
-            pattern: Regex pattern to match
-            target: Target agent ID
-        """
-        compiled_pattern = re.compile(pattern)
-        if compiled_pattern in self._pattern_routes:
-            self._pattern_routes[compiled_pattern].discard(target)
-            if not self._pattern_routes[compiled_pattern]:
-                del self._pattern_routes[compiled_pattern]
-            logger.info(f"Removed pattern route {pattern} to {target}")
-    
-    def remove_mode_handler(self, mode: MessageMode, handler: Callable) -> None:
-        """Remove a handler for a specific message mode.
-        
-        Args:
-            mode: Message mode
-            handler: Handler function to remove
-        """
-        if mode in self._mode_handlers:
-            self._mode_handlers[mode].discard(handler)
-            if not self._mode_handlers[mode]:
-                del self._mode_handlers[mode]
-            logger.info(f"Removed handler for mode {mode}")
-    
-    def remove_default_handler(self, handler: Callable) -> None:
-        """Remove a default message handler.
-        
-        Args:
-            handler: Handler function to remove
-        """
-        self._default_handlers.discard(handler)
-        logger.info("Removed default handler")
-    
-    def get_routes(self) -> Dict[str, Set[str]]:
-        """Get all direct routing rules.
-        
+            message: Message to broadcast
+            exclude: Optional set of agent IDs to exclude
+            
         Returns:
-            Dict[str, Set[str]]: Mapping of source to target agents
+            int: Number of successful broadcasts
         """
-        return self._routes.copy()
-    
-    def get_pattern_routes(self) -> Dict[str, Set[str]]:
-        """Get all pattern-based routing rules.
-        
-        Returns:
-            Dict[str, Set[str]]: Mapping of patterns to target agents
-        """
-        return {
-            pattern.pattern: targets
-            for pattern, targets in self._pattern_routes.items()
-        }
-    
-    def get_mode_handlers(self) -> Dict[MessageMode, Set[Callable]]:
-        """Get all mode-specific handlers.
-        
-        Returns:
-            Dict[MessageMode, Set[Callable]]: Mapping of modes to handlers
-        """
-        return self._mode_handlers.copy()
-    
-    def get_default_handlers(self) -> Set[Callable]:
-        """Get all default handlers.
-        
-        Returns:
-            Set[Callable]: Set of default handlers
-        """
-        return self._default_handlers.copy() 
+        try:
+            exclude = exclude or set()
+            success_count = 0
+            
+            # Get all possible recipients
+            all_recipients = set()
+            for recipients in self._routes.values():
+                all_recipients.update(recipients)
+            
+            # Remove excluded recipients
+            recipients = all_recipients - exclude
+            
+            # Route message to each recipient
+            for recipient in recipients:
+                message_copy = message.copy()
+                message_copy.recipient = recipient
+                if await self.route(message_copy):
+                    success_count += 1
+            
+            logger.debug(f"Broadcast message {message.id} to {success_count} recipients")
+            return success_count
+            
+        except Exception as e:
+            logger.error(f"Error broadcasting message {message.id}: {e}")
+            return 0 
