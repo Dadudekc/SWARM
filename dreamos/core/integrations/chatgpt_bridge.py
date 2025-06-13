@@ -7,7 +7,8 @@ Main service for integrating with ChatGPT through browser automation.
 import asyncio
 import logging
 import os
-from typing import Optional
+import time
+from typing import Optional, Dict, Any, List
 
 from ..automation.browser_control import BrowserControl
 from ..config.config_manager import ConfigManager
@@ -49,144 +50,160 @@ class ChatGPTBridge:
         
         self._running = False
         self._process_task: Optional[asyncio.Task] = None
-        
-    async def start(self) -> None:
-        """Start bridge service."""
+    
+    async def start(self):
+        """Start the bridge service."""
         if self._running:
             return
             
-        try:
-            # Launch browser
-            await self.launch_browser()
-            
-            # Start health monitoring
-            await self.health.start()
-            
-            # Start request processing
-            self._running = True
-            self._process_task = asyncio.create_task(self._process_requests())
-            
-            logger.info("ChatGPT bridge service started")
-            
-        except Exception as e:
-            logger.error(f"Failed to start bridge service: {e}")
-            await self.stop()
-            raise
-            
-    async def stop(self) -> None:
-        """Stop bridge service."""
+        self._running = True
+        self.browser.start()
+        self._process_task = asyncio.create_task(self._process_requests())
+        logger.info("Bridge service started")
+    
+    async def stop(self):
+        """Stop the bridge service."""
         if not self._running:
             return
             
         self._running = False
-        
         if self._process_task:
             self._process_task.cancel()
             try:
                 await self._process_task
             except asyncio.CancelledError:
                 pass
-            self._process_task = None
+                
+        self.browser.stop()
+        logger.info("Bridge service stopped")
+    
+    async def _process_requests(self):
+        """Process requests in the queue."""
+        while self._running:
+            try:
+                # Get pending requests
+                requests = self.queue.get_pending_requests()
+                if not requests:
+                    await asyncio.sleep(1)
+                    continue
+                
+                # Process each request
+                for request in requests:
+                    if not self._running:
+                        break
+                        
+                    success = await self._process_single_request(request)
+                    
+                    # Update health metrics
+                    self.health.update_metrics(
+                        success_rate=100 if success else 0,
+                        processing_time=time.time() - request.timestamp
+                    )
+                
+                # Cleanup old requests periodically
+                self.queue.cleanup_old_requests()
+                
+            except Exception as e:
+                logger.error(f"Error processing requests: {e}")
+                await asyncio.sleep(5)  # Back off on error
+    
+    async def _process_single_request(self, request: Request) -> bool:
+        """Process a single request.
+        
+        Args:
+            request: Request to process
             
-        await self.health.stop()
-        await self.browser.close_browser()
-        
-        logger.info("ChatGPT bridge service stopped")
-        
-    @with_retry(max_retries=3, backoff_factor=2.0)
-    async def launch_browser(self) -> None:
-        """Launch browser with retry logic."""
-        await self.browser.launch_browser()
-        self.health.update_health(
-            is_healthy=True,
-            session_active=True
-        )
-        
-    async def send_message(self, message: str) -> str:
+        Returns:
+            Whether processing was successful
+        """
+        try:
+            # Navigate to chat
+            self.browser.navigate_to(self.config["chatgpt_url"])
+            
+            # Wait for chat to load
+            self.browser.wait_for_stable_element(
+                "textarea",
+                by="tag name",
+                stability_time=2.0
+            )
+            
+            # Send message
+            self.browser.send_keys("textarea", request.message)
+            self.browser.click("button[type='submit']")
+            
+            # Wait for response
+            response = self.browser.wait_for_stable_element(
+                "div[data-message-author-role='assistant']",
+                stability_time=2.0
+            )
+            
+            # Update request
+            self.queue.update_request(
+                request.id,
+                "completed",
+                response=response.text
+            )
+            return True
+            
+        except Exception as e:
+            logger.error(f"Failed to process request: {e}")
+            self.queue.update_request(
+                request.id,
+                "error",
+                error=str(e),
+                increment_retry=True
+            )
+            return False
+    
+    async def send_message(self, message: str) -> Optional[str]:
         """Send message to ChatGPT.
         
         Args:
             message: Message to send
             
         Returns:
-            Response from ChatGPT
+            Response text if successful, None otherwise
         """
+        # Add request to queue
         request = self.queue.add_request(message)
         
-        try:
-            response = await self.browser.send_message(message)
-            self.queue.update_request(
-                request.id,
-                status='completed',
-                response=response
-            )
-            self.health.update_health(
-                is_healthy=True,
-                message_count=self.health.health.message_count + 1
-            )
-            return response
-            
-        except Exception as e:
-            self.queue.update_request(
-                request.id,
-                status='failed',
-                error=str(e)
-            )
-            self.health.update_health(
-                is_healthy=False,
-                error=str(e)
-            )
-            raise
-            
-    async def _process_requests(self) -> None:
-        """Process pending requests."""
-        while self._running:
-            try:
-                # Get pending requests
-                requests = self.queue.get_pending_requests()
+        # Wait for response with timeout
+        start_time = time.time()
+        timeout = self.config.get('response_timeout', 300)  # 5 minutes
+        
+        while time.time() - start_time < timeout:
+            # Check request status
+            if request.status == "completed":
+                return request.response
+            elif request.status == "error":
+                return None
                 
-                for request in requests:
-                    try:
-                        response = await self.browser.send_message(request.message)
-                        self.queue.update_request(
-                            request.id,
-                            status='completed',
-                            response=response
-                        )
-                        self.health.update_health(
-                            is_healthy=True,
-                            message_count=self.health.health.message_count + 1
-                        )
-                    except Exception as e:
-                        self.queue.update_request(
-                            request.id,
-                            status='failed',
-                            error=str(e)
-                        )
-                        self.health.update_health(
-                            is_healthy=False,
-                            error=str(e)
-                        )
-                        
-                # Clear completed requests
-                self.queue.clear_completed()
-                
-                # Check browser health
-                if not self.browser.is_browser_running():
-                    logger.warning("Browser not running, attempting to restart")
-                    await self.launch_browser()
-                    
-                if not self.browser.is_window_focused():
-                    logger.warning("Cursor window not focused")
-                    
-                await asyncio.sleep(1)
-                
-            except asyncio.CancelledError:
-                break
-            except Exception as e:
-                logger.error(f"Error processing requests: {e}")
-                await asyncio.sleep(5)
-                
+            await asyncio.sleep(1)
+        
+        # Timeout
+        self.queue.update_request(
+            request.id,
+            "error",
+            error="Request timed out"
+        )
+        return None
+    
+    def get_queue_stats(self) -> Dict[str, Any]:
+        """Get queue statistics.
+        
+        Returns:
+            Dictionary of queue statistics
+        """
+        return self.queue.get_queue_stats()
+    
+    def is_healthy(self) -> bool:
+        """Check if bridge is healthy.
+        
+        Returns:
+            Whether bridge is healthy
+        """
+        return self.health.check_health()
+
 async def main() -> None:
     """Main entry point."""
     logging.basicConfig(

@@ -7,11 +7,15 @@ Analyzes code for duplicates, similar patterns, and provides detailed reports.
 import ast
 import json
 import logging
+import os
+import time
+from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Dict, List, Set, Any, Optional
+from typing import Dict, List, Set, Any, Optional, Tuple, Callable
 import asyncio
 from datetime import datetime
+from tqdm import tqdm
 
 logger = logging.getLogger(__name__)
 
@@ -25,6 +29,9 @@ class ScanResults:
     top_violators: List[Dict[str, Any]] = field(default_factory=list)
     scan_time: float = 0.0
     project_analysis: Dict[str, Any] = field(default_factory=dict)
+    empty_dirs: List[str] = field(default_factory=list)
+    duplicate_files: Dict[str, List[str]] = field(default_factory=dict)
+    errors: List[Dict[str, Any]] = field(default_factory=list)
     
     def summary(self) -> Dict[str, Any]:
         """Generate a summary of scan results."""
@@ -33,7 +40,10 @@ class ScanResults:
             "total_files": self.total_files,
             "total_duplicates": self.total_duplicates,
             "scan_time": self.scan_time,
-            "top_violators": self.top_violators
+            "top_violators": self.top_violators,
+            "empty_dirs": len(self.empty_dirs),
+            "duplicate_files": len(self.duplicate_files),
+            "errors": len(self.errors)
         }
     
     def format_full_report(self) -> str:
@@ -44,11 +54,29 @@ class ScanResults:
             f"Total Files: {self.total_files}",
             f"Total Duplicates: {self.total_duplicates}",
             f"Scan Time: {self.scan_time:.2f}s",
+            f"Errors: {len(self.errors)}",
             "\nTop Violators:",
         ]
         
         for violator in self.top_violators:
             report.append(f"- {violator['file']}: {violator['count']} duplicates")
+            
+        if self.duplicate_files:
+            report.append("\nDuplicate Files:")
+            for name, files in self.duplicate_files.items():
+                report.append(f"\n{name}:")
+                for f in files:
+                    report.append(f"  - {f}")
+                    
+        if self.empty_dirs:
+            report.append("\nEmpty Directories:")
+            for d in self.empty_dirs:
+                report.append(f"  - {d}")
+                
+        if self.errors:
+            report.append("\nErrors:")
+            for error in self.errors:
+                report.append(f"  - {error['file']}: {error['error']}")
             
         report.append("\nDetailed Findings:")
         report.append(self.narrative)
@@ -76,7 +104,10 @@ class ScanResults:
             project_analysis = {
                 "project_root": str(Path.cwd()),
                 "num_files_analyzed": self.total_files,
-                "analysis_details": self.project_analysis
+                "analysis_details": self.project_analysis,
+                "empty_dirs": self.empty_dirs,
+                "duplicate_files": self.duplicate_files,
+                "errors": self.errors
             }
             
             with open(output_path / "project_analysis.json", 'w') as f:
@@ -89,11 +120,18 @@ class ScanResults:
                 "analysis_details": self.project_analysis,
                 "duplicates": self.duplicates,
                 "top_violators": self.top_violators,
-                "scan_time": self.scan_time
+                "scan_time": self.scan_time,
+                "empty_dirs": self.empty_dirs,
+                "duplicate_files": self.duplicate_files,
+                "errors": self.errors
             }
             
             with open(output_path / "chatgpt_project_context.json", 'w') as f:
                 json.dump(chatgpt_context, f, indent=4)
+            
+            # Save human-readable report
+            with open(output_path / "scan_report.txt", 'w') as f:
+                f.write(self.format_full_report())
             
             return True
             
@@ -104,24 +142,41 @@ class ScanResults:
 class Scanner:
     """Code scanner for detecting duplicates and similar patterns."""
     
-    def __init__(self, project_dir: str, similarity_threshold: float = 0.8):
+    def __init__(self, project_dir: str, similarity_threshold: float = 0.8, 
+                 progress_callback: Optional[Callable[[str, float], None]] = None):
         """Initialize scanner.
         
         Args:
             project_dir: Path to project directory
             similarity_threshold: Threshold for considering code similar (0-1)
+            progress_callback: Optional callback for progress updates
         """
         self.project_dir = Path(project_dir)
         self.similarity_threshold = similarity_threshold
         self.logger = logging.getLogger(__name__)
+        self.progress_callback = progress_callback
         
-    async def scan_project(self) -> ScanResults:
-        """Scan the project for duplicates and similar patterns."""
+    def _update_progress(self, message: str, progress: float):
+        """Update progress if callback is provided."""
+        if self.progress_callback:
+            self.progress_callback(message, progress)
+        
+    async def scan_project(self, categorize_agents: bool = False, generate_init: bool = False) -> ScanResults:
+        """Scan the project for duplicates and similar patterns.
+        
+        Args:
+            categorize_agents: Whether to categorize agent types
+            generate_init: Whether to generate __init__.py files
+            
+        Returns:
+            ScanResults object containing scan results
+        """
         start_time = datetime.now()
         results = ScanResults()
         
         try:
             # Get all Python files
+            self._update_progress("Finding Python files...", 0.1)
             python_files = list(self.project_dir.rglob("*.py"))
             results.total_files = len(python_files)
             
@@ -132,8 +187,17 @@ class Scanner:
                 and f.name != "__init__.py"
             ]
             
+            # Find duplicate files
+            self._update_progress("Finding duplicate files...", 0.2)
+            results.duplicate_files = self._find_duplicate_files()
+            
+            # Find empty directories
+            self._update_progress("Finding empty directories...", 0.3)
+            results.empty_dirs = self._find_empty_dirs()
+            
             # Analyze each file
-            for file_path in python_files:
+            self._update_progress("Analyzing files...", 0.4)
+            for i, file_path in enumerate(tqdm(python_files, desc="Analyzing files")):
                 try:
                     with open(file_path, 'r', encoding='utf-8') as f:
                         content = f.read()
@@ -200,10 +264,20 @@ class Scanner:
                                 results.total_duplicates += 1
                 
                 except Exception as e:
-                    self.logger.warning(f"Error analyzing {file_path}: {str(e)}")
+                    error_msg = f"Error analyzing {file_path}: {str(e)}"
+                    self.logger.warning(error_msg)
+                    results.errors.append({
+                        'file': str(file_path),
+                        'error': str(e)
+                    })
                     continue
+                
+                # Update progress
+                progress = 0.4 + (0.4 * (i + 1) / len(python_files))
+                self._update_progress(f"Analyzing file {i+1}/{len(python_files)}...", progress)
             
             # Generate narrative
+            self._update_progress("Generating report...", 0.9)
             results.narrative = self._generate_narrative(results)
             
             # Find top violators
@@ -212,14 +286,50 @@ class Scanner:
             # Calculate scan time
             results.scan_time = (datetime.now() - start_time).total_seconds()
             
-            # Save reports
-            results.save_reports()
-            
+            self._update_progress("Scan complete!", 1.0)
             return results
             
         except Exception as e:
-            self.logger.error(f"Scan failed: {str(e)}")
-            raise
+            error_msg = f"Error during scan: {str(e)}"
+            self.logger.error(error_msg)
+            results.errors.append({
+                'file': 'scanner',
+                'error': str(e)
+            })
+            return results
+            
+    def _find_duplicate_files(self) -> Dict[str, List[str]]:
+        """Find files with duplicate names.
+        
+        Returns:
+            Dictionary mapping filenames to lists of file paths
+        """
+        by_name = defaultdict(list)
+        
+        # Find all Python files
+        for f in self.project_dir.rglob('*.py'):
+            by_name[f.name].append(str(f))
+            
+        # Filter to only include duplicates
+        return {
+            name: files 
+            for name, files in by_name.items() 
+            if len(files) > 1
+        }
+        
+    def _find_empty_dirs(self) -> List[str]:
+        """Find empty directories.
+        
+        Returns:
+            List of empty directory paths
+        """
+        empty_dirs = []
+        
+        for root, dirs, files in os.walk(self.project_dir):
+            if not dirs and not files and root != str(self.project_dir):
+                empty_dirs.append(root)
+                
+        return empty_dirs
     
     def _are_functions_similar(self, source1: str, source2: str) -> bool:
         """Check if two functions are similar."""
@@ -249,33 +359,52 @@ class Scanner:
             narrative.append("No code duplication found.")
             return "\n".join(narrative)
             
-        narrative.append(f"\nFound {results.total_duplicates} instances of code duplication.")
+        narrative.append(f"\nFound {results.total_duplicates} duplicate code blocks across {results.total_files} files.")
         
-        if 'functions' in results.duplicates:
+        if results.duplicates.get('functions'):
             narrative.append("\nFunction Duplicates:")
             for dup in results.duplicates['functions']:
                 narrative.append(
                     f"- {dup['function1']} in {dup['file1']} "
-                    f"similar to {dup['function2']} in {dup['file2']} "
-                    f"(similarity: {dup['similarity']:.2f})"
+                    f"is {dup['similarity']:.0%} similar to "
+                    f"{dup['function2']} in {dup['file2']}"
                 )
-        
+                
+        if results.duplicate_files:
+            narrative.append("\nDuplicate Files:")
+            for name, files in results.duplicate_files.items():
+                narrative.append(f"\n{name}:")
+                for f in files:
+                    narrative.append(f"  - {f}")
+                    
+        if results.empty_dirs:
+            narrative.append("\nEmpty Directories:")
+            for d in results.empty_dirs:
+                narrative.append(f"  - {d}")
+                
         return "\n".join(narrative)
     
     def _find_top_violators(self, results: ScanResults) -> List[Dict[str, Any]]:
-        """Find files with most duplicates."""
-        file_counts = {}
+        """Find files with the most duplicates.
         
-        for category in results.duplicates.values():
-            for item in category:
-                file_counts[item['file1']] = file_counts.get(item['file1'], 0) + 1
-                file_counts[item['file2']] = file_counts.get(item['file2'], 0) + 1
+        Args:
+            results: Scan results
+            
+        Returns:
+            List of top violators with counts
+        """
+        violators = defaultdict(int)
         
-        return [
-            {'file': file, 'count': count}
-            for file, count in sorted(
-                file_counts.items(),
-                key=lambda x: x[1],
-                reverse=True
-            )
-        ] 
+        # Count duplicates per file
+        for dup_type, dups in results.duplicates.items():
+            for dup in dups:
+                violators[dup['file1']] += 1
+                violators[dup['file2']] += 1
+                
+        # Convert to list and sort
+        violator_list = [
+            {'file': f, 'count': c}
+            for f, c in violators.items()
+        ]
+        
+        return sorted(violator_list, key=lambda x: x['count'], reverse=True) 

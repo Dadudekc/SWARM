@@ -1,4 +1,8 @@
-# Bridge Architecture Reorganization
+# Bridge Architecture
+
+## Overview
+
+The ChatGPT Bridge Integration provides a robust interface for agents to communicate with ChatGPT through the bridge system. It handles message routing, response tracking, and health monitoring.
 
 ## 1. Directory Structure
 
@@ -36,52 +40,124 @@ dreamos/
     └── utils.py                  # Utility functions
 ```
 
-## 2. Component Consolidation
+## 2. Core Components
 
-### 2.1 Bridge Implementation
+### 2.1 BridgeIntegration
+
+The main interface for agents to interact with ChatGPT.
+
+#### Key Methods
+
+- `start()`: Initializes the bridge, starts health monitoring, and begins processing requests
+- `stop()`: Graceful shutdown of the bridge and cleanup of resources
+- `send_to_agent(agent_id, message, msg_type)`: Sends a message to an agent and waits for response
+- `get_health_status()`: Returns current health metrics and status
+- `get_agent_responses(agent_id)`: Retrieves tracked responses for an agent
+
+#### Message Types
+
+The bridge supports various message types for different use cases:
+
+- `default`: Standard message
+- `plan_request`: Request for task planning
+- `debug_trace`: Debug information
+- `task_summary`: Task completion summary
+
+### 2.2 Component Consolidation
+
+#### Bridge Implementation
 - Consolidate all `ChatGPTBridge` implementations into `core/bridge/chatgpt/bridge.py`
 - Single source of truth for bridge functionality
 - Clear interface through base classes
 
-### 2.2 Response Loop
+#### Response Loop
 - Single `ResponseLoop` implementation in `core/bridge/base/loop.py`
 - Configurable through processor and handler injection
 - No duplicate implementations
 
-### 2.3 Handlers
+#### Handlers
 - Unified `BridgeHandler` in `core/bridge/handlers/base.py`
 - Specialized handlers inherit from base
 - Clear separation of concerns
 
-### 2.4 Processors
+#### Processors
 - Single processor hierarchy in `core/bridge/processors/`
 - Factory pattern for creating processors
 - No duplicate implementations
 
-## 3. Migration Plan
+## 3. Integration with Core Systems
 
-1. **Phase 1: Base Structure**
-   - Create new directory structure
-   - Move base classes and interfaces
-   - Update imports
+The bridge integrates with several core systems:
 
-2. **Phase 2: Component Migration**
-   - Migrate ChatGPT bridge
-   - Migrate response loop
-   - Migrate handlers
-   - Migrate processors
+- `ChatGPTBridge`: Core bridge functionality
+- `RequestQueue`: Message queuing system
+- `AgentResponseTracker`: Response tracking
+- `BridgeHealthMonitor`: Health monitoring
 
-3. **Phase 3: Cleanup**
-   - Remove duplicate implementations
-   - Update documentation
-   - Add tests
+## 4. Configuration
 
-4. **Phase 4: Validation**
-   - Verify all functionality
-   - Performance testing
-   - Security review
+The bridge is configured through `config/chatgpt_bridge.yaml`:
 
-## 4. Benefits
+```yaml
+# Bridge settings
+window_title: "Cursor"
+page_load_wait: 30.0
+response_wait: 10.0
+paste_delay: 0.5
+
+# Retry settings
+max_retries: 5
+backoff_factor: 2.0
+
+# Health monitoring
+health_check_interval: 30.0
+session_timeout: 3600.0
+```
+
+## 5. Error Handling and Monitoring
+
+### 5.1 Error Handling
+- Automatic retries with exponential backoff
+- Health monitoring and status reporting
+- Response tracking and metrics
+- Graceful error recovery
+
+### 5.2 Metrics
+The bridge tracks various metrics:
+- Total requests
+- Successful/failed requests
+- Average response time
+- Last error
+- Agent-specific metrics
+
+## 6. Best Practices
+
+1. Always use the `msg_type` parameter to categorize messages
+2. Monitor health status regularly
+3. Handle responses asynchronously
+4. Use retry logic for critical operations
+5. Clean up resources with `stop()`
+
+## 7. Troubleshooting
+
+Common issues and solutions:
+
+1. **Bridge not responding**
+   - Check health status
+   - Verify configuration
+   - Check browser state
+
+2. **Slow responses**
+   - Monitor metrics
+   - Check queue status
+   - Verify network connection
+
+3. **Message failures**
+   - Check message format
+   - Verify agent ID
+   - Check response tracking
+
+## 8. Benefits
 
 1. **Reduced Duplication**
    - Single implementation of each component
@@ -101,26 +177,4 @@ dreamos/
 4. **Enhanced Extensibility**
    - Clear extension points
    - Plugin architecture
-   - Version control
-
-## 5. Implementation Notes
-
-1. **Backward Compatibility**
-   - Maintain existing interfaces
-   - Gradual migration
-   - Deprecation warnings
-
-2. **Testing Strategy**
-   - Unit tests for each component
-   - Integration tests for flows
-   - Performance benchmarks
-
-3. **Documentation**
-   - API documentation
-   - Architecture diagrams
-   - Migration guides
-
-4. **Monitoring**
-   - Health checks
-   - Metrics collection
-   - Error tracking 
+   - Version control 

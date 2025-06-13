@@ -9,6 +9,7 @@ This guide provides comprehensive instructions for setting up and running the SW
 - Python 3.8 or higher
 - Git
 - Discord account (for bot testing)
+- Docker (optional, for containerized development)
 - Operating System:
   - Windows 10/11
   - Linux (Ubuntu 20.04+)
@@ -44,6 +45,7 @@ cd Dream.OS
    ```bash
    pip install -r requirements.txt
    pip install -r requirements-test.txt  # For development
+   pip install -r requirements-dev.txt   # For additional development tools
    ```
 
 ### 3. Configuration Setup
@@ -57,6 +59,8 @@ cd Dream.OS
    - Set Discord bot token
    - Configure agent settings
    - Set up logging
+   - Configure monitoring
+   - Set up metrics collection
 
 ### 4. Database Setup
 1. Initialize database
@@ -67,6 +71,25 @@ cd Dream.OS
 2. Verify database connection
    ```bash
    python tools/verify_db.py
+   ```
+
+### 5. Docker Setup (Optional)
+1. Build Docker image
+   ```bash
+   docker build -t swarm-dev .
+   ```
+
+2. Run development container
+   ```bash
+   docker run -it --rm \
+     -v $(pwd):/app \
+     -p 8000:8000 \
+     swarm-dev
+   ```
+
+3. Use Docker Compose for services
+   ```bash
+   docker-compose up -d
    ```
 
 ## Virtual Environment Management
@@ -81,6 +104,7 @@ cd Dream.OS
    - Update `requirements.txt` when adding dependencies
    - Use `pip freeze > requirements.txt` to update
    - Keep test dependencies in `requirements-test.txt`
+   - Use `requirements-dev.txt` for development tools
 
 3. **Environment Updates**:
    ```bash
@@ -92,6 +116,9 @@ cd Dream.OS
 
    # Check outdated packages
    pip list --outdated
+
+   # Clean up old packages
+   pip cache purge
    ```
 
 4. **Troubleshooting**:
@@ -124,8 +151,11 @@ SWARM/
 ├── config/            # Configuration files and settings
 ├── runtime/           # Runtime files
 ├── tests/             # Test files
+├── docker/            # Docker configuration files
+├── monitoring/        # Monitoring and metrics configuration
 ├── .env               # Environment variables
 ├── config.json        # Configuration file
+├── docker-compose.yml # Docker Compose configuration
 └── requirements.txt   # Python dependencies
 ```
 
@@ -135,17 +165,26 @@ SWARM/
    - Agent management
    - Self-discovery modules
    - Resource handling
+   - Monitoring integration
 
 2. `tools/`
    - Development utilities
    - Automation scripts
    - Helper functions
    - Agent tools
+   - Monitoring tools
 
 3. `discord_bot/`
    - Bot implementation
    - Command handlers
    - Event listeners
+   - Monitoring hooks
+
+4. `monitoring/`
+   - Metrics configuration
+   - Alert rules
+   - Dashboard templates
+   - Log aggregation
 
 ## Development Setup
 
@@ -157,6 +196,9 @@ SWARM/
    - Pylance
    - Python Test Explorer
    - GitLens
+   - Docker
+   - Remote Development
+   - Markdown All in One
 
 2. Configure Settings:
    ```json
@@ -165,7 +207,10 @@ SWARM/
      "python.linting.pylintEnabled": true,
      "python.testing.pytestEnabled": true,
      "python.testing.unittestEnabled": false,
-     "python.testing.nosetestsEnabled": false
+     "python.testing.nosetestsEnabled": false,
+     "python.formatting.provider": "black",
+     "editor.formatOnSave": true,
+     "python.analysis.typeCheckingMode": "basic"
    }
    ```
 
@@ -174,12 +219,15 @@ SWARM/
    - Set Python interpreter to venv
    - Configure run configurations
    - Set up testing framework
+   - Configure Docker integration
 
 2. Recommended Plugins:
    - Python
    - Git Integration
    - Database Tools
    - Markdown
+   - Docker
+   - IdeaVim
 
 ### Development Tools
 
@@ -191,41 +239,145 @@ SWARM/
 
    # Run flake8
    flake8 dreamos/
+
+   # Run black
+   black dreamos/
    ```
 
 2. Type Checking:
    ```bash
    # Run mypy
    mypy dreamos/
+
+   # Run pyright
+   pyright dreamos/
    ```
 
-3. Formatting:
+3. Security Scanning:
    ```bash
-   # Run black
-   black dreamos/
+   # Run bandit
+   bandit -r dreamos/
 
-   # Run isort
-   isort dreamos/
+   # Run safety
+   safety check
    ```
 
-#### Testing
-1. Run Tests:
-   ```bash
-   # Run all tests
-   python -m pytest
+## Monitoring Setup
 
-   # Run specific test file
-   python -m pytest tests/test_file.py
-
-   # Run with coverage
-   python -m pytest --cov=.
+### 1. Metrics Configuration
+1. Set up Prometheus:
+   ```yaml
+   # prometheus.yml
+   scrape_configs:
+     - job_name: 'swarm'
+       scrape_interval: 15s
+       static_configs:
+         - targets: ['localhost:8000']
    ```
 
-2. Test Configuration:
-   ```bash
-   # Set up test environment
-   python tools/setup_test_env.py
+2. Configure Grafana:
+   - Import dashboards
+   - Set up data sources
+   - Configure alerts
+
+### 2. Logging Setup
+1. Configure log rotation:
+   ```python
+   # logging_config.py
+   LOGGING_CONFIG = {
+       'version': 1,
+       'disable_existing_loggers': False,
+       'formatters': {
+           'standard': {
+               'format': '%(asctime)s [%(levelname)s] %(name)s: %(message)s'
+           },
+       },
+       'handlers': {
+           'file': {
+               'class': 'logging.handlers.RotatingFileHandler',
+               'filename': 'logs/swarm.log',
+               'maxBytes': 10485760,  # 10MB
+               'backupCount': 5,
+               'formatter': 'standard'
+           },
+       },
+       'loggers': {
+           '': {
+               'handlers': ['file'],
+               'level': 'INFO',
+               'propagate': True
+           }
+       }
+   }
    ```
+
+2. Set up log aggregation:
+   - Configure ELK stack
+   - Set up log shipping
+   - Create log dashboards
+
+## Development Workflow
+
+### 1. Git Workflow
+1. Branch naming:
+   ```
+   feature/feature-name
+   bugfix/bug-description
+   hotfix/issue-description
+   ```
+
+2. Commit messages:
+   ```
+   feat: add new feature
+   fix: fix bug in feature
+   docs: update documentation
+   test: add test cases
+   ```
+
+### 2. Code Review Process
+1. Create pull request
+2. Run automated checks
+3. Request review
+4. Address feedback
+5. Merge changes
+
+### 3. Release Process
+1. Version bump
+2. Update changelog
+3. Create release branch
+4. Run full test suite
+5. Deploy to staging
+6. Deploy to production
+
+## Troubleshooting
+
+### Common Issues
+1. **Import Errors**:
+   - Check PYTHONPATH
+   - Verify virtual environment
+   - Check package installation
+
+2. **Database Issues**:
+   - Verify connection string
+   - Check database permissions
+   - Run database migrations
+
+3. **Docker Issues**:
+   - Check Docker daemon
+   - Verify port mappings
+   - Check volume mounts
+
+4. **Monitoring Issues**:
+   - Check metrics endpoint
+   - Verify alert rules
+   - Check log shipping
+
+### Support Resources
+- GitHub Issues
+- Documentation
+- Discord Channel
+- Stack Overflow
+- Project Wiki
 
 ## Running the Project
 
@@ -255,48 +407,6 @@ SWARM/
    # Check system status
    python tools/check_status.py
    ```
-
-## Troubleshooting
-
-### Common Issues
-
-#### Installation Issues
-1. Python version mismatch:
-   - Verify Python version: `python --version`
-   - Update if necessary
-
-2. Dependency conflicts:
-   - Use virtual environment
-   - Check requirements.txt
-   - Try: `pip install --upgrade -r requirements.txt`
-
-#### Configuration Issues
-1. Missing configuration:
-   - Copy example files
-   - Update settings
-   - Verify file permissions
-
-2. Invalid settings:
-   - Check format
-   - Verify values
-   - Check documentation
-
-#### Runtime Issues
-1. Database connection:
-   - Check credentials
-   - Verify connection
-   - Check logs
-
-2. Discord bot:
-   - Check token
-   - Verify permissions
-   - Check bot status
-
-### Getting Help
-1. Check documentation
-2. Search issues
-3. Join Discord
-4. Contact maintainers
 
 ## Maintenance
 
