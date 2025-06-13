@@ -12,6 +12,7 @@ from pathlib import Path
 from typing import Dict, List, Any, Optional, Set, Protocol, TypeVar, Generic
 
 from ..logging.log_manager import LogManager
+from ...utils.testing_utils import parse_test_failures as parse_failures
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -190,28 +191,5 @@ class RunnerCore(Generic[T]):
             }
     
     def parse_test_failures(self, output: str) -> Dict[str, str]:
-        """Parse test failures from pytest output.
-        
-        Args:
-            output: Pytest output string
-            
-        Returns:
-            Dictionary mapping test names to error messages
-        """
-        failures = {}
-        current_test = None
-        error_lines = []
-        
-        for line in output.split("\n"):
-            if line.startswith("FAILED"):
-                if current_test:
-                    failures[current_test] = "\n".join(error_lines)
-                current_test = line.split("::")[-1].strip()
-                error_lines = []
-            elif current_test and line.strip():
-                error_lines.append(line)
-        
-        if current_test:
-            failures[current_test] = "\n".join(error_lines)
-        
-        return failures 
+        """Parse test failures from pytest output."""
+        return parse_failures(output)
