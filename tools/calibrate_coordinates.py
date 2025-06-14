@@ -1,7 +1,10 @@
 import json
 import pyautogui
-import time
 from pathlib import Path
+import argparse
+
+# Default location used by automation utilities
+DEFAULT_COORDS_FILE = Path("runtime/config/cursor_agent_coords.json")
 
 def get_mouse_position():
     """Get current mouse position."""
@@ -34,8 +37,17 @@ def calibrate_agent(agent_number: int):
     input()
     initial_spot_x, initial_spot_y = get_mouse_position()
     
+    # ---------------------------------------------------------------------
+    # Choose correct coordinates file (runtime or legacy config directory)
+    # ---------------------------------------------------------------------
+
+    parser = argparse.ArgumentParser(add_help=False)
+    parser.add_argument("--coords", help="Path to cursor_agent_coords.json (default runtime path)")
+    args, _ = parser.parse_known_args()
+
+    coords_file = Path(args.coords) if args.coords else DEFAULT_COORDS_FILE
+
     # Load existing coordinates
-    coords_file = Path("config/cursor_agent_coords.json")
     with open(coords_file, 'r') as f:
         coordinates = json.load(f)
     
@@ -60,14 +72,10 @@ def calibrate_agent(agent_number: int):
     }
     
     # Save updated coordinates
-    with open(coords_file, 'w') as f:
+    with open(coords_file, 'w', encoding="utf-8") as f:
         json.dump(coordinates, f, indent=2)
     
-    print("\nCoordinates updated successfully!")
-    print(f"New coordinates for {agent_id}:")
-    print(f"Input box: ({input_box_x}, {input_box_y})")
-    print(f"Copy button: ({copy_button_x}, {copy_button_y})")
-    print(f"Initial spot: ({initial_spot_x}, {initial_spot_y})")
+    print(f"\nCoordinates saved → {coords_file.relative_to(Path.cwd())}")
 
 def calibrate_multiple_agents(start: int, end: int):
     """Calibrate multiple agents in sequence.
