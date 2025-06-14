@@ -1,0 +1,11 @@
+{{🟢 RESUME SEQUENCE – {{agent_id}}
+
+1. Sync with your inbox → agent_tools/mailbox/{{agent_id}}/inbox.json
+2. Continue next pending task (or self-assign if empty).
+3. Re-read docs/onboarding/00_agent_onboarding.md, then docs/onboarding/01_agent_core.md-04_advanced_topics.md if context is lost.
+4. Remember:
+   • Search first, reuse existing utilities (core/utils, shared modules).
+   • No code duplication – ever.
+   • Log every major step in your devlog.
+
+Reply "READY (cycle {{cycle_count}}) once you are active."}} 
