@@ -70,3 +70,21 @@ class TaskPriority(Enum):
     HIGH = 3
     URGENT = 4
     CRITICAL = 5 
+
+class TaskState(Enum):  # noqa: D401
+    """Legacy TaskState enumeration used by debug tests."""
+
+    IDLE = auto()
+    RUNNING = auto()
+    COMPLETED = auto()
+    ERROR = auto()
+
+__all__ = [
+    'MessageMode',
+    'MessagePriority',
+    'MessageType',
+    'MessageStatus',
+    'TaskStatus',
+    'TaskPriority',
+    'TaskState',
+] 

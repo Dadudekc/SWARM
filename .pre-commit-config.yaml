@@ -1,0 +1,21 @@
+repos:
+  - repo: https://github.com/psf/black
+    rev: 23.7.0
+    hooks:
+      - id: black
+        additional_dependencies: ["black==23.7.0"]
+
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4  # keep in sync with pyproject.toml/ruff version if present
+    hooks:
+      - id: ruff
+        additional_dependencies: ["ruff==0.4.4"]
+        args: ["--fix", "--exit-zero"]  # auto-fix but don't fail the commit
+
+  - repo: https://github.com/pre-commit/mirrors-pytest
+    rev: v8.0.0
+    hooks:
+      - id: pytest
+        args:
+          ["--maxfail=1", "--quiet", "tests/core/resumer_v2"]
+        additional_dependencies: ["pytest-asyncio", "pytest-cov"] 

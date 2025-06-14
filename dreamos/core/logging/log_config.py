@@ -66,6 +66,21 @@ class LogConfig:
     max_file_size: int = 10 * 1024 * 1024  # 10MB
     backup_count: int = 5
     metrics_enabled: bool = True
+    max_age_days: int = 30
+    platforms: Optional[Dict[str, str]] = None
+
+    # Allow additional kwargs in constructor for forward compatibility
+    def __init__(self, *args, **kwargs):  # type: ignore[override]
+        allowed = set(self.__annotations__.keys())
+        init_kwargs = {k: v for k, v in kwargs.items() if k in allowed}
+        super().__setattr__('level', init_kwargs.get('level', 'INFO'))
+        super().__setattr__('format', init_kwargs.get('format', DEFAULT_LOG_FORMAT))
+        super().__setattr__('log_dir', init_kwargs.get('log_dir', None))
+        super().__setattr__('max_file_size', init_kwargs.get('max_file_size', 10 * 1024 * 1024))
+        super().__setattr__('backup_count', init_kwargs.get('backup_count', 5))
+        super().__setattr__('metrics_enabled', init_kwargs.get('metrics_enabled', True))
+        super().__setattr__('max_age_days', init_kwargs.get('max_age_days', 30))
+        super().__setattr__('platforms', init_kwargs.get('platforms', None))
 
 # Default configuration
 DEFAULT_CONFIG = LogConfig()
@@ -161,7 +176,9 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
             "log_dir": self.log_dir,
             "max_file_size": self.max_file_size,
             "backup_count": self.backup_count,
-            "metrics_enabled": self.metrics_enabled
+            "metrics_enabled": self.metrics_enabled,
+            "max_age_days": self.max_age_days,
+            "platforms": self.platforms
         }
 
     @classmethod
@@ -191,7 +208,9 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
             f"format='{self.format}', "
             f"max_file_size={self.max_file_size}, "
             f"backup_count={self.backup_count}, "
-            f"metrics_enabled={self.metrics_enabled})"
+            f"metrics_enabled={self.metrics_enabled}, "
+            f"max_age_days={self.max_age_days}, "
+            f"platforms={self.platforms})"
         )
 
     def __repr__(self) -> str:
@@ -202,7 +221,9 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
             f"format='{self.format}', "
             f"max_file_size={self.max_file_size}, "
             f"backup_count={self.backup_count}, "
-            f"metrics_enabled={self.metrics_enabled})"
+            f"metrics_enabled={self.metrics_enabled}, "
+            f"max_age_days={self.max_age_days}, "
+            f"platforms={self.platforms})"
         )
 
 # Constants

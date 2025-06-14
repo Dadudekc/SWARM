@@ -92,9 +92,16 @@ class AgentStateManager:
         Returns:
             bool: True if update was successful
         """
-        success = await self._write_state_file_async(state)
+        # Merge *changes* into the currently persisted state so that mandatory
+        # fields (``agent_id``, ``cycle_count`` …) are preserved when callers
+        # supply a *partial* update such as ``{"status": "running"}``.
+
+        current_state = await self._load_state_async() or {}
+        merged_state = {**current_state, **state}
+
+        success = await self._write_state_file_async(merged_state)
         if success:
-            await self._emit_event("state_updated", state)
+            await self._emit_event("state_updated", merged_state)
         return success
         
     async def add_task(self, task: Dict[str, Any]) -> bool:

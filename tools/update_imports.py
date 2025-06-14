@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 """
 Update imports in Python files based on the move map.
-This script handles Phase 2 of the agent_tools restructuring.
+This script handles Phase 2 of the dreamos restructuring.
+It updates import statements in Python files to use the new package structure.
 """
 
 import os
@@ -15,9 +16,9 @@ from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 # Configuration
-ROOT_DIR = Path("agent_tools")
+ROOT_DIR = Path("dreamos")
 MOVE_MAP_FILE = ROOT_DIR / "file_move_map.json"
-BACKUP_DIR = Path("backups") / f"import_update_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
+BACKUP_DIR = Path("backups") / f"dreamos_restructure_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
 DRY_RUN = False
 
 # Setup logging
@@ -31,17 +32,17 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-def create_backup() -> bool:
-    """Create a backup of the agent_tools directory."""
-    try:
-        if BACKUP_DIR.exists():
-            shutil.rmtree(BACKUP_DIR)
-        shutil.copytree(ROOT_DIR, BACKUP_DIR)
-        logger.info(f"Created backup at {BACKUP_DIR}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to create backup: {e}")
-        return False
+def create_backup():
+    """Create a backup of the dreamos directory."""
+    if not BACKUP_DIR.exists():
+        BACKUP_DIR.mkdir(parents=True)
+    
+    # Copy files to backup
+    for file in ROOT_DIR.rglob("*.py"):
+        rel_path = file.relative_to(ROOT_DIR)
+        backup_file = BACKUP_DIR / rel_path
+        backup_file.parent.mkdir(parents=True, exist_ok=True)
+        backup_file.write_text(file.read_text())
 
 def load_move_map() -> Dict[str, str]:
     """Load the move map from JSON file."""
@@ -159,9 +160,7 @@ def main():
     logger.info("Starting import updates")
     
     # Create backup
-    if not create_backup():
-        logger.error("Failed to create backup. Aborting.")
-        return
+    create_backup()
     
     # Load move map
     move_map = load_move_map()

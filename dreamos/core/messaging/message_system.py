@@ -17,6 +17,10 @@ from ..shared.persistent_queue import PersistentQueue as SharedPersistentQueue
 
 logger = logging.getLogger('dreamos.messaging')
 
+# Compatibility alias – older code expected a `MessageRecord` dataclass that was
+# later renamed to `Message`.  Expose an alias so legacy imports keep working.
+MessageRecord = Message  # type: ignore
+
 class MessageQueue(ABC):
     """Abstract base class for message queue implementations."""
     

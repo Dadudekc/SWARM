@@ -9,11 +9,13 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from agent_tools.autonomy.task_completion import (
+from dreamos.core.autonomy.task_completion import (
     TaskCompletionHook,
     TaskCompletionManager,
     on_task_complete,
-    TASK_TAGS
+    TASK_TAGS,
+    TaskCompletionStatus,
+    TaskCompletionError
 )
 
 @pytest.fixture
@@ -45,7 +47,7 @@ def mock_discord_devlog():
 @pytest.fixture
 def task_completion_hook(mock_discord_devlog):
     """Create a TaskCompletionHook instance with mocked dependencies."""
-    with patch('agent_tools.autonomy.task_completion.DiscordDevlog', return_value=mock_discord_devlog):
+    with patch('dreamos.core.autonomy.task_completion.DiscordDevlog', return_value=mock_discord_devlog):
         hook = TaskCompletionHook(
             agent_id="Agent-1",
             webhook_url="https://discord.com/api/webhooks/test",
@@ -242,7 +244,7 @@ async def test_global_on_task_complete(temp_config):
     mock_manager = AsyncMock()
     mock_manager.handle_task_completion.return_value = True
     
-    with patch('agent_tools.autonomy.task_completion.TaskCompletionManager', return_value=mock_manager):
+    with patch('dreamos.core.autonomy.task_completion.TaskCompletionManager', return_value=mock_manager):
         success = await on_task_complete("Agent-1", task)
         assert success
         mock_manager.handle_task_completion.assert_called_once_with("Agent-1", task) 

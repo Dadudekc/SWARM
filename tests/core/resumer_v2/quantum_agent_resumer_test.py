@@ -1,37 +1,31 @@
 import pytest
-pytest.skip("Skipping due to missing core import", allow_module_level=True)
 
-"""
-Tests for quantum_agent_resumer module.
-"""
+# ---------------------------------------------------------------------------
+# Active functional tests for `QuantumAgentResumer`                           
+# ---------------------------------------------------------------------------
 
-import pytest
-from unittest.mock import MagicMock, patch
-from dreamos.core.resumer_v2.quantum_agent_resumer import __init__, _init_event_handlers
+import asyncio
+from pathlib import Path
 
-# Fixtures
-
-@pytest.fixture
-def mock_agent():
-    """Mock agent for testing."""
-    return MagicMock()
-
-@pytest.fixture
-def mock_agent_bus():
-    """Mock agent bus for testing."""
-    return MagicMock()
+from dreamos.core.resumer_v2.quantum_agent_resumer import QuantumAgentResumer
 
 
-# Test cases
+@pytest.mark.asyncio
+async def test_quantum_agent_resumer_start_stop(tmp_path: Path) -> None:  # noqa: D401
+    """Resumer should start, increment a cycle, and stop cleanly."""
 
-@pytest.mark.skip(reason="Pending implementation")
-def test___init__():
-    """Test __init__ function."""
-    # TODO: Implement test
-    pass
+    resumer = QuantumAgentResumer(str(tmp_path))
 
-@pytest.mark.skip(reason="Pending implementation")
-def test__init_event_handlers():
-    """Test _init_event_handlers function."""
-    # TODO: Implement test
-    pass
+    # Start the resumer – this spawns a background health-check.
+    await resumer.start()
+
+    # Perform a quick mutation so we hit some of the code-paths.
+    assert await resumer.increment_cycle() is True
+
+    # Now stop and ensure the _running flag is cleared.
+    await resumer.stop()
+    assert resumer._running is False
+
+# ---------------------------------------------------------------------------
+# Legacy placeholder tests remain skipped until expanded.                    
+# ---------------------------------------------------------------------------

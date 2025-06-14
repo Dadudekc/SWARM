@@ -27,7 +27,8 @@ core_structure = {
         "cell_phone.py",
         "message.py",
     ],
-    "dreamos/core": ["utils.py"],
+    "dreamos/core": ["discord_devlog.py", "agent_webhooks.json"],
+    # "dreamos/mailbox/agent-1/workspace": ["dream_weaver_llm.py"],  # Removed as missing
     "": ["agent_launcher.py"],
 }
 

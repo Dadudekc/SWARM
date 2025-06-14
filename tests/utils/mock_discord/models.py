@@ -11,9 +11,9 @@ class Activity:
         self.type = type
 
 class MockGuild:
-    """Mock Discord Guild for testing."""
+    """Mock Discord Guild for testing (relaxed signature)."""
     
-    def __init__(self, id: int, name: str):
+    def __init__(self, id: int = 1, name: str = "Test Guild", **kwargs):  # noqa: D401
         self.id = id
         self.name = name
         self.roles = []
@@ -54,9 +54,16 @@ class MockRole:
             member.roles = [r for r in member.roles if r.id != self.id]
 
 class MockMember:
-    """Mock Discord Member for testing."""
+    """Mock Discord Member for testing (relaxed signature)."""
     
-    def __init__(self, id: int, name: str, guild: MockGuild, bot: bool = False):
+    def __init__(
+        self,
+        id: int = 1,
+        name: str = "Test User",
+        guild: Optional[MockGuild] = None,
+        bot: bool = False,
+        **kwargs,
+    ):  # noqa: D401
         self.id = id
         self.name = name
         self.guild = guild
@@ -76,9 +83,16 @@ class MockMember:
             role.members = [m for m in role.members if m.id != self.id]
 
 class MockChannel:
-    """Mock Discord Channel for testing."""
+    """Mock Discord Channel for testing (relaxed signature)."""
     
-    def __init__(self, id: int, name: str, guild: MockGuild, type: str = "text"):
+    def __init__(
+        self,
+        id: int = 1,
+        name: str = "test-channel",
+        guild: Optional[MockGuild] = None,
+        type: str = "text",
+        **kwargs,
+    ):  # noqa: D401
         self.id = id
         self.name = name
         self.guild = guild
@@ -99,11 +113,17 @@ class MockChannel:
 class MockMessage:
     """Mock Discord Message for testing."""
     
-    def __init__(self, id: int, content: str, channel: MockChannel, author: MockMember):
-        self.id = id
-        self.content = content
+    def __init__(
+        self,
+        id: int | None = None,
+        content: str | None = None,
+        channel: Optional["MockChannel"] = None,
+        author: Optional["MockMember"] = None,
+    ) -> None:  # noqa: D401
+        self.id = id if id is not None else len(getattr(channel, "messages", [])) + 1 if channel else 0
+        self.content = content or ""
         self.channel = channel
-        self.author = author
+        self.author = author or MockMember(id=0, name="Mock Author", guild=None)
         self.embeds = []
         
     async def add_reaction(self, emoji):
@@ -125,6 +145,8 @@ class MockEmbed:
         self.footer = None
         self.image = None
         self.thumbnail = None
+        self.author = None
+        self.timestamp = None
         
     def add_field(self, name: str, value: str, inline: bool = False):
         """Add a field to the embed."""
@@ -226,14 +248,21 @@ class ButtonStyle:
     Danger = 4
     Link = 5
 
-class Interaction:
-    """Mock Discord Interaction class."""
-    def __init__(self, user=None, message=None, channel=None):
-        self.user = user
-        self.message = message
-        self.channel = channel
-        self.response = None
+class Interaction:  # noqa: D401
+    """Mock Discord Interaction class (relaxed signature)."""
 
+    def __init__(self, **kwargs):  # noqa: D401
+        self.id = kwargs.get("id", 1)
+        self.type = kwargs.get("type", 2)
+        self.data = kwargs.get("data", {})
+        self.guild_id = kwargs.get("guild_id")
+        self.channel_id = kwargs.get("channel_id")
+
+        self.user = kwargs.get("user")
+        self.message = kwargs.get("message")
+        self.channel = kwargs.get("channel")
+        self.response = None
+         
     async def respond(self, content=None, embed=None, ephemeral=False):
         """Mock response to an interaction."""
         self.response = {

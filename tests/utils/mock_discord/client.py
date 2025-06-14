@@ -176,16 +176,19 @@ class VoiceClient:
 class MockContext:
     """Minimal mock for Discord command context."""
     def __init__(self, author=None, channel=None, guild=None, message=None):
-        self.author = author
-        self.channel = channel
-        self.guild = guild
-        self.message = message
+        from .models import MockMember, MockChannel, MockGuild, MockMessage  # local import to avoid cycles
+
+        self.guild = guild or MockGuild()
+        self.channel = channel or MockChannel(guild=self.guild)
+        self.author = author or MockMember(guild=self.guild)
+        self.message = message or MockMessage(content="ctx", channel=self.channel, author=self.author)
         self.command = None
         self.prefix = "!"
         self.invoked_with = None
         self.invoked_subcommand = None
         self.subcommand_passed = None
         self.command_failed = False
+        self.bot = None
 
     async def send(self, content=None, **kwargs):
         """Send a message."""

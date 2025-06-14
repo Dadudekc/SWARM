@@ -248,16 +248,17 @@ class QuantumAgentResumer:
         Args:
             task_data: Task data
         """
-        task = TaskState(
-            id=str(uuid.uuid4()),
-            type="TEST_FIX",
-            status="pending",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-            data=task_data
-        )
+        task = {
+            "id": str(uuid.uuid4()),
+            "type": "TEST_FIX",
+            "status": "pending",
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "data": task_data,
+        }
         
         await self.state_manager.add_task(task)
+        return task
         
     async def add_blocker_task(self, task_data: Dict[str, Any]):
         """Add a blocker task.
@@ -265,16 +266,17 @@ class QuantumAgentResumer:
         Args:
             task_data: Task data
         """
-        task = TaskState(
-            id=str(uuid.uuid4()),
-            type="BLOCKER-TEST-DEBUG",
-            status="pending",
-            created_at=datetime.now(),
-            updated_at=datetime.now(),
-            data=task_data
-        )
+        task = {
+            "id": str(uuid.uuid4()),
+            "type": "BLOCKER-TEST-DEBUG",
+            "status": "pending",
+            "created_at": datetime.now().isoformat(),
+            "updated_at": datetime.now().isoformat(),
+            "data": task_data,
+        }
         
         await self.state_manager.add_task(task)
+        return task
         
     async def get_test_debug_status(self) -> Dict[str, Any]:
         """Get test debug status.

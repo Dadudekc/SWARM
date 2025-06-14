@@ -1,0 +1,176 @@
+{
+    "Agent-1": {
+        "input_box": {
+            "x": -1280,
+            "y": 479
+        },
+        "copy_button": {
+            "x": -1018,
+            "y": 299
+        },
+        "input_box_initial": {
+            "x": -1263,
+            "y": 176
+        },
+        "input_box_followup": {
+            "x": -1263,
+            "y": 176
+        },
+        "initial_spot": {
+            "x": -1263,
+            "y": 176
+        }
+    },
+    "Agent-2": {
+        "input_box": {
+            "x": -308,
+            "y": 476
+        },
+        "copy_button": {
+            "x": -56,
+            "y": 297
+        },
+        "input_box_initial": {
+            "x": -320,
+            "y": 176
+        },
+        "initial_spot": {
+            "x": -320,
+            "y": 176
+        }
+    },
+    "Agent-3": {
+        "input_box": {
+            "x": -1273,
+            "y": 998
+        },
+        "copy_button": {
+            "x": -1017,
+            "y": 819
+        },
+        "input_box_initial": {
+            "x": -1273,
+            "y": 694
+        },
+        "initial_spot": {
+            "x": -1273,
+            "y": 694
+        }
+    },
+    "Agent-4": {
+        "input_box": {
+            "x": -307,
+            "y": 999
+        },
+        "copy_button": {
+            "x": -57,
+            "y": 819
+        },
+        "input_box_initial": {
+            "x": -327,
+            "y": 698
+        },
+        "initial_spot": {
+            "x": -327,
+            "y": 698
+        }
+    },
+    "Agent-5": {
+        "input_box": {
+            "x": 646,
+            "y": 418
+        },
+        "copy_button": {
+            "x": 902,
+            "y": 238
+        },
+        "input_box_initial": {
+            "x": 676,
+            "y": 116
+        },
+        "initial_spot": {
+            "x": 676,
+            "y": 116
+        }
+    },
+    "Agent-6": {
+        "input_box": {
+            "x": 1642,
+            "y": 415
+        },
+        "copy_button": {
+            "x": 1863,
+            "y": 238
+        },
+        "input_box_initial": {
+            "x": 1636,
+            "y": 115
+        },
+        "initial_spot": {
+            "x": 1636,
+            "y": 115
+        }
+    },
+    "Agent-7": {
+        "input_box": {
+            "x": 643,
+            "y": 937
+        },
+        "copy_button": {
+            "x": 904,
+            "y": 758
+        },
+        "input_box_initial": {
+            "x": 681,
+            "y": 638
+        },
+        "initial_spot": {
+            "x": 681,
+            "y": 638
+        }
+    },
+    "Agent-8": {
+        "input_box": {
+            "x": 1642,
+            "y": 937
+        },
+        "copy_button": {
+            "x": 1862,
+            "y": 758
+        },
+        "input_box_initial": {
+            "x": 1643,
+            "y": 639
+        },
+        "input_box_followup": {
+            "x": 1643,
+            "y": 639
+        },
+        "initial_spot": {
+            "x": 1643,
+            "y": 639
+        }
+    },
+    "global_ui": {
+        "input_box_initial": {
+            "x": 100,
+            "y": 200
+        },
+        "copy_button": {
+            "x": 300,
+            "y": 400
+        },
+        "send_button": {
+            "x": 150,
+            "y": 250
+        },
+        "response_area": {
+            "x": 350,
+            "y": 450
+        },
+        "agent_name_field": {
+            "x": 700,
+            "y": 100
+        }
+    }
+}

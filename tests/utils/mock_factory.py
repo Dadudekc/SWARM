@@ -1,4 +1,5 @@
 """Factory for creating mock Discord objects for testing."""
+from __future__ import annotations
 
 from typing import Any, Dict, List, Optional, Union, Callable, TypeVar, Generic
 from datetime import datetime

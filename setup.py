@@ -23,9 +23,7 @@ setup(
         "pydantic>=2.0.0"
     ],
     package_data={
-        "dreamos": ["core/*"],
-        "agent_tools": ["utils/*"],
-        "social": ["utils/*", "community/*"],
+        "dreamos": ["utils/*"],
     },
     entry_points={
         'console_scripts': [

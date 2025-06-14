@@ -80,32 +80,18 @@ class AgentMessageRouter(MessageRouter):
             bool: True if message was routed successfully
         """
         try:
-            # Check routing rules
-            if message.sender in self._routes:
-                allowed = self._routes[message.sender]
-                if message.recipient not in allowed:
-                    logger.warning(
-                        f"Message {message.id} blocked: {message.sender} not allowed to send to {message.recipient}"
-                    )
-                    return False
+            # System messages are always allowed
+            if message.sender != "system":
+                if message.sender in self._routes:
+                    allowed = self._routes[message.sender]
+                    if message.recipient not in allowed:
+                        logger.warning(
+                            f"Message {message.id} blocked: {message.sender} not allowed to send to {message.recipient}"
+                        )
+                        return False
             
-            # Get handlers for message type
-            handlers = self._handlers.get(message.type, [])
-            if not handlers and self._default_handler:
-                handlers = [self._default_handler]
-            
-            if not handlers:
-                logger.warning(f"No handlers found for message type {message.type}")
-                return False
-            
-            # Call all handlers
-            for handler in handlers:
-                try:
-                    await handler(message)
-                except Exception as e:
-                    logger.error(f"Error in handler for message {message.id}: {e}")
-            
-            logger.debug(f"Routed message {message.id} to {len(handlers)} handlers")
+            # No direct handler invocation here; processing is deferred to the
+            # MessageProcessor. Successfully passing routing checks returns ``True``.
             return True
             
         except Exception as e:

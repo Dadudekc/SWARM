@@ -1,5 +1,5 @@
 -e git+https://github.com/Dadudekc/SWARM.git@de227ca86a8a674197e62c1cc7c15c7e5ae09a8f#egg=dreamos
--e git+https://github.com/Dadudekc/SWARM.git@de227ca86a8a674197e62c1cc7c15c7e5ae09a8f#egg=swarm_tools_scanner&subdirectory=agent_tools\swarm_tools\scanner
+-e git+https://github.com/Dadudekc/SWARM.git@de227ca86a8a674197e62c1cc7c15c7e5ae09a8f#egg=swarm_tools_scanner&subdirectory=dreamos/core/scanner
 aiofiles==24.1.0
 aiohappyeyeballs==2.6.1
 aiohttp==3.12.11

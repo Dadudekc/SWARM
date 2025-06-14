@@ -1,18 +1,42 @@
 #!/usr/bin/env python3
 """
-Analyze the restructured agent_tools directory.
-Generates a summary of changes and directory tree.
+Analyze the restructured dreamos directory.
+This script helps verify the restructuring process by analyzing the new structure.
 """
 
 import json
+import logging
+import re
 from pathlib import Path
 from collections import defaultdict
 from typing import Dict, List, Set
 
+# Constants
+ROOT_DIR = Path("dreamos")
+MOVE_MAP_FILE = ROOT_DIR / "file_move_map.json"
+
 def load_move_map() -> Dict[str, str]:
     """Load the file move map."""
-    with open("agent_tools/file_move_map.json", "r") as f:
+    with open(MOVE_MAP_FILE, "r") as f:
         return json.load(f)
+
+def analyze_structure():
+    """Analyze the new directory structure."""
+    base_path = Path("dreamos")
+    
+    # Get all Python files
+    python_files = list(base_path.rglob("*.py"))
+    
+    # Analyze imports
+    import_map = {}
+    for file in python_files:
+        with open(file, "r") as f:
+            content = f.read()
+            # Find all imports
+            imports = re.findall(r"from\s+([\w.]+)\s+import", content)
+            import_map[file] = imports
+    
+    return import_map
 
 def analyze_directory(base_path: Path) -> Dict[str, int]:
     """Analyze directory structure and file counts."""
@@ -50,7 +74,7 @@ def generate_tree(base_path: Path, prefix: str = "", is_last: bool = True) -> st
 
 def main():
     """Main execution function."""
-    base_path = Path("agent_tools")
+    base_path = Path("dreamos")
     
     # Load move map
     move_map = load_move_map()

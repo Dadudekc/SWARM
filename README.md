@@ -21,12 +21,17 @@ For a quick reference of the repository layout, see [docs/directory_overview.md]
 The project is organized into feature-oriented folders. Below is a brief summary
 of the most important directories:
 
-- `dreamos/` – Core system implementation and agent orchestration logic.
+- `dreamos/` – Core functionality and utilities
+  - `core/` – Core system components
+  - `utils/` – Shared utilities
+  - `config/` – Configuration files
+  - `logs/` – System logs
+  - `tasks/` – Task definitions
+  - `mailbox/` – Agent communication
 - `agent_tools/` – Utilities for managing agents and scanning projects.
 - `discord_bot/` – Discord integration and bot commands.
 - `crime_report_generator/` – Stand‑alone module for generating crime reports.
 - `tools/` – Assorted helper scripts and automation utilities.
-- `config/` – Configuration templates and environment files.
 - `runtime/` – Temporary runtime files such as queues and logs.
 - `data/` – Generated data artifacts and reports.
 - `tests/` – Unit and integration tests.
@@ -66,31 +71,37 @@ The project is progressing through several planned phases. We are currently in *
 
 ## Installation
 
+## Quick Start
+
+1. Clone the repository:
 ```bash
-# Clone the repository
-git clone https://github.com/victor-general/Dream.OS.git
-cd Dream.OS
-
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-
-# Install dependencies
-pip install -r requirements.txt
-pip install -r requirements-test.txt  # For development
+git clone https://github.com/yourusername/dreamos.git
+cd dreamos
 ```
 
-### First Run Setup
-
+2. Create required directories:
 ```bash
-# Create required directories
-mkdir -p agent_tools/mailbox/agent0
-touch agent_tools/mailbox/agent0/inbox.json
+mkdir -p dreamos/mailbox/agent0
+touch dreamos/mailbox/agent0/inbox.json
+```
 
-# Copy and configure environment files
-cp discord_bot/.env.example discord_bot/.env
-# Edit the `.env` file with your bot token and any other credentials
+3. Install dependencies:
+```bash
+pip install -r requirements.txt
+```
+
+4. Run the system:
+```bash
+python -m dreamos
+```
+
+## Usage Example
+
+```python
+from dreamos.core.mailbox.message_handler import MessageHandler
+
+# Initialize message handler
+message_handler = MessageHandler(base_dir="dreamos/mailbox")
 ```
 
 ## Core Components
@@ -176,7 +187,7 @@ The Dream.OS messaging system is built on a robust mailbox-based architecture th
 ### Directory Structure
 
 ```
-agent_tools/
+dreamos/
   └── mailbox/
       ├── agent0/
       │   ├── inbox.json
@@ -198,11 +209,11 @@ agent_tools/
 ### Usage
 
 ```python
-from agent_tools.mailbox.message_handler import MessageHandler
+from dreamos.core.mailbox.message_handler import MessageHandler
 from dreamos.core.messaging.cell_phone import CellPhone
 
 # Initialize the message handler
-message_handler = MessageHandler(base_dir="agent_tools/mailbox")
+message_handler = MessageHandler(base_dir="dreamos/mailbox")
 
 # Create a cell phone for an agent
 cell_phone = CellPhone(config={

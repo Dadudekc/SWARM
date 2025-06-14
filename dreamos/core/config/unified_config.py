@@ -24,9 +24,13 @@ class ConfigType(Enum):
 class ConfigSection:
     """Represents a section of configuration."""
     name: str
-    data: Dict[str, Any] = field(default_factory=dict)
-    file_path: Optional[str] = None
-    config_type: ConfigType = ConfigType.JSON
+    data: Dict[str, Any]
+
+    def get(self, key: str, default: Any = None) -> Any:
+        return self.data.get(key, default)
+
+    def set(self, key: str, value: Any) -> None:
+        self.data[key] = value
 
 class ConfigManager:
     """Manages all configuration across the project."""
@@ -93,9 +97,7 @@ class ConfigManager:
             
             self.sections[section_name] = ConfigSection(
                 name=section_name,
-                data=data,
-                file_path=full_path,
-                config_type=config_type
+                data=data
             )
         except Exception as e:
             print(f"Error loading configuration {section_name}: {str(e)}")
@@ -180,6 +182,9 @@ class ConfigManager:
             self._load_all_configs()
             return True
 
+    def get_section(self, name: str) -> ConfigSection:
+        return self.sections.setdefault(name, ConfigSection(name, {}))
+
 # Global configuration manager instance
 config_manager = ConfigManager()
 
@@ -218,4 +223,28 @@ def reload_config(section: str = None) -> bool:
     Returns:
         bool: True if successful, False otherwise.
     """
-    return config_manager.reload_config(section) 
+    return config_manager.reload_config(section)
+
+def get_section(name: str) -> ConfigSection:
+    return config_manager.get_section(name)
+
+def set_value(section: str, key: str, value: Any) -> None:
+    config_manager.sections.setdefault(section, ConfigSection(name=section)).data[key] = value
+
+def get_value(section: str, key: str, default: Any = None) -> Any:
+    return config_manager.sections.get(section, ConfigSection(name=section)).data.get(key, default)
+
+# ---------------------------------------------------------------------------
+# Backwards-compatibility aliases for legacy import paths
+# ---------------------------------------------------------------------------
+class UnifiedConfigManager(ConfigManager):  # pragma: no cover – alias shim
+    """Legacy alias for ConfigManager expected by older code/tests."""
+
+    # Inherit everything without change
+    pass
+
+# Ensure symbol is part of public API if __all__ is defined
+if '__all__' in globals():
+    globals()['__all__'].append('UnifiedConfigManager')
+else:
+    __all__ = ['UnifiedConfigManager'] 

@@ -3,9 +3,14 @@
 from typing import Optional, List, Dict, Any, Callable
 
 class Interaction:
-    """Mock Discord Interaction class."""
+    """Mock Discord Interaction class accepting arbitrary kwargs (legacy tests augment)."""
     
-    def __init__(self, message: Any = None):
+    def __init__(self, message: Any = None, **kwargs):  # noqa: D401
+        self.id = kwargs.get("id", 0)
+        self.type = kwargs.get("type", 2)
+        self.data = kwargs.get("data", {})
+        self.guild_id = kwargs.get("guild_id")
+        self.channel_id = kwargs.get("channel_id")
         self.message = message
         self.response = InteractionResponse(self)
         self.followup = InteractionFollowup(self)

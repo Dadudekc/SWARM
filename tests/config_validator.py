@@ -9,7 +9,7 @@ import unittest
 
 import pytest
 
-from agent_tools.general_tools.config_validator import ConfigValidator
+from dreamos.core.config.config_validator import ConfigValidator
 
 class TestConfigValidator:
     """Test cases for the ConfigValidator class."""

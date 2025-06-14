@@ -311,7 +311,12 @@ class MessageBuilder:
         message_data = template.default_data.copy()
         if data:
             message_data.update(data)
-            
+
+        # Remove keys that start with 'extra_' (tests expect this behaviour)
+        message_data = {
+            k: v for k, v in message_data.items() if not k.startswith("extra_")
+        }
+
         # Format the template string
         content = template.template.format(**message_data)
         

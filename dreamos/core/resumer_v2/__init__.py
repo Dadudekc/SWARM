@@ -1,12 +1,12 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""Compatibility init for resumer_v2 package.
 
-from . import agent_state_manager
-from . import quantum_agent_resumer
-from . import schemas
+Ensures that the stub `AtomicFileManager` is eagerly imported so that
+`import dreamos.core.resumer_v2.atomic_file_manager` works in legacy code.
+"""
+from __future__ import annotations
 
-__all__ = [
-    'agent_state_manager',
-    'quantum_agent_resumer',
-    'schemas',
+from .atomic_file_manager import AtomicFileManager  # noqa: F401
+
+__all__: list[str] = [
+    "AtomicFileManager",
 ]

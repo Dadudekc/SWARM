@@ -29,6 +29,7 @@ wheels/
 .venv/
 venv/
 ENV/
+.venv_new/
 
 # IDE
 .idea/
@@ -40,17 +41,16 @@ ENV/
 # Logs and databases
 *.log
 logs/
-log/
 *.sqlite
 *.db
 rate_limits.db
 
-# Runtime files
+# Runtime and cache
 .pytest_cache/
 .coverage
 htmlcov/
-__pycache__/
-.pytest_cache/
+data/cache/
+data/state/
 
 # Test artifacts
 test_recipient/
@@ -69,16 +69,12 @@ Thumbs.db
 
 # Project specific
 agent_responses/
-agent_tools/
 episodes/
 messages/
 templates/
 runtime/
 !runtime/test_prompts/
 !runtime/test_prompts/TEST_AND_DEBUG_AUTONOMY.yaml
-test_logs/
-test_config/
-test_data/
 
 # Development tools
 tools/*.log
@@ -95,78 +91,19 @@ docs/_build/
 docs/_static/
 docs/_templates/
 
-# Discord Bot specific
-discord_bot/config.json
-discord_bot/*.log
-
-# Project specific
-runtime/config/cursor_agent_coords.json
-config/cursor_agent_coords.json
-
-# Environment variables
-.env.local
-
-# System files
-Thumbs.db
-
-# Exclude Chrome profile logs, cache, and databases
-Trading_/basicbot/chrome_profile/Default/Extension Rules/LOG*
-Trading_/basicbot/chrome_profile/Default/Extension Scripts/LOG*
-Trading_/basicbot/chrome_profile/Default/Extension State/LOG*
-Trading_/basicbot/chrome_profile/Default/Extension State/LOG.old*
-Trading_/basicbot/chrome_profile/Default/File System/000/t/Paths/LOG*
-Trading_/basicbot/chrome_profile/Default/File System/Origins/LOG*
-Trading_/basicbot/chrome_profile/Default/File System/Origins/LOG.old*
-Trading_/basicbot/chrome_profile/Default/IndexedDB/*/LOG*
-Trading_/basicbot/chrome_profile/Default/IndexedDB/*/LOG.old*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
-Trading_/basicbot/chrome_profile/Default/Service Worker/CacheStorage/*
-Trading_/basicbot/chrome_profile/Default/Service Worker/ScriptCache/*
-Trading_/basicbot/chrome_profile/Default/Cache/*
-Trading_/basicbot/chrome_profile/Default/Code Cache/*
-Trading_/basicbot/chrome_profile/Default/Network/Network Persistent State
-Trading_/basicbot/chrome_profile/Default/Network/Network Data
-Trading_/basicbot/chrome_profile/Default/QuotaManager*
-Trading_/basicbot/chrome_profile/Default/Visited Links
-Trading_/basicbot/chrome_profile/Default/Favicons
-Trading_/basicbot/chrome_profile/Default/Top Sites
-Trading_/basicbot/chrome_profile/Default/Shortcuts
-Trading_/basicbot/chrome_profile/Default/Preferences
-Trading_/basicbot/chrome_profile/Default/Secure Preferences
-Trading_/basicbot/chrome_profile/Default/Web Data
-Trading_/basicbot/chrome_profile/Default/Login Data
-Trading_/basicbot/chrome_profile/Default/Bookmarks
-Trading_/basicbot/chrome_profile/Default/Cookies
-Trading_/basicbot/chrome_profile/Default/TransportSecurity
-Trading_/basicbot/chrome_profile/Default/Network Action Predictor
-Trading_/basicbot/chrome_profile/Default/Network Persistent State
-Trading_/basicbot/chrome_profile/Default/Extension Cookies
-Trading_/basicbot/chrome_profile/Default/Extension State
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/MANIFEST-*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOCK
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/CURRENT
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/000*
-Trading_/basicbot/chrome_profile/Default/Local Storage/leveldb/LOG.old*
-
 # Bridge runtime files
 runtime/bridge_inbox/pending_requests.json
 runtime/bridge_inbox/bridge.log
 
 # Allow our new browser integration
-!agent_tools/general_tools/browser/
 !docs/specs/integrations/
 !config/stealth_bridge.yaml 
+
 # Runtime artifacts
 backups/
 data/health/
 *.runtime.log
 task_backlog.json
-
-# New virtual environment
-.venv_new/
 
 # Test directories
 tests/temp/
@@ -198,44 +135,13 @@ test_*.exe
 test_*.out
 test_*.err
 test_*.pid
-test_*.lock
-test_*.tmp
-test_*.temp
-test_*.bak
-test_*.swp
-test_*.swo
-test_*~
 
-# Test environment
-.env.test
-.env.testing
-.env.test.local
-.env.testing.local
-.env.test.development
-.env.testing.development
-.env.test.production
-.env.testing.production
+# Consolidated directories
+dreamos/
 
-# Test coverage
-.coverage
-coverage.xml
-htmlcov/
-.tox/
-.pytest_cache/
-.mypy_cache/
-.ruff_cache/
-
-# Python cache files
-__pycache__/
-*.py[cod]
-*$py.class
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-.nox/
-.hypothesis/
-.eggs/
-*.egg-info/
-.installed.cfg
-*.egg
+# Legacy directories (to be removed after consolidation)
+dreamos/reports/
+dreamos/social/
+dreamos/logs/
+dreamos/config/
+dreamos/tasks/

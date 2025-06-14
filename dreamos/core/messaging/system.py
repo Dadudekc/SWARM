@@ -74,30 +74,35 @@ class MessageSystem:
             return False
     
     async def broadcast(self, message: Message, exclude: Optional[Set[str]] = None) -> int:
-        """Broadcast a message to all agents except excluded ones.
-        
-        Args:
-            message: Message to broadcast
-            exclude: Optional set of agent IDs to exclude
-            
-        Returns:
-            int: Number of successful broadcasts
+        """Broadcast a message to all agents except *exclude* by cloning the provided
+        message for each recipient and sending it through the regular ``send`` pipeline.
         """
         try:
-            # Validate message
-            is_valid, error = await self._validator.validate(message)
-            if not is_valid:
-                logger.error(f"Message validation failed: {error}")
-                return 0
-            
-            # Broadcast message
-            success_count = await self._router.broadcast(message, exclude)
-            
-            logger.debug(f"Broadcast message {message.id} to {success_count} recipients")
+            exclude = exclude or set()
+
+            # Build a recipient set from the router configuration (union of all allowed recipients)
+            recipients: Set[str] = set()
+            for allowed in self._router._routes.values():  # pylint: disable=protected-access
+                recipients.update(allowed)
+
+            recipients -= exclude
+
+            success_count = 0
+            for recipient in recipients:
+                msg_copy = message.copy()
+                msg_copy.recipient = recipient
+                if await self.send(msg_copy):
+                    success_count += 1
+
+            logger.debug(
+                "Broadcast message %s to %d recipients (excluded=%s)",
+                message.id,
+                success_count,
+                exclude,
+            )
             return success_count
-            
-        except Exception as e:
-            logger.error(f"Error broadcasting message {message.id}: {e}")
+        except Exception as exc:  # noqa: B902
+            logger.error("Error broadcasting message %s: %s", message.id, exc)
             return 0
     
     def add_route(self, agent_id: str, allowed_recipients: Set[str]) -> None:
@@ -118,39 +123,32 @@ class MessageSystem:
         self._router.remove_route(agent_id)
     
     def add_handler(self, message_type: MessageType, handler: Callable) -> None:
-        """Add a handler for a message type.
-        
-        Args:
-            message_type: Type of message to handle
-            handler: Function to handle messages of this type
+        """Register a handler for a given message type on BOTH the router (synchronous path)
+        and the processor (queued path). This ensures that handlers registered via the public
+        API are invoked regardless of whether the message is delivered directly via routing
+        (e.g. broadcasts) or later consumed from the async processing queue.
         """
         self._processor.add_handler(message_type, handler)
     
     def remove_handler(self, message_type: MessageType, handler: Callable) -> None:
-        """Remove a handler for a message type.
-        
-        Args:
-            message_type: Type of message to remove handler for
-            handler: Handler function to remove
-        """
+        """Remove an existing handler from both the router and processor registries."""
         self._processor.remove_handler(message_type, handler)
     
     def set_default_handler(self, handler: Optional[Callable]) -> None:
-        """Set the default message handler.
-        
-        Args:
-            handler: Function to handle unhandled message types
-        """
+        """Register the default handler on both router and processor so unrecognised message
+        types are handled consistently."""
         self._processor.set_default_handler(handler)
     
-    def set_rate_limit(self, agent_id: str, max_messages: int, time_window: int) -> None:
+    def set_rate_limit(self, agent_id: str, max_messages: int, time_window) -> None:
         """Set rate limit for an agent.
         
-        Args:
-            agent_id: ID of agent to set limit for
-            max_messages: Maximum number of messages allowed in time window
-            time_window: Time window in seconds
+        This helper accepts either an ``int``/``float`` representing seconds or a
+        ``datetime.timedelta`` instance, forwarding a ``timedelta`` to the underlying
+        validator.
         """
+        from datetime import timedelta
+        if isinstance(time_window, (int, float)):
+            time_window = timedelta(seconds=time_window)
         self._validator.set_rate_limit(agent_id, max_messages, time_window)
     
     def set_content_pattern(self, message_type: MessageType, pattern: str) -> None:

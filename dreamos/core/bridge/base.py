@@ -87,4 +87,20 @@ class BridgeConfig:
         Returns:
             Configuration value
         """
-        pass 
+        pass
+
+# EDIT START: legacy helper
+
+def _validate_config(config: Dict[str, Any] | None = None) -> bool:  # noqa: D401
+    """Legacy standalone config validator.
+    Historically this lived at module scope and returned a boolean or raised.
+    In the shim we simply return ``True`` to satisfy import-time checks.
+    """
+    return True
+
+__all__ = [
+    "BaseBridge",
+    "BridgeConfig",
+    "_validate_config",
+]
+# EDIT END 

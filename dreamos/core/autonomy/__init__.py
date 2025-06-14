@@ -1,50 +1,44 @@
 # AUTO-GENERATED __init__.py
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
-from . import agent_loop
-from . import agent_state
-from . import auto_trigger_runner
-from . import autonomy_loop
-from . import autonomy_loop_runner
-from . import base_tracker
-from . import bridge_writer
-from . import codex_patch_tracker
-from . import content_loop
-from . import controller
-from . import core_response_loop_daemon
-from . import core_response_processor
-from . import cursor_agent_bridge
-from . import enhanced_response_loop_daemon
-from . import error_tracking
-from . import midnight_runner
-from . import patch_validator
-from . import processor_mode
-from . import startup
-from . import state
-from . import test_watcher
-from . import validation_engine
+from importlib import import_module
+from types import ModuleType
+from typing import Any
+import sys as _sys
 
 __all__ = [
-    'agent_loop',
-    'agent_state',
-    'auto_trigger_runner',
-    'autonomy_loop',
-    'autonomy_loop_runner',
-    'base_tracker',
-    'bridge_writer',
-    'codex_patch_tracker',
-    'content_loop',
-    'controller',
-    'core_response_loop_daemon',
-    'core_response_processor',
-    'cursor_agent_bridge',
-    'enhanced_response_loop_daemon',
-    'error_tracking',
-    'midnight_runner',
-    'patch_validator',
-    'processor_mode',
-    'startup',
-    'state',
-    'test_watcher',
-    'validation_engine',
+    "agent_loop",
+    "agent_state",
+    "auto_trigger_runner",
+    "autonomy_loop",
+    "autonomy_loop_runner",
+    "base_tracker",
+    "bridge_writer",
+    "codex_patch_tracker",
+    "content_loop",
+    "controller",
+    "core_response_loop_daemon",
+    "core_response_processor",
+    "cursor_agent_bridge",
+    "enhanced_response_loop_daemon",
+    "error_tracking",
+    "midnight_runner",
+    "patch_validator",
+    "processor_mode",
+    "startup",
+    "state",
+    "test_watcher",
+    "validation_engine",
 ]
+
+_prefix = __name__  # "dreamos.core.autonomy"
+
+
+def __getattr__(name: str) -> Any:  # noqa: D401
+    if name not in __all__:
+        raise AttributeError(name)
+
+    module: ModuleType = import_module(f"{_prefix}.{name}")
+    _sys.modules[f"{__name__}.{name}"] = module  # cache
+    globals()[name] = module
+    return module

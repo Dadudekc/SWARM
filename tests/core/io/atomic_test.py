@@ -1,37 +1,40 @@
-import pytest
-pytest.skip("Skipping due to missing core import", allow_module_level=True)
+"""Functional tests for :pymod:`dreamos.core.io.atomic`."""
 
-"""
-Tests for atomic module.
-"""
+from pathlib import Path
 
 import pytest
-from unittest.mock import MagicMock, patch
-from dreamos.core.io.atomic import safe_read, safe_write
 
-# Fixtures
-
-@pytest.fixture
-def mock_logger():
-    """Mock logger for testing."""
-    return MagicMock()
-
-@pytest.fixture
-def temp_file(tmp_path):
-    """Create a temporary file for testing."""
-    return tmp_path / "test_file.txt"
+# NOTE: Import *inside* tests to comply with the internal "no runtime module
+# import at collection time" linter used by this repository's pytest plugin.
 
 
-# Test cases
+def test_safe_write_and_read_round_trip(tmp_path: Path) -> None:
+    """`safe_write` should persist the exact bytes that `safe_read` later
+    retrieves.
 
-@pytest.mark.skip(reason="Pending implementation")
-def test_safe_read():
-    """Test safe_read function."""
-    # TODO: Implement test
-    pass
+    This verifies the basic happy-path as well as the fact that the helper
+    creates the destination file if it does **not** yet exist.
+    """
 
-@pytest.mark.skip(reason="Pending implementation")
-def test_safe_write():
-    """Test safe_write function."""
-    # TODO: Implement test
-    pass
+    target: Path = tmp_path / "sample.txt"
+    payload = "hello-atomic-world"
+
+    # Write → read → compare
+    from dreamos.core.io.atomic import safe_write, safe_read
+
+    safe_write(str(target), payload)
+    assert target.exists(), "safe_write did not create the file"
+
+    recovered = safe_read(str(target))
+    assert recovered == payload
+
+
+def test_safe_read_raises_for_missing_file(tmp_path: Path) -> None:
+    """`safe_read` should raise *FileNotFoundError* when the file is absent."""
+
+    missing: Path = tmp_path / "does_not_exist.txt"
+
+    from dreamos.core.io.atomic import safe_read
+
+    with pytest.raises(FileNotFoundError):
+        _ = safe_read(str(missing))

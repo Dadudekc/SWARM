@@ -9,7 +9,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_tools.general_tools.loop_drift_detector import LoopDriftDetector
+from dreamos.core.monitor.loop_drift_detector import LoopDriftDetector
 
 class TestLoopDriftDetector:
     """Test cases for the LoopDriftDetector class."""

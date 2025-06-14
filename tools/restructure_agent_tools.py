@@ -2,33 +2,32 @@
 """
 Agent Tools Restructuring Script - Phase 1
 
-This script handles the first phase of restructuring the agent_tools directory:
-1. Creates new directory structure
-2. Generates move map
-3. Copies files to new locations
-4. Cleans up empty directories and __pycache__
+This script handles the first phase of restructuring the dreamos directory:
+1. Creates a backup of the current structure
+2. Moves files to their new locations
+3. Updates import statements
 """
 
 import json
 import os
 import shutil
 import logging
-import datetime
+from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Set, Tuple
 
 # Configuration
-ROOT_DIR = Path("agent_tools")
+ROOT_DIR = Path("dreamos")
 DRY_RUN = False  # Set to True to preview changes
 MOVE_MAP_FILE = ROOT_DIR / "file_move_map.json"
-BACKUP_DIR = Path("backups") / f"agent_tools_restructure_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}"
+BACKUP_DIR = Path("backups") / f"dreamos_restructure_{datetime.now().strftime('%Y%m%d_%H%M%S')}"
 
 # Setup logging
 logging.basicConfig(
     level=logging.INFO,
     format='%(asctime)s - %(levelname)s - %(message)s',
     handlers=[
-        logging.FileHandler(f"restructure_{datetime.datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
+        logging.FileHandler(f"restructure_{datetime.now().strftime('%Y%m%d_%H%M%S')}.log"),
         logging.StreamHandler()
     ]
 )
@@ -143,17 +142,17 @@ FILE_MOVES = {
     "tests/integration/": "tests/integration/"
 }
 
-def create_backup() -> bool:
-    """Create a backup of the agent_tools directory."""
-    try:
-        if BACKUP_DIR.exists():
-            shutil.rmtree(BACKUP_DIR)
-        shutil.copytree(ROOT_DIR, BACKUP_DIR)
-        logger.info(f"Created backup at {BACKUP_DIR}")
-        return True
-    except Exception as e:
-        logger.error(f"Failed to create backup: {e}")
-        return False
+def create_backup():
+    """Create a backup of the dreamos directory."""
+    if not BACKUP_DIR.exists():
+        BACKUP_DIR.mkdir(parents=True)
+    
+    # Copy files to backup
+    for file in ROOT_DIR.rglob("*.py"):
+        rel_path = file.relative_to(ROOT_DIR)
+        backup_file = BACKUP_DIR / rel_path
+        backup_file.parent.mkdir(parents=True, exist_ok=True)
+        backup_file.write_text(file.read_text())
 
 def create_directories():
     """Create the new directory structure."""
@@ -242,9 +241,7 @@ def main():
     logger.info("Starting restructuring process")
     
     # Create backup
-    if not create_backup():
-        logger.error("Failed to create backup. Aborting.")
-        return
+    create_backup()
     
     # Create new directory structure
     create_directories()

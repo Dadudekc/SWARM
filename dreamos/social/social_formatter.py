@@ -210,10 +210,17 @@ class SocialFormatter:
         if platform not in self.PLATFORM_RULES:
             return title
             
-        max_length = self.PLATFORM_RULES[platform].get("title_max_length")
-        if not max_length:
-            return title
-            
+        # Prefer explicit *title_max_length* if supplied, otherwise fall back
+        # to the generic ``max_length`` so that platforms like *Twitter*—which
+        # have a hard character limit but no dedicated title rule—still honour
+        # the constraint.  This change fixes unit-tests that expect
+        # ``format_title('twitter', long_title)`` to truncate to <= 280 chars.
+
+        max_length = (
+            self.PLATFORM_RULES[platform].get("title_max_length")
+            or self.PLATFORM_RULES[platform]["max_length"]
+        )
+
         if len(title) <= max_length:
             return title
             

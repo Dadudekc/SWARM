@@ -38,10 +38,12 @@ class LogManager:
         console_handler.setFormatter(formatter)
         self._logger.addHandler(console_handler)
         
-        # Add file handler if path specified
-        if self._config.file_path:
-            os.makedirs(os.path.dirname(self._config.file_path), exist_ok=True)
-            file_handler = logging.FileHandler(self._config.file_path)
+        # Add file handler if log_dir specified
+        if self._config.log_dir:
+            log_dir = Path(self._config.log_dir)
+            log_dir.mkdir(parents=True, exist_ok=True)
+            log_file = log_dir / "dreamos.log"
+            file_handler = logging.FileHandler(log_file)
             file_handler.setFormatter(formatter)
             self._logger.addHandler(file_handler)
             

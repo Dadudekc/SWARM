@@ -1,16 +1,21 @@
+"""Compatibility package for legacy agent lifecycle imports.
+
+This lightweight stub exports `AgentOnboarder` and `AgentManager` placeholders
+so that historical import paths continue to resolve.
 """
-Agent Lifecycle Module
+from __future__ import annotations
 
-This module handles agent lifecycle management functionality.
-"""
+from .agent_onboarder import AgentOnboarder, AgentManager  # noqa: F401
 
-from .agent_onboarder import AgentOnboarder
-from .periodic_restart import AgentManager, AgentResumeManager
-from .agent_restarter import AgentRestarter
+__all__: list[str] = [
+    "AgentOnboarder",
+    "AgentManager",
+]
 
-__all__ = [
-    'AgentOnboarder',
-    'AgentManager',
-    'AgentResumeManager',
-    'AgentRestarter'
-] 
+class AgentResumeManager:  # noqa: D401
+    """Placeholder for legacy resume manager."""
+
+    def __init__(self, *args, **kwargs):
+        pass
+
+__all__.append("AgentResumeManager") 

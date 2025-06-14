@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from agent_tools.general_tools.find_duplicate_classes import DuplicateClassFinder
+from dreamos.core.utils.find_duplicate_classes import DuplicateClassFinder
 
 class TestDuplicateClassFinder:
     """Test cases for the DuplicateClassFinder class."""

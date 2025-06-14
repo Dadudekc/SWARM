@@ -104,7 +104,7 @@ class MetricsManager:
                 f"{self.namespace}_{name}",
                 description,
                 labels or [],
-                buckets=buckets
+                buckets=buckets or DEFAULT_LATENCY_BUCKETS
             )
         return self._histograms[name]
     
@@ -213,19 +213,18 @@ class LogManager:
         self._log(logging.ERROR, msg, exc_info=exc_info, **kwargs)
 
 def log_operation(
-    logger: LogManager,
     operation: str,
+    metrics: Optional[Counter] = None,
+    duration: Optional[Histogram] = None,
     level: int = logging.INFO
 ):
-    """Decorator to log operation execution with metrics.
+    """Decorator for logging operations with metrics.
     
     Args:
-        logger: Log manager instance
         operation: Operation name
+        metrics: Optional counter metric to increment
+        duration: Optional histogram metric for duration
         level: Logging level
-        
-    Returns:
-        Callable: Decorated function
     """
     def decorator(func: Callable):
         @wraps(func)
@@ -233,34 +232,14 @@ def log_operation(
             start_time = time.time()
             try:
                 result = await func(*args, **kwargs)
-                duration = time.time() - start_time
-                
-                logger._log(
-                    level,
-                    f"Operation {operation} completed",
-                    extra={
-                        "operation": operation,
-                        "duration": duration,
-                        "status": "success"
-                    }
-                )
+                if metrics:
+                    metrics.inc()
+                if duration:
+                    duration.observe(time.time() - start_time)
                 return result
-                
             except Exception as e:
-                duration = time.time() - start_time
-                logger._log(
-                    logging.ERROR,
-                    f"Operation {operation} failed",
-                    extra={
-                        "operation": operation,
-                        "duration": duration,
-                        "status": "error",
-                        "error": str(e)
-                    },
-                    exc_info=e
-                )
+                logger.exception(f"Error in {operation}")
                 raise
-                
         return wrapper
     return decorator
 

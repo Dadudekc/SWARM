@@ -95,12 +95,11 @@ class MessageValidator(MessageValidator):
                     if ts > cutoff
                 ]
                 
-                # Check if limit exceeded
+                # Check if limit exceeded *before* counting the current message
                 if len(self.message_counts[message.sender]) >= max_messages:
-                    return False, f"Rate limit exceeded: {max_messages} messages per {time_window}"
-                
-                # Add new timestamp
-                self.message_counts[message.sender].append(now)
+                    return False, (
+                        f"Rate limit exceeded: {max_messages} messages per {time_window}"
+                    )
             
             # Check content pattern
             if message.type in self.content_patterns:
@@ -115,6 +114,11 @@ class MessageValidator(MessageValidator):
                 if missing:
                     return False, f"Missing required fields for {message.type}: {missing}"
             
+            # All validation steps above have passed – we can now safely record the
+            # send-time so that *successful* deliveries count towards the rate limit.
+            if message.sender in self.rate_limits:
+                self.message_counts[message.sender].append(datetime.now())
+
             logger.debug(f"Message {message.id} validated successfully")
             return True, None
             

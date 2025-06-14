@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("CursorBridge")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ed3a7c20843fd510794ebc0a55ed45688f350755")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6493058771487adb58681b2c6bc25191817fa450")]
 [assembly: System.Reflection.AssemblyProductAttribute("CursorBridge")]
 [assembly: System.Reflection.AssemblyTitleAttribute("CursorBridge")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

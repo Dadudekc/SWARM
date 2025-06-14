@@ -2,14 +2,8 @@
 Test package for social media functionality.
 """
 
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+# Lightweight init – avoid importing sub-modules during collection time to
+# satisfy the repository's "no runtime imports" rule enforced by the custom
+# Pytest plugin.
 
-# Import test modules
-from . import test_formatter
-from . import test_rate_limiter
-
-__all__ = [
-    'test_formatter',
-    'test_rate_limiter',
-]
+__all__: list[str] = []

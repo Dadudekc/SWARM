@@ -6,6 +6,7 @@ import logging
 from typing import Dict, Any, Optional
 from pathlib import Path
 from datetime import datetime
+from dataclasses import dataclass, field
 
 from ..utils.metrics import metrics, logger, log_operation
 from ..utils.exceptions import handle_error
@@ -17,6 +18,45 @@ class LogLevel:
     WARNING = 30
     ERROR = 40
     CRITICAL = 50
+
+# ---------------------------------------------------------------------------
+# Compatibility shim: older modules expect ``LogConfig`` to reside in this
+# module alongside ``LogManager``.  A lightweight implementation is provided
+# here to unblock imports required by the unit-test suite.  It focuses only on
+# the attributes that are consumed elsewhere in the code-base (log_dir,
+# max_size_mb, max_files, compress_after_days) and can be extended later if
+# needed.
+# ---------------------------------------------------------------------------
+@dataclass
+class LogConfig:
+    """Lightweight logging configuration container.
+
+    This implementation is intentionally minimal – it just needs to expose the
+    attributes that other modules (e.g. the social *LogRotator*) reference.  A
+    fuller configuration system can be wired in later without breaking the
+    public interface.
+    """
+
+    log_dir: str = "./logs"
+    max_size_mb: int = 10
+    max_files: int = 5
+    compress_after_days: int = 7
+
+    # Allow passing arbitrary extra keyword arguments without raising errors –
+    # useful when callers supply a superset of settings.
+    def __init__(self, **kwargs):
+        for key, value in kwargs.items():
+            setattr(self, key, value)
+
+        # populate defaults for any missing expected fields
+        if not hasattr(self, "log_dir"):
+            self.log_dir = "./logs"
+        if not hasattr(self, "max_size_mb"):
+            self.max_size_mb = 10
+        if not hasattr(self, "max_files"):
+            self.max_files = 5
+        if not hasattr(self, "compress_after_days"):
+            self.compress_after_days = 7
 
 class LogManager:
     """Unified logging manager with metrics integration."""

@@ -1,0 +1,41 @@
+[
+  {
+    "type": "resume_trigger",
+    "from_agent": "chatgpt_bridge",
+    "content": "Reply for alpha",
+    "timestamp": "2025-06-14T09:21:21.780380",
+    "metadata": {
+      "source": "reply_handoff_watcher",
+      "tags": [
+        "chatgpt_reply",
+        "resume"
+      ]
+    }
+  },
+  {
+    "type": "resume_trigger",
+    "from_agent": "chatgpt_bridge",
+    "content": "Another reply",
+    "timestamp": "2025-06-14T09:22:12.889933",
+    "metadata": {
+      "source": "reply_handoff_watcher",
+      "tags": [
+        "chatgpt_reply",
+        "resume"
+      ]
+    }
+  },
+  {
+    "type": "resume_trigger",
+    "from_agent": "chatgpt_bridge",
+    "content": "third reply",
+    "timestamp": "2025-06-14T09:23:00.980727",
+    "metadata": {
+      "source": "reply_handoff_watcher",
+      "tags": [
+        "chatgpt_reply",
+        "resume"
+      ]
+    }
+  }
+]

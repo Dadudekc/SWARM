@@ -1,16 +1,14 @@
-# AUTO-GENERATED __init__.py
-# DO NOT EDIT MANUALLY - changes may be overwritten
+"""
+Social Package
 
-from . import devlog_dispatcher
-from . import platform_login
-from . import platform_poster
-from . import rate_limiter
-from . import social_formatter
+Contains social media integration functionality.
+"""
+
+from .config.social_config import SocialConfig, social_config
+from . import utils
 
 __all__ = [
-    'devlog_dispatcher',
-    'platform_login',
-    'platform_poster',
-    'rate_limiter',
-    'social_formatter',
+    'SocialConfig',
+    'social_config',
+    'utils',
 ]

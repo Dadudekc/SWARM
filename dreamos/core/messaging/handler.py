@@ -130,7 +130,14 @@ class MessageProcessor(MessageHandler):
                     self._message_queue.task_done()
                 except Exception as e:
                     logger.error(f"Error in message processing loop: {e}")
-                await asyncio.sleep(0.1)
+
+                # Yield control **only** when the queue is empty so we do not
+                # introduce unnecessary latency while messages are waiting to
+                # be processed (fixes flaky timing-based tests).
+                if self._message_queue.empty():
+                    # A very short sleep is enough to yield to the event-loop
+                    # without noticeably delaying delivery.
+                    await asyncio.sleep(0.01)
         
         self._processing_task = asyncio.create_task(process_loop())
         logger.info("Started message processor")

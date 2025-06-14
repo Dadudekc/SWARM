@@ -465,6 +465,13 @@ class SimpleQueue(MessageQueue):
     async def acknowledge(self, message_id: str) -> bool:
         """Mark message as processed."""
         return True
+    
+    async def dequeue(self, agent_id: str):
+        """Pop first message for the agent if present."""
+        msgs = self._messages.get(agent_id)
+        if msgs:
+            return msgs.pop(0)
+        return None
 
 class SimpleHistory(MessageHistory):
     """Simple message history implementation."""

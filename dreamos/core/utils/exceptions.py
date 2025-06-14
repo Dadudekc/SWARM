@@ -3,7 +3,31 @@
 from __future__ import annotations
 
 from typing import Optional, Dict, Any
-from dreamos.core.utils.metrics import logger, metrics
+
+try:
+    from dreamos.core.utils.metrics import logger, metrics  # type: ignore
+except ImportError:  # pragma: no cover – fallback for incomplete refactor
+    import logging
+
+    logger = logging.getLogger("dreamos-exceptions")
+
+    class _MetricsStub:
+        """Minimal stub to satisfy metrics calls when prom client is absent."""
+
+        class _Counter:
+            def __init__(self, *_, **__):
+                pass
+
+            def labels(self, **__):  # noqa: D401, ANN001
+                return self
+
+            def inc(self, *_):
+                pass
+
+        def counter(self, *_):
+            return self._Counter()
+
+    metrics = _MetricsStub()  # type: ignore
 
 class DreamOSError(Exception):
     """Base exception class for Dream.OS."""
@@ -169,6 +193,12 @@ class TimeoutError(DreamOSError):
         """
         super().__init__(message, "TIMEOUT_ERROR", details)
 
+class BridgeError(DreamOSError):
+    """Bridge integration error."""
+
+    def __init__(self, message: str, details: Optional[Dict[str, Any]] = None):
+        super().__init__(message, "BRIDGE_ERROR", details)
+
 def handle_error(
     error: Exception,
     context: Optional[Dict[str, Any]] = None
@@ -199,3 +229,16 @@ def handle_error(
         "UNKNOWN_ERROR",
         context
     )
+
+__all__ = [
+    'DreamOSError',
+    'FileOpsError',
+    'FileOpsPermissionError',
+    'FileOpsIOError',
+    'ConfigError',
+    'MessageError',
+    'ValidationError',
+    'ResourceError',
+    'TimeoutError',
+    'BridgeError',
+]

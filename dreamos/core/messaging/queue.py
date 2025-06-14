@@ -19,10 +19,18 @@ class AsyncMessageQueue(MessageQueue):
         Args:
             max_size: Optional maximum queue size
         """
+        if max_size is None:
+            max_size = 0  # asyncio.PriorityQueue expects an int; 0 means unlimited
         self._queue = asyncio.PriorityQueue(maxsize=max_size)
         self._message_map: Dict[str, Message] = {}
         self._processing = False
         self._processing_task: Optional[asyncio.Task] = None
+        # Monotonic counter used as a *tie-breaker* for the priority queue so
+        # that two messages with identical ``priority`` *and* ``timestamp``
+        # never cause the underlying ``heapq`` implementation to attempt a
+        # direct comparison between ``Message`` instances (which raises
+        # ``TypeError: '<' not supported between instances of 'Message' and 'Message'``).
+        self._counter: int = 0
     
     async def enqueue(self, message: Message) -> bool:
         """Add a message to the queue.
@@ -37,9 +45,15 @@ class AsyncMessageQueue(MessageQueue):
             # Store message in map
             self._message_map[message.id] = message
             
-            # Add to queue with priority
-            priority = (message.priority.value, message.timestamp)
-            await self._queue.put((priority, message))
+            # Add to queue with *stable* priority ordering.  We append a
+            # monotonically increasing counter so that the comparison never
+            # falls back to the ``Message`` object when ``priority`` and
+            # ``timestamp`` are equal (this can legitimately happen during
+            # broadcasts where clones share a timestamp).
+            priority_key = (message.priority.value, message.timestamp, self._counter)
+            self._counter += 1
+
+            await self._queue.put((priority_key, message))
             
             logger.debug(f"Enqueued message {message.id} with priority {message.priority}")
             return True
@@ -58,6 +72,8 @@ class AsyncMessageQueue(MessageQueue):
             if self._queue.empty():
                 return None
                 
+            # Unpack the tuple—index `0` is our *priority key*, index `1` the
+            # actual message instance.
             _, message = await self._queue.get()
             
             # Remove from message map
@@ -80,7 +96,7 @@ class AsyncMessageQueue(MessageQueue):
             if self._queue.empty():
                 return None
                 
-            # Peek at the next message
+            # Peek at the next message (index `1` holds the message object).
             message = self._queue._queue[0][1]
             return message
             
