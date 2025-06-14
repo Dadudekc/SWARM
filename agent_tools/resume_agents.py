@@ -18,7 +18,17 @@ python resume_agents.py
 python resume_agents.py --agents Agent-2,Agent-4 --prompt "Please resume testing."
 
 # Same as above but read the prompt from a text file
-python resume_agents.py --prompt-file prompts/resume.txt
+python resume_agents.py --prompt-file {{ RESUME SEQUENCE  {{agent_id}}
+
+1. Sync with your inbox  agent_tools/mailbox/{{agent_id}}/inbox.json
+2. Continue next pending task (or self-assign if empty).
+3. Re-read docs/onboarding/00_agent_onboarding.md, then docs/onboarding/01_agent_core.md-04_advanced_topics.md if context is lost.
+4. Remember:
+    Search first, reuse existing utilities (core/utils, shared modules).
+        No code duplication  ever.
+            Log every major step in your devlog.
+            
+            Reply "READY (cycle {{cycle_count}}) once you are active."}}prompts/resume.txt
 
 # Pop up a small Tkinter window to choose / write the prompt interactively
 python resume_agents.py --gui
