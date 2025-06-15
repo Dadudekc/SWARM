@@ -26,7 +26,6 @@ TEST_CATEGORIES = {
     },
     "integration": {
         "core": [
-            "tests/core/integration",
             "tests/core/handlers",
         ],
         "features": [
