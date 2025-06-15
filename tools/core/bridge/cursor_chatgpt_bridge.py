@@ -34,4 +34,3 @@ __all__ = [
     "BASE_WAIT",
     "CHATGPT_URL",
 ]
-

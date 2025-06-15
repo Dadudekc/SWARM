@@ -5,7 +5,7 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, Optional, List, Set
 
-from dreamos.discord.devlog_manager import DiscordDevlog
+from agent_tools.discord import post_status
 
 # Tag categories for better organization
 TASK_TAGS = {
@@ -23,11 +23,6 @@ class TaskCompletionHook:
         self.agent_id = agent_id
         self.webhook_url = webhook_url
         self.footer = footer
-        self.discord_devlog = DiscordDevlog(
-            webhook_url=webhook_url,
-            agent_name=agent_id,
-            footer=footer
-        )
         
     def _extract_mentioned_agents(self, content: str) -> Set[str]:
         """Extract mentioned agents from content."""
@@ -131,20 +126,21 @@ class TaskCompletionHook:
             if task.get('description'):
                 mentioned_agents = self._extract_mentioned_agents(task['description'])
             
-            # Update Discord devlog
-            success = await self.discord_devlog.update_devlog(
-                content=content,
-                title=f"Task Completed: {task.get('title', 'Untitled Task')}",
-                memory_state={
-                    'status': task.get('status', 'completed'),
-                    'task_id': task.get('task_id', ''),
-                    'type': task.get('type', 'task'),
-                    'mentioned_agents': list(mentioned_agents)
-                }
-            )
+            # Build embed payload
+            payload = {
+                "title": f"Task Completed: {task.get('title', 'Untitled Task')}",
+                "description": content,
+                "fields": [
+                    {"name": "Status", "value": task.get('status', 'completed')},
+                    {"name": "ID", "value": task.get('task_id', '') or '—'},
+                    {"name": "Priority", "value": task.get('priority', 'n/a')},
+                ],
+            }
+
+            success = post_status(self.agent_id, payload)
             
             if not success:
-                print(f"Failed to update devlog for task {task.get('task_id', 'unknown')}")
+                print(f"Failed to post Discord update for task {task.get('task_id', 'unknown')}")
                 return False
                 
             # Also update local devlog file

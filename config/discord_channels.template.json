@@ -1,0 +1,11 @@
+{
+  "Agent-1": "https://discord.com/api/webhooks/REPLACE_ME_AGENT1",
+  "Agent-2": "https://discord.com/api/webhooks/REPLACE_ME_AGENT2",
+  "Agent-3": "https://discord.com/api/webhooks/REPLACE_ME_AGENT3",
+  "Agent-4": "https://discord.com/api/webhooks/REPLACE_ME_AGENT4",
+  "Agent-5": "https://discord.com/api/webhooks/REPLACE_ME_AGENT5",
+  "Agent-6": "https://discord.com/api/webhooks/REPLACE_ME_AGENT6",
+  "Agent-7": "https://discord.com/api/webhooks/REPLACE_ME_AGENT7",
+  "Agent-8": "https://discord.com/api/webhooks/REPLACE_ME_AGENT8",
+  "default": "https://discord.com/api/webhooks/REPLACE_ME_DEFAULT"
+} 

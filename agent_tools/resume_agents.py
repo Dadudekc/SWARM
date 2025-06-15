@@ -47,6 +47,8 @@ import pyautogui  # noqa: F401  # imported for side-effects (mouse / keyboard)
 # Re-use existing restart helpers – honour the reuse-first rule ✅
 from tools.core.resume import agent_restart as _ar
 
+from agent_tools.discord import post_status
+
 logger = logging.getLogger("agent_tools.resume_agents")
 logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
