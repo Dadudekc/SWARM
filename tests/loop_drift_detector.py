@@ -9,7 +9,8 @@ from pathlib import Path
 
 import pytest
 
-from dreamos.core.monitor.loop_drift_detector import LoopDriftDetector
+# Import from the tools package where the detector implementation lives
+from tools.core.monitor.loop_drift_detector import LoopDriftDetector
 
 class TestLoopDriftDetector:
     """Test cases for the LoopDriftDetector class."""
