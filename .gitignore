@@ -145,3 +145,10 @@ dreamos/social/
 dreamos/logs/
 dreamos/config/
 dreamos/tasks/
+
+# Browser automation profiles / caches
+chrome_profile/
+drivers/
+
+# Per-agent devlogs (kept outside repo history)
+data/*/devlog.md
