@@ -1,5 +1,0 @@
-D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0\CursorBridge.GeneratedMSBuildEditorConfig.editorconfig
-D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0\CursorBridge.AssemblyInfoInputs.cache
-D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0\CursorBridge.AssemblyInfo.cs
-D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0\CursorBridge.csproj.CoreCompileInputs.cache
-D:\SWARM\Dream.OS\dreamos\bridge_clients\CursorBridge\obj\Debug\net8.0\CursorBridge.sourcelink.json
