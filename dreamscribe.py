@@ -17,6 +17,7 @@ from dreamos.core.utils.logging_utils import get_logger
 LOGGER = get_logger(__name__)
 LOG_PATH = Path("runtime/dreamscape_log.jsonl")
 DEVLOG_ROOT = Path("runtime/devlog/agents")
+LORE_PATH = Path(".memory/lore.jsonl")
 
 
 def _extract_latest(devlog_path: Path) -> Optional[Dict[str, str]]:
@@ -55,6 +56,13 @@ def _append_event(event: Dict[str, str]) -> None:
         f.write(json.dumps(event) + "\n")
 
 
+def _append_lore(record: Dict[str, str]) -> None:
+    """Persist narrative fragments for long-term lore."""
+    LORE_PATH.parent.mkdir(parents=True, exist_ok=True)
+    with LORE_PATH.open("a", encoding="utf-8") as f:
+        f.write(json.dumps(record) + "\n")
+
+
 def process_devlog(agent_id: str, devlog_path: Path, scribe: Dreamscribe) -> None:
     entry = _extract_latest(devlog_path)
     if not entry:
@@ -67,6 +75,12 @@ def process_devlog(agent_id: str, devlog_path: Path, scribe: Dreamscribe) -> Non
         "sentiment": _sentiment(entry["content"]),
     }
     _append_event(event)
+    lesson = (
+        "success" if event["sentiment"] == "positive" else
+        "needs improvement" if event["sentiment"] == "negative" else
+        "observation"
+    )
+    _append_lore({"event": event["task"], "agent": agent_id, "lesson": lesson})
     scribe.ingest_devlog({
         "agent_id": agent_id,
         "content": entry["content"],
