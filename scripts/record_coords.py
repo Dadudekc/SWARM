@@ -23,6 +23,8 @@ def record(agent: int, profile: str, *, p: Path | None = None):
         raise ValueError(profile)
     p = p or _cfg()
     import pyautogui  # patched in tests
+    # Prompt user before capture for clearer UX
+    input(f"🖱️  Place cursor over the input box for Agent-{agent} then press ENTER …")
     x, y = pyautogui.position()
     db = _read(p)
     db.setdefault(profile, {})[f"Agent-{agent}"] = {"x": x, "y": y}
