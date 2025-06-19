@@ -26,3 +26,12 @@ This log summarizes structural changes applied to simplify the repository layout
 
 ## repository cleanup
 - Relocated `errors/invalid.json` to `tests/fixtures/invalid.json` and removed the obsolete `errors/` folder.
+
+## latest changes
+- Removed `dreamos/core/autonomy/bridge` and disabled the unused test bridge in `autonomy_loop_runner`.
+- Flattened `dreamos/core/autonomy/runners` into `runners.py`.
+- Deleted obsolete `dreamos/core/resumer_v2/tests` package.
+- Moved `dreamos/bridge_clients/CursorBridge/bridge/ResponseExtractor.cs` to the client root and updated namespaces.
+- Collapsed `dreamos/core/tasks/manager.py` to `task_manager.py` and updated documentation references.
+- Relocated `dreamos/reports/chatgpt_project_context.json` under `docs/reports`.
+- Removed the unused `dreamos/core/errors` compatibility package.

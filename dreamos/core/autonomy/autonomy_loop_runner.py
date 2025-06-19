@@ -81,16 +81,8 @@ class AutonomyLoopRunner(RunnerCore[str]):
         # Initialize devlog components
         self.devlog_manager = DevLogManager()
         
-        # Only import TestDevLogBridge in test environment
-        if os.environ.get('PYTEST_CURRENT_TEST'):
-            from .bridge.test_devlog_bridge_isolated import TestDevLogBridge
-            self.test_bridge = TestDevLogBridge(
-                devlog_manager=self.devlog_manager,
-                autonomy_runner=self,
-                config_path="config/test_devlog_config.json"
-            )
-        else:
-            self.test_bridge = None
+        # Test bridge is disabled; placeholder for future integration
+        self.test_bridge = None
         
         self.logger = LogManager()
         self.bridge = ChatGPTBridge(self.config)
