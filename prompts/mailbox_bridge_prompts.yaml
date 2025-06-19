@@ -1,0 +1,14 @@
+# Prompts for mailbox bridge automation
+prompts:
+  - id: CLICK-COPY-TO-THEA-MAILBOX
+    text: |
+      Trigger Cursor's Copy Response button, read the clipboard,
+      and append the text to THEA's mailbox.
+  - id: THEA-FORWARD-TO-CHATGPT
+    text: |
+      THEA polls her inbox for bridge_request messages and forwards
+      the content to ChatGPT via the bridge service.
+  - id: CHATGPT-REPLY-TYPER
+    text: |
+      When a reply is received, type it back into the target agent's
+      input box using PyAutoGUI.
