@@ -14,7 +14,7 @@ import logging
 from dataclasses import dataclass, asdict
 import hashlib
 from uuid import uuid4
-from ..nlp.keyword_extract import KeywordExtractor
+from ..keyword_extract import KeywordExtractor
 from .gpt_router import Router, Engine
 
 # Constants
