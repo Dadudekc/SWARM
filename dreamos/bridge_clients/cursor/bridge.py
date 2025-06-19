@@ -5,7 +5,7 @@ import time
 import asyncio
 from typing import Dict, Any, Optional
 from dreamos.core.bridge.base import BaseBridge
-from dreamos.core.errors.bridge_errors import BridgeError
+from dreamos.core.bridge_errors import BridgeError
 
 class CursorBridge(BaseBridge):
     def __init__(self, exe_path="dreamos/bridge_clients/CursorBridge/bin/Debug/net8.0/CursorBridge.exe"):
