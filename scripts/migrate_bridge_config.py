@@ -15,7 +15,7 @@ from pathlib import Path
 project_root = Path(__file__).parent.parent
 sys.path.append(str(project_root))
 
-from dreamos.core.config.config_manager import ConfigManager
+from dreamos.core.config.unified_config import ConfigManager
 
 logger = logging.getLogger(__name__)
 

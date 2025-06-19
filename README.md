@@ -128,7 +128,7 @@ The central control unit that coordinates all system components:
   - Specialized communication channel for Captain-agent interactions
   - High-priority message routing
 
-### 3. Task Management (`dreamos.core.tasks.task_manager`)
+### 3. Task Management (`dreamos.core.task_manager`)
 - **TaskManager**: Handles task creation, assignment, and tracking
   - Supports task priorities and dependencies
   - Maintains task history and status
@@ -136,7 +136,7 @@ The central control unit that coordinates all system components:
 
 Example task creation:
 ```python
-from dreamos.core.tasks.task_manager import TaskManager
+from dreamos.core.task_manager import TaskManager
 
 tm = TaskManager()
 task_id = tm.create_task(

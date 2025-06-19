@@ -11,7 +11,6 @@ from . import move_tests
 from . import prune_dead_files
 from . import reorg_tests
 from . import run_tests
-from . import test_bridge_loop
 
 __all__ = [
     'analyze_test_dirs',
@@ -24,5 +23,4 @@ __all__ = [
     'prune_dead_files',
     'reorg_tests',
     'run_tests',
-    'test_bridge_loop',
 ]

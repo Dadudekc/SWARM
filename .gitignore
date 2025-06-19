@@ -139,7 +139,6 @@ test_*.pid
 dreamos/
 
 # Legacy directories (to be removed after consolidation)
-dreamos/reports/
 dreamos/social/
 dreamos/logs/
 dreamos/config/

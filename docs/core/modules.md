@@ -95,10 +95,7 @@ dreamos/core/ui/
 
 ### 4. Task Management
 ```
-dreamos/core/tasks/
-├── manager.py           # Task orchestration
-├── scheduler.py         # Task scheduling
-└── monitoring.py        # Task monitoring
+dreamos/core/task_manager.py  # Task orchestration
 ```
 
 #### Current Responsibilities:

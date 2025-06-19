@@ -1,6 +1,6 @@
 using System;
 
-namespace CursorBridge.bridge;
+namespace CursorBridge;
 
 public class ResponseExtractor
 {

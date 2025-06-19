@@ -1,6 +1,6 @@
 ﻿using System;
 using System.IO;
-using CursorBridge.bridge;
+using CursorBridge;
 
 namespace CursorBridge;
 
