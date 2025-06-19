@@ -15,7 +15,7 @@ if (Test-Path $venvPath) {
 
 # Run tests
 Write-Host "🧪 Running quick test suite..."
-python "$rootDir\scripts\run_tests.py" `
+python "$rootDir\run_tests.py" `
     --category unit `
     --coverage `
     --parallel `
