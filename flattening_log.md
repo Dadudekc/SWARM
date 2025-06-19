@@ -19,3 +19,10 @@ This log summarizes structural changes applied to simplify the repository layout
   imports. The `dreamos.core.errors` package now re-exports this module.
 - Collapsed `nlp/keyword_extract.py` to `keyword_extract.py` and updated
   `dreamscribe` to import from the new path.
+
+## tools
+- Moved `tools/swarm/scanner/core/scanner.py` to `tools/swarm/scanner.py` and removed the empty `core` package.
+- Moved `tools/bridge/watchers/reply_handoff_watcher.py` to `tools/bridge/reply_handoff_watcher.py`.
+
+## repository cleanup
+- Relocated `errors/invalid.json` to `tests/fixtures/invalid.json` and removed the obsolete `errors/` folder.
