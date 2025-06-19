@@ -1,0 +1,1 @@
+Dream.OS showcases Victor's ability to build a modular Python framework for autonomous agents. It demonstrates orchestrating messaging, memory, and external integrations like ChatGPT and Discord, all backed by documentation and a test harness. In interviews, emphasize the architectural focus on agent coordination and the clean separation of components.
