@@ -23,34 +23,34 @@ tests/
 
 ```bash
 # Run all tests
-python scripts/run_tests.py
+python run_tests.py
 
 # Run specific categories
-python scripts/run_tests.py --category unit
-python scripts/run_tests.py --category integration
-python scripts/run_tests.py --category core
+python run_tests.py --category unit
+python run_tests.py --category integration
+python run_tests.py --category core
 
 # Run specific core modules
-python scripts/run_tests.py --category core --module messaging
-python scripts/run_tests.py --category core --module utils
-python scripts/run_tests.py --category core --module security
+python run_tests.py --category core --module messaging
+python run_tests.py --category core --module utils
+python run_tests.py --category core --module security
 ```
 
 ### Advanced Options
 
 ```bash
 # Run with coverage report
-python scripts/run_tests.py --coverage
+python run_tests.py --coverage
 
 # Run tests in parallel
-python scripts/run_tests.py --parallel
+python run_tests.py --parallel
 
 # Run in CI mode (strict checks)
-python scripts/run_tests.py --ci
+python run_tests.py --ci
 
 # Filter by tags
-python scripts/run_tests.py --tag critical
-python scripts/run_tests.py --notag slow
+python run_tests.py --tag critical
+python run_tests.py --notag slow
 ```
 
 ## 📝 Writing Tests
@@ -110,7 +110,7 @@ The test runner supports CI mode with:
 
 ```bash
 # CI mode with coverage
-python scripts/run_tests.py --ci --coverage
+python run_tests.py --ci --coverage
 ```
 
 ## 📊 Coverage Requirements
@@ -151,7 +151,7 @@ This will:
 
 1. Use `-v` for verbose output:
    ```bash
-   python scripts/run_tests.py -v
+   python run_tests.py -v
    ```
 
 2. Check test results in `test_results/`

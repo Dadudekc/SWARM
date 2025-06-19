@@ -30,19 +30,19 @@ tests/
 2. Run tests:
    ```bash
    # Run all tests
-   python tools/run_tests.py
+   python run_tests.py
 
    # Run specific test
-   python tools/run_tests.py tests/some_module/test_example.py::test_case
+   python run_tests.py tests/some_module/test_example.py::test_case
 
    # Run overnight tests
    python tools/run_overnight_tests.py
 
    # Run with coverage
-   python tools/run_tests.py --cov
+   python run_tests.py --cov
 
    # Run performance tests
-   python tools/run_tests.py --performance
+   python run_tests.py --performance
    ```
 
 ## Test Types

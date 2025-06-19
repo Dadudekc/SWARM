@@ -72,9 +72,8 @@ agent_responses/
 episodes/
 messages/
 templates/
-runtime/
-!runtime/test_prompts/
-!runtime/test_prompts/TEST_AND_DEBUG_AUTONOMY.yaml
+runtime/*
+!runtime/TEST_AND_DEBUG_AUTONOMY.yaml
 
 # Development tools
 tools/*.log
