@@ -18,7 +18,6 @@ import time
 from pathlib import Path
 from typing import Optional
 
-import undetected_chromedriver as uc
 from selenium.webdriver.common.by import By
 from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support.ui import WebDriverWait
@@ -65,6 +64,7 @@ class OpenAIClient:  # noqa: D101 – external API wrapper
 
     def _create_driver(self):
         """Return a configured *undetected_chromedriver* instance."""
+        import undetected_chromedriver as uc
         try:
             from webdriver_manager.chrome import ChromeDriverManager  # type: ignore
         except ImportError as exc:  # pragma: no cover

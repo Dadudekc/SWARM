@@ -12,6 +12,7 @@ from pathlib import Path
 import pyautogui
 import keyboard
 from typing import Dict, Tuple, Optional
+import argparse
 
 from dreamos.core.coordinate_utils import load_coordinates, validate_coordinates
 
@@ -22,7 +23,7 @@ logging.basicConfig(
 )
 logger = logging.getLogger(__name__)
 
-CONFIG_PATH = "config/cursor_agent_coords.json"
+DEFAULT_CONFIG_PATH = "config/cursor_agent_coords.json"
 AGENT_LIST = [
     "Agent-5", "Agent-6", "Agent-7", "Agent-8"
 ]
@@ -128,17 +129,37 @@ def validate_unique_coordinates(coords: Dict) -> bool:
 
 def main():
     """Run the calibration process."""
+    parser = argparse.ArgumentParser(description="Calibrate agent coordinates.")
+    parser.add_argument("--config", default=DEFAULT_CONFIG_PATH, help="Path to the coordinates config file.")
+    parser.add_argument("--agent", help="Calibrate a single agent (e.g., 'Agent-1').")
+    parser.add_argument("--range", help="Calibrate a range of agents (e.g., '5-8').")
+    args = parser.parse_args()
+
+    agents_to_calibrate = []
+    if args.agent:
+        agents_to_calibrate.append(args.agent)
+    elif args.range:
+        try:
+            start, end = map(int, args.range.split('-'))
+            for i in range(start, end + 1):
+                agents_to_calibrate.append(f"Agent-{i}")
+        except ValueError:
+            logger.error("Invalid range format. Please use 'start-end' (e.g., '5-8').")
+            return
+    else:
+        agents_to_calibrate = AGENT_LIST
+
     try:
         # Load existing coordinates if available
-        coords = load_coordinates(CONFIG_PATH)
+        coords = load_coordinates(args.config)
         if coords:
-            logger.info(f"Loaded existing coordinates for {len(coords)} agents")
+            logger.info(f"Loaded existing coordinates for {len(coords)} agents from {args.config}")
         else:
             coords = {}
-            logger.info("No existing coordinates found, starting fresh")
+            logger.info(f"No existing coordinates found at {args.config}, starting fresh")
         
         # Calibrate each agent
-        for agent_id in AGENT_LIST:
+        for agent_id in agents_to_calibrate:
             logger.info(f"\n--- Calibrating {agent_id} ---")
             coords[agent_id] = {}
             
@@ -179,7 +200,7 @@ def main():
                 return
         
         # Save coordinates
-        config_path = Path(CONFIG_PATH)
+        config_path = Path(args.config)
         config_path.parent.mkdir(parents=True, exist_ok=True)
         
         # Create backup of existing file

@@ -19,6 +19,7 @@ configured so callers never crash in dev environments:
 
 from __future__ import annotations
 
+# stdlib imports
 import asyncio
 import logging
 import re
@@ -26,11 +27,72 @@ from typing import Final, Optional
 from pathlib import Path
 import json
 
-from dreamos.discord import DISCORD_WEBHOOKS
-from dreamos.discord.client import post as _post_to_discord
-
-
+# Initialise logger *before* any other project imports so it's available during
+# fallback handling.
 logger = logging.getLogger(__name__)
+
+# Deferred import to avoid circular issues when dreamos.discord.client depends
+# on discord.py which may indirectly import this module again.
+from dreamos.discord import DISCORD_WEBHOOKS, DiscordEvent, Level, make_event
+
+# -----------------------------------------------------------------------------------------
+# Network poster selection with graceful degradation
+# -----------------------------------------------------------------------------------------
+# 1. Try heavyweight *discord.py* async helper first (rich embed support).
+# 2. If unavailable, wrap the lightweight synchronous webhook helper from
+#    dreamos.discord.webhooks into an *async* shim so the public contract stays
+#    unchanged for existing call-sites and unit-tests that *await* it.
+# 3. As a last resort we fall back to stdout – tests rely on this path when no
+#    network layer is patched.
+# -----------------------------------------------------------------------------------------
+
+from functools import partial
+from typing import Any
+
+try:
+    # Primary – requires discord.py & aiohttp
+    from dreamos.discord.client import post as _post_to_discord  # type: ignore[assignment]
+except Exception as _imp_exc:  # noqa: BLE001 – optional dependency missing
+    _post_to_discord = None  # type: ignore[assignment]
+
+    try:
+        # Secondary – lightweight synchronous helper (requests based)
+        import asyncio
+        import requests  # heavy but ubiquitous; already an indirect project dep
+
+        from dreamos.discord.webhooks import send_discord_message as _sync_send  # type: ignore
+
+        async def _post_to_discord(  # type: ignore[override]
+            url: str,
+            *,
+            content: str = "",
+            embeds: list[Any] | None = None,
+        ) -> bool:
+            """Async shim that POSTS raw JSON via *requests* in a thread pool."""
+
+            payload: dict[str, Any] = {"content": content}
+            if embeds:
+                payload["embeds"] = embeds
+
+            loop = asyncio.get_running_loop()
+            return await loop.run_in_executor(None, partial(_sync_send_raw, url, payload))
+
+        def _sync_send_raw(target_url: str, payload: dict[str, Any]) -> bool:  # noqa: D401, ANN001
+            try:
+                resp = requests.post(target_url, json=payload, timeout=5)
+                return resp.status_code in (200, 204)
+            except Exception:
+                return False
+
+        logger.info("[agent_tools.discord] Using lightweight webhook poster (requests).")
+
+    except Exception as _fallback_exc:  # pragma: no cover – should rarely trigger
+        logger.warning(
+            "[agent_tools.discord] Falling back to stdout – network helper import failed: %s | %s",
+            _imp_exc,
+            _fallback_exc,
+        )
+        _post_to_discord = None  # type: ignore[assignment]
 
 __all__: list[str] = [
     "post_status",
@@ -108,6 +170,10 @@ def _resolve_webhook(agent_name: str, channel: int | None = None) -> str:
 async def _apost_content(url: str, *, content: str) -> bool:
     """Async wrapper with simple retry/backoff (max 3 tries) for *content* only."""
 
+    if _post_to_discord is None:
+        logger.info("[DISCORD-FALLBACK stdout] %s: %s", url[:20] + "…", content)
+        return True
+
     for attempt in range(1, _MAX_RETRIES + 1):
         ok = await _post_to_discord(url, content=content)
         if ok:
@@ -119,6 +185,10 @@ async def _apost_content(url: str, *, content: str) -> bool:
 async def _apost_embed(url: str, *, embed) -> bool:  # noqa: ANN001 – *discord.Embed*
     """Async wrapper with retries for *embed* payloads."""
 
+    if _post_to_discord is None:
+        logger.info("[DISCORD-FALLBACK stdout] %s EMBED", url[:20] + "…")
+        return True
+
     for attempt in range(1, _MAX_RETRIES + 1):
         ok = await _post_to_discord(url, embeds=[embed])
         if ok:
@@ -127,29 +197,48 @@ async def _apost_embed(url: str, *, embed) -> bool:  # noqa: ANN001 – *discord
     return False
 
 
-def _build_embed(agent_name: str, payload: dict) -> "discord.Embed":  # noqa: D401
-    """Return *discord.Embed* built from *payload* dict.
+def _build_embed(agent_name: str, payload: dict):  # noqa: D401, ANN001
+    """Return embed representation suitable for the active network poster.
 
-    Supported keys:
-        title (str) – embed title
-        description (str) – optional main body
-        fields (list[dict]) – each mapping must have *name*, *value* and
-            optional *inline* boolean.
-        colour / color (int | str) – discord.Colour value or int hex.
+    • If ``discord.py`` is present we leverage :class:`discord.Embed` for rich
+      colouring etc.
+    • Otherwise we fall back to a plain *dict* matching Discord's raw JSON
+      schema so the lightweight poster can still send it.
     """
 
-    import discord  # local import to avoid heavy dependency at module import
+    from typing import Any
 
+    try:
+        import discord  # noqa: WPS433 – optional heavy import
+    except ModuleNotFoundError:
+        # ---------------------------- JSON dict path ----------------------------
+        title = str(payload.get("title", f"Update from {agent_name}"))
+        description = payload.get("description", "")
+
+        default_colour = 0x2ecc71
+        if any(str(f.get("value", "")).startswith("❌") for f in payload.get("fields", [])):
+            default_colour = 0xe74c3c
+
+        colour = payload.get("colour", payload.get("color", default_colour))
+        if isinstance(colour, str) and colour.startswith("#"):
+            colour = int(colour[1:], 16)
+
+        return {
+            "title": title,
+            "description": description,
+            "fields": payload.get("fields", []),
+            "color": colour,
+        }
+
+    # ---------------------------- discord.py path -----------------------------
     title = str(payload.get("title", f"Update from {agent_name}"))
     description = payload.get("description")
 
-    # Default colour green (success) unless explicit or failed status found
-    default_colour = 0x2ecc71  # green
+    default_colour = 0x2ecc71
     if any(str(f.get("value", "")).startswith("❌") for f in payload.get("fields", [])):
-        default_colour = 0xe74c3c  # red
+        default_colour = 0xe74c3c
 
     colour = payload.get("colour", payload.get("color", default_colour))
-    # If colour is str like "#aabbcc" convert to int
     if isinstance(colour, str) and colour.startswith("#"):
         colour = int(colour[1:], 16)
 
@@ -161,12 +250,29 @@ def _build_embed(agent_name: str, payload: dict) -> "discord.Embed":  # noqa: D4
     return embed
 
 
-def post_status(agent_name: str, message, *, channel: Optional[int] = None) -> bool:  # noqa: D401, ANN001
-    """Post *message* to Discord.
+def post_status(
+    agent_name: str,
+    message: str | DiscordEvent | dict,
+    *,
+    channel: int | None = None,
+    title: str | None = None,
+    footer: str | None = None,
+    level: Level = "info",
+) -> bool:  # noqa: D401, ANN001
+    """Send a status update to Discord (or stdout fallback).
 
-    *message* may be either a *str* (simple content) **or** a *dict* describing
-    an embed.  Structured payloads enable richer formatting without requiring
-    callers to know Discord's embed API.
+    Parameters
+    ----------
+    agent_name
+        Source agent (used for webhook inference).
+    message
+        Either:
+          • *str* – plain content (will be wrapped into an embed automatically).
+          • *DiscordEvent* or *dict* compatible with :class:`DiscordEvent`.
+    title / footer / level
+        Convenience shortcuts when *message* is plain text.
+    channel
+        Explicit channel override (1‒9) – skips inference.
     """
 
     url = _resolve_webhook(agent_name, channel)
@@ -174,18 +280,31 @@ def post_status(agent_name: str, message, *, channel: Optional[int] = None) -> b
         logger.info("[DISCORD-FALLBACK stdout] %s: %s", agent_name, message)
         return True
 
-    if isinstance(message, str):
-        async def _runner() -> bool:  # noqa: D401 – nested coroutine
-            content = f"**{agent_name}** – {message}"
-            return await _apost_content(url, content=content)
-    elif isinstance(message, dict):
-        embed = _build_embed(agent_name, message)
+    # ---------------------------- build embed -----------------------------
+    payload: dict
 
-        async def _runner() -> bool:  # noqa: D401
-            return await _apost_embed(url, embed=embed)
+    if isinstance(message, str):
+        # Wrap plain string into standard DiscordEvent first.
+        ev: DiscordEvent = make_event(
+            title=title or f"Update from {agent_name}",
+            body=message,
+            level=level,
+            agent=agent_name,
+        )
+        payload = _event_to_payload(ev, footer)
+
+    elif isinstance(message, dict):
+        # Dict may be raw DiscordEvent or legacy embed spec – we'll accept both.
+        payload = _event_to_payload(message, footer)
+
     else:  # pragma: no cover – unsupported type
         logger.error("post_status(): unsupported message type %s", type(message))
         return False
+
+    embed = _build_embed(agent_name, payload)
+
+    async def _runner() -> bool:  # noqa: D401 – nested coroutine
+        return await _apost_embed(url, embed=embed)
 
     try:
         # If inside an existing event loop schedule a task instead of blocking.
@@ -197,4 +316,42 @@ def post_status(agent_name: str, message, *, channel: Optional[int] = None) -> b
         # No running loop – we'll create one below
         pass
 
-    return asyncio.run(_runner()) 
+    return asyncio.run(_runner())
+
+
+# ---------------------------------------------------------------------------
+# Helper: map DiscordEvent → _build_embed payload spec
+# ---------------------------------------------------------------------------
+
+
+_LEVEL_COLOURS: dict[str, int] = {
+    "info": 0x3498DB,   # blue
+    "warn": 0xF1C40F,   # yellow
+    "error": 0xE74C3C,  # red
+}
+
+
+def _event_to_payload(event: dict, footer: str | None = None) -> dict:  # noqa: D401, ANN001
+    """Convert *DiscordEvent*-like dict into old embed builder payload format."""
+
+    # Detect keys; if already in embed format just return.
+    if "fields" in event or "description" in event:
+        return event
+
+    title = event.get("title", "Update")
+    body = event.get("body", "")
+    level = event.get("level", "info")
+    tags = event.get("tags", [])
+
+    description_parts = [body]
+    if tags:
+        description_parts.append("\n" + " ".join(f"#{t}" for t in tags))
+    if footer:
+        description_parts.append("\n" + footer)
+
+    return {
+        "title": title,
+        "description": "\n".join(description_parts),
+        "fields": [],
+        "colour": _LEVEL_COLOURS.get(level, 0x2ECC71),
+    } 

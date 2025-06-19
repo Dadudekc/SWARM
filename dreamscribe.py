@@ -18,6 +18,8 @@ LOGGER = get_logger(__name__)
 LOG_PATH = Path("runtime/dreamscape_log.jsonl")
 DEVLOG_ROOT = Path("runtime/devlog/agents")
 LORE_PATH = Path(".memory/lore.jsonl")
+# New unified dreamscape log for narrative events (Phase-2)
+DREAMSCAPE_LOG_PATH = Path("memory/dreamscape_log.jsonl")
 
 
 def _extract_latest(devlog_path: Path) -> Optional[Dict[str, str]]:
@@ -50,17 +52,26 @@ def _sentiment(text: str) -> str:
     return "neutral"
 
 
+def _append_jsonl(path: Path, record: dict) -> None:  # noqa: D401
+    """Helper to append *record* as one-line JSON to *path*.
+
+    Ensures parent directories exist and is resilient to Unicode issues.
+    """
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        with path.open("a", encoding="utf-8") as fh:
+            fh.write(json.dumps(record, ensure_ascii=False) + "\n")
+    except Exception as exc:  # pragma: no cover – log but never crash tests
+        LOGGER.error("Failed to append dreamscape record to %s: %s", path, exc)
+
+
 def _append_event(event: Dict[str, str]) -> None:
-    LOG_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with LOG_PATH.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(event) + "\n")
+    _append_jsonl(LOG_PATH, event)
 
 
 def _append_lore(record: Dict[str, str]) -> None:
     """Persist narrative fragments for long-term lore."""
-    LORE_PATH.parent.mkdir(parents=True, exist_ok=True)
-    with LORE_PATH.open("a", encoding="utf-8") as f:
-        f.write(json.dumps(record) + "\n")
+    _append_jsonl(LORE_PATH, record)
 
 
 def process_devlog(agent_id: str, devlog_path: Path, scribe: Dreamscribe) -> None:
@@ -122,3 +133,32 @@ def main() -> None:
 
 if __name__ == "__main__":
     main()
+
+# ---------------------------------------------------------------------------
+# Public logging API (Phase-2)
+# ---------------------------------------------------------------------------
+
+
+def log(agent: str, *, event: str = "lore", message: str) -> None:  # noqa: D401
+    """Append a Dreamscape event.
+
+    This lightweight utility is safe to import from any context (GUI, agent
+    runtime, notebooks). It adds the *record* to the phase-2 unified
+    ``memory/dreamscape_log.jsonl`` store and mirrors ``lore`` events to the
+    legacy ``.memory/lore.jsonl`` file for backward compatibility.
+    """
+
+    record = {
+        "timestamp": datetime.utcnow().isoformat(),
+        "agent": agent,
+        "event": event,
+        "message": message,
+    }
+
+    _append_jsonl(DREAMSCAPE_LOG_PATH, record)
+
+    # For transition period keep lore-v1 sink in sync
+    if event == "lore":
+        _append_jsonl(LORE_PATH, record)
+
+    LOGGER.debug("Logged Dreamscape event: %s", record)

@@ -80,4 +80,30 @@ debug log <level>      # Set log level
 2. Return to [Core Guide](01_agent_core.md)
 3. Study [Advanced Topics](04_advanced_topics.md)
 
-Remember: Your ability to reuse code and prevent duplication is crucial to the network's success. Always check for existing solutions before implementing new ones. 
+Remember: Your ability to reuse code and prevent duplication is crucial to the network's success. Always check for existing solutions before implementing new ones.
+
+### Discord Event Schema (v2)
+
+All scripts should construct **DiscordEvent** payloads before handing them to
+`agent_tools.discord.post_status()`.  The helper accepts plain strings too, but
+using the schema unlocks richer embeds and future automation.
+
+```py
+from dreamos.discord.events import make_event
+from agent_tools.discord import post_status
+
+ev = make_event(title="Task Completed", body="Parser refactor merged", level="info", agent="Agent-2")
+post_status("Agent-2", ev)
+```
+
+Field reference:
+| key       | type                 | notes                                   |
+|-----------|----------------------|-----------------------------------------|
+| title     | str                  | Embed title                             |
+| body      | str                  | Main content (markdown ok)              |
+| tags      | list[str]            | Optional hashtags / metadata            |
+| level     | "info"\|"warn"\|"error" | Controls embed colour                 |
+| timestamp | str (ISO-8601 UTC)   | Auto-filled by `make_event()`           |
+| agent     | str                  | Source identifier (optional)            |
+
+> Colour map: info → blue, warn → yellow, error → red 

@@ -40,6 +40,15 @@ class ChatCycleController:
         self.archive_enabled = self.config.get("archive_enabled", True)
 
         self.driver_manager = driver_manager or DriverManager()
+        # EDIT START – ensure driver is ready at construction time for better failure semantics
+        # Attempt to initialise the WebDriver immediately.  This aligns runtime behaviour with
+        # unit-tests that expect a *RuntimeError* if the driver cannot be created (see
+        # *tests/core/bridge/test_driver_binding.py*).  It also guarantees that *driver* is
+        # available for the scraper/executor wiring just below.
+        _driver = self.driver_manager.setup()
+        if _driver is None:
+            raise RuntimeError("DriverManager.setup() returned None; unable to continue initialisation.")
+        # EDIT END
         self.scraper = chat_scraper or ChatScraperService(
             self.driver_manager,
             exclusions=self.config.get("excluded_chats", []),
@@ -75,7 +84,10 @@ class ChatCycleController:
     def start(self) -> None:
         logger.info("🚀 Starting chat cycle controller...")
         self.append_output("🚀 Chat cycle starting...")
-        self.driver_manager.setup()
+        # EDIT START – avoid re-initialising the driver if we already did so in __init__
+        if self.driver_manager.driver is None:
+            self.driver_manager.setup()
+        # EDIT END
         if not self.scraper.validate_login():
             self.scraper.manual_login_flow()
 

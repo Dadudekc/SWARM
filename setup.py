@@ -28,6 +28,7 @@ setup(
     entry_points={
         'console_scripts': [
             'dreamos-menu=run_menu:main',
+            "resume-agents = dreamos.cli.resume:main",
         ],
     },
     python_requires=">=3.8",

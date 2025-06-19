@@ -14,12 +14,14 @@ from typing import Dict, Optional
 logger = logging.getLogger(__name__)
 
 class AgentResumer:
-    def __init__(self, base_dir: str = "config/agent_comms"):
+    def __init__(self, base_dir: str | None = None):
         """Initialize the agent resumer system.
         
         Args:
             base_dir: Base directory for agent communications
         """
+        if base_dir is None:
+            base_dir = os.getenv("AGENT_COMMS_DIR", "agent_tools/mailbox")
         self.base_dir = Path(base_dir)
         self.agent_status_file = self.base_dir / "agent_status.json"
         self.working_tasks_file = self.base_dir / "working_tasks.json"

@@ -353,3 +353,53 @@ class CaptainPhone(CellPhone):
         except Exception as e:
             self.logger.error(f"Error broadcasting message: {e}")
             return False 
+
+# ---------------------------------------------------------------------------
+# Public convenience wrapper (sync) – requested by TASK-DEMO-CHAT-RELAY-002
+# ---------------------------------------------------------------------------
+
+
+def send_cell_message(
+    to_agent: str,
+    content: str,
+    *,
+    from_agent: str = "system",
+    discord: bool = False,
+    discord_channel: int | None = 1,
+) -> bool:  # noqa: D401
+    """Synchronous helper to send cellphone message and optionally relay to Discord.
+
+    This is a thin wrapper over the *async* :pyfunc:`send_message` coroutine so
+    CI and simple scripts can fire-and-forget without creating an event loop.
+
+    Args:
+        to_agent: Target agent name (e.g. "Agent-4").
+        content: Message text.
+        from_agent: Sender identifier (defaults to "system").
+        discord: When *True* will post an embed via
+            :pymeth:`dreamos.social.discord_webhooks.send_discord_message`.
+        discord_channel: Channel ID to post to (ignored if *discord* is *False*).
+
+    Returns:
+        *True* on success, *False* otherwise.
+    """
+
+    import asyncio
+
+    success: bool = asyncio.run(send_message(to_agent, content, from_agent=from_agent))
+
+    if success and discord:
+        try:
+            from datetime import datetime  # local import avoids heavy deps when not needed
+            from dreamos.social.discord_webhooks import send_discord_message  # type: ignore
+
+            embed = {
+                "title": f"{from_agent} ➜ {to_agent}",
+                "description": content,
+                "timestamp": datetime.utcnow().isoformat(),
+            }
+            send_discord_message(embed, channel=discord_channel)
+        except Exception as exc:  # pragma: no cover – relay issues must not break core
+            logger.warning("Failed Discord relay for cellphone message: %s", exc)
+
+    return success 

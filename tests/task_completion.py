@@ -9,14 +9,15 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
+# Legacy path (compatibility shim)
 from dreamos.core.autonomy.task_completion import (
     TaskCompletionHook,
     TaskCompletionManager,
     on_task_complete,
     TASK_TAGS,
-    TaskCompletionStatus,
-    TaskCompletionError
 )
+
+from types import SimpleNamespace
 
 @pytest.fixture
 def temp_config():
@@ -37,23 +38,29 @@ def temp_config():
         yield f.name
     os.unlink(f.name)
 
-@pytest.fixture
-def mock_discord_devlog():
-    """Create a mock DiscordDevlog instance."""
-    mock = AsyncMock()
-    mock.update_devlog.return_value = True
-    return mock
+@pytest.fixture()
+def _post_status_spy(monkeypatch):
+    """Intercept agent_tools.discord.post_status and record calls."""
 
-@pytest.fixture
-def task_completion_hook(mock_discord_devlog):
-    """Create a TaskCompletionHook instance with mocked dependencies."""
-    with patch('dreamos.core.autonomy.task_completion.DiscordDevlog', return_value=mock_discord_devlog):
-        hook = TaskCompletionHook(
-            agent_id="Agent-1",
-            webhook_url="https://discord.com/api/webhooks/test",
-            footer="Test Footer"
-        )
-        yield hook
+    calls = SimpleNamespace(args=None, kwargs=None)
+
+    def _fake(agent_name, payload, **kwargs):  # noqa: D401, ANN001
+        calls.args = (agent_name, payload)
+        calls.kwargs = kwargs
+        return True
+
+    monkeypatch.setattr("agent_tools.discord.post_status", _fake)
+    return calls
+
+@pytest.fixture()
+def task_completion_hook():
+    """Create TaskCompletionHook with no DiscordDevlog dependency anymore."""
+
+    return TaskCompletionHook(
+        agent_id="Agent-1",
+        webhook_url="https://discord.com/api/webhooks/test",
+        footer="Test Footer",
+    )
 
 class TestTaskCompletionHook:
     """Test the TaskCompletionHook class."""
@@ -148,7 +155,7 @@ class TestTaskCompletionHook:
         assert "#agent-2" in summary
     
     @pytest.mark.asyncio
-    async def test_on_task_complete(self, task_completion_hook, tempfile):
+    async def test_on_task_complete(self, task_completion_hook, _post_status_spy, tempfile):
         """Test task completion handling."""
         task = {
             'title': 'Test Task',
@@ -158,30 +165,25 @@ class TestTaskCompletionHook:
             'type': 'feature'
         }
         
-        # Mock the devlog file
-        with patch('pathlib.Path.mkdir') as mock_mkdir, \
-             patch('builtins.open', tempfile.NamedTemporaryFile(mode='w')) as mock_file:
-            
-            success = await task_completion_hook.on_task_complete(task)
-            
-            assert success
-            task_completion_hook.discord_devlog.update_devlog.assert_called_once()
-            
-            # Verify Discord update parameters
-            call_args = task_completion_hook.discord_devlog.update_devlog.call_args[1]
-            assert "Test Task" in call_args['title']
-            assert "Working with @Agent-2" in call_args['content']
-            assert call_args['memory_state']['status'] == 'done'
-            assert call_args['memory_state']['type'] == 'feature'
-            assert "Agent-2" in call_args['memory_state']['mentioned_agents']
+        success = await task_completion_hook.on_task_complete(task)
+        
+        assert success
+
+        # post_status should have been called exactly once
+        assert _post_status_spy.args is not None
+
+        agent_arg, payload_arg = _post_status_spy.args
+        assert agent_arg == "Agent-1"
+        assert payload_arg["title"].startswith("Task Completed")
+        assert "Working with @Agent-2" in payload_arg["description"]
     
     @pytest.mark.asyncio
-    async def test_on_task_complete_failure(self, task_completion_hook):
+    async def test_on_task_complete_failure(self, task_completion_hook, monkeypatch):
         """Test task completion handling with Discord failure."""
         task = {'title': 'Test Task'}
         
-        # Mock Discord failure
-        task_completion_hook.discord_devlog.update_devlog.return_value = False
+        # Patch post_status to fail
+        monkeypatch.setattr("agent_tools.discord.post_status", lambda *a, **k: False)
         
         success = await task_completion_hook.on_task_complete(task)
         assert not success
