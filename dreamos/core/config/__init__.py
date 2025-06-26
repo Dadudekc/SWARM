@@ -2,9 +2,11 @@
 # DO NOT EDIT MANUALLY - changes may be overwritten
 
 from . import bridge_config
-from .config_manager import ConfigManager
+from .unified_config import ConfigManager, ConfigSection, UnifiedConfigManager
 
 __all__ = [
     'bridge_config',
     'ConfigManager',
+    'ConfigSection',
+    'UnifiedConfigManager',
 ]
