@@ -45,18 +45,22 @@ Dream.OS is a swarm‑driven AI platform where multiple autonomous agents coordi
 - Implementing advanced machine learning models within this repository
 
 ## Milestones
-1. **MVP Agent Framework**
+1. **MVP Agent Framework** *(complete)*
    - Basic agent lifecycle management
    - Messaging infrastructure and logging
-2. **Discord Control Interface**
+2. **Discord Control Interface** *(complete)*
    - Commands for listing agents, sending messages, and monitoring status
    - Logging summaries via Discord
-3. **Social Modules**
+3. **Social Modules** *(complete)*
    - Integrate social media posting flows
    - Provide configuration files and tests
-4. **Enhanced Monitoring**
+4. **Enhanced Monitoring** *(complete)*
    - GUI dashboard and extended metrics collection
    - Alerting and recovery guides
+5. **Scalability & Hardening**
+   - Containerize agents with Docker
+   - Setup metrics endpoint and Grafana dashboard
+   - Apply security hardening and sandboxing
 
 ## Success Metrics
 - Agents can run continuously with minimal manual intervention

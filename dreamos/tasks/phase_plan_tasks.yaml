@@ -2,19 +2,41 @@
   assigned_to: agent-1
   phase: Foundational Multi-Agent Core
   objective: Solidify lifecycle controls and memory recall
+  status: completed
 - task: INTEGRATE-DISCORD-CONTROL-INTERFACE-002
   assigned_to: agent-3
   phase: Bridge & Discord Command Layer
   objective: Enable agent control via Discord commands
+  status: completed
 - task: BUILD-WORKFLOW-MODULES-003
   assigned_to: agent-5
   phase: Workflow Modules & Proprietary Loops
   objective: Ship initial content and trading modules
+  status: completed
 - task: CREATE-LORE-ENGINE-004
   assigned_to: agent-7
   phase: Lore Creation & Memory Ecosystem
   objective: Store narrative fragments as lore for decision making
+  status: completed
 - task: COMMUNITY-DEPLOYMENT-005
   assigned_to: agent-2
   phase: Self-Growing Community Platform
   objective: Allow users to spin up their own Dream.OS instances
+  status: completed
+
+# Phase 3 Sprint Tasks
+- task: CONTAINERIZE-AGENTS-001
+  assigned_to: agent-4
+  phase: Scalability & Hardening
+  objective: Package agents into Docker containers
+  status: active
+- task: SETUP-METRICS-DASHBOARD-002
+  assigned_to: agent-6
+  phase: Scalability & Hardening
+  objective: Provide Grafana dashboard backed by log metrics
+  status: active
+- task: SECURITY-HARDENING-003
+  assigned_to: agent-8
+  phase: Scalability & Hardening
+  objective: Implement file permission lockdowns and sandboxing
+  status: active
