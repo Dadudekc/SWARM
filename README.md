@@ -52,16 +52,16 @@ Dream.OS seeks to be a comprehensive operating system for AI agents. Our primary
 
 ## Development Roadmap
 
-The project is progressing through several planned phases. We are currently in **Phase 2 – Feature Expansion**.
+The project is progressing through several planned phases. We are currently in **Phase 3 – Scalability & Hardening**.
 
 1. **Phase 1 – Core Architecture (complete)**
    - Implemented agent lifecycle management, unified messaging and basic logging.
    - Introduced initial CLI and Discord tools.
-2. **Phase 2 – Feature Expansion (current)**
+2. **Phase 2 – Feature Expansion (complete)**
    - Expanding content loops.
    - Enhancing Discord and ChatGPT bridges.
    - Expanding tests and documentation.
-3. **Phase 3 – Scalability & Hardening (in progress)**
+3. **Phase 3 – Scalability & Hardening (current)**
    - Docker-based container deployment.
    - Metrics server with Grafana dashboard.
    - Hardened log file permissions.
