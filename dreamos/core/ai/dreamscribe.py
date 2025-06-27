@@ -305,4 +305,30 @@ class Dreamscribe:
                 for thread_id, memories in self.threads.items()
             ],
             "patterns": self.insight_patterns
-        } 
+        }
+
+    # ------------------------------------------------------------------
+    # New Beta API ------------------------------------------------------
+    # ------------------------------------------------------------------
+    def query_memories(
+        self,
+        agent_id: Optional[str] = None,
+        start: Optional[float] = None,
+        end: Optional[float] = None,
+        keyword: Optional[str] = None,
+    ) -> List[Dict[str, Any]]:
+        """Return memory fragments filtered by agent, time range, and keyword."""
+
+        results = []
+        for frag in self.memory_corpus.values():
+            if agent_id and frag.get("agent_id") != agent_id:
+                continue
+            if start and frag.get("timestamp", 0) < start:
+                continue
+            if end and frag.get("timestamp", 0) > end:
+                continue
+            if keyword and keyword.lower() not in frag.get("content", "").lower():
+                continue
+            results.append(frag)
+
+        return results

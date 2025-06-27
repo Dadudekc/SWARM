@@ -40,3 +40,45 @@
   phase: Scalability & Hardening
   objective: Implement file permission lockdowns and sandboxing
   status: active
+
+# Beta Readiness Sprint
+- task: VALIDATE-CONTAINER-BUILD-004
+  assigned_to: agent-4
+  phase: Scalability & Hardening
+  objective: Validate Docker builds across all agents
+  status: pending
+- task: COMPLETE-GRAFANA-DASHBOARD-005
+  assigned_to: agent-6
+  phase: Scalability & Hardening
+  objective: Finalize Grafana dashboard for metrics endpoint
+  status: pending
+- task: INGEST-DEVLOG-FAILURES-006
+  assigned_to: agent-7
+  phase: Lore Creation & Memory Ecosystem
+  objective: Import devlogs and failures via Dreamscribe
+  status: pending
+- task: LORE-QUERY-API-007
+  assigned_to: agent-7
+  phase: Lore Creation & Memory Ecosystem
+  objective: Implement query interface to surface lore
+  status: pending
+- task: LOCAL-INSTANCE-DEPLOYMENT-008
+  assigned_to: agent-2
+  phase: Self-Growing Community Platform
+  objective: Enable users to deploy Dream.OS locally or via Discord
+  status: pending
+- task: PERSISTENT-LOOPS-009
+  assigned_to: agent-5
+  phase: Self-Growing Community Platform
+  objective: Add persistent loops for code evolution and testing
+  status: pending
+- task: EXTENSION-HOOKS-010
+  assigned_to: agent-4
+  phase: Self-Growing Community Platform
+  objective: Provide extension hooks for broad domain usage
+  status: pending
+- task: BETA-TEST-SUITE-011
+  assigned_to: qa-agent
+  phase: Testing & Quality
+  objective: Run full test suite and validate new features
+  status: pending
