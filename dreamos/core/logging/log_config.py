@@ -273,6 +273,8 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
     # Create log directory if it doesn't exist
     log_dir = Path(config.log_dir or get_log_path())
     log_dir.mkdir(parents=True, exist_ok=True)
+    if os.name != "nt":
+        os.chmod(log_dir, 0o700)
     
     # Set up root logger
     root_logger = logging.getLogger()
@@ -291,6 +293,11 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
     )
     file_handler.setFormatter(logging.Formatter(config.format))
     root_logger.addHandler(file_handler)
+    if os.name != "nt":
+        try:
+            os.chmod(log_file, 0o600)
+        except OSError:
+            pass
     
     # Add console handler
     console_handler = logging.StreamHandler()
@@ -301,6 +308,8 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
     if config.metrics_enabled:
         metrics_dir = log_dir / "metrics"
         ensure_dir(metrics_dir)
+        if os.name != "nt":
+            os.chmod(metrics_dir, 0o700)
         
         metrics_logger = logging.getLogger("metrics")
         metrics_logger.setLevel(logging.INFO)
@@ -312,4 +321,9 @@ def setup_logging(config: Optional[LogConfig] = None) -> None:
             backupCount=config.backup_count
         )
         metrics_handler.setFormatter(logging.Formatter(config.format))
-        metrics_logger.addHandler(metrics_handler) 
+        metrics_logger.addHandler(metrics_handler)
+        if os.name != "nt":
+            try:
+                os.chmod(metrics_file, 0o600)
+            except OSError:
+                pass
