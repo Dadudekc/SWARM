@@ -90,4 +90,13 @@ Make sure these directories exist before running Dreamscribe.
 4. **Resource Management**
    - Clean up old memories
    - Archive inactive threads
-   - Monitor storage usage 
+   - Monitor storage usage
+
+## CLI Tools
+
+Dreamscribe includes simple command line utilities located in the `tools/` directory.
+
+- `python -m tools.devlog.ingest_devlogs` ingests all `runtime/devlog/agents/*/devlog.md`
+  files into the lore database.
+- `python tools/query_lore.py --agent agent_1 --keyword error` queries stored memories
+  with optional filters.
